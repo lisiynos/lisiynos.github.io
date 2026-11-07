@@ -102,3 +102,7 @@ ENV/
 
 # Binary files
 *.exe
+# Node / Playwright
+node_modules/
+test-results/
+playwright-report/

@@ -1,0 +1,12 @@
+{
+  "name": "lisiynos.github.io",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end Playwright tests for the lisiynos.github.io site",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}
