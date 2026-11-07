@@ -221,7 +221,7 @@ def GCD(a,b): # Функция для вычисления НОД при пом�
 
 print(GCD(264, 192)) # Выведет: 24 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм Евклида с делением для НОД: O(log(min(a, b))) делений
+<pre class="rust-code"><code class="language-rust">// Алгоритм Евклида с делением для НОД: O(log(min(a, b))) делений
 pub fn gcd(a: u64, b: u64) -&gt; u64 {
     if b == 0 {
         return a;
@@ -420,7 +420,7 @@ begin
   end;
 end.</pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Расширенный алгоритм Евклида: O(log(min(a, b))) шагов; для a, b &gt;= 0 возвращает (d, x, y),
+<pre class="rust-code"><code class="language-rust">// Расширенный алгоритм Евклида: O(log(min(a, b))) шагов; для a, b &gt;= 0 возвращает (d, x, y),
 // где d = НОД(a, b) и a*x + b*y = d
 pub fn ext_gcd(a: i64, b: i64) -&gt; (i64, i64, i64) {
     if b == 0 {
@@ -1046,7 +1046,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Разложение на простые множители пробным делением: O(sqrt(n)) делений
 // Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет u64
 
@@ -1204,7 +1204,7 @@ begin
 end.</pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Решето Эратосфена: O(n log log n) по времени, O(n) по памяти
+<pre class="rust-code"><code class="language-rust">// Решето Эратосфена: O(n log log n) по времени, O(n) по памяти
 pub fn sieve(limit: usize) -&gt; Vec&lt;usize&gt; {
     // is_prime[k] - простое ли число k; сначала считаем простыми все числа от 2
     let mut is_prime: Vec&lt;bool&gt; = (0..=limit).map(|number| number &gt;= 2).collect();

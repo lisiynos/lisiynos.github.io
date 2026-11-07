@@ -81,7 +81,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Факториал, рекурсивный способ: O(n) по времени, O(n) памяти на стек вызовов
+    <pre class="rust-code"><code class="language-rust">// Факториал, рекурсивный способ: O(n) по времени, O(n) памяти на стек вызовов
 // При n &gt; 20 результат не помещается в u64
 pub fn factorial(n: u64) -&gt; u64 {
     if n &lt;= 1 {
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Рекурсивный обратный отсчёт (стихотворение про негритят): O(n) по времени, O(n) памяти на стек вызовов
+    <pre class="rust-code"><code class="language-rust">// Рекурсивный обратный отсчёт (стихотворение про негритят): O(n) по времени, O(n) памяти на стек вызовов
 pub fn negr(k: u32, lines: &amp;mut Vec&lt;String&gt;) {
     if k == 0 {
         lines.push("Нет больше негритят!".to_string());
@@ -442,7 +442,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Разворот слова рекурсией: O(n) по времени, O(n) памяти на стек вызовов
+    <pre class="rust-code"><code class="language-rust">// Разворот слова рекурсией: O(n) по времени, O(n) памяти на стек вызовов
 pub fn reverse_word(word: &amp;str) -&gt; String {
     let chars: Vec&lt;char&gt; = word.chars().collect();
     reverse_chars(&amp;chars)
@@ -680,7 +680,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Драконова ломаная рекурсией: 2^depth отрезков, O(2^depth) по времени и памяти
+    <pre class="rust-code"><code class="language-rust">// Драконова ломаная рекурсией: 2^depth отрезков, O(2^depth) по времени и памяти
 pub type Point = (i64, i64);
 
 pub fn dragon(start: Point, end: Point, depth: u32) -&gt; Vec&lt;(Point, Point)&gt; {

@@ -121,7 +121,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+<pre class="rust-code"><code class="language-rust">// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
 pub struct Node {
     pub key: i32,
     pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+<pre class="rust-code"><code class="language-rust">// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
 pub struct Node {
     pub key: i32,
     pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
@@ -518,7 +518,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+<pre class="rust-code"><code class="language-rust">// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
 pub struct Node {
     pub key: i32,
     pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
@@ -733,7 +733,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Удаление ключа из декартова дерева (split + merge): O(log n) в среднем, где n - число вершин
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 pub struct Node { pub key: i64, pub prio: u64, pub left: Link, pub right: Link } // приоритет родителя не меньше детского
@@ -921,7 +921,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Минимум и максимум в декартовом дереве: O(h) по времени, где h - высота дерева
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 
@@ -1046,7 +1046,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Поиск ключа в декартовом дереве (как в двоичном дереве поиска): O(h) по времени, где h - высота дерева
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 
@@ -1150,7 +1150,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Высота декартова дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 

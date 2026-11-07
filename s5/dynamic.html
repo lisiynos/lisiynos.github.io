@@ -147,7 +147,7 @@ int main() {
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Замощение доминошками прямоугольника N x M, ДП по прямому профилю: O(N * M * 4^M) по времени, O(2^M) по памяти.
+<pre class="rust-code"><code class="language-rust">// Замощение доминошками прямоугольника N x M, ДП по прямому профилю: O(N * M * 4^M) по времени, O(2^M) по памяти.
 
 /// Добавляет в next маски вертикальных доминошек следующей строки при заполнении строки с маской profile.
 fn collect_next_profiles(profile: usize, width: usize, col: usize, next_profile: usize, next: &amp;mut Vec&lt;usize&gt;) {

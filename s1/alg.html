@@ -122,7 +122,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Поиск минимума в срезе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Поиск минимума в срезе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
 pub fn find_min(items: &amp;[i32]) -&gt; Option&lt;i32&gt; {
     // Первый элемент - текущий минимум; у пустого среза минимума нет
     let (&amp;first, rest) = items.split_first()?;
@@ -194,7 +194,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
 pub fn bubble_sort(items: &amp;mut [i32]) {
     for last in (1..items.len()).rev() {
@@ -273,7 +273,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
 pub type Point = (i64, i64);
 
 pub fn farthest_pair(points: &amp;[Point]) -&gt; Option&lt;(Point, Point)&gt; {
@@ -379,7 +379,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
 pub type Point = (i64, i64);
 
 // Удвоенная площадь треугольника abc: целое число, поэтому без дробей
@@ -492,7 +492,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Бинарный поиск в отсортированном срезе: O(log n) сравнений
 use std::cmp::Ordering;
 
@@ -597,7 +597,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
 pub fn quick_sort(items: &amp;mut [i32]) {
     if items.len() &lt;= 1 {

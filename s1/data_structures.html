@@ -167,7 +167,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Стек на массиве фиксированного размера: push, pop и проверка пустоты за O(1), память O(N).
+<pre class="rust-code"><code class="language-rust">// Стек на массиве фиксированного размера: push, pop и проверка пустоты за O(1), память O(N).
 pub struct ArrayStack&lt;const N: usize&gt; {
     items: [i32; N],
     top: usize, // число элементов; items[top] - первая свободная ячейка
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Очередь на кольцевом массиве: enqueue и dequeue за O(1), память O(N).
+<pre class="rust-code"><code class="language-rust">// Очередь на кольцевом массиве: enqueue и dequeue за O(1), память O(N).
 pub struct RingQueue&lt;const N: usize&gt; {
     items: [i32; N],
     head: usize, // индекс первого элемента

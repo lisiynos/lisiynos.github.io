@@ -155,7 +155,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
 // group_size - число двоичных цифр в одной цифре: 3 для восьмеричной, 4 для шестнадцатеричной
 const DIGITS: &amp;[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -311,7 +311,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
 const DIGITS: &amp;str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -415,7 +415,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
 
 // Возвращает десятичное значение записи text в системе с основанием base (от 2 до 36)
@@ -611,7 +611,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
 
 const ROMAN_TABLE: [(u32, &amp;str); 13] = [

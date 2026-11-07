@@ -86,7 +86,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Перестановка длины n по номеру k (0 &lt;= k &lt; n!) в лексикографическом порядке: O(n^2) по времени
 
 /// Номер раскладываем по факториальной системе: первый элемент - available[k / (n-1)!], далее аналогично.
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Алгоритм Евклида с вычитаниями, НОД(a, b): O(a + b) по времени, O(1) по памяти
 
 /// Пока числа не равны, из большего вычитаем меньшее; при равенстве получаем НОД.
@@ -409,7 +409,7 @@ int main() {
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм Евклида с делением: НОД(a, b) за O(log(min(a, b))) шагов.
+<pre class="rust-code"><code class="language-rust">// Алгоритм Евклида с делением: НОД(a, b) за O(log(min(a, b))) шагов.
 
 /// НОД двух неотрицательных чисел: НОД(a, b) = НОД(b, a mod b), при b = 0 ответ a.
 pub fn gcd_euclid(mut a: u64, mut b: u64) -&gt; u64 {
@@ -675,7 +675,7 @@ int main() {
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Расширенный алгоритм Евклида: НОД(a, b) и x, y с a*x + b*y = НОД(a, b); O(log(min(a, b))) по времени.
+<pre class="rust-code"><code class="language-rust">// Расширенный алгоритм Евклида: НОД(a, b) и x, y с a*x + b*y = НОД(a, b); O(log(min(a, b))) по времени.
 
 /// Возвращает (d, x, y): d = НОД(a, b) (a, b &gt;= 0) и a*x + b*y = d.
 pub fn extended_gcd(mut a: i64, mut b: i64) -&gt; (i64, i64, i64) {
@@ -1324,7 +1324,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Разложение на простые делители пробным делением: O(sqrt(n)) по времени, O(log n) по памяти
 
 /// Простые делители n с повторениями в порядке возрастания; делители перебираем до корня из n.
@@ -1527,7 +1527,7 @@ int main() {
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Решето Эратосфена: все простые числа до N, O(N log log N) по времени, O(N) по памяти.
+<pre class="rust-code"><code class="language-rust">// Решето Эратосфена: все простые числа до N, O(N log log N) по времени, O(N) по памяти.
 
 /// Простые числа от 2 до n включительно.
 pub fn primes_up_to(n: usize) -&gt; Vec&lt;usize&gt; {

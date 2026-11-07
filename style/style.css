@@ -126,7 +126,7 @@ td {
     text-decoration: underline;
 }
 
-.sh_basic, .sh_pascal, .sh_java, .sh_python, .sh_alg, .sh_cpp, .console, .algo {
+.sh_basic, .sh_pascal, .sh_java, .sh_python, .sh_alg, .sh_cpp, .rust-code, .console, .algo {
     text-align: left;
     border: 1px solid #ccc;
     margin-left: 10px;

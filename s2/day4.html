@@ -130,7 +130,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм Флойда-Уоршелла: кратчайшие расстояния между всеми парами городов, O(N^3) времени
+<pre class="rust-code"><code class="language-rust">// Алгоритм Флойда-Уоршелла: кратчайшие расстояния между всеми парами городов, O(N^3) времени
 // Для каждой промежуточной вершины k проверяем, не короче ли путь i -&gt; k -&gt; j
 pub fn floyd_warshall(dist: &amp;mut [Vec&lt;f64&gt;]) {
     let n = dist.len();

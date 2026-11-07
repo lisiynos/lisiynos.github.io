@@ -167,7 +167,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Двоичный поиск в отсортированном срезе: O(log n) по времени, O(1) по памяти
+    <pre class="rust-code"><code class="language-rust">// Двоичный поиск в отсортированном срезе: O(log n) по времени, O(1) по памяти
 pub fn binary_search(items: &amp;[i64], target: i64) -&gt; Option&lt;usize&gt; {
     let mut left = 0;
     let mut right = items.len();

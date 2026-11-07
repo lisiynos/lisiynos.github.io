@@ -177,7 +177,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Пузырьковая сортировка: O(n^2) по времени в среднем и в худшем случае, O(1) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Пузырьковая сортировка: O(n^2) по времени в среднем и в худшем случае, O(1) дополнительной памяти
 pub fn bubble_sort(items: &amp;mut [i64]) {
     let mut changed = true;
     // Пока в последнем проходе были перестановки, делаем ещё один проход
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Сортировка подсчётом: O(n + k) по времени и O(k) дополнительной памяти, где k - наибольшее значение (значения от 0)
+    <pre class="rust-code"><code class="language-rust">// Сортировка подсчётом: O(n + k) по времени и O(k) дополнительной памяти, где k - наибольшее значение (значения от 0)
 pub fn counting_sort(items: &amp;[u32]) -&gt; Vec&lt;u32&gt; {
     let max_value = items.iter().copied().max().unwrap_or(0);
     // counts[v] - сколько раз встречается число v
@@ -448,7 +448,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Быстрая сортировка QuickSort (схема Ломуто): O(n log n) в среднем, O(n^2) в худшем случае
+    <pre class="rust-code"><code class="language-rust">// Быстрая сортировка QuickSort (схема Ломуто): O(n log n) в среднем, O(n^2) в худшем случае
 pub fn quick_sort(items: &amp;mut [i64]) {
     if items.len() &lt;= 1 {
         return;
@@ -656,7 +656,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Сортировка слиянием MergeSort: O(n log n) по времени, O(n) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Сортировка слиянием MergeSort: O(n log n) по времени, O(n) дополнительной памяти
 pub fn merge_sort(items: &amp;[i64]) -&gt; Vec&lt;i64&gt; {
     if items.len() &lt;= 1 {
         return items.to_vec();
@@ -827,7 +827,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Пирамидальная сортировка HeapSort: O(n log n) по времени, O(1) дополнительной памяти
+    <pre class="rust-code"><code class="language-rust">// Пирамидальная сортировка HeapSort: O(n log n) по времени, O(1) дополнительной памяти
 // Опускает элемент с индексом root вниз, пока куча из size элементов не восстановится
 fn sift_down(items: &amp;mut [i64], mut root: usize, size: usize) {
     loop {

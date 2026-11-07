@@ -230,7 +230,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+<pre class="rust-code"><code class="language-rust">// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
 #[derive(Clone, Copy)]
 pub struct Point {
     pub x: i64,
@@ -536,7 +536,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+<pre class="rust-code"><code class="language-rust">// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
 
 // Подбирает count_left чисел не меньше low с суммой четвертых степеней rest
 pub fn search(
@@ -816,7 +816,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перебор с отсечениями: ребус word+...+word = total (k слагаемых), O(10^L) вариантов, L - длина слова
+<pre class="rust-code"><code class="language-rust">// Перебор с отсечениями: ребус word+...+word = total (k слагаемых), O(10^L) вариантов, L - длина слова
 // Буквы записаны латиницей: МУХА - MUHA, СЛОН - SLON. Разным буквам соответствуют разные цифры.
 use std::collections::BTreeMap;
 
@@ -1119,7 +1119,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Следующая перестановка в лексикографическом порядке: O(n) времени на один шаг
+<pre class="rust-code"><code class="language-rust">// Следующая перестановка в лексикографическом порядке: O(n) времени на один шаг
 // Алфавит Икнатсо: И &lt; К &lt; Н &lt; А &lt; Т &lt; С &lt; О, буквы заменяем их номерами 0..6
 const LETTERS: [&amp;str; 7] = ["И", "К", "Н", "А", "Т", "С", "О"];
 
@@ -1312,7 +1312,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перестановки рекурсией с массивом used: все перестановки чисел 1..n, O(n * n!) времени
+<pre class="rust-code"><code class="language-rust">// Перестановки рекурсией с массивом used: все перестановки чисел 1..n, O(n * n!) времени
 // Дописывает к current оставшиеся числа от 1 до n; полную перестановку сохраняет в result
 pub fn build(n: usize, used: &amp;mut Vec&lt;bool&gt;, current: &amp;mut Vec&lt;usize&gt;, result: &amp;mut Vec&lt;Vec&lt;usize&gt;&gt;) {
     if current.len() == n {
@@ -1674,7 +1674,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+<pre class="rust-code"><code class="language-rust">// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
 pub struct Problem {
     pub weights: Vec&lt;u64&gt;,
     pub costs: Vec&lt;u64&gt;,
@@ -2008,7 +2008,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Перебор с возвратом и эвристика Варнсдорфа: обход коня на доске n x n, O(8^(n*n)) в худшем случае
+<pre class="rust-code"><code class="language-rust">// Перебор с возвратом и эвристика Варнсдорфа: обход коня на доске n x n, O(8^(n*n)) в худшем случае
 pub const MOVES: [(i32, i32); 8] = [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)];
 
 // Свободные клетки, куда конь может прыгнуть из клетки (row, col)
@@ -2359,7 +2359,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Генерация лабиринта случайными стенами: O(H*W) времени на все точки, H и W - нечетные размеры сетки
+<pre class="rust-code"><code class="language-rust">// Генерация лабиринта случайными стенами: O(H*W) времени на все точки, H и W - нечетные размеры сетки
 // Результат: 1 - стена, 0 - коридор. Случайные числа берутся из простого генератора (LCG).
 const DR: [i32; 4] = [0, 1, 0, -1];
 const DC: [i32; 4] = [1, 0, -1, 0];
@@ -2774,7 +2774,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск в глубину (перебор с возвратом): путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+<pre class="rust-code"><code class="language-rust">// Поиск в глубину (перебор с возвратом): путь от клетки (row, col) до границы лабиринта, O(N*M) времени
 // В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
 pub const DR: [i32; 4] = [0, 1, 0, -1];
 pub const DC: [i32; 4] = [1, 0, -1, 0];
@@ -3224,7 +3224,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск в ширину (волна на графе): кратчайший путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+<pre class="rust-code"><code class="language-rust">// Поиск в ширину (волна на графе): кратчайший путь от клетки (row, col) до границы лабиринта, O(N*M) времени
 // В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
 use std::collections::{HashMap, VecDeque};
 

@@ -138,7 +138,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Проверка двудольности: раскраска в два цвета обходом DFS, O(V + E)
+<pre class="rust-code"><code class="language-rust">// Проверка двудольности: раскраска в два цвета обходом DFS, O(V + E)
 
 /// Красит вершину v в цвет c и рекурсивно красит её компоненту; false — найден конфликт.
 fn paint(adjacency: &amp;[Vec&lt;usize&gt;], color: &amp;mut [i8], v: usize, c: i8) -&gt; bool {
@@ -342,7 +342,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм Куна: максимальное паросочетание в двудольном графе, O(V * E)
+<pre class="rust-code"><code class="language-rust">// Алгоритм Куна: максимальное паросочетание в двудольном графе, O(V * E)
 
 /// Ищет дополняющую цепь из левой вершины v и при успехе перестраивает паросочетание.
 fn augment(v: usize, adjacency: &amp;[Vec&lt;usize&gt;], match_right: &amp;mut [Option&lt;usize&gt;], visited: &amp;mut [bool]) -&gt; bool {

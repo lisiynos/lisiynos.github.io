@@ -154,7 +154,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск подстроки полиномиальным хешем (Рабин-Карп): O(|p| + |t|)
+<pre class="rust-code"><code class="language-rust">// Поиск подстроки полиномиальным хешем (Рабин-Карп): O(|p| + |t|)
 const X: u64 = 37; // основание хеша x, около 37 (совет Кнута)
 const MOD: u64 = 1_000_000_007; // простой модуль base
 
@@ -379,7 +379,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Хеш-множество строк с цепочками: add и contains за O(1) в среднем, сравнение строк - O(длина)
+<pre class="rust-code"><code class="language-rust">// Хеш-множество строк с цепочками: add и contains за O(1) в среднем, сравнение строк - O(длина)
 const X: u64 = 37; // основание хеша
 const MOD: u64 = 1_000_000_007; // простой модуль
 const BUCKET_COUNT: usize = 8; // мало корзин, чтобы коллизии случались и обрабатывались

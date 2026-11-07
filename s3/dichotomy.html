@@ -103,7 +103,7 @@ int main() {
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">// Метод дихотомии (деление отрезка пополам) для корня f(x) = 0: O(log((b - a) / eps)) вычислений f
+    <pre class="rust-code"><code class="language-rust">// Метод дихотомии (деление отрезка пополам) для корня f(x) = 0: O(log((b - a) / eps)) вычислений f
 // На концах отрезка значения f должны иметь разные знаки, иначе возвращается None
 pub fn bisect_root(f: impl Fn(f64) -&gt; f64, mut left: f64, mut right: f64, eps: f64) -&gt; Option&lt;f64&gt; {
     let mut f_left = f(left);

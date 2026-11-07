@@ -240,7 +240,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Число узлов бинарного дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Высота дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии.
+<pre class="rust-code"><code class="language-rust">// Высота дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии.
 pub struct Node {
     pub value: i32,
     pub left: Option&lt;Box&lt;Node&gt;&gt;,
@@ -491,7 +491,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Общий поиск элемента в бинарном дереве (без порядка): O(n) по времени, O(h) по памяти стека
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 
@@ -635,7 +635,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Левосторонний (симметричный) обход дерева поиска: O(n) по времени, O(h) по памяти стека рекурсии.
+<pre class="rust-code"><code class="language-rust">// Левосторонний (симметричный) обход дерева поиска: O(n) по времени, O(h) по памяти стека рекурсии.
 pub struct Node {
     pub value: i32,
     pub left: Option&lt;Box&lt;Node&gt;&gt;,
@@ -764,7 +764,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Число узлов на каждом уровне бинарного дерева: O(n) по времени, O(h) по памяти стека
 pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
 
@@ -961,7 +961,7 @@ if __name__ == "__main__":
     main()
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск с включением в дерево поиска: O(h) по времени, h - высота дерева.
+<pre class="rust-code"><code class="language-rust">// Поиск с включением в дерево поиска: O(h) по времени, h - высота дерева.
 pub struct Node {
     pub value: i32,
     pub left: Option&lt;Box&lt;Node&gt;&gt;,

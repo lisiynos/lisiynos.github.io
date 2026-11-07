@@ -61,7 +61,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
+<pre class="rust-code"><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
 
 /// Рекурсивно посещает вершину v и все достижимые из неё непосещённые вершины.
 pub fn dfs(adjacency: &amp;[Vec&lt;usize&gt;], v: usize, visited: &amp;mut [bool], order: &amp;mut Vec&lt;usize&gt;) {

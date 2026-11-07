@@ -112,7 +112,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Наибольшее простое число в отрезке [a, b]: перебор от b вниз, проверка делением, O(len * sqrt(b))
+<pre class="rust-code"><code class="language-rust">// Наибольшее простое число в отрезке [a, b]: перебор от b вниз, проверка делением, O(len * sqrt(b))
 pub fn is_prime(n: u64) -&gt; bool {
     if n &lt; 2 {
         return false;
@@ -186,7 +186,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Сумма собственных делителей N (без самого N) перебором до sqrt(N), O(sqrt(N)) времени
+<pre class="rust-code"><code class="language-rust">// Сумма собственных делителей N (без самого N) перебором до sqrt(N), O(sqrt(N)) времени
 pub fn proper_divisor_sum(n: u64) -&gt; u64 {
     if n == 1 {
         return 0; // у единицы нет собственных делителей

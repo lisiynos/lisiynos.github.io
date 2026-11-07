@@ -110,7 +110,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Факториал N! итеративным умножением 1 * 2 * ... * N, O(N) времени
+<pre class="rust-code"><code class="language-rust">// Факториал N! итеративным умножением 1 * 2 * ... * N, O(N) времени
 // До 20! включительно результат помещается в 64 бита
 
 pub fn factorial(n: u64) -&gt; u64 {
@@ -224,7 +224,7 @@ int main() {
 }
 </pre>
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Сочетания C(N, K) через треугольник Паскаля (рекуррентная формула), O(N^2) времени
+<pre class="rust-code"><code class="language-rust">// Сочетания C(N, K) через треугольник Паскаля (рекуррентная формула), O(N^2) времени
 
 // C(line, i) = C(line-1, i-1) + C(line-1, i); края строки равны 1
 pub fn binomial(n: usize, k: usize) -&gt; u64 {

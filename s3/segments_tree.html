@@ -123,7 +123,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+<pre class="rust-code"><code class="language-rust">// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
 // Ящики нумеруются с нуля; суммы групп из group_size соседних ящиков хранятся отдельно.
 
 pub struct Boxes {
@@ -420,7 +420,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
+<pre class="rust-code"><code class="language-rust">// Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
 
 // Прибавляет w к ящику c и ко всем вершинам над ним: O(log n)
 pub fn add_up(tree: &amp;mut [i64], size: usize, c: usize, w: i64) {

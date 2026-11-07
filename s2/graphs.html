@@ -359,7 +359,7 @@ def dfs(v):
     <p>Теперь достаточно запустить обход из стартовой вершины. Например, так: <code>dfs(0)</code>.</p>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
+<pre class="rust-code"><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
 
 /// Рекурсивно посещает вершину v и все достижимые из неё непосещённые вершины.
 pub fn dfs(adjacency: &amp;[Vec&lt;usize&gt;], v: usize, visited: &amp;mut [bool], order: &amp;mut Vec&lt;usize&gt;) {
@@ -481,7 +481,7 @@ def bfs():
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм поиска в ширину (BFS), расстояния в рёбрах: O(V + E)
+<pre class="rust-code"><code class="language-rust">// Алгоритм поиска в ширину (BFS), расстояния в рёбрах: O(V + E)
 use std::collections::VecDeque;
 
 /// Возвращает порядок обхода вершин и число рёбер от source до каждой вершины (-1 — недостижима).
@@ -619,7 +619,7 @@ def Floyd():
         пути. Такую модификацию стоит проделать самостоятельно.</p>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
+<pre class="rust-code"><code class="language-rust">// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
 pub const INF: i64 = i64::MAX / 4; // «нет ребра»; запас против переполнения при сложении
 
 /// Принимает матрицу весов (INF — ребра нет, на диагонали нули), возвращает кратчайшие расстояния.

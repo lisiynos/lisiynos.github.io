@@ -69,7 +69,7 @@ print(*primes)
     </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
+<pre class="rust-code"><code class="language-rust">// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
 
 // Простое ли число n: перебираем делители d, пока d * d &lt;= n
 pub fn is_prime(n: u64) -&gt; bool {
@@ -164,7 +164,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
+<pre class="rust-code"><code class="language-rust">// Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
 pub const B: u64 = 31; // основание b, как в примере на C++
 pub const P: u64 = 1_000_000_007; // большое простое число
 

@@ -290,7 +290,7 @@ int main() {
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">
+<pre class="rust-code"><code class="language-rust">
 // Чтение длинного числа из строки цифр в основании 10000: a[0] — число занятых разрядов,
 // a[1], a[2], ... — младшие разряды. Сложность: O(n * len) по времени для n цифр.
 const BASE: u32 = 10000;
@@ -417,7 +417,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Сложение длинных чисел в столбик: O(max(n, m)) операций; число - вектор цифр, младшая цифра первая
 
 pub fn add_long(a: &amp;[u8], b: &amp;[u8]) -&gt; Vec&lt;u8&gt; {
@@ -782,7 +782,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Деление длинного числа на короткое (LDiv - частное, LMod - остаток) в столбик: O(n) операций
 // Делитель должен быть не больше 2^32: промежуточное значение remainder * 10 + цифра помещается в u64
 
@@ -935,7 +935,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Вычитание длинных чисел в столбик с заёмом: O(n) операций; требуется a &gt;= b
 
 // Возвращает a - b или None, если a &lt; b
@@ -1093,7 +1093,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Умножение длинных чисел столбиком: O(n * m) операций для чисел из n и m цифр
 
 pub fn mul_long(a: &amp;[u8], b: &amp;[u8]) -&gt; Vec&lt;u8&gt; {

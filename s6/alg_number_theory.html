@@ -101,7 +101,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
 // Модуль должен быть не больше 2^63, чтобы сумма двух остатков помещалась в u64
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Быстрое возведение в степень по модулю a^b mod m: O(log b) умножений
 // Модуль должен быть меньше 2^32, чтобы произведение двух остатков помещалось в u64
 
@@ -277,7 +277,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
 // Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет u64
 
@@ -402,7 +402,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Тест Миллера-Рабина: O(k log n) умножений по модулю, k = 3 основания
 // Для n &lt; 2^32 основания 2, 7, 61 дают точный ответ
 
@@ -557,7 +557,7 @@ if __name__ == "__main__":
 </pre>
 
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Число Фибоначчи F(n) по модулю m матричным возведением в степень: O(log n) умножений матриц 2x2
 // Модуль должен быть меньше 2^32, чтобы суммы произведений помещались в u64
 

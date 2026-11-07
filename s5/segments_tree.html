@@ -311,7 +311,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Дерево отрезков снизу (итеративное): set и get за O(log N), построение за O(N)
+<pre class="rust-code"><code class="language-rust">// Дерево отрезков снизу (итеративное): set и get за O(log N), построение за O(N)
 // Листья лежат в tree[size..2*size], вершина v имеет сыновей 2v и 2v+1.
 pub struct SegTree {
     tree: Vec&lt;i64&gt;,
@@ -561,7 +561,7 @@ if __name__ == "__main__":
 </pre>
 
 <p><strong>Реализация на Rust</strong></p>
-<pre><code class="language-rust">// Дерево отрезков сверху (рекурсивное): set и get за O(log N), построение за O(N)
+<pre class="rust-code"><code class="language-rust">// Дерево отрезков сверху (рекурсивное): set и get за O(log N), построение за O(N)
 // Требует n &gt;= 1: корень отвечает за отрезок [0, n-1]. Вершина v отвечает за отрезок [lo, hi],
 // сыновья 2v и 2v+1 - за его левую и правую половины. Сумма вершины равна сумме ее двух сыновей
 fn pull(tree: &amp;mut [i64], vertex: usize) {

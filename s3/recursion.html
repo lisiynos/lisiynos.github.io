@@ -86,7 +86,7 @@ int main() {
 }
 </pre>
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // НОД по алгоритму Евклида (рекурсия): O(log min(a, b))
 // Возвращает наибольший общий делитель неотрицательных целых a и b.
 // Использует gcd(a, b) = gcd(b, a mod b) и gcd(a, 0) = a.
@@ -171,7 +171,7 @@ int main() {
 }
 </pre>
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Ханойские башни: перенос n дисков со стержня src на dst через aux, O(2^n) ходов
 // Добавляет в moves все ходы (откуда, куда) для переноса n дисков.
 // Сначала n-1 верхних дисков уходят на aux, затем большой диск на dst, и n-1 дисков идут с aux на dst.
@@ -278,7 +278,7 @@ int main() {
 }
 </pre>
     <p><strong>Реализация на Rust</strong></p>
-    <pre><code class="language-rust">
+    <pre class="rust-code"><code class="language-rust">
 // Перебор с возвратом: все подмножества множества из n элементов, O(n * 2^n)
 // Перебирает выбор элементов с позиции index: сначала не берём элемент, потом берём.
 // На листе (все элементы решены) сохраняем копию текущего подмножества.
