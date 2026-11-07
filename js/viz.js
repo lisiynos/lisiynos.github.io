@@ -425,6 +425,8 @@
 
   // ----- complex numbers and the fast Fourier transform (used for multiplication) -----
 
+  const magnitude = (z) => Math.hypot(z.re, z.im);
+
   const cx = {
     add: (x, y) => ({ re: x.re + y.re, im: x.im + y.im }),
     sub: (x, y) => ({ re: x.re - y.re, im: x.im - y.im }),
@@ -450,7 +452,7 @@
   function fftFrames(input, sign, title, emit) {
     const n = input.length;
     const a = bitReversed(n).map((k) => input[k]);
-    emit({ values: a.slice(), active: [], caption: `${title}: переставляем коэффициенты в порядке битовой инверсии` });
+    emit({ points: a.slice(), active: [], caption: `${title}: переставляем коэффициенты в порядке битовой инверсии` });
     for (let len = 2; len <= n; len *= 2) {
       const half = len / 2;
       for (let start = 0; start < n; start += len) {
@@ -462,7 +464,7 @@
           a[start + k] = cx.add(u, v);
           a[start + k + half] = cx.sub(u, v);
           emit({
-            values: a.slice(), active: [start + k, start + k + half],
+            points: a.slice(), active: [start + k, start + k + half], twiddle: w,
             caption: `${title}, отрезок длины ${len}: бабочка для k=${k}: ${formatComplex(u)} и ${formatComplex(v)} (с поворотом на ${formatComplex(w)})`,
           });
         }
@@ -476,16 +478,19 @@
     const size = 1 << Math.ceil(Math.log2(aDigits.length + bDigits.length));
     const pad = (digits) => Array.from({ length: size }, (_, i) => ({ re: digits[i] || 0, im: 0 }));
     // The FFT frames hold complex numbers; the page shows them as text.
-    const emitComplex = (f) => frames.push({ ...f, values: f.values.map(formatComplex) });
-    frames.push({ values: null, active: [], caption: `Числа как многочлены по основанию 10: ${aDigits.join(' ')} и ${bDigits.join(' ')} (младшие разряды первыми). Дополняем нулями до N = ${size}` });
-    const transformA = fftFrames(pad(aDigits), -1, 'FFT(A)', emitComplex);
-    const transformB = fftFrames(pad(bDigits), -1, 'FFT(B)', emitComplex);
+    const emitComplex = (phase) => (f) => frames.push({ ...f, phase, values: f.points.map(formatComplex) });
+    const polynomials = [{ name: 'A', coefficients: aDigits }, { name: 'B', coefficients: bDigits }];
+    frames.push({ values: null, active: [], polynomials, caption:`Числа как многочлены по основанию 10: ${aDigits.join(' ')} и ${bDigits.join(' ')} (младшие разряды первыми). Дополняем нулями до N = ${size}` });
+    const transformA = fftFrames(pad(aDigits), -1, 'FFT(A)', emitComplex('A'));
+    const transformB = fftFrames(pad(bDigits), -1, 'FFT(B)', emitComplex('B'));
     const product = transformA.map((z, i) => cx.mul(z, transformB[i]));
-    frames.push({ values: product.map(formatComplex), active: [], caption: 'Поточечное умножение: C_k = A_k · B_k. Свёртка многочленов стала обычным умножением значений' });
-    const inverse = fftFrames(product, 1, 'обратное FFT', emitComplex);
+    frames.push({ values: product.map(formatComplex), points: product, phase: 'product', active: [], caption: 'Поточечное умножение: C_k = A_k · B_k. Свёртка многочленов стала обычным умножением значений' });
+    const inverse = fftFrames(product, 1, 'обратное FFT', emitComplex('inverse'));
     const coefficients = inverse.map((z) => Math.round(z.re / size));
     const coefficientTexts = coefficients.map(String);
-    frames.push({ values: coefficientTexts, active: [], caption: `Делим на N = ${size} и округляем: коэффициенты c_k = ${coefficients.join(', ')}` });
+    const realCoefficients = coefficients.map((c) => ({ re: c, im: 0 }));
+    const polynomialOfProduct = [{ name: 'C', coefficients }];
+    frames.push({ values: coefficientTexts, points: realCoefficients, phase: 'coefficients', polynomials: polynomialOfProduct, active: [], caption: `Делим на N = ${size} и округляем: коэффициенты c_k = ${coefficients.join(', ')}` });
     const digits = [];
     let carry = 0;
     coefficients.forEach((c, k) => {
@@ -493,14 +498,20 @@
       const cur = c + carryIn;
       digits.push(cur % 10);
       carry = Math.floor(cur / 10);
-      frames.push({ values: coefficientTexts, active: [k], digits: digits.slice(), caption: `Разряд ${k}: ${c} + перенос ${carryIn} = ${cur}. Пишем ${cur % 10}, перенос ${carry}` });
+      frames.push({ values: coefficientTexts, points: realCoefficients, phase: 'coefficients', active: [k], digits: digits.slice(), caption: `Разряд ${k}: ${c} + перенос ${carryIn} = ${cur}. Пишем ${cur % 10}, перенос ${carry}` });
     });
     while (carry > 0) {
       digits.push(carry % 10);
       carry = Math.floor(carry / 10);
     }
     const result = digits.slice().reverse().join('').replace(/^0+(?=\d)/, '');
-    frames.push({ values: null, active: [], digits: digits.slice(), caption: `Результат: ${result}` });
+    frames.push({ values: null, active: [], digits: digits.slice(), polynomials: polynomialOfProduct, caption: `Результат: ${result}` });
+    // The frames of one phase share one scale, so that the plane does not jump between their steps.
+    const radiusOf = {};
+    for (const f of frames) {
+      if (f.points) radiusOf[f.phase] = Math.max(radiusOf[f.phase] || 0, ...f.points.map(magnitude));
+    }
+    for (const f of frames) f.radius = Math.max(1, radiusOf[f.phase] || 0) * 1.15;
     return frames;
   }
 
@@ -591,8 +602,56 @@
     stage.append(svg, el('p', 'viz-note', `${isQueue ? 'Очередь' : 'Стек'}: [${f.queue.join(', ')}]   Порядок: ${f.order.join(' → ') || '—'}`));
   }
 
+  // A polynomial with the digits as coefficients, evaluated at x = 10, for example A(x) = 4 + 3 · x + 2 · x² + 1 · x³.
+  function polynomialLine(name, coefficients) {
+    const line = el('p', 'viz-formula', `${name}(x) = `);
+    coefficients.forEach((c, k) => {
+      if (k > 0) line.append(' + ');
+      line.append(String(c));
+      if (k >= 1) line.append(' · x');
+      if (k >= 2) line.append(el('sup', null, String(k)));
+    });
+    const value = coefficients.reduceRight((total, c) => total * 10 + c, 0);
+    line.append(`   при x = 10: ${name}(10) = ${value}`);
+    return line;
+  }
+
+  // The complex plane: a point for every value, joined to the origin by a vector. The values taking part in
+  // the step are yellow. The dashed circle has radius 1; a red vector shows the twiddle factor w.
+  function drawPlane(stage, f) {
+    const scale = 100 / f.radius; // pixels per unit; the picture edge is at ±1.2 · radius
+    const x = (re) => 120 + re * scale;
+    const y = (im) => 120 - im * scale;
+    const svg = svgNode('svg', { viewBox: '0 0 240 240', class: 'viz-plane' });
+    svg.append(
+      svgNode('line', { x1: 0, y1: 120, x2: 240, y2: 120, class: 'viz-axis' }),
+      svgNode('line', { x1: 120, y1: 0, x2: 120, y2: 240, class: 'viz-axis' }),
+      svgNode('circle', { cx: 120, cy: 120, r: scale, class: 'viz-circle' }),
+    );
+    f.points.forEach((z, k) => {
+      if (magnitude(z) < 1e-9) return; // zero values lie at the origin and are not drawn
+      const active = f.active.includes(k);
+      svg.append(
+        svgNode('line', { x1: 120, y1: 120, x2: x(z.re), y2: y(z.im), class: active ? 'viz-vector viz-vector-active' : 'viz-vector' }),
+        svgNode('circle', { cx: x(z.re), cy: y(z.im), r: 4, class: active ? 'viz-point viz-point-active' : 'viz-point' }),
+      );
+      const label = svgNode('text', { x: x(z.re) + 6, y: y(z.im) - 6 });
+      label.textContent = String(k);
+      svg.append(label);
+    });
+    if (f.twiddle) {
+      svg.append(svgNode('line', { x1: 120, y1: 120, x2: x(f.twiddle.re), y2: y(f.twiddle.im), class: 'viz-twiddle' }));
+    }
+    const edge = svgNode('text', { x: 4, y: 14 });
+    edge.textContent = `±${(1.2 * f.radius).toFixed(1)}`;
+    svg.append(edge);
+    stage.append(svg, el('p', 'viz-note', 'Комплексная плоскость: горизонталь — действительная часть, вертикаль — мнимая. Точка — значение, число у точки — его индекс. Жёлтым выделены участвующие в шаге; пунктир — единичная окружность; красная стрелка — поворот w на ней.'));
+  }
+
   function drawConvolution(stage, f) {
+    for (const { name, coefficients } of f.polynomials || []) stage.append(polynomialLine(name, coefficients));
     if (f.values) drawRow(stage, 'значения', f.values, { active: f.active, leftToRight: true });
+    if (f.points) drawPlane(stage, f);
     if (f.digits) drawRow(stage, 'разряды', f.digits, { active: f.active });
   }
 

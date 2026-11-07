@@ -372,6 +372,64 @@ h4:hover .anchor,
   }
 }
 
+.viz-formula {
+  margin: 6px 0;
+  font-family: Consolas, monospace;
+  font-size: 15px;
+  overflow-x: auto;
+}
+
+.viz-formula sup {
+  font-size: 11px;
+}
+
+.viz-plane {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin: 8px 0 4px;
+}
+
+.viz-plane text {
+  fill: #223;
+  font-size: 11px;
+}
+
+.viz-axis {
+  stroke: #889;
+  stroke-width: 1;
+}
+
+.viz-circle {
+  fill: none;
+  stroke: #aab;
+  stroke-dasharray: 4 3;
+}
+
+.viz-vector {
+  stroke: #7a9cc6;
+  stroke-width: 1.5;
+}
+
+.viz-vector-active {
+  stroke: #e0a800;
+  stroke-width: 2.5;
+}
+
+.viz-point {
+  fill: #1d5fa8;
+}
+
+.viz-point-active {
+  fill: #e0a800;
+}
+
+.viz-twiddle {
+  stroke: #c33;
+  stroke-width: 2;
+}
+
 /* Back to top */
 .to-top {
   position: fixed;
