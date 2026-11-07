@@ -516,6 +516,20 @@ h4:hover .anchor,
   fill: #1d5fa8;
 }
 
+/* The picture is 624 px wide. Up to 721 px of viewport it scrolls sideways inside its stage, and this line says so. */
+.viz-seg-hint {
+  display: none;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #556;
+}
+
+@media (max-width: 721px) {
+  .viz-seg-hint {
+    display: block;
+  }
+}
+
 /* Navigation: the trail, the neighbouring lessons and the algorithms of a page (js/site.js) */
 .site-trail {
   margin-top: 32px; /* below the .tags bar, which is absolutely positioned in the top right corner */

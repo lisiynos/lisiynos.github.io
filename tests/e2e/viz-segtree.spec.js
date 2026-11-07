@@ -23,6 +23,7 @@ test('the segment tree is drawn with 15 vertices for the default array', async (
   const section = page.locator(TREE);
   await expect(section.locator('.viz-player')).toHaveCount(1);
   await expect(section.locator('svg.viz-seg rect')).toHaveCount(15);
+  await expect(section.locator('.viz-seg-hint')).toBeHidden();
   await expect(section.locator('.viz-caption')).toContainText('корень tree[1] = сумма всех элементов = 30');
   expect(errors).toEqual([]);
 });
@@ -101,4 +102,79 @@ test('the frames agree with plain sums in the browser', async ({ page }) => {
     return bad;
   });
   expect(mismatches).toEqual([]);
+});
+
+// On a phone the picture is wider than its stage, so the stage scrolls it to keep the vertex of each step in view.
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  // The vertex of the current step: whether the step has one, and whether it lies inside the visible part of the stage.
+  async function currentState(section) {
+    return section.evaluate((root) => {
+      const current = root.querySelector('rect.viz-seg-current');
+      if (!current) return { hasCurrent: false, inView: true };
+      const stage = root.querySelector('.viz-stage').getBoundingClientRect();
+      const box = current.getBoundingClientRect();
+      return { hasCurrent: true, inView: box.left >= stage.left && box.right <= stage.right };
+    });
+  }
+
+  test('the root is in view when the page opens, and the page does not scroll sideways', async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.goto(LESSON);
+    const section = page.locator(TREE);
+    await expect(section.locator('.viz-seg-hint')).toBeVisible();
+    await expect.poll(async () => (await currentState(section)).inView).toBe(true);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBe(0);
+    expect(errors).toEqual([]);
+  });
+
+  test('every step of building, querying and updating keeps its vertex in view', async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.goto(LESSON);
+    const section = page.locator(TREE);
+    const next = section.getByRole('button', { name: 'вперёд' });
+    // Steps forward to the last frame and checks the vertex of every frame on the way. The walk must meet at least
+    // one frame with a current vertex, so that the check cannot pass without looking at any vertex.
+    async function walkThrough() {
+      let withVertex = 0;
+      const check = async () => {
+        await expect.poll(async () => (await currentState(section)).inView).toBe(true);
+        if ((await currentState(section)).hasCurrent) withVertex += 1;
+      };
+      await check();
+      while (await next.isEnabled()) {
+        await next.click();
+        await check();
+      }
+      expect(withVertex).toBeGreaterThan(0);
+    }
+    // Each action restarts the player at its first step; this shows that the button did something.
+    await section.getByRole('button', { name: 'Построить дерево' }).click();
+    await expect(section.locator('.viz-counter')).toContainText('Шаг 1 из');
+    await walkThrough();
+    await section.locator('input').nth(1).fill('1');
+    await section.locator('input').nth(2).fill('5');
+    await section.getByRole('button', { name: 'Сумма на [l..r]' }).click();
+    await expect(section.locator('.viz-counter')).toContainText('Шаг 1 из');
+    await walkThrough();
+    await section.locator('input').nth(3).fill('2');
+    await section.locator('input').nth(4).fill('10');
+    await section.getByRole('button', { name: 'Присвоить a[i] = x' }).click();
+    await expect(section.locator('.viz-counter')).toContainText('Шаг 1 из');
+    await walkThrough();
+    expect(errors).toEqual([]);
+  });
+
+  test('after a resize the current vertex stays in view', async ({ page }) => {
+    const errors = trackErrors(page);
+    // Open on a wide screen, where the picture fits, then narrow the window without a new step.
+    await page.setViewportSize({ width: 844, height: 844 });
+    await page.goto(LESSON);
+    const section = page.locator(TREE);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect.poll(async () => (await currentState(section)).inView).toBe(true);
+    expect(errors).toEqual([]);
+  });
 });

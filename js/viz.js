@@ -1058,6 +1058,22 @@
       svg.append(mark);
     }
     stage.append(svg);
+    // On a phone the picture is wider than the stage. Scroll it so that the markers of a query and the vertex of this
+    // step are in the middle, and keep the vertex of the step in view even when the markers pull the centre away.
+    // The stage joins the page after this call, so the scroll is set in the next frame.
+    const inTree = (v) => v !== null && v >= 1 && v < 2 * size;
+    const anchors = [f.current, f.left, f.right].filter(inTree);
+    const shownVertices = anchors.length ? anchors : f.taken.filter(inTree);
+    const xs = (shownVertices.length ? shownVertices : [1]).map((v) => place(v)[0]);
+    const currentX = inTree(f.current) ? place(f.current)[0] : null;
+    // mountSegtree calls this again when the window is resized, so the current step stays in view.
+    stage.centre = () => {
+      const shown = stage.clientWidth;
+      let centre = (Math.min(...xs) + Math.max(...xs)) / 2;
+      if (currentX !== null) centre = Math.max(currentX - (shown / 2 - 60), Math.min(currentX + (shown / 2 - 60), centre));
+      stage.scrollLeft = Math.max(0, Math.min(width - shown, centre - shown / 2));
+    };
+    requestAnimationFrame(() => stage.centre());
   }
 
   function isInteger(text) {
@@ -1078,6 +1094,11 @@
     const queryButton = button('Сумма на [l..r]', () => query());
     const updateButton = button('Присвоить a[i] = x', () => update());
     const output = mountTool(root, [values.wrap, left.wrap, right.wrap, index.wrap, value.wrap, buildButton, queryButton, updateButton]);
+    root.insertBefore(el('p', 'viz-seg-hint', 'Рисунок шире экрана: листайте его влево и вправо.'), output);
+    window.addEventListener('resize', () => {
+      const stage = root.querySelector('.viz-stage');
+      if (stage && stage.centre) stage.centre();
+    });
     let state = null;
 
     function build(showFinal) {
