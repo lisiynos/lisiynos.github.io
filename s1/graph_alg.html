@@ -14,6 +14,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script src="../js/viz.js" defer></script>
 <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
@@ -30,6 +31,9 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 <h2>Раскрашивание графов</h2>
 
 <h2>Обход вершин графа</h2>
+<p>Обход графа из 7 вершин: выберите вид обхода и начальную вершину. Очередь (поиск в ширину) и стек (поиск в глубину) показаны по шагам.</p>
+<div class="viz" data-viz="graph"></div>
+
 
 <h3>Поиск в глубину - ПВГ (Depth First Search - DFS) </h3>
 

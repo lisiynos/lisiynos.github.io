@@ -20,6 +20,7 @@ There is no build step for the pages: they are hand-written HTML. Two exceptions
 | `common/` | Generator for session plans (`gen.py` and templates) and `search_index.py`. |
 | `js/site.js` | Shared script on every page: search, copy buttons, heading anchors, table of contents, back-to-top, Rust highlighting. |
 | `js/index.js` | Recalculates the totals row of the session plan table. |
+| `js/viz.js` | Interactive algorithm visualizations (see Visualizations). Plain browser JavaScript, no build step. |
 | `style/style.css`, `style/site.css` | Site styles. `site.css` is the responsive and interactive layer and loads after `style.css`. |
 | `syntax/` | SHJS syntax highlighter (C/C++, Pascal, Python, Basic, Java, and others). No Rust. |
 | `search-index.json` | Generated search index (title, headings and tags of every page). |
@@ -120,6 +121,18 @@ Specs in `tests/e2e/`:
 - `known-issues.js`: defects that come from files missing from the repository (absent pictures, a Flash helper script that is not in the repo, Word-export formula markup). The specs fail on any new problem and on any entry that no longer occurs. Remove an entry when its defect is fixed.
 
 `tests/e2e/serve.js` is a small static server for the repository. It needs no Python.
+
+## Visualizations
+
+The interactive pictures run in the reader's browser on GitHub Pages. The code is ready-made static JavaScript in `js/viz.js`, loaded with `<script src="../js/viz.js" defer></script>` after `site.js`. Nothing is built or served at run time, and nothing is loaded from a CDN.
+
+To place a picture, put a placeholder where it belongs in the lesson text:
+
+```html
+<div class="viz" data-viz="longarith"></div>
+```
+
+The available names are `longarith` (long addition, multiplication and division, with editable numbers), `fft` (multiplication of two short numbers through the FFT), `sort` (bubble and selection sort), `binsearch` (binary search) and `graph` (breadth-first and depth-first traversal). Each picture runs its algorithm in advance and shows the frames one by one with the buttons «назад», «вперёд», «авто» and «сначала». Keep the algorithm in `js/viz.js` and the explanation in the lesson text. A new picture needs a mount function, an entry in `MOUNTS`, its styles in `style/site.css`, and a test in `tests/e2e/viz*.spec.js`.
 
 Known repository facts: `s4/tasks.html` is empty; `s1/cpp/assert_demo2.html` is a fragment without `<head>`; `s3/dynamic/dynamic_comb.htm` has broken Word-export formulas.
 
