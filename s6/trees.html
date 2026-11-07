@@ -25,6 +25,407 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     </ul>
 
 
+    <h3>Обходы бинарного дерева</h3>
+    <p>Бинарное дерево — это дерево, в котором у каждой вершины не более двух детей: левый и правый. Обход дерева — порядок, в котором посещаются все его вершины. Для бинарного дерева естественны три рекурсивных обхода, которые различаются тем, когда посещается корень относительно поддеревьев.</p>
+    <p>Обозначим корень через $V$, левое поддерево через $L$, правое через $R$. Прямой обход (pre-order) посещает сначала $V$, затем $L$, затем $R$. Он удобен, когда корень нужно обработать раньше потомков, например при копировании дерева.</p>
+    <p>Симметричный обход (in-order) посещает $L$, затем $V$, затем $R$. Для двоичного дерева поиска он выводит ключи в отсортированном порядке.</p>
+    <p>Обратный обход (post-order) посещает $L$, затем $R$, затем $V$. Корень обрабатывается, когда результаты для обоих поддеревьев уже известны, например при подсчёте размеров поддеревьев.</p>
+    <p>Каждая вершина посещается ровно один раз и обрабатывается за $O(1)$, поэтому время работы $O(n)$, где $n$ — число вершин. Глубина рекурсии равна высоте дерева $h$, поэтому память $O(h)$; в худшем случае $h = n$.</p>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Обходы бинарного дерева: прямой, симметричный, обратный. Сложность O(n) по времени, O(h) по памяти.
+
+LEFT = [1, 3, -1, 6, -1, -1, -1]  # левый ребёнок вершины, -1 если его нет
+RIGHT = [2, 4, 5, -1, -1, -1, -1]  # правый ребёнок вершины, -1 если его нет
+
+
+def preorder(left, right, v, order):
+    """Прямой обход: корень, затем левое и правое поддеревья."""
+    if v == -1:
+        return
+    order.append(v)
+    preorder(left, right, left[v], order)
+    preorder(left, right, right[v], order)
+
+
+def inorder(left, right, v, order):
+    """Симметричный обход: левое поддерево, корень, правое поддерево."""
+    if v == -1:
+        return
+    inorder(left, right, left[v], order)
+    order.append(v)
+    inorder(left, right, right[v], order)
+
+
+def postorder(left, right, v, order):
+    """Обратный обход: левое и правое поддеревья, затем корень."""
+    if v == -1:
+        return
+    postorder(left, right, left[v], order)
+    postorder(left, right, right[v], order)
+    order.append(v)
+
+
+def main():
+    for name, walk in (("прямой", preorder), ("симметричный", inorder), ("обратный", postorder)):
+        order = []
+        walk(LEFT, RIGHT, 0, order)
+        print(name, *order)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Обходы бинарного дерева: прямой, симметричный, обратный. Сложность O(n) по времени, O(h) по памяти.
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Прямой обход: корень, затем левое и правое поддеревья.
+void preorder(const std::vector&lt;int&gt;&amp; left, const std::vector&lt;int&gt;&amp; right, int v, std::vector&lt;int&gt;&amp; order) {
+    if (v == -1) return;
+    order.push_back(v);
+    preorder(left, right, left[v], order);
+    preorder(left, right, right[v], order);
+}
+
+// Симметричный обход: левое поддерево, корень, правое поддерево.
+void inorder(const std::vector&lt;int&gt;&amp; left, const std::vector&lt;int&gt;&amp; right, int v, std::vector&lt;int&gt;&amp; order) {
+    if (v == -1) return;
+    inorder(left, right, left[v], order);
+    order.push_back(v);
+    inorder(left, right, right[v], order);
+}
+
+// Обратный обход: левое и правое поддеревья, затем корень.
+void postorder(const std::vector&lt;int&gt;&amp; left, const std::vector&lt;int&gt;&amp; right, int v, std::vector&lt;int&gt;&amp; order) {
+    if (v == -1) return;
+    postorder(left, right, left[v], order);
+    postorder(left, right, right[v], order);
+    order.push_back(v);
+}
+
+// Печатает название обхода и вершины в порядке посещения.
+void print_order(const char* name, const std::vector&lt;int&gt;&amp; order) {
+    std::cout &lt;&lt; name &lt;&lt; ':';
+    for (int v : order) std::cout &lt;&lt; ' ' &lt;&lt; v;
+    std::cout &lt;&lt; '\n';
+}
+
+int main() {
+    // Дерево из 7 вершин: left[v] и right[v] — дети вершины v, -1 если ребёнка нет.
+    const std::vector&lt;int&gt; left = {1, 3, -1, 6, -1, -1, -1};
+    const std::vector&lt;int&gt; right = {2, 4, 5, -1, -1, -1, -1};
+
+    std::vector&lt;int&gt; order;
+    preorder(left, right, 0, order);
+    print_order("прямой", order);
+
+    order.clear();
+    inorder(left, right, 0, order);
+    print_order("симметричный", order);
+
+    order.clear();
+    postorder(left, right, 0, order);
+    print_order("обратный", order);
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Обходы бинарного дерева: прямой, симметричный, обратный. Сложность O(n) по времени, O(h) по памяти.
+
+// Прямой обход: корень, затем левое и правое поддеревья. Значение -1 означает отсутствие ребёнка.
+pub fn preorder(left: &amp;[i32], right: &amp;[i32], v: i32, order: &amp;mut Vec&lt;i32&gt;) {
+    if v == -1 {
+        return;
+    }
+    let u = v as usize;
+    order.push(v);
+    preorder(left, right, left[u], order);
+    preorder(left, right, right[u], order);
+}
+
+// Симметричный обход: левое поддерево, корень, правое поддерево.
+pub fn inorder(left: &amp;[i32], right: &amp;[i32], v: i32, order: &amp;mut Vec&lt;i32&gt;) {
+    if v == -1 {
+        return;
+    }
+    let u = v as usize;
+    inorder(left, right, left[u], order);
+    order.push(v);
+    inorder(left, right, right[u], order);
+}
+
+// Обратный обход: левое и правое поддеревья, затем корень.
+pub fn postorder(left: &amp;[i32], right: &amp;[i32], v: i32, order: &amp;mut Vec&lt;i32&gt;) {
+    if v == -1 {
+        return;
+    }
+    let u = v as usize;
+    postorder(left, right, left[u], order);
+    postorder(left, right, right[u], order);
+    order.push(v);
+}
+
+// Печатает название обхода и вершины в порядке посещения.
+fn print_order(name: &amp;str, order: &amp;[i32]) {
+    let items: Vec&lt;String&gt; = order.iter().map(|v| v.to_string()).collect();
+    println!("{}: {}", name, items.join(" "));
+}
+
+fn main() {
+    // Дерево из 7 вершин: left[v] и right[v] — дети вершины v, -1 если ребёнка нет.
+    let left = [1, 3, -1, 6, -1, -1, -1];
+    let right = [2, 4, 5, -1, -1, -1, -1];
+
+    let mut order = Vec::new();
+    preorder(&amp;left, &amp;right, 0, &amp;mut order);
+    print_order("прямой", &amp;order);
+
+    order.clear();
+    inorder(&amp;left, &amp;right, 0, &amp;mut order);
+    print_order("симметричный", &amp;order);
+
+    order.clear();
+    postorder(&amp;left, &amp;right, 0, &amp;mut order);
+    print_order("обратный", &amp;order);
+}
+</code></pre>
+    <h3>Высота дерева и число листьев</h3>
+    <p>Высота дерева $h$ — число вершин на самом длинном пути от корня до листа. Высота пустого дерева равна $0$, высота одной вершины — $1$. Лист — вершина, у которой нет детей.</p>
+    <p>Высота считается по рекуррентной формуле: $h(\varnothing) = 0$, а для непустого поддерева с корнем $v$ верно $h(v) = 1 + \max(h(L_v), h(R_v))$, где $L_v$ и $R_v$ — левый и правый ребёнок $v$. Сначала находим высоты детей, затем берём наибольшую и добавляем корень.</p>
+    <p>Число листьев считается так: $\mathrm{leaves}(\varnothing) = 0$, для листа $\mathrm{leaves}(v) = 1$, а в остальных случаях $\mathrm{leaves}(v) = \mathrm{leaves}(L_v) + \mathrm{leaves}(R_v)$. Вершина с одним ребёнком учитывается через пустое поддерево, которое даёт $0$.</p>
+    <p>Каждая из двух функций посещает каждую вершину ровно один раз, поэтому время работы $O(n)$. Глубина рекурсии равна высоте, значит память $O(h)$; для цепочки из $n$ вершин это $O(n)$.</p>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Высота дерева и число листьев, рекурсивно. Сложность O(n) по времени, O(h) по памяти.
+
+LEFT = [1, 3, -1, 6, -1, -1, -1]  # левый ребёнок вершины, -1 если его нет
+RIGHT = [2, 4, 5, -1, -1, -1, -1]  # правый ребёнок вершины, -1 если его нет
+
+
+def height(left, right, v):
+    """Число вершин на самом длинном пути от v вниз до листа; пустое дерево имеет высоту 0."""
+    if v == -1:
+        return 0
+    return 1 + max(height(left, right, left[v]), height(left, right, right[v]))
+
+
+def count_leaves(left, right, v):
+    """Число листьев в поддереве вершины v; лист — вершина без детей."""
+    if v == -1:
+        return 0
+    if left[v] == -1 and right[v] == -1:
+        return 1
+    return count_leaves(left, right, left[v]) + count_leaves(left, right, right[v])
+
+
+def main():
+    print("высота:", height(LEFT, RIGHT, 0))
+    print("листья:", count_leaves(LEFT, RIGHT, 0))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Высота дерева и число листьев, рекурсивно. Сложность O(n) по времени, O(h) по памяти.
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Высота поддерева вершины v: число вершин на самом длинном пути вниз до листа; пустое дерево имеет высоту 0.
+int height(const std::vector&lt;int&gt;&amp; left, const std::vector&lt;int&gt;&amp; right, int v) {
+    if (v == -1) return 0;
+    return 1 + std::max(height(left, right, left[v]), height(left, right, right[v]));
+}
+
+// Число листьев в поддереве вершины v; лист — вершина без детей.
+int count_leaves(const std::vector&lt;int&gt;&amp; left, const std::vector&lt;int&gt;&amp; right, int v) {
+    if (v == -1) return 0;
+    if (left[v] == -1 &amp;&amp; right[v] == -1) return 1;
+    return count_leaves(left, right, left[v]) + count_leaves(left, right, right[v]);
+}
+
+int main() {
+    // Дерево из 7 вершин: left[v] и right[v] — дети вершины v, -1 если ребёнка нет.
+    const std::vector&lt;int&gt; left = {1, 3, -1, 6, -1, -1, -1};
+    const std::vector&lt;int&gt; right = {2, 4, 5, -1, -1, -1, -1};
+    std::cout &lt;&lt; "высота: " &lt;&lt; height(left, right, 0) &lt;&lt; '\n';
+    std::cout &lt;&lt; "листья: " &lt;&lt; count_leaves(left, right, 0) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Высота дерева и число листьев, рекурсивно. Сложность O(n) по времени, O(h) по памяти.
+
+// Высота поддерева вершины v: число вершин на самом длинном пути вниз до листа; пустое дерево имеет высоту 0.
+pub fn height(left: &amp;[i32], right: &amp;[i32], v: i32) -&gt; usize {
+    if v == -1 {
+        return 0;
+    }
+    let u = v as usize;
+    1 + height(left, right, left[u]).max(height(left, right, right[u]))
+}
+
+// Число листьев в поддереве вершины v; лист — вершина без детей.
+pub fn count_leaves(left: &amp;[i32], right: &amp;[i32], v: i32) -&gt; usize {
+    if v == -1 {
+        return 0;
+    }
+    let u = v as usize;
+    if left[u] == -1 &amp;&amp; right[u] == -1 {
+        return 1;
+    }
+    count_leaves(left, right, left[u]) + count_leaves(left, right, right[u])
+}
+
+fn main() {
+    // Дерево из 7 вершин: left[v] и right[v] — дети вершины v, -1 если ребёнка нет.
+    let left = [1, 3, -1, 6, -1, -1, -1];
+    let right = [2, 4, 5, -1, -1, -1, -1];
+    println!("высота: {}", height(&amp;left, &amp;right, 0));
+    println!("листья: {}", count_leaves(&amp;left, &amp;right, 0));
+}
+</code></pre>
+    <h3>Наименьший общий предок</h3>
+    <p>Наименьший общий предок (LCA, lowest common ancestor) вершин $u$ и $v$ — самая глубокая вершина, которая является предком и для $u$, и для $v$. Вершина считается предком самой себя: если $u$ лежит на пути от $v$ к корню, ответ равен $u$.</p>
+    <p>Дерево задано массивом родителей: $p[v]$ — родитель вершины $v$, у корня $p[v] = -1$. Глубина $d(v)$ — число рёбер от корня до $v$. Её можно найти подъёмом по массиву родителей за $O(h)$.</p>
+    <p>Сначала поднимаем более глубокую вершину на $|d(u) - d(v)|$ шагов, чтобы обе оказались на одной глубине. Если они совпали, это и есть ответ. Иначе поднимаем обе вершины на один шаг вверх и повторяем, пока они не совпадут.</p>
+    <p>Почему это верно: на одной глубине предки $u$ и $v$ совпадают тогда и только тогда, когда они являются общими предками. Значит, первое совпадение при подъёме снизу — самый глубокий общий предок.</p>
+    <p>Вычисление глубин и оба подъёма делают не более $h$ шагов каждый, поэтому время работы $O(h)$. Для сбалансированного дерева $h = O(\log n)$, для цепочки $h = O(n)$.</p>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Наименьший общий предок по массиву родителей. Сложность O(h) по времени, где h — высота дерева.
+
+PARENT = [-1, 0, 0, 1, 1, 2, 3]  # родитель вершины, у корня -1
+
+
+def depth(parent, v):
+    """Глубина вершины v: число рёбер от корня до v."""
+    steps = 0
+    while parent[v] != -1:
+        v = parent[v]
+        steps += 1
+    return steps
+
+
+def lca(parent, u, v):
+    """Поднимаем более глубокую вершину до уровня другой, затем поднимаем обе, пока не сойдутся."""
+    depth_u = depth(parent, u)
+    depth_v = depth(parent, v)
+    while depth_u &gt; depth_v:
+        u = parent[u]
+        depth_u -= 1
+    while depth_v &gt; depth_u:
+        v = parent[v]
+        depth_v -= 1
+    while u != v:
+        u = parent[u]
+        v = parent[v]
+    return u
+
+
+def main():
+    pairs = [(6, 4), (6, 5), (3, 4), (5, 6), (2, 5), (6, 6), (0, 6)]
+    for u, v in pairs:
+        print(f"lca({u}, {v}) = {lca(PARENT, u, v)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Наименьший общий предок по массиву родителей. Сложность O(h) по времени, где h — высота дерева.
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Глубина вершины v: число рёбер от корня до v. Подъём по массиву родителей.
+int depth(const std::vector&lt;int&gt;&amp; parent, int v) {
+    int steps = 0;
+    while (parent[v] != -1) {
+        v = parent[v];
+        ++steps;
+    }
+    return steps;
+}
+
+// Поднимаем более глубокую вершину до уровня другой, затем поднимаем обе, пока не сойдутся.
+int lca(const std::vector&lt;int&gt;&amp; parent, int u, int v) {
+    int depth_u = depth(parent, u);
+    int depth_v = depth(parent, v);
+    while (depth_u &gt; depth_v) {
+        u = parent[u];
+        --depth_u;
+    }
+    while (depth_v &gt; depth_u) {
+        v = parent[v];
+        --depth_v;
+    }
+    while (u != v) {
+        u = parent[u];
+        v = parent[v];
+    }
+    return u;
+}
+
+int main() {
+    // Массив родителей: parent[v] — родитель вершины v, у корня -1.
+    const std::vector&lt;int&gt; parent = {-1, 0, 0, 1, 1, 2, 3};
+    const std::vector&lt;std::pair&lt;int, int&gt;&gt; pairs = {{6, 4}, {6, 5}, {3, 4}, {5, 6}, {2, 5}, {6, 6}, {0, 6}};
+    for (auto [u, v] : pairs) {
+        std::cout &lt;&lt; "lca(" &lt;&lt; u &lt;&lt; ", " &lt;&lt; v &lt;&lt; ") = " &lt;&lt; lca(parent, u, v) &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Наименьший общий предок по массиву родителей. Сложность O(h) по времени, где h — высота дерева.
+
+// Глубина вершины v: число рёбер от корня до v. Подъём по массиву родителей.
+fn depth(parent: &amp;[i32], mut v: i32) -&gt; usize {
+    let mut steps = 0;
+    while parent[v as usize] != -1 {
+        v = parent[v as usize];
+        steps += 1;
+    }
+    steps
+}
+
+// Поднимаем более глубокую вершину до уровня другой, затем поднимаем обе, пока не сойдутся.
+pub fn lca(parent: &amp;[i32], mut u: i32, mut v: i32) -&gt; i32 {
+    let mut depth_u = depth(parent, u);
+    let mut depth_v = depth(parent, v);
+    while depth_u &gt; depth_v {
+        u = parent[u as usize];
+        depth_u -= 1;
+    }
+    while depth_v &gt; depth_u {
+        v = parent[v as usize];
+        depth_v -= 1;
+    }
+    while u != v {
+        u = parent[u as usize];
+        v = parent[v as usize];
+    }
+    u
+}
+
+fn main() {
+    // Массив родителей: parent[v] — родитель вершины v, у корня -1.
+    let parent = [-1, 0, 0, 1, 1, 2, 3];
+    for (u, v) in [(6, 4), (6, 5), (3, 4), (5, 6), (2, 5), (6, 6), (0, 6)] {
+        println!("lca({}, {}) = {}", u, v, lca(&amp;parent, u, v));
+    }
+}
+</code></pre>
 </div>
 
 </body>

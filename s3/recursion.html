@@ -10,8 +10,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
 </head>
-<body>
+<body onLoad="sh_highlightDocument();">
 
 <div id="content">
     <h1>Рекурсия: НОД, Ханойские башни, перебор с возвратом. Стек. Стек функций</h1>
@@ -21,6 +25,288 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         <li><a href="#">Рекурсия</a></li>
     </ul>
 
+
+    <h3>Стек вызовов функций</h3>
+
+    <p>Каждый вызов функции записывается в стек вызовов: в кадре хранятся адрес возврата, аргументы и локальные переменные. Когда функция возвращает результат, её кадр снимается со стека. Рекурсивная функция вызывает саму себя, поэтому кадров на стеке накапливается столько, сколько уровней рекурсии. Отсюда следует, что у рекурсии обязательно должен быть базовый случай: без него стек переполняется.</p>
+
+    <h3>Наибольший общий делитель: алгоритм Евклида</h3>
+
+    <p>Наибольший общий делитель целых неотрицательных чисел $a$ и $b$ обозначим $\operatorname{gcd}(a, b)$. Алгоритм Евклида опирается на два равенства: $\operatorname{gcd}(a, 0) = a$ и $\operatorname{gcd}(a, b) = \operatorname{gcd}(b, a \bmod b)$ при $b \neq 0$.</p>
+
+    <p>Это рекурсия: функция вызывает себя с парой $(b, a \bmod b)$. Базовый случай $b = 0$ останавливает рекурсию, и ответом служит $a$.</p>
+
+    <p>Остаток $a \bmod b$ всегда меньше $b$, поэтому второй аргумент строго убывает. За два шага остаток уменьшается более чем вдвое, поэтому число шагов равно $O(\log \min(a, b))$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# НОД по алгоритму Евклида (рекурсия): O(log min(a, b))
+def gcd(a, b):
+    """Возвращает наибольший общий делитель неотрицательных целых a и b.
+
+    Использует gcd(a, b) = gcd(b, a mod b) и gcd(a, 0) = a.
+    """
+    # Базовый случай: остаток стал нулём, значит a и есть ответ
+    if b == 0:
+        return a
+    # Переход к паре (b, a mod b): второй аргумент на каждом шаге уменьшается
+    return gcd(b, a % b)
+
+
+def main():
+    print(f"НОД(48, 18) = {gcd(48, 18)}")
+    print(f"НОД(17, 0) = {gcd(17, 0)}")
+    print(f"НОД(0, 5) = {gcd(0, 5)}")
+    print(f"НОД(0, 0) = {gcd(0, 0)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// НОД по алгоритму Евклида (рекурсия): O(log min(a, b))
+#include &lt;cstdio&gt;
+
+// Возвращает наибольший общий делитель неотрицательных целых a и b.
+// Использует gcd(a, b) = gcd(b, a mod b) и gcd(a, 0) = a.
+unsigned long long gcd(unsigned long long a, unsigned long long b) {
+  // Базовый случай: остаток стал нулём, значит a и есть ответ
+  if (b == 0) return a;
+  // Переход к паре (b, a mod b): второй аргумент на каждом шаге уменьшается
+  return gcd(b, a % b);
+}
+
+int main() {
+  std::printf("НОД(48, 18) = %llu\n", gcd(48, 18));
+  std::printf("НОД(17, 0) = %llu\n", gcd(17, 0));
+  std::printf("НОД(0, 5) = %llu\n", gcd(0, 5));
+  std::printf("НОД(0, 0) = %llu\n", gcd(0, 0));
+  return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// НОД по алгоритму Евклида (рекурсия): O(log min(a, b))
+// Возвращает наибольший общий делитель неотрицательных целых a и b.
+// Использует gcd(a, b) = gcd(b, a mod b) и gcd(a, 0) = a.
+pub fn gcd(a: u64, b: u64) -&gt; u64 {
+    // Базовый случай: остаток стал нулём, значит a и есть ответ
+    if b == 0 {
+        return a;
+    }
+    // Переход к паре (b, a mod b): второй аргумент на каждом шаге уменьшается
+    gcd(b, a % b)
+}
+
+fn main() {
+    println!("НОД(48, 18) = {}", gcd(48, 18));
+    println!("НОД(17, 0) = {}", gcd(17, 0));
+    println!("НОД(0, 5) = {}", gcd(0, 5));
+    println!("НОД(0, 0) = {}", gcd(0, 0));
+}
+</code></pre>
+
+    <h3>Ханойские башни: рекурсивное перемещение</h3>
+
+    <p>Есть три стержня $A$, $B$ и $C$ и $n$ дисков разного размера, надетых на стержень $A$ так, что меньший диск лежит выше большего. Нужно переложить все диски на стержень $C$. За один ход переносится верхний диск, и нельзя класть больший диск на меньший.</p>
+
+    <p>Рекурсивная идея такова: чтобы перенести $n$ дисков с $A$ на $C$, сначала переносим $n-1$ верхних дисков с $A$ на $B$, затем самый большой диск с $A$ на $C$, и наконец $n-1$ дисков с $B$ на $C$. Каждый из двух переносов $n-1$ дисков решается той же схемой, только стержни меняют роли.</p>
+
+    <p>Пусть $T(n)$ — число ходов. Тогда $T(n) = 2T(n-1) + 1$ и $T(0) = 0$, откуда $T(n) = 2^n - 1$. Сложность алгоритма $O(2^n)$: при $n = 20$ ходов уже больше миллиона, поэтому выводить все ходы имеет смысл только для небольших $n$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Ханойские башни: перенос n дисков со стержня src на dst через aux, O(2^n) ходов
+def hanoi(n, src, dst, aux, moves):
+    """Добавляет в moves все ходы (откуда, куда) для переноса n дисков.
+
+    Сначала n-1 верхних дисков уходят на вспомогательный стержень aux,
+    затем самый большой диск переносится на dst, и n-1 дисков идут с aux на dst.
+    """
+    # Дисков нет, переносить нечего: рекурсия останавливается
+    if n == 0:
+        return
+    hanoi(n - 1, src, aux, dst, moves)
+    moves.append((src, dst))
+    hanoi(n - 1, aux, dst, src, moves)
+
+
+def main():
+    moves = []
+    hanoi(3, "A", "C", "B", moves)
+    for src, dst in moves:
+        print(f"{src} -&gt; {dst}")
+    print(f"всего ходов: {len(moves)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Ханойские башни: перенос n дисков со стержня src на dst через aux, O(2^n) ходов
+#include &lt;cstdio&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Добавляет в moves все ходы (откуда, куда) для переноса n дисков.
+// Сначала n-1 верхних дисков уходят на aux, затем большой диск на dst, и n-1 дисков идут с aux на dst.
+void hanoi(int n, char src, char dst, char aux, std::vector&lt;std::pair&lt;char, char&gt;&gt;&amp; moves) {
+  // Дисков нет, переносить нечего: рекурсия останавливается
+  if (n == 0) return;
+  hanoi(n - 1, src, aux, dst, moves);
+  moves.emplace_back(src, dst);
+  hanoi(n - 1, aux, dst, src, moves);
+}
+
+int main() {
+  std::vector&lt;std::pair&lt;char, char&gt;&gt; moves;
+  hanoi(3, 'A', 'C', 'B', moves);
+  for (const auto&amp; [from, to] : moves) {
+    std::printf("%c -&gt; %c\n", from, to);
+  }
+  std::printf("всего ходов: %zu\n", moves.size());
+  return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Ханойские башни: перенос n дисков со стержня src на dst через aux, O(2^n) ходов
+// Добавляет в moves все ходы (откуда, куда) для переноса n дисков.
+// Сначала n-1 верхних дисков уходят на aux, затем большой диск на dst, и n-1 дисков идут с aux на dst.
+pub fn hanoi(n: u32, src: char, dst: char, aux: char, moves: &amp;mut Vec&lt;(char, char)&gt;) {
+    // Дисков нет, переносить нечего: рекурсия останавливается
+    if n == 0 {
+        return;
+    }
+    hanoi(n - 1, src, aux, dst, moves);
+    moves.push((src, dst));
+    hanoi(n - 1, aux, dst, src, moves);
+}
+
+fn main() {
+    let mut moves = Vec::new();
+    hanoi(3, 'A', 'C', 'B', &amp;mut moves);
+    for (from, to) in &amp;moves {
+        println!("{from} -&gt; {to}");
+    }
+    println!("всего ходов: {}", moves.len());
+}
+</code></pre>
+
+    <h3>Перебор с возвратом: все подмножества</h3>
+
+    <p>Подмножество множества из $n$ элементов задаётся решениями для каждого элемента: брать его или не брать. Так получаются все $2^n$ подмножеств.</p>
+
+    <p>Перебор с возвратом — это рекурсия по номеру элемента. На каждом уровне сначала пробуем не брать элемент и уходим вглубь, затем берём его и снова уходим вглубь. Возврат из рекурсии отменяет выбор (последний элемент удаляется из текущего подмножества), и перебор продолжается в другой ветке.</p>
+
+    <p>Глубина рекурсии равна $n$, а в каждом из $2^n$ листьев дерева перебора копируется текущее подмножество длиной до $n$. Поэтому сложность равна $O(n \cdot 2^n)$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перебор с возвратом: все подмножества множества из n элементов, O(n * 2^n)
+def search(items, index, current, result):
+    """Перебирает выбор элементов с позиции index: сначала не берём элемент, потом берём."""
+    # Все элементы решены: сохраняем копию текущего подмножества
+    if index == len(items):
+        result.append(list(current))
+        return
+    search(items, index + 1, current, result)  # элемент не берём
+    current.append(items[index])               # пробуем взять элемент
+    search(items, index + 1, current, result)
+    current.pop()                              # возврат: отменяем выбор
+
+
+def subsets(items):
+    """Возвращает список всех подмножеств списка items."""
+    result = []
+    search(items, 0, [], result)
+    return result
+
+
+def main():
+    all_subsets = subsets(["a", "b", "c"])
+    for subset in all_subsets:
+        print(subset)
+    print(f"всего подмножеств: {len(all_subsets)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перебор с возвратом: все подмножества множества из n элементов, O(n * 2^n)
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Перебирает выбор элементов с позиции index: сначала не берём элемент, потом берём.
+// На листе (все элементы решены) сохраняем копию текущего подмножества.
+void search(const std::vector&lt;int&gt;&amp; items, std::size_t index, std::vector&lt;int&gt;&amp; current,
+            std::vector&lt;std::vector&lt;int&gt;&gt;&amp; result) {
+  if (index == items.size()) {
+    result.push_back(current);
+    return;
+  }
+  search(items, index + 1, current, result);  // элемент не берём
+  current.push_back(items[index]);            // пробуем взять элемент
+  search(items, index + 1, current, result);
+  current.pop_back();                         // возврат: отменяем выбор
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; subsets(const std::vector&lt;int&gt;&amp; items) {
+  std::vector&lt;std::vector&lt;int&gt;&gt; result;
+  std::vector&lt;int&gt; current;
+  search(items, 0, current, result);
+  return result;
+}
+
+int main() {
+  std::vector&lt;std::vector&lt;int&gt;&gt; all = subsets({1, 2, 3});
+  for (const auto&amp; subset : all) {
+    std::printf("{");
+    for (std::size_t i = 0; i &lt; subset.size(); ++i) {
+      if (i &gt; 0) std::printf(", ");
+      std::printf("%d", subset[i]);
+    }
+    std::printf("}\n");
+  }
+  std::printf("всего подмножеств: %zu\n", all.size());
+  return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Перебор с возвратом: все подмножества множества из n элементов, O(n * 2^n)
+// Перебирает выбор элементов с позиции index: сначала не берём элемент, потом берём.
+// На листе (все элементы решены) сохраняем копию текущего подмножества.
+fn search(items: &amp;[i32], index: usize, current: &amp;mut Vec&lt;i32&gt;, result: &amp;mut Vec&lt;Vec&lt;i32&gt;&gt;) {
+    if index == items.len() {
+        result.push(current.clone());
+        return;
+    }
+    search(items, index + 1, current, result); // элемент не берём
+    current.push(items[index]); // пробуем взять элемент
+    search(items, index + 1, current, result);
+    current.pop(); // возврат: отменяем выбор
+}
+
+pub fn subsets(items: &amp;[i32]) -&gt; Vec&lt;Vec&lt;i32&gt;&gt; {
+    let mut result = Vec::new();
+    search(items, 0, &amp;mut Vec::new(), &amp;mut result);
+    result
+}
+
+fn main() {
+    let all = subsets(&amp;[1, 2, 3]);
+    for subset in &amp;all {
+        println!("{subset:?}");
+    }
+    println!("всего подмножеств: {}", all.len());
+}
+</code></pre>
 </div>
 
 </body>

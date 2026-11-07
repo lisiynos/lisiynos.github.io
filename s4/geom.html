@@ -13,6 +13,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -24,6 +25,362 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         <li><a href="#">Геометрия</a></li>
     </ul>
 
+    <h3>Ориентация тройки точек</h3>
+
+    <p>Пусть даны три точки $O$, $A$ и $B$ с целыми координатами. Векторное (косое) произведение векторов $\vec{OA}$ и $\vec{OB}$ равно $(A_x - O_x)(B_y - O_y) - (A_y - O_y)(B_x - O_x)$. Его знак показывает, в какую сторону повернёт путь $O \to A \to B$.</p>
+    <p>Положительное значение означает поворот влево (против часовой стрелки), отрицательное - поворот вправо, ноль - точки лежат на одной прямой. Модуль значения равен удвоенной площади треугольника $OAB$.</p>
+    <p>Вычисление состоит из двух умножений и одного вычитания, поэтому время работы $O(1)$. Все величины целые, поэтому знак определяется точно, без погрешностей вещественной арифметики.</p>
+    <p>При координатах до $10^9$ по модулю все промежуточные значения помещаются в 64-битное целое. Функция возвращает знак: $1$, $-1$ или $0$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Ориентация тройки точек (знак векторного произведения), время O(1)
+# Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
+
+
+def cross(o, a, b):
+    """Векторное произведение (a - o) x (b - o)."""
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+
+def orientation(o, a, b):
+    value = cross(o, a, b)
+    return (value &gt; 0) - (value &lt; 0)  # +1, -1 или 0
+
+
+def main():
+    o, a = (0, 0), (4, 0)
+    for b in [(4, 3), (4, -3), (8, 0), (-2, 0)]:
+        print(f"orientation(O, A, {b}) = {orientation(o, a, b)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Ориентация тройки точек (знак векторного произведения), время O(1)
+// Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
+#include &lt;iostream&gt;
+
+struct Point {
+    long long x, y;
+};
+
+// Векторное произведение (a - o) x (b - o); при координатах до 10^9 по модулю 64-битного типа хватает
+long long cross(Point o, Point a, Point b) {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+int orientation(Point o, Point a, Point b) {
+    long long value = cross(o, a, b);
+    return (value &gt; 0) - (value &lt; 0);
+}
+
+int main() {
+    Point o{0, 0};
+    Point a{4, 0};
+    Point points[] = {{4, 3}, {4, -3}, {8, 0}, {-2, 0}};
+    for (const Point&amp; b : points) {
+        std::cout &lt;&lt; "orientation(O, A, (" &lt;&lt; b.x &lt;&lt; ", " &lt;&lt; b.y &lt;&lt; ")) = "
+                  &lt;&lt; orientation(o, a, b) &lt;&lt; "\n";
+    }
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Ориентация тройки точек (знак векторного произведения), время O(1)
+// Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
+
+#[derive(Clone, Copy)]
+pub struct Point {
+    pub x: i64,
+    pub y: i64,
+}
+
+// Векторное произведение (a - o) x (b - o); при координатах до 10^9 по модулю i64 хватает
+pub fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+}
+
+pub fn orientation(o: Point, a: Point, b: Point) -&gt; i64 {
+    cross(o, a, b).signum()
+}
+
+fn main() {
+    let o = Point { x: 0, y: 0 };
+    let a = Point { x: 4, y: 0 };
+    let points = [(4, 3), (4, -3), (8, 0), (-2, 0)];
+    for (x, y) in points {
+        let b = Point { x, y };
+        println!("orientation(O, A, ({}, {})) = {}", x, y, orientation(o, a, b));
+    }
+}
+</code></pre>
+
+    <h3>Площадь простого многоугольника (формула шнурка)</h3>
+
+    <p>Пусть вершины многоугольника $P_0, P_1, \ldots, P_{n-1}$ заданы по порядку обхода контура, и $P_n = P_0$. Тогда удвоенная площадь выражается формулой шнурка: $2S = \left| \sum_{i=0}^{n-1} (x_i y_{i+1} - x_{i+1} y_i) \right|$.</p>
+    <p>Удвоенная площадь выбрана намеренно: сумма целых слагаемых даёт целое $2S$, и не нужно делить на 2 и работать с дробями. Знак суммы до взятия модуля показывает направление обхода: положительный знак соответствует обходу против часовой стрелки.</p>
+    <p>Алгоритм делает один проход по рёбрам, поэтому время работы $O(n)$, дополнительная память $O(1)$. Формула даёт площадь простого многоугольника, то есть без самопересечений. Для пустого списка вершин результат равен $0$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Площадь простого многоугольника по формуле шнурка, время O(n)
+# Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
+
+
+def polygon_double_area(points):
+    total = 0
+    for (x1, y1), (x2, y2) in zip(points, points[1:] + points[:1]):
+        total += x1 * y2 - x2 * y1
+    return abs(total)
+
+
+def main():
+    square = [(0, 0), (4, 0), (4, 3), (0, 3)]
+    triangle = [(0, 0), (4, 0), (0, 3)]
+    print("квадрат 4x3: 2S =", polygon_double_area(square))
+    print("треугольник: 2S =", polygon_double_area(triangle))
+    print("обратный обход: 2S =", polygon_double_area(square[::-1]))
+    print("без вершин: 2S =", polygon_double_area([]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Площадь простого многоугольника по формуле шнурка, время O(n)
+// Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
+#include &lt;cstddef&gt;
+#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x, y;
+};
+
+// Сумма x_i * y_{i+1} - x_{i+1} * y_i по рёбрам контура (последняя вершина соединяется с первой).
+// При координатах до 10^6 по модулю и n до 10^6 сумма не выходит за пределы 64-битного типа.
+long long polygon_double_area(const std::vector&lt;Point&gt;&amp; points) {
+    std::size_t n = points.size();
+    long long total = 0;
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        const Point&amp; p = points[i];
+        const Point&amp; q = points[(i + 1) % n];
+        total += p.x * q.y - q.x * p.y;
+    }
+    return std::abs(total);
+}
+
+int main() {
+    std::vector&lt;Point&gt; square = {{0, 0}, {4, 0}, {4, 3}, {0, 3}};
+    std::vector&lt;Point&gt; triangle = {{0, 0}, {4, 0}, {0, 3}};
+    std::vector&lt;Point&gt; reversed(square.rbegin(), square.rend());
+    std::vector&lt;Point&gt; empty;
+    std::cout &lt;&lt; "квадрат 4x3: 2S = " &lt;&lt; polygon_double_area(square) &lt;&lt; "\n";
+    std::cout &lt;&lt; "треугольник: 2S = " &lt;&lt; polygon_double_area(triangle) &lt;&lt; "\n";
+    std::cout &lt;&lt; "обратный обход: 2S = " &lt;&lt; polygon_double_area(reversed) &lt;&lt; "\n";
+    std::cout &lt;&lt; "без вершин: 2S = " &lt;&lt; polygon_double_area(empty) &lt;&lt; "\n";
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Площадь простого многоугольника по формуле шнурка, время O(n)
+// Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
+
+#[derive(Clone, Copy)]
+pub struct Point {
+    pub x: i64,
+    pub y: i64,
+}
+
+// Сумма x_i * y_{i+1} - x_{i+1} * y_i по рёбрам контура (последняя вершина соединяется с первой).
+// При координатах до 10^6 по модулю и n до 10^6 сумма не выходит за пределы i64.
+pub fn polygon_double_area(points: &amp;[Point]) -&gt; i64 {
+    let n = points.len();
+    let mut total: i64 = 0;
+    for i in 0..n {
+        let p = points[i];
+        let q = points[(i + 1) % n];
+        total += p.x * q.y - q.x * p.y;
+    }
+    total.abs()
+}
+
+fn main() {
+    let square = [(0, 0), (4, 0), (4, 3), (0, 3)].map(|(x, y)| Point { x, y });
+    let triangle = [(0, 0), (4, 0), (0, 3)].map(|(x, y)| Point { x, y });
+    let reversed: Vec&lt;Point&gt; = square.iter().rev().copied().collect();
+    let empty: Vec&lt;Point&gt; = Vec::new();
+    println!("квадрат 4x3: 2S = {}", polygon_double_area(&amp;square));
+    println!("треугольник: 2S = {}", polygon_double_area(&amp;triangle));
+    println!("обратный обход: 2S = {}", polygon_double_area(&amp;reversed));
+    println!("без вершин: 2S = {}", polygon_double_area(&amp;empty));
+}
+</code></pre>
+
+    <h3>Пересечение двух отрезков</h3>
+
+    <p>Даны отрезки $P_1P_2$ и $Q_1Q_2$. Обозначим через $d_1$ и $d_2$ знаки поворота точек $P_1$ и $P_2$ относительно прямой $Q_1Q_2$, а через $d_3$ и $d_4$ - знаки поворота точек $Q_1$ и $Q_2$ относительно прямой $P_1P_2$.</p>
+    <p>Если $d_1 d_2 &lt; 0$ и $d_3 d_4 &lt; 0$, то концы каждого отрезка лежат по разные стороны от прямой другого. Тогда точка пересечения прямых лежит внутри обоих отрезков, и отрезки пересекаются.</p>
+    <p>Во всех остальных случаях пересечение возможно только касанием или наложением, и тогда хотя бы один конец одного отрезка лежит на другом. Такой конец имеет нулевой знак поворота относительно прямой другого отрезка, и остаётся проверить, попадает ли он в прямоугольник отрезка: $\min(a_x, b_x) \le c_x \le \max(a_x, b_x)$ и то же для $y$.</p>
+    <p>Вырожденные отрезки (точки) обрабатываются теми же условиями. Вычисление состоит из четырёх ориентаций и нескольких сравнений, поэтому время работы $O(1)$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пересечение двух отрезков (с касанием и наложением), время O(1)
+# Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
+
+
+def orientation(a, b, c):
+    value = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    return (value &gt; 0) - (value &lt; 0)  # +1 - поворот влево, -1 - вправо, 0 - одна прямая
+
+
+def on_segment(a, b, c):
+    """Точка c, лежащая на одной прямой с отрезком ab, принадлежит ему, если попадает в его прямоугольник."""
+    return min(a[0], b[0]) &lt;= c[0] &lt;= max(a[0], b[0]) and min(a[1], b[1]) &lt;= c[1] &lt;= max(a[1], b[1])
+
+
+def segments_intersect(p1, p2, q1, q2):
+    d1 = orientation(q1, q2, p1)
+    d2 = orientation(q1, q2, p2)
+    d3 = orientation(p1, p2, q1)
+    d4 = orientation(p1, p2, q2)
+    if d1 * d2 &lt; 0 and d3 * d4 &lt; 0:
+        return True
+    return (
+        (d1 == 0 and on_segment(q1, q2, p1))
+        or (d2 == 0 and on_segment(q1, q2, p2))
+        or (d3 == 0 and on_segment(p1, p2, q1))
+        or (d4 == 0 and on_segment(p1, p2, q2))
+    )
+
+
+def main():
+    cases = {
+        "крест": ((0, 0), (4, 4), (0, 4), (4, 0)),
+        "на одной прямой, не перекрываются": ((0, 0), (2, 2), (3, 3), (5, 5)),
+        "наложение": ((0, 0), (4, 0), (2, 0), (6, 0)),
+        "касание концами": ((0, 0), (4, 0), (4, 0), (4, 5)),
+        "параллельные": ((0, 0), (4, 0), (0, 1), (4, 1)),
+    }
+    for name, (p1, p2, q1, q2) in cases.items():
+        print(f"{name}: {segments_intersect(p1, p2, q1, q2)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пересечение двух отрезков (с касанием и наложением), время O(1)
+// Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+
+struct Point {
+    long long x, y;
+};
+
+// Знак поворота (b - a) x (c - a): 1 - поворот влево, -1 - вправо, 0 - точки на одной прямой
+int orientation(Point a, Point b, Point c) {
+    long long value = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    return (value &gt; 0) - (value &lt; 0);
+}
+
+// Точка c, лежащая на одной прямой с отрезком ab, принадлежит ему, если попадает в его прямоугольник
+bool on_segment(Point a, Point b, Point c) {
+    return std::min(a.x, b.x) &lt;= c.x &amp;&amp; c.x &lt;= std::max(a.x, b.x) &amp;&amp;
+           std::min(a.y, b.y) &lt;= c.y &amp;&amp; c.y &lt;= std::max(a.y, b.y);
+}
+
+bool segments_intersect(Point p1, Point p2, Point q1, Point q2) {
+    int d1 = orientation(q1, q2, p1);
+    int d2 = orientation(q1, q2, p2);
+    int d3 = orientation(p1, p2, q1);
+    int d4 = orientation(p1, p2, q2);
+    if (d1 * d2 &lt; 0 &amp;&amp; d3 * d4 &lt; 0) {
+        return true;
+    }
+    return (d1 == 0 &amp;&amp; on_segment(q1, q2, p1)) ||
+           (d2 == 0 &amp;&amp; on_segment(q1, q2, p2)) ||
+           (d3 == 0 &amp;&amp; on_segment(p1, p2, q1)) ||
+           (d4 == 0 &amp;&amp; on_segment(p1, p2, q2));
+}
+
+int main() {
+    std::cout &lt;&lt; std::boolalpha;
+    std::cout &lt;&lt; "крест: " &lt;&lt; segments_intersect({0, 0}, {4, 4}, {0, 4}, {4, 0}) &lt;&lt; "\n";
+    std::cout &lt;&lt; "на одной прямой, не перекрываются: "
+              &lt;&lt; segments_intersect({0, 0}, {2, 2}, {3, 3}, {5, 5}) &lt;&lt; "\n";
+    std::cout &lt;&lt; "наложение: " &lt;&lt; segments_intersect({0, 0}, {4, 0}, {2, 0}, {6, 0}) &lt;&lt; "\n";
+    std::cout &lt;&lt; "касание концами: " &lt;&lt; segments_intersect({0, 0}, {4, 0}, {4, 0}, {4, 5}) &lt;&lt; "\n";
+    std::cout &lt;&lt; "параллельные: " &lt;&lt; segments_intersect({0, 0}, {4, 0}, {0, 1}, {4, 1}) &lt;&lt; "\n";
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Пересечение двух отрезков (с касанием и наложением), время O(1)
+// Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
+
+#[derive(Clone, Copy)]
+pub struct Point {
+    pub x: i64,
+    pub y: i64,
+}
+
+// Знак поворота (b - a) x (c - a): 1 - поворот влево, -1 - вправо, 0 - точки на одной прямой
+pub fn orientation(a: Point, b: Point, c: Point) -&gt; i64 {
+    ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)).signum()
+}
+
+// Точка c, лежащая на одной прямой с отрезком ab, принадлежит ему, если попадает в его прямоугольник
+pub fn on_segment(a: Point, b: Point, c: Point) -&gt; bool {
+    a.x.min(b.x) &lt;= c.x &amp;&amp; c.x &lt;= a.x.max(b.x) &amp;&amp; a.y.min(b.y) &lt;= c.y &amp;&amp; c.y &lt;= a.y.max(b.y)
+}
+
+pub fn segments_intersect(p1: Point, p2: Point, q1: Point, q2: Point) -&gt; bool {
+    let d1 = orientation(q1, q2, p1);
+    let d2 = orientation(q1, q2, p2);
+    let d3 = orientation(p1, p2, q1);
+    let d4 = orientation(p1, p2, q2);
+    if d1 * d2 &lt; 0 &amp;&amp; d3 * d4 &lt; 0 {
+        return true;
+    }
+    (d1 == 0 &amp;&amp; on_segment(q1, q2, p1))
+        || (d2 == 0 &amp;&amp; on_segment(q1, q2, p2))
+        || (d3 == 0 &amp;&amp; on_segment(p1, p2, q1))
+        || (d4 == 0 &amp;&amp; on_segment(p1, p2, q2))
+}
+
+fn main() {
+    let to_point = |(x, y): (i64, i64)| Point { x, y };
+    let cases = [
+        ("крест", (0, 0), (4, 4), (0, 4), (4, 0)),
+        ("на одной прямой, не перекрываются", (0, 0), (2, 2), (3, 3), (5, 5)),
+        ("наложение", (0, 0), (4, 0), (2, 0), (6, 0)),
+        ("касание концами", (0, 0), (4, 0), (4, 0), (4, 5)),
+        ("параллельные", (0, 0), (4, 0), (0, 1), (4, 1)),
+    ];
+    for (name, p1, p2, q1, q2) in cases {
+        let hit = segments_intersect(to_point(p1), to_point(p2), to_point(q1), to_point(q2));
+        println!("{}: {}", name, hit);
+    }
+}
+</code></pre>
 </div>
 </body>
 
