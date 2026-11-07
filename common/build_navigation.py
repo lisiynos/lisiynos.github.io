@@ -126,6 +126,11 @@ def normalize(fragment):
     return " ".join(html.unescape(TAGS.sub("", fragment)).split())
 
 
+def strip_tex(text):
+    """Plain text for the catalogue: the formulas of a heading are dropped, the words stay."""
+    return " ".join(re.sub(r"\$[^$]*\$", "", text).split())
+
+
 def find_heading(text, pattern):
     """The first heading matching the pattern. A section (h2, h3) wins over the page title (h1)."""
     matching = []
@@ -285,7 +290,7 @@ def main():
         places = []
         for rel, _ in algorithm["pages"]:
             anchor, section = sections[(algorithm["id"], rel)]
-            places.append({"path": rel, "anchor": anchor, "title": page_title(rel), "section": normalize(section)})
+            places.append({"path": rel, "anchor": anchor, "title": page_title(rel), "section": strip_tex(section)})
             navigation["byPage"].setdefault(rel, []).append(algorithm["id"])
         navigation["algorithms"].append({**{k: algorithm[k] for k in ("id", "name", "category", "complexity")},
                                          "pages": places})
