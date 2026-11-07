@@ -344,11 +344,21 @@ int main(int argc, char* argv[]) {
 
 <h3>Структуры (записи) в C/С++</h3>
 
-<pre class="sh_pascal">
-type
-  Point = Record
-    x,y : Integer;
-  end;  </pre>
+<pre class="sh_cpp">
+// Структура (запись): поля разного типа под одним именем
+#include &lt;stdio.h&gt;
+
+struct Point {
+    int x, y;
+};
+
+int main(void) {
+    struct Point p = {3, 4};       // инициализация полей по порядку
+    p.x = 5;                       // обращение к полю через точку
+    printf("%d %d\n", p.x, p.y);   // 5 4
+    return 0;
+}
+</pre>
 
 <h3>Перечисления в C/C++</h3>
 
