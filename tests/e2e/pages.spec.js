@@ -31,6 +31,13 @@ for (const urlPath of listPages()) {
 
     const response = await page.goto(urlPath);
     expect(response.status(), 'page status').toBeLessThan(400);
+    // Lazy images load only when they scroll into view, so scroll through the page to request all of them.
+    await page.evaluate(async () => {
+      for (let top = 0; top < document.body.scrollHeight; top += 600) {
+        window.scrollTo(0, top);
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      }
+    });
     // Scripts may still send requests after the load event, for example an XMLHttpRequest made from onLoad.
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
 

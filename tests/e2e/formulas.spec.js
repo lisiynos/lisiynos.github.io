@@ -27,6 +27,8 @@ for (const urlPath of MATHJAX_PAGES) {
         timeout: 30_000,
       })
       .toEqual([]);
+    // MathJax 3 shows formulas it cannot parse as error boxes instead of leaving the source behind.
+    await expect(page.locator('mjx-merror'), 'formulas MathJax could not parse').toHaveCount(0);
     const left = await rawFormulasLeft(page);
     expect(known.filter((formula) => !left.includes(formula)), 'known formula issues that no longer occur').toEqual([]);
   });
