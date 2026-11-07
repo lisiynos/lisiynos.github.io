@@ -159,9 +159,11 @@ h4:hover .anchor,
 .viz-form input.viz-input {
   width: 18em;
   font-family: Consolas, monospace;
+  font-size: 16px;
 }
 
 .viz-button {
+  min-height: 44px;
   padding: 6px 12px;
   border: 1px solid #4a90d9;
   border-radius: 4px;
@@ -441,6 +443,77 @@ h4:hover .anchor,
 
 .viz-color-1 {
   fill: #fbd9b5;
+}
+
+/* Segment tree picture (js/viz.js, mountSegtree) */
+.viz-seg {
+  display: block;
+  height: auto;
+  margin: 8px 0;
+}
+
+.viz-seg-edge {
+  stroke: #98a;
+  stroke-width: 1.5;
+}
+
+.viz-seg-edge-used {
+  stroke: #2a9d4b;
+  stroke-width: 3;
+}
+
+.viz-seg-node {
+  fill: #fff;
+  stroke: #556;
+  stroke-width: 1.5;
+}
+
+.viz-seg-done {
+  fill: #eef5fc;
+}
+
+.viz-seg-pad {
+  fill: #eee;
+  stroke: #999;
+  stroke-dasharray: 4 3;
+}
+
+.viz-seg-taken {
+  fill: #c8f0c8;
+  stroke: #2a9d4b;
+  stroke-width: 2.5;
+}
+
+.viz-seg-changed {
+  fill: #ffd1d1;
+  stroke: #c0392b;
+  stroke-width: 2.5;
+}
+
+.viz-seg-current {
+  fill: #ffd36b;
+  stroke: #b07400;
+  stroke-width: 2.5;
+}
+
+.viz-seg-small {
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  fill: #556;
+}
+
+.viz-seg-value {
+  font-family: Consolas, monospace;
+  font-size: 15px;
+  font-weight: bold;
+  fill: #223;
+}
+
+.viz-seg-pointer {
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  fill: #1d5fa8;
 }
 
 /* Navigation: the trail, the neighbouring lessons and the algorithms of a page (js/site.js) */

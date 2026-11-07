@@ -65,7 +65,7 @@
   // ----- the player: frames with buttons to move through them -----
 
   // Shows the frames one at a time. draw(stage, frame) fills the stage for one frame.
-  function player(frames, draw) {
+  function player(frames, draw, first = 0) {
     const wrapper = el('div', 'viz-player');
     const stage = el('div', 'viz-stage');
     const caption = el('p', 'viz-caption');
@@ -101,7 +101,7 @@
     controls.append(prev, next, auto, reset, counter);
     wrapper.append(controls, stage, caption);
     wrapper.stop = stop;
-    show(0);
+    show(first);
     return wrapper;
   }
 
@@ -112,9 +112,9 @@
     output.replaceChildren();
   }
 
-  function replacePlayer(output, frames, draw) {
+  function replacePlayer(output, frames, draw, first = 0) {
     clear(output);
-    const view = player(frames, draw);
+    const view = player(frames, draw, first);
     output.append(view);
     output.stopPlaying = view.stop;
   }
@@ -923,7 +923,217 @@
     replacePlayer(output, kuhnFrames(adjacency, rightSize), (stage, f) => drawMatching(stage, f, MATCHING_EXAMPLE));
   }
 
+  // ----- segment tree in the bottom-up form of s5/segments_tree.html -----
+  // Heap numbering: the root is 1, the children of v are 2v and 2v+1, the leaves are size..2*size-1,
+  // and size is the length of the array rounded up to a power of two (the rest is filled with zeros).
+
+  // Values are integers up to SEG_LIMIT: eight of them sum up below 2^53, so every sum in the tree is exact.
+  const SEG_LIMIT = 1e15;
+
+  function segSize(n) {
+    let size = 1;
+    while (size < n) size *= 2;
+    return size;
+  }
+
+  // Horizontal place of every vertex: the leaves in order, an inner vertex in the middle of its children.
+  function segColumns(size) {
+    const column = new Array(2 * size).fill(0);
+    for (let i = 0; i < size; i++) column[size + i] = i;
+    for (let v = size - 1; v >= 1; v--) column[v] = (column[2 * v] + column[2 * v + 1]) / 2;
+    return column;
+  }
+
+  // The build of the page: pull(v) for v from size-1 down to 1, every vertex is the sum of its children.
+  function segBuildFrames(values) {
+    const n = values.length;
+    const size = segSize(n);
+    const tree = new Array(2 * size).fill(null);
+    for (let i = 0; i < size; i++) tree[size + i] = i < n ? values[i] : 0;
+    const frames = [];
+    const snap = (extra) => Object.assign({ size, n, tree: tree.slice(), current: null, taken: [], changed: [], left: null, right: null, answer: null, final: false }, extra);
+    const padding = size > n ? ' (справа дополнены нулями до степени двойки)' : '';
+    const firstCaption = size === 1 ? 'Единственный элемент — он одновременно лист и корень' : `Листья — элементы массива${padding}. Внутренние вершины ещё не посчитаны`;
+    frames.push(snap({ caption: firstCaption }));
+    for (let v = size - 1; v >= 1; v--) {
+      tree[v] = tree[2 * v] + tree[2 * v + 1];
+      frames.push(snap({ current: v, taken: [2 * v, 2 * v + 1], caption: `Вершина ${v}: tree[${v}] = tree[${2 * v}] + tree[${2 * v + 1}] = ${tree[2 * v]} + ${tree[2 * v + 1]} = ${tree[v]}` }));
+    }
+    frames.push(snap({ final: true, current: 1, caption: `Дерево построено за O(N): корень tree[1] = сумма всех элементов = ${tree[1]}` }));
+    return { frames, tree, size, n };
+  }
+
+  // The bottom-up get(l, r) of the page: l and r move up one level per step, the taken vertices go to the answer.
+  function segQueryFrames(state, left, right) {
+    const { size, n, tree } = state;
+    const frames = [];
+    let l = left + size;
+    let r = right + size;
+    let answer = 0;
+    const answered = [];
+    const snap = (extra) => Object.assign({ size, n, tree, current: null, taken: answered.slice(), changed: [], left: l, right: r, answer, final: false }, extra);
+    frames.push(snap({ caption: `Сумма на отрезке [${left}..${right}]: переводим границы в листья: l = ${left} + ${size} = ${l}, r = ${right} + ${size} = ${r}` }));
+    while (l <= r) {
+      if (l % 2 === 1) {
+        answer += tree[l];
+        answered.push(l);
+        const who = l === 1 ? 'l = 1 — это корень' : `l = ${l} нечётный, это правый сын`;
+        frames.push(snap({ current: l, caption: `${who} → берём tree[${l}] = ${tree[l]}, сумма = ${answer}` }));
+        l += 1;
+      }
+      if (r % 2 === 0) {
+        answer += tree[r];
+        answered.push(r);
+        frames.push(snap({ current: r, caption: `r = ${r} чётный, это левый сын → берём tree[${r}] = ${tree[r]}, сумма = ${answer}` }));
+        r -= 1;
+      }
+      l = Math.floor(l / 2);
+      r = Math.floor(r / 2);
+      if (l <= r) frames.push(snap({ caption: `Переходим на уровень выше: l = ${l}, r = ${r}` }));
+    }
+    frames.push(snap({ final: true, answer, left: null, right: null, caption: `Ответ: сумма на [${left}..${right}] = ${answer}` }));
+    return frames;
+  }
+
+  // The point update set(i, x) of the page: the leaf gets the value, then every ancestor is recomputed.
+  function segUpdateFrames(state, pos, value) {
+    const { size, n } = state;
+    const tree = state.tree.slice();
+    const frames = [];
+    const changed = [];
+    const snap = (extra) => Object.assign({ size, n, tree: tree.slice(), current: null, taken: [], changed: changed.slice(), left: null, right: null, answer: null, final: false }, extra);
+    let v = pos + size;
+    tree[v] = value;
+    frames.push(snap({ current: v, caption: `Листу ${v} (элемент a[${pos}]) присваиваем ${value}` }));
+    changed.push(v);
+    while (v > 1) {
+      v = Math.floor(v / 2);
+      tree[v] = tree[2 * v] + tree[2 * v + 1];
+      frames.push(snap({ current: v, taken: [2 * v, 2 * v + 1], caption: `Предок ${v}: tree[${v}] = tree[${2 * v}] + tree[${2 * v + 1}] = ${tree[2 * v]} + ${tree[2 * v + 1]} = ${tree[v]}` }));
+      changed.push(v);
+    }
+    frames.push(snap({ final: true, caption: `Все предки пересчитаны за O(log N): корень tree[1] = ${tree[1]}` }));
+    return { frames, tree };
+  }
+
+  function drawSegTree(stage, f) {
+    const { size, n } = f;
+    const column = segColumns(size);
+    const place = (v) => [60 + column[v] * 72, 40 + (31 - Math.clz32(v)) * 84];
+    const width = 120 + (size - 1) * 72;
+    const height = 40 + (31 - Math.clz32(size)) * 84 + 60;
+    const svg = svgNode('svg', { viewBox: `0 0 ${width} ${height}`, width, height, class: 'viz-seg' });
+    for (let v = 2; v < 2 * size; v++) {
+      const [x1, y1] = place(v >> 1);
+      const [x2, y2] = place(v);
+      const cls = f.taken.includes(v) ? 'viz-seg-edge viz-seg-edge-used' : 'viz-seg-edge';
+      svg.append(svgNode('line', { x1, y1: y1 + 27, x2, y2: y2 - 27, class: cls }));
+    }
+    for (let v = 1; v < 2 * size; v++) {
+      const [cx, cy] = place(v);
+      const depth = 31 - Math.clz32(v);
+      const span = size >> depth;
+      const start = (v - (1 << depth)) * span;
+      const range = span === 1 ? `[${start}]` : `[${start}..${start + span - 1}]`;
+      let cls = 'viz-seg-node';
+      if (start >= n) cls = 'viz-seg-node viz-seg-pad';
+      else if (f.tree[v] !== null) cls = 'viz-seg-node viz-seg-done';
+      if (f.taken.includes(v)) cls = 'viz-seg-node viz-seg-taken';
+      if (f.changed.includes(v)) cls = 'viz-seg-node viz-seg-changed';
+      if (f.current === v) cls = 'viz-seg-node viz-seg-current';
+      svg.append(svgNode('rect', { x: cx - 29, y: cy - 27, width: 58, height: 54, rx: 6, class: cls }));
+      const top = svgNode('text', { x: cx, y: cy - 12, 'text-anchor': 'middle', class: 'viz-seg-small' });
+      top.textContent = String(v);
+      const value = svgNode('text', { x: cx, y: cy + 6, 'text-anchor': 'middle', class: 'viz-seg-value' });
+      value.textContent = f.tree[v] === null ? '?' : String(f.tree[v]);
+      const bottom = svgNode('text', { x: cx, y: cy + 20, 'text-anchor': 'middle', class: 'viz-seg-small' });
+      bottom.textContent = range;
+      svg.append(top, value, bottom);
+    }
+    for (const [label, v, side] of [['l', f.left, -1], ['r', f.right, 1]]) {
+      if (v === null || v < 1 || v >= 2 * size) continue;
+      const [cx, cy] = place(v);
+      const mark = svgNode('text', { x: cx + side * 35, y: cy + 5, 'text-anchor': side < 0 ? 'end' : 'start', class: 'viz-seg-pointer' });
+      mark.textContent = label;
+      svg.append(mark);
+    }
+    stage.append(svg);
+  }
+
+  function isInteger(text) {
+    return /^-?\d+$/.test(text.trim());
+  }
+
+  function isSegValue(text) {
+    return isInteger(text) && Math.abs(Number(text)) <= SEG_LIMIT;
+  }
+
+  function mountSegtree(root) {
+    const values = field('Массив (до 8 чисел через пробел)', '5 3 7 2 8 1 4', 40);
+    const left = field('l (с нуля)', '1', 3);
+    const right = field('r (с нуля)', '5', 3);
+    const index = field('i (с нуля)', '2', 3);
+    const value = field('x (новое значение)', '10', 17);
+    const buildButton = button('Построить дерево', () => build(false));
+    const queryButton = button('Сумма на [l..r]', () => query());
+    const updateButton = button('Присвоить a[i] = x', () => update());
+    const output = mountTool(root, [values.wrap, left.wrap, right.wrap, index.wrap, value.wrap, buildButton, queryButton, updateButton]);
+    let state = null;
+
+    function build(showFinal) {
+      const tokens = values.input.value.trim().split(/\s+/);
+      if (tokens.length > 8 || !tokens.every(isSegValue)) {
+        showError(output, 'Введите от 1 до 8 целых чисел через пробел, каждое по модулю не больше 10^15.');
+        return;
+      }
+      const built = segBuildFrames(tokens.map(Number));
+      state = { size: built.size, n: built.n, tree: built.tree };
+      replacePlayer(output, built.frames, drawSegTree, showFinal ? built.frames.length - 1 : 0);
+    }
+
+    function query() {
+      if (!state) {
+        showError(output, 'Сначала постройте дерево.');
+        return;
+      }
+      if (!isInteger(left.input.value) || !isInteger(right.input.value)) {
+        showError(output, 'Границы l и r — целые числа.');
+        return;
+      }
+      const from = Number(left.input.value);
+      const to = Number(right.input.value);
+      if (from < 0 || to >= state.n || from > to) {
+        showError(output, `Отрезок должен лежать внутри массива: 0 ≤ l ≤ r ≤ ${state.n - 1}.`);
+        return;
+      }
+      replacePlayer(output, segQueryFrames(state, from, to), drawSegTree, 0);
+    }
+
+    function update() {
+      if (!state) {
+        showError(output, 'Сначала постройте дерево.');
+        return;
+      }
+      if (!isInteger(index.input.value) || !isSegValue(value.input.value)) {
+        showError(output, 'Номер i — целое число, значение x — целое, по модулю не больше 10^15.');
+        return;
+      }
+      const pos = Number(index.input.value);
+      if (pos < 0 || pos >= state.n) {
+        showError(output, `Номер i — от 0 до ${state.n - 1}.`);
+        return;
+      }
+      const updated = segUpdateFrames(state, pos, Number(value.input.value));
+      state.tree = updated.tree;
+      values.input.value = state.tree.slice(state.size, state.size + state.n).join(' ');
+      replacePlayer(output, updated.frames, drawSegTree, 0);
+    }
+
+    build(true);
+  }
+
   const MOUNTS = {
+    segtree: mountSegtree,
     bipartite: mountBipartite,
     matching: mountMatching,
     longarith: mountLong,
@@ -940,4 +1150,5 @@
 
   // Exposed for the tests of the arithmetic.
   window.VizLongArithmetic = { toBlocks, toText, addFrames, mulFrames, divFrames };
+  window.VizSegmentTree = { segBuildFrames, segQueryFrames, segUpdateFrames };
 })();
