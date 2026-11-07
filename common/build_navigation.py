@@ -55,6 +55,8 @@ ALGORITHMS = [
      "pages": [("s1/graph_alg_py.html", "Топологическая сортировка"), ("s1/graph_alg.html", "Топологическая сортировка")]},
     {"id": "euler", "name": "Эйлеров цикл", "category": "Графы", "complexity": "O(E)",
      "pages": [("s1/graph_alg_py.html", "Поиск эйлерова цикла"), ("s1/graph_alg.html", "Поиск эйлерова цикла")]},
+    {"id": "hamilton", "name": "Гамильтонов цикл (перебор с возвратом)", "category": "Графы", "complexity": "O(n!) в худшем случае",
+     "pages": [("s1/graph_alg_py.html", "Поиск гамильтонова цикла")]},
     {"id": "dijkstra", "name": "Алгоритм Дейкстры", "category": "Графы", "complexity": "O((V + E) log V)",
      "pages": [("s1/graph_alg_py.html", "Алгоритм Дейкстры"), ("s1/graph_alg.html", "Алгоритм Дейкстры")]},
     {"id": "floyd", "name": "Алгоритм Флойда–Уоршелла", "category": "Графы", "complexity": "O(V³)",

@@ -591,60 +591,61 @@ int main() {
 
     <h3 id="алгоритм-флойда">Алгоритм Флойда</h3>
 
-    <p>
-        <strong>Алгоритм Флойда — Уоршелла</strong> —
-        динамический алгоритм для нахождения кратчайших расстояний между всеми вершинами взвешенного ориентированного
-        графа. Разработан в 1962 году Робертом Флойдом и Стивеном Уоршеллом.</p>
+    <p><strong>Алгоритм Флойда — Уоршелла</strong> — динамический алгоритм, который находит кратчайшие расстояния между всеми парами вершин взвешенного ориентированного графа. Разработан в 1962 году Робертом Флойдом и Стивеном Уоршеллом. Рёбра могут иметь отрицательный вес, если в графе нет отрицательных циклов.</p>
 
-    <p>Пусть вершины графа пронумерованы от 1 до $n$ и введено обозначение $d_{ij}^k$ для длины кратчайшего пути от $i$
-        до
-        $j$, который кроме самих вершин $i,\; j$ проходит только через вершины $1 \ldots k$.
-        Очевидно, что $d_{i j}^{0}$ - длина (вес) ребра $(i,\;j)$, если таковое существует (в противном случае его длина
-        может быть обозначена как $\infty$)</p>
+    <p>Пусть вершины пронумерованы числами от $0$ до $n-1$. Обозначим через $d_{ij}^{k}$ длину кратчайшего пути из вершины $i$ в вершину $j$, все промежуточные вершины которого имеют номера меньше $k$. Тогда $d_{ij}^{0} = w_{ij}$ — вес ребра $(i, j)$, а если ребра нет, то $\infty$; при этом $d_{ii}^{0} = 0$.</p>
 
-    <p>Существует два варианта значения $d_{i j}^{k},\;k \in \mathbb (1,\;\ldots,\;n)$:</p>
+    <p>Рассмотрим кратчайший путь из $i$ в $j$, все промежуточные вершины которого имеют номера меньше $k+1$. Либо он не проходит через вершину $k$, и тогда его длина равна $d_{ij}^{k}$. Либо он проходит через $k$, и тогда состоит из кратчайших путей $i \to k$ и $k \to j$ с промежуточными вершинами, номера которых меньше $k$. Поэтому
+    $$d_{ij}^{k+1} = \min\bigl(d_{ij}^{k},\; d_{ik}^{k} + d_{kj}^{k}\bigr), \qquad k = 0, 1, \ldots, n-1.$$
+    Длины всех кратчайших путей равны $d_{ij}^{n}$.</p>
 
-    <ol>
-        <li>Кратчайший путь между $i,\;j$ не проходит через вершину $k$, тогда $d_{i j}^{k}=d_{i j}^{k-1}$</li>
-        <li>Существует более короткий путь между $i,\;j$, проходящий через $k$, тогда он сначала идёт от $i$ до $k$, а
-            потом от $k$ до $j$. В этом случае, очевидно, $d_{i j}^{k}=d_{i k}^{k-1} + d_{k j}^{k-1}$
-        </li>
-    </ol>
+    <p>Алгоритм перебирает $k$ от $0$ до $n-1$ и на каждом шаге обновляет все пары вершин. Время работы $O(n^3)$, память $O(n^2)$.</p>
 
-    <p>Таким образом, для нахождения значения функции достаточно выбрать минимум из двух обозначенных значений.</p>
-
-    <p>Тогда <span><a
-            href="http://ru.wikipedia.org/wiki/%D0%A0%D0%B5%D0%BA%D1%83%D1%80%D1%81%D0%B8%D1%8F"
-            title=Рекурсия><span style='color:#0645AD'>рекуррентная</span></a></span> формула для $d_{i j}^k$ имеет вид:
-    </p>
-
-    <p>$d_{i j}^0$ - длина ребра $(i,\;j)$</p>
-
-    <p>$d_{i j}^{k} = \min (d_{i j}^{k-1},\; d_{i k}^{k-1} + d_{k j}^{k-1})$
-
-    <p>Алгоритм Флойда - Уоршелла последовательно вычисляет все значения $d_{i j}^{k}$,
-        $\forall i,\; j$ для $k$ от 1 до $n$.
-        Полученные значения $d_{i j}^{n}$ являются длинами кратчайших путей между вершинами $i,\; j$.</p>
     <pre class="sh_pascal">
-for k := 1 to n do { k - промежуточная вершина } 
-  for i := 1 to n do { из i-ой вершины } 
-    for j := 1 to n do { в j-ую вершину } 
-      W[i][j] = min(W[i][j], W[i][k] + W[k][j]);
+for k := 0 to n-1 do            { k — промежуточная вершина }
+  for i := 0 to n-1 do
+    for j := 0 to n-1 do
+      if d[i][k] + d[k][j] &lt; d[i][j] then begin
+        d[i][j] := d[i][k] + d[k][j];
+        nxt[i][j] := nxt[i][k]   { путь через k начинается так же, как путь из i в k }
+      end;
 </pre>
 
-<p><strong>Реализация на Python</strong></p>
+    <p>Чтобы получить сам путь, храним для каждой пары вершин $\mathrm{nxt}[i][j]$ — вершину, которая идёт сразу после $i$ на кратчайшем пути из $i$ в $j$. Вначале $\mathrm{nxt}[i][j] = j$ для существующих рёбер. Когда путь через $k$ оказывается короче, он начинается так же, как путь из $i$ в $k$, поэтому $\mathrm{nxt}[i][j] := \mathrm{nxt}[i][k]$. Чтобы вывести путь из $i$ в $j$, идём от $i$ и переходим по $\mathrm{nxt}[\cdot][j]$, пока не придём в $j$.</p>
+    <p>Если после работы алгоритма $d_{ii} &lt; 0$ для некоторой вершины $i$, то существует отрицательный цикл, проходящий через $i$. Тогда кратчайших путей через него нет, и расстояния не определены.</p>
+
+    <p>Пример: граф из четырёх вершин с матрицей весов (строка — начало ребра, столбец — конец, $\infty$ — ребра нет):</p>
+<pre>
+ 0  3  ∞  5
+ 2  0  ∞  4
+ ∞  1  0  ∞
+ ∞  ∞  2  0
+</pre>
+    <p>Программы печатают матрицу кратчайших расстояний и два пути из этого примера:</p>
+<pre>
+0 3 7 5
+2 0 6 4
+3 1 0 5
+5 3 2 0
+путь 0 -&gt; 2: 0 3 2
+путь 2 -&gt; 0: 2 1 0
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
 <pre class="sh_python">
 # Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
-INF = float("inf")
+INF = float("inf")  # «нет ребра»
 
 
 def floyd_warshall(matrix):
-    """Возвращает матрицу кратчайших расстояний по матрице весов (INF — ребра нет).
+    """Возвращает (dist, nxt): dist[i][j] — длина кратчайшего пути из i в j, nxt[i][j] — следующая вершина на нём.
 
-    Исходная матрица не меняется. На диагонали матрицы весов должны стоять нули.
+    matrix — матрица весов, INF означает отсутствие ребра, на диагонали стоят нули.
+    Исходная матрица не меняется. Если dist[i][i] &lt; 0, существует отрицательный цикл, и расстояния не определены.
     """
     size = len(matrix)
     dist = [row[:] for row in matrix]
+    nxt = [[j if matrix[i][j] &lt; INF else None for j in range(size)] for i in range(size)]
     for k in range(size):  # k — промежуточная вершина
         for i in range(size):
             for j in range(size):
@@ -652,7 +653,19 @@ def floyd_warshall(matrix):
                 through_k = dist[i][k] + dist[k][j]
                 if through_k &lt; dist[i][j]:
                     dist[i][j] = through_k
-    return dist
+                    nxt[i][j] = nxt[i][k]
+    return dist, nxt
+
+
+def path(nxt, i, j):
+    """Возвращает список вершин кратчайшего пути из i в j или None, если пути нет."""
+    if nxt[i][j] is None:
+        return None
+    route = [i]
+    while i != j:
+        i = nxt[i][j]
+        route.append(i)
+    return route
 
 
 if __name__ == "__main__":
@@ -663,19 +676,32 @@ if __name__ == "__main__":
         [INF, 1, 0, INF],
         [INF, INF, 2, 0],
     ]
-    # Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
-    for row in floyd_warshall(matrix):
+    dist, nxt = floyd_warshall(matrix)
+    for row in dist:
         print(" ".join(map(str, row)))
+    for start, end in [(0, 2), (2, 0)]:
+        route = path(nxt, start, end)
+        print(f"путь {start} -&gt; {end}:", "нет" if route is None else " ".join(map(str, route)))
 </pre>
-
-<p><strong>Реализация на Rust</strong></p>
+    <p><strong>Реализация на Rust</strong></p>
 <pre class="rust-code"><code class="language-rust">// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
 pub const INF: i64 = i64::MAX / 4; // «нет ребра»; запас против переполнения при сложении
+pub const NONE: usize = usize::MAX; // «нет пути»
 
-/// Принимает матрицу весов (INF — ребра нет, на диагонали нули), возвращает кратчайшие расстояния.
-pub fn floyd_warshall(weights: &amp;[Vec&lt;i64&gt;]) -&gt; Vec&lt;Vec&lt;i64&gt;&gt; {
+/// Принимает матрицу весов (INF — ребра нет, на диагонали нули).
+/// Возвращает (dist, nxt): dist[i][j] — длина кратчайшего пути, nxt[i][j] — следующая вершина на нём.
+/// Если dist[i][i] &lt; 0, существует отрицательный цикл, и расстояния не определены.
+pub fn floyd_warshall(weights: &amp;[Vec&lt;i64&gt;]) -&gt; (Vec&lt;Vec&lt;i64&gt;&gt;, Vec&lt;Vec&lt;usize&gt;&gt;) {
     let size = weights.len();
     let mut dist = weights.to_vec();
+    let mut nxt = vec![vec![NONE; size]; size];
+    for i in 0..size {
+        for j in 0..size {
+            if weights[i][j] != INF {
+                nxt[i][j] = j;
+            }
+        }
+    }
     for k in 0..size {
         // k — промежуточная вершина
         for i in 0..size {
@@ -686,53 +712,101 @@ pub fn floyd_warshall(weights: &amp;[Vec&lt;i64&gt;]) -&gt; Vec&lt;Vec&lt;i64&gt
                 }
                 if dist[i][k] + dist[k][j] &lt; dist[i][j] {
                     dist[i][j] = dist[i][k] + dist[k][j];
+                    nxt[i][j] = nxt[i][k];
                 }
             }
         }
     }
-    dist
+    (dist, nxt)
+}
+
+/// Возвращает вершины кратчайшего пути из i в j или None, если пути нет.
+pub fn path(nxt: &amp;[Vec&lt;usize&gt;], mut i: usize, j: usize) -&gt; Option&lt;Vec&lt;usize&gt;&gt; {
+    if nxt[i][j] == NONE {
+        return None;
+    }
+    let mut route = vec![i];
+    while i != j {
+        i = nxt[i][j];
+        route.push(i);
+    }
+    Some(route)
 }
 
 fn main() {
     // Демонстрация: ориентированный граф из 4 вершин, веса заданы матрицей
-    let weights = vec![
+    let weights: Vec&lt;Vec&lt;i64&gt;&gt; = vec![
         vec![0, 3, INF, 5],
         vec![2, 0, INF, 4],
         vec![INF, 1, 0, INF],
         vec![INF, INF, 2, 0],
     ];
-    // Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
-    for row in floyd_warshall(&amp;weights) {
+    let (dist, nxt) = floyd_warshall(&amp;weights);
+    for row in &amp;dist {
         let line: Vec&lt;String&gt; = row.iter().map(|d| d.to_string()).collect();
         println!("{}", line.join(" "));
     }
+    for (start, end) in [(0, 2), (2, 0)] {
+        let text = match path(&amp;nxt, start, end) {
+            Some(route) =&gt; route.iter().map(|v| v.to_string()).collect::&lt;Vec&lt;_&gt;&gt;().join(" "),
+            None =&gt; "нет".to_string(),
+        };
+        println!("путь {} -&gt; {}: {}", start, end, text);
+    }
 }
 </code></pre>
-
-<p><strong>Реализация на C++</strong></p>
+    <p><strong>Реализация на C++</strong></p>
 <pre class="sh_cpp">
 // Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
 #include &lt;cstddef&gt;
 #include &lt;iostream&gt;
 #include &lt;limits&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
 #include &lt;vector&gt;
 
-const long long INF = std::numeric_limits&lt;long long&gt;::max() / 4;  // «нет ребра»; запас против переполнения
 using Matrix = std::vector&lt;std::vector&lt;long long&gt;&gt;;
+using NextMatrix = std::vector&lt;std::vector&lt;std::size_t&gt;&gt;;
 
-// Принимает матрицу весов (INF — ребра нет, на диагонали нули) и возвращает кратчайшие расстояния
-Matrix floyd_warshall(Matrix dist) {
-    const std::size_t size = dist.size();
+const long long INF = std::numeric_limits&lt;long long&gt;::max() / 4;   // «нет ребра»; запас против переполнения
+const std::size_t NONE = std::numeric_limits&lt;std::size_t&gt;::max();  // «нет пути»
+
+// Принимает матрицу весов (INF — ребра нет, на диагонали нули).
+// Возвращает dist — длины кратчайших путей и nxt — следующую вершину на пути (NONE, если пути нет).
+// Если dist[i][i] &lt; 0, существует отрицательный цикл, и расстояния не определены.
+std::pair&lt;Matrix, NextMatrix&gt; floyd_warshall(const Matrix&amp; weights) {
+    const std::size_t size = weights.size();
+    Matrix dist = weights;
+    NextMatrix nxt(size, std::vector&lt;std::size_t&gt;(size, NONE));
+    for (std::size_t i = 0; i &lt; size; ++i) {
+        for (std::size_t j = 0; j &lt; size; ++j) {
+            if (weights[i][j] != INF) nxt[i][j] = j;
+        }
+    }
     for (std::size_t k = 0; k &lt; size; ++k) {  // k — промежуточная вершина
         for (std::size_t i = 0; i &lt; size; ++i) {
             for (std::size_t j = 0; j &lt; size; ++j) {
                 // Путь i -&gt; k -&gt; j короче известного пути i -&gt; j?
                 if (dist[i][k] == INF || dist[k][j] == INF) continue;
-                if (dist[i][k] + dist[k][j] &lt; dist[i][j]) dist[i][j] = dist[i][k] + dist[k][j];
+                if (dist[i][k] + dist[k][j] &lt; dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    nxt[i][j] = nxt[i][k];
+                }
             }
         }
     }
-    return dist;
+    return {dist, nxt};
+}
+
+// Возвращает вершины кратчайшего пути из i в j или std::nullopt, если пути нет.
+std::optional&lt;std::vector&lt;std::size_t&gt;&gt; path(const NextMatrix&amp; nxt, std::size_t i, std::size_t j) {
+    if (nxt[i][j] == NONE) return std::nullopt;
+    std::vector&lt;std::size_t&gt; route{i};
+    while (i != j) {
+        i = nxt[i][j];
+        route.push_back(i);
+    }
+    return route;
 }
 
 int main() {
@@ -743,9 +817,18 @@ int main() {
         {INF, 1, 0, INF},
         {INF, INF, 2, 0},
     };
-    // Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
-    for (const auto&amp; row : floyd_warshall(matrix)) {
+    const auto [dist, nxt] = floyd_warshall(matrix);
+    for (const auto&amp; row : dist) {
         for (std::size_t j = 0; j &lt; row.size(); ++j) std::cout &lt;&lt; (j ? " " : "") &lt;&lt; row[j];
+        std::cout &lt;&lt; '\n';
+    }
+    for (const auto [start, end] : {std::pair&lt;std::size_t, std::size_t&gt;{0, 2}, {2, 0}}) {
+        std::cout &lt;&lt; "путь " &lt;&lt; start &lt;&lt; " -&gt; " &lt;&lt; end &lt;&lt; ": ";
+        if (const auto route = path(nxt, start, end)) {
+            for (std::size_t j = 0; j &lt; route-&gt;size(); ++j) std::cout &lt;&lt; (j ? " " : "") &lt;&lt; (*route)[j];
+        } else {
+            std::cout &lt;&lt; "нет";
+        }
         std::cout &lt;&lt; '\n';
     }
     return 0;
@@ -974,17 +1057,507 @@ int main() {
 
     <h2>Поиск особых путей в графах</h2>
 
+    <p>Путь в графе называют особым, если он проходит по каждому ребру или по каждой вершине ровно один раз. Задача о Кёнигсбергских мостах (Леонард Эйлер, 1736) спрашивала, можно ли обойти город, пройдя по каждому из семи мостов ровно один раз. Оказалось, что нельзя: к каждому из четырёх берегов и островов ведёт нечётное число мостов.</p>
+    <p>Эйлеров путь проходит по каждому ребру ровно один раз, гамильтонов путь — по каждой вершине ровно один раз. Для эйлеровых путей и циклов есть простой критерий и линейный алгоритм. Для гамильтоновых путей и циклов критерия нет, а задача поиска цикла NP-полна, поэтому точные алгоритмы в худшем случае работают очень долго.</p>
+
     <h3 id="поиск-эйлерова-цикла-в-графе">Поиск эйлерова цикла в графе</h3>
 
-    <p>&nbsp;</p>
+    <p>Эйлеров цикл — замкнутый путь, который проходит по каждому ребру графа ровно один раз. Граф, все рёбра которого лежат в одной компоненте связности, имеет эйлеров цикл тогда и только тогда, когда степени всех вершин чётны. Если же ровно две вершины имеют нечётную степень, то эйлеров путь (незамкнутый) существует и начинается в одной из этих вершин.</p>
+    <p>Алгоритм Хирхольцера строит цикл с помощью стека. Сначала в стеке лежит стартовая вершина. Пока у вершины на вершине стека есть непройденное ребро, проходим по нему, отмечаем ребро как пройденное и кладём на стек его второй конец. Если непройденных рёбер у вершины не осталось, снимаем её со стека и записываем в ответ. Записанные вершины, прочитанные в обратном порядке, образуют эйлеров цикл. Каждое ребро обрабатывается один раз, поэтому время работы $O(V + E)$.</p>
+    <p>Функция возвращает None, если цикла нет: она проверяет чётность степеней, а затем связность, сравнивая число записанных вершин с числом рёбер.</p>
 
-    <h3>Поиск гамильтонова цикла в графе</h3>
+    <p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Эйлеров цикл в неориентированном графе алгоритмом Хирхольцера: O(V + E)
+from collections import defaultdict
 
-    <h2>&nbsp;</h2>
+
+def euler_cycle(vertex_count, edges):
+    """Возвращает эйлеров цикл — список вершин, первая и последняя совпадают — или None, если цикла нет.
+
+    edges — список пар (u, v) вершин от 0 до vertex_count - 1. Кратные рёбра и петли допустимы.
+    Цикл начинается в первой вершине первого ребра.
+    """
+    if not edges:
+        return []
+    degree = [0] * vertex_count
+    adjacent = defaultdict(list)  # вершина -&gt; список (сосед, номер ребра)
+    for index, (u, v) in enumerate(edges):
+        degree[u] += 1
+        degree[v] += 1
+        adjacent[u].append((v, index))
+        adjacent[v].append((u, index))
+    if any(d % 2 for d in degree):
+        return None
+    used = [False] * len(edges)
+    position = defaultdict(int)  # вершина -&gt; позиция в её списке соседей
+    stack = [edges[0][0]]
+    walk = []  # вершины в порядке выхода из стека
+    while stack:
+        v = stack[-1]
+        while position[v] &lt; len(adjacent[v]) and used[adjacent[v][position[v]][1]]:
+            position[v] += 1
+        if position[v] == len(adjacent[v]):
+            walk.append(stack.pop())
+        else:
+            neighbour, index = adjacent[v][position[v]]
+            used[index] = True
+            stack.append(neighbour)
+    if len(walk) != len(edges) + 1:
+        return None  # часть рёбер не связана с первой вершиной
+    return walk[::-1]
+
+
+if __name__ == "__main__":
+    # Демонстрация: два треугольника с общей вершиной 0, все степени чётные
+    edges = [(0, 1), (1, 2), (2, 0), (0, 3), (3, 4), (4, 0)]
+    print("эйлеров цикл:", " ".join(map(str, euler_cycle(5, edges))))
+    # У вершин 0 и 2 нечётные степени, поэтому цикла нет
+    print("граф 0-1-2:", "эйлерова цикла нет" if euler_cycle(3, [(0, 1), (1, 2)]) is None else "есть")
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Эйлеров цикл в неориентированном графе алгоритмом Хирхольцера: O(V + E)
+
+/// Возвращает эйлеров цикл (первая и последняя вершины совпадают) или None, если цикла нет.
+/// edges — пары (u, v) вершин от 0 до vertex_count - 1; кратные рёбра и петли допустимы.
+pub fn euler_cycle(vertex_count: usize, edges: &amp;[(usize, usize)]) -&gt; Option&lt;Vec&lt;usize&gt;&gt; {
+    if edges.is_empty() {
+        return Some(Vec::new());
+    }
+    let mut degree = vec![0usize; vertex_count];
+    let mut adjacent: Vec&lt;Vec&lt;(usize, usize)&gt;&gt; = vec![Vec::new(); vertex_count]; // (сосед, номер ребра)
+    for (index, &amp;(u, v)) in edges.iter().enumerate() {
+        degree[u] += 1;
+        degree[v] += 1;
+        adjacent[u].push((v, index));
+        adjacent[v].push((u, index));
+    }
+    if degree.iter().any(|d| d % 2 == 1) {
+        return None;
+    }
+    let mut used = vec![false; edges.len()];
+    let mut position = vec![0usize; vertex_count]; // позиция в списке соседей
+    let mut stack = vec![edges[0].0];
+    let mut walk = Vec::new(); // вершины в порядке выхода из стека
+    while let Some(&amp;v) = stack.last() {
+        while position[v] &lt; adjacent[v].len() &amp;&amp; used[adjacent[v][position[v]].1] {
+            position[v] += 1;
+        }
+        if position[v] == adjacent[v].len() {
+            walk.push(v);
+            stack.pop();
+        } else {
+            let (neighbour, index) = adjacent[v][position[v]];
+            used[index] = true;
+            stack.push(neighbour);
+        }
+    }
+    if walk.len() != edges.len() + 1 {
+        return None; // часть рёбер не связана с первой вершиной
+    }
+    walk.reverse();
+    Some(walk)
+}
+
+fn main() {
+    // Демонстрация: два треугольника с общей вершиной 0, все степени чётные
+    let edges: Vec&lt;(usize, usize)&gt; = vec![(0, 1), (1, 2), (2, 0), (0, 3), (3, 4), (4, 0)];
+    let cycle = euler_cycle(5, &amp;edges).expect("все степени чётные");
+    let text: Vec&lt;String&gt; = cycle.iter().map(|v| v.to_string()).collect();
+    println!("эйлеров цикл: {}", text.join(" "));
+    // У вершин 0 и 2 нечётные степени, поэтому цикла нет
+    let path: Vec&lt;(usize, usize)&gt; = vec![(0, 1), (1, 2)];
+    let answer = if euler_cycle(3, &amp;path).is_none() { "эйлерова цикла нет" } else { "есть" };
+    println!("граф 0-1-2: {}", answer);
+}
+</code></pre>
+    <p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Эйлеров цикл в неориентированном графе алгоритмом Хирхольцера: O(V + E)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Edge = std::pair&lt;std::size_t, std::size_t&gt;;
+
+// Возвращает эйлеров цикл (первая и последняя вершины совпадают) или std::nullopt, если цикла нет.
+// edges — пары вершин от 0 до vertex_count - 1; кратные рёбра и петли допустимы.
+std::optional&lt;std::vector&lt;std::size_t&gt;&gt; euler_cycle(std::size_t vertex_count, const std::vector&lt;Edge&gt;&amp; edges) {
+    if (edges.empty()) return std::vector&lt;std::size_t&gt;{};
+    std::vector&lt;std::size_t&gt; degree(vertex_count, 0);
+    std::vector&lt;std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt;&gt; adjacent(vertex_count);  // (сосед, номер ребра)
+    for (std::size_t index = 0; index &lt; edges.size(); ++index) {
+        const auto [u, v] = edges[index];
+        ++degree[u];
+        ++degree[v];
+        adjacent[u].emplace_back(v, index);
+        adjacent[v].emplace_back(u, index);
+    }
+    for (std::size_t d : degree) {
+        if (d % 2 == 1) return std::nullopt;
+    }
+    std::vector&lt;bool&gt; used(edges.size(), false);
+    std::vector&lt;std::size_t&gt; position(vertex_count, 0);  // позиция в списке соседей
+    std::vector&lt;std::size_t&gt; stack{edges[0].first};
+    std::vector&lt;std::size_t&gt; walk;  // вершины в порядке выхода из стека
+    while (!stack.empty()) {
+        const std::size_t v = stack.back();
+        while (position[v] &lt; adjacent[v].size() &amp;&amp; used[adjacent[v][position[v]].second]) ++position[v];
+        if (position[v] == adjacent[v].size()) {
+            walk.push_back(v);
+            stack.pop_back();
+        } else {
+            const auto [neighbour, index] = adjacent[v][position[v]];
+            used[index] = true;
+            stack.push_back(neighbour);
+        }
+    }
+    if (walk.size() != edges.size() + 1) return std::nullopt;  // часть рёбер не связана с первой вершиной
+    return std::vector&lt;std::size_t&gt;(walk.rbegin(), walk.rend());
+}
+
+int main() {
+    // Демонстрация: два треугольника с общей вершиной 0, все степени чётные
+    const std::vector&lt;Edge&gt; edges = {{0, 1}, {1, 2}, {2, 0}, {0, 3}, {3, 4}, {4, 0}};
+    const auto cycle = euler_cycle(5, edges);
+    std::cout &lt;&lt; "эйлеров цикл:";
+    for (std::size_t v : *cycle) std::cout &lt;&lt; ' ' &lt;&lt; v;
+    std::cout &lt;&lt; '\n';
+    // У вершин 0 и 2 нечётные степени, поэтому цикла нет
+    const std::vector&lt;Edge&gt; path = {{0, 1}, {1, 2}};
+    std::cout &lt;&lt; "граф 0-1-2: " &lt;&lt; (euler_cycle(3, path) ? "есть" : "эйлерова цикла нет") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p>Программа строит цикл для графа из двух треугольников с общей вершиной 0 и сообщает, что у графа 0-1-2 с нечётными степенями вершин 0 и 2 эйлерова цикла нет.</p>
+
+    <h3 id="поиск-гамильтонова-цикла-в-графе">Поиск гамильтонова цикла в графе</h3>
+
+    <p>Гамильтонов цикл — замкнутый путь, который проходит по каждой вершине графа ровно один раз и возвращается в начальную вершину. Гамильтонов путь отличается тем, что возвращаться не нужно. Для гамильтоновых циклов нет критерия, похожего на критерий эйлерова цикла: задача NP-полна, а точные алгоритмы в худшем случае работают за время порядка $n!$.</p>
+    <p>Простой точный метод — перебор с возвратом (backtracking). Строим путь от вершины 0: на каждом шаге добавляем к пути непосещённого соседа последней вершины. Если путь содержит все $n$ вершин и последняя вершина соединена ребром с вершиной 0, цикл найден. Если подходящего соседа нет, отменяем последний шаг и пробуем следующего соседа. Метод годится примерно до двух десятков вершин; ускорить его можно динамикой по подмножествам вершин, которая работает за $O(2^n n^2)$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Гамильтонов цикл перебором с возвратом (backtracking): в худшем случае O(n!)
+
+
+def hamiltonian_cycle(adjacent):
+    """Возвращает гамильтонов цикл — список вершин, начинающийся и заканчивающийся в вершине 0, или None.
+
+    adjacent[v] — множество соседей вершины v. Граф простой (без петель и кратных рёбер), n &gt;= 3.
+    """
+    n = len(adjacent)
+    if n &lt; 3:
+        return None
+    path = [0]
+    visited = [False] * n
+    visited[0] = True
+
+    def extend():
+        if len(path) == n:
+            return 0 in adjacent[path[-1]]  # последнее ребро замыкает цикл
+        for u in sorted(adjacent[path[-1]]):
+            if not visited[u]:
+                visited[u] = True
+                path.append(u)
+                if extend():
+                    return True
+                path.pop()  # возврат: отменяем шаг и пробуем следующего соседа
+                visited[u] = False
+        return False
+
+    return path + [0] if extend() else None
+
+
+if __name__ == "__main__":
+    # Демонстрация: шестиугольник 0-1-2-3-4-5 и хорда 0-3
+    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0), (0, 3)]
+    adjacent = [set() for _ in range(6)]
+    for u, v in edges:
+        adjacent[u].add(v)
+        adjacent[v].add(u)
+    cycle = hamiltonian_cycle(adjacent)
+    print("гамильтонов цикл:", "нет" if cycle is None else " ".join(map(str, cycle)))
+    # Звезда с центром 0: гамильтонова цикла нет
+    star = [{1, 2, 3}, {0}, {0}, {0}]
+    print("звезда:", "нет" if hamiltonian_cycle(star) is None else "есть")
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Гамильтонов цикл перебором с возвратом (backtracking): в худшем случае O(n!)
+
+/// Возвращает гамильтонов цикл (начинается и заканчивается в вершине 0) или None.
+/// adjacent[v] — список соседей вершины v; граф простой, n &gt;= 3.
+pub fn hamiltonian_cycle(adjacent: &amp;[Vec&lt;usize&gt;]) -&gt; Option&lt;Vec&lt;usize&gt;&gt; {
+    let n = adjacent.len();
+    if n &lt; 3 {
+        return None;
+    }
+    let mut path = vec![0usize];
+    let mut visited = vec![false; n];
+    visited[0] = true;
+    if extend(adjacent, &amp;mut path, &amp;mut visited) {
+        path.push(0);
+        Some(path)
+    } else {
+        None
+    }
+}
+
+/// Продолжает путь; true означает, что путь уже является гамильтоновым циклом без последнего возврата в 0.
+fn extend(adjacent: &amp;[Vec&lt;usize&gt;], path: &amp;mut Vec&lt;usize&gt;, visited: &amp;mut Vec&lt;bool&gt;) -&gt; bool {
+    let n = adjacent.len();
+    let last = path[path.len() - 1];
+    if path.len() == n {
+        return adjacent[last].contains(&amp;0); // последнее ребро замыкает цикл
+    }
+    let mut neighbours = adjacent[last].clone();
+    neighbours.sort_unstable();
+    for u in neighbours {
+        if !visited[u] {
+            visited[u] = true;
+            path.push(u);
+            if extend(adjacent, path, visited) {
+                return true;
+            }
+            path.pop(); // возврат: отменяем шаг и пробуем следующего соседа
+            visited[u] = false;
+        }
+    }
+    false
+}
+
+fn main() {
+    // Демонстрация: шестиугольник 0-1-2-3-4-5 и хорда 0-3
+    let edges: [(usize, usize); 7] = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0), (0, 3)];
+    let mut adjacent: Vec&lt;Vec&lt;usize&gt;&gt; = vec![Vec::new(); 6];
+    for (u, v) in edges {
+        adjacent[u].push(v);
+        adjacent[v].push(u);
+    }
+    match hamiltonian_cycle(&amp;adjacent) {
+        Some(cycle) =&gt; {
+            let text: Vec&lt;String&gt; = cycle.iter().map(|v| v.to_string()).collect();
+            println!("гамильтонов цикл: {}", text.join(" "));
+        }
+        None =&gt; println!("гамильтонов цикл: нет"),
+    }
+    // Звезда с центром 0: гамильтонова цикла нет
+    let star: Vec&lt;Vec&lt;usize&gt;&gt; = vec![vec![1, 2, 3], vec![0], vec![0], vec![0]];
+    let answer = if hamiltonian_cycle(&amp;star).is_none() { "нет" } else { "есть" };
+    println!("звезда: {}", answer);
+}
+</code></pre>
+    <p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Гамильтонов цикл перебором с возвратом (backtracking): в худшем случае O(n!)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;set&gt;
+#include &lt;vector&gt;
+
+// Возвращает гамильтонов цикл (начинается и заканчивается в вершине 0) или std::nullopt.
+// adjacent[v] — множество соседей вершины v; граф простой, n &gt;= 3.
+std::optional&lt;std::vector&lt;std::size_t&gt;&gt; hamiltonian_cycle(const std::vector&lt;std::set&lt;std::size_t&gt;&gt;&amp; adjacent) {
+    const std::size_t n = adjacent.size();
+    if (n &lt; 3) return std::nullopt;
+    std::vector&lt;std::size_t&gt; path{0};
+    std::vector&lt;bool&gt; visited(n, false);
+    visited[0] = true;
+
+    // Продолжает путь; true означает, что найден гамильтонов цикл (без возврата в 0)
+    const auto extend = [&amp;](auto&amp;&amp; self) -&gt; bool {
+        if (path.size() == n) return adjacent[path.back()].count(0) &gt; 0;  // последнее ребро замыкает цикл
+        for (std::size_t u : adjacent[path.back()]) {  // std::set перебирает соседей по возрастанию
+            if (visited[u]) continue;
+            visited[u] = true;
+            path.push_back(u);
+            if (self(self)) return true;
+            path.pop_back();  // возврат: отменяем шаг и пробуем следующего соседа
+            visited[u] = false;
+        }
+        return false;
+    };
+    if (!extend(extend)) return std::nullopt;
+    path.push_back(0);
+    return path;
+}
+
+int main() {
+    // Демонстрация: шестиугольник 0-1-2-3-4-5 и хорда 0-3
+    const std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt; edges = {{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 0}, {0, 3}};
+    std::vector&lt;std::set&lt;std::size_t&gt;&gt; adjacent(6);
+    for (const auto&amp; [u, v] : edges) {
+        adjacent[u].insert(v);
+        adjacent[v].insert(u);
+    }
+    std::cout &lt;&lt; "гамильтонов цикл: ";
+    if (const auto cycle = hamiltonian_cycle(adjacent)) {
+        for (std::size_t j = 0; j &lt; cycle-&gt;size(); ++j) std::cout &lt;&lt; (j ? " " : "") &lt;&lt; (*cycle)[j];
+    } else {
+        std::cout &lt;&lt; "нет";
+    }
+    std::cout &lt;&lt; '\n';
+    // Звезда с центром 0: гамильтонова цикла нет
+    const std::vector&lt;std::set&lt;std::size_t&gt;&gt; star = {{1, 2, 3}, {0}, {0}, {0}};
+    std::cout &lt;&lt; "звезда: " &lt;&lt; (hamiltonian_cycle(star) ? "есть" : "нет") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p>Программа ищет гамильтонов цикл в шестиугольнике 0-1-2-3-4-5 с хордой 0-3 и показывает, что у звезды с центром 0 цикла нет.</p>
 
     <h2 id="топологическая-сортировка">Топологическая сортировка</h2>
 
-    <p>Реализация через DFS.</p>
+    <p>Топологическая сортировка ориентированного ациклического графа (DAG) — линейный порядок вершин, при котором каждое ребро $u \to v$ идёт от вершины $u$ к вершине $v$: вершина $u$ стоит левее вершины $v$. Такой порядок существует тогда и только тогда, когда в графе нет ориентированных циклов. Применения: порядок выполнения задач с зависимостями, порядок компиляции модулей, порядок изучения курсов.</p>
+    <p>Алгоритм использует обход в глубину. Вершина получает цвет «в обработке», когда мы в неё вошли, и цвет «обработана», когда обработаны все её потомки; в этот момент её записываем в список. Итоговый порядок — список, прочитанный с конца. Если обход пришёл по ребру в вершину, которая ещё «в обработке», то в графе есть цикл. Каждое ребро проверяется один раз, поэтому время работы $O(V + E)$.</p>
+    <p>Есть и другой способ — алгоритм Кана: вершины без входящих рёбер по очереди удаляются вместе с исходящими рёбрами. Если удалены все вершины, порядок найден; иначе в графе есть цикл.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Топологическая сортировка DAG обходом в глубину: O(V + E); при цикле возвращает None
+WHITE, GREY, BLACK = 0, 1, 2  # вершина не посещена, в обработке, полностью обработана
+
+
+def topological_order(vertex_count, edges):
+    """Возвращает порядок вершин, в котором каждое ребро (u, v) стоит левее вершины v, или None при цикле."""
+    adjacent = [[] for _ in range(vertex_count)]
+    for u, v in edges:
+        adjacent[u].append(v)
+    colour = [WHITE] * vertex_count
+    order = []  # вершины в порядке окончания обработки
+
+    def visit(v):
+        colour[v] = GREY
+        for u in adjacent[v]:
+            if colour[u] == GREY:
+                return False  # ребро ведёт в вершину, которая ещё обрабатывается: цикл
+            if colour[u] == WHITE and not visit(u):
+                return False
+        colour[v] = BLACK
+        order.append(v)
+        return True
+
+    for v in range(vertex_count):
+        if colour[v] == WHITE and not visit(v):
+            return None
+    return order[::-1]
+
+
+if __name__ == "__main__":
+    # Демонстрация: зависимости между шестью задачами
+    edges = [(5, 2), (5, 0), (4, 0), (4, 1), (2, 3), (3, 1)]
+    order = topological_order(6, edges)
+    print("порядок:", " ".join(map(str, order)))
+    # Цикл 0 -&gt; 1 -&gt; 2 -&gt; 0: порядка нет
+    print("цикл есть:", "да" if topological_order(3, [(0, 1), (1, 2), (2, 0)]) is None else "нет")
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Топологическая сортировка DAG обходом в глубину: O(V + E); при цикле возвращает None
+
+#[derive(Clone, Copy, PartialEq)]
+enum Colour {
+    White, // вершина не посещена
+    Grey,  // вершина в обработке
+    Black, // вершина полностью обработана
+}
+
+/// Возвращает порядок вершин, в котором каждое ребро (u, v) стоит левее вершины v, или None при цикле.
+pub fn topological_order(vertex_count: usize, edges: &amp;[(usize, usize)]) -&gt; Option&lt;Vec&lt;usize&gt;&gt; {
+    let mut adjacent: Vec&lt;Vec&lt;usize&gt;&gt; = vec![Vec::new(); vertex_count];
+    for &amp;(u, v) in edges {
+        adjacent[u].push(v);
+    }
+    let mut colour = vec![Colour::White; vertex_count];
+    let mut order = Vec::new(); // вершины в порядке окончания обработки
+    for v in 0..vertex_count {
+        if colour[v] == Colour::White &amp;&amp; !visit(v, &amp;adjacent, &amp;mut colour, &amp;mut order) {
+            return None;
+        }
+    }
+    order.reverse();
+    Some(order)
+}
+
+/// Обходит вершины, достижимые из v; false означает, что найден цикл.
+fn visit(v: usize, adjacent: &amp;[Vec&lt;usize&gt;], colour: &amp;mut [Colour], order: &amp;mut Vec&lt;usize&gt;) -&gt; bool {
+    colour[v] = Colour::Grey;
+    for &amp;u in &amp;adjacent[v] {
+        if colour[u] == Colour::Grey {
+            return false; // ребро ведёт в вершину, которая ещё обрабатывается: цикл
+        }
+        if colour[u] == Colour::White &amp;&amp; !visit(u, adjacent, colour, order) {
+            return false;
+        }
+    }
+    colour[v] = Colour::Black;
+    order.push(v);
+    true
+}
+
+fn main() {
+    // Демонстрация: зависимости между шестью задачами
+    let edges: Vec&lt;(usize, usize)&gt; = vec![(5, 2), (5, 0), (4, 0), (4, 1), (2, 3), (3, 1)];
+    let order = topological_order(6, &amp;edges).expect("граф без циклов");
+    let text: Vec&lt;String&gt; = order.iter().map(|v| v.to_string()).collect();
+    println!("порядок: {}", text.join(" "));
+    // Цикл 0 -&gt; 1 -&gt; 2 -&gt; 0: порядка нет
+    let cyclic: Vec&lt;(usize, usize)&gt; = vec![(0, 1), (1, 2), (2, 0)];
+    let answer = if topological_order(3, &amp;cyclic).is_none() { "да" } else { "нет" };
+    println!("цикл есть: {}", answer);
+}
+</code></pre>
+    <p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Топологическая сортировка DAG обходом в глубину: O(V + E); при цикле возвращает std::nullopt
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+enum class Colour { White, Grey, Black };  // не посещена, в обработке, полностью обработана
+
+// Возвращает порядок вершин, в котором каждое ребро (u, v) стоит левее вершины v, или std::nullopt при цикле.
+std::optional&lt;std::vector&lt;std::size_t&gt;&gt; topological_order(
+    std::size_t vertex_count, const std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt;&amp; edges) {
+    std::vector&lt;std::vector&lt;std::size_t&gt;&gt; adjacent(vertex_count);
+    for (const auto&amp; [u, v] : edges) adjacent[u].push_back(v);
+    std::vector&lt;Colour&gt; colour(vertex_count, Colour::White);
+    std::vector&lt;std::size_t&gt; order;  // вершины в порядке окончания обработки
+
+    // Обходит вершины, достижимые из v; false означает, что найден цикл
+    const auto visit = [&amp;](auto&amp;&amp; self, std::size_t v) -&gt; bool {
+        colour[v] = Colour::Grey;
+        for (std::size_t u : adjacent[v]) {
+            if (colour[u] == Colour::Grey) return false;  // ребро ведёт в обрабатываемую вершину: цикл
+            if (colour[u] == Colour::White &amp;&amp; !self(self, u)) return false;
+        }
+        colour[v] = Colour::Black;
+        order.push_back(v);
+        return true;
+    };
+    for (std::size_t v = 0; v &lt; vertex_count; ++v) {
+        if (colour[v] == Colour::White &amp;&amp; !visit(visit, v)) return std::nullopt;
+    }
+    return std::vector&lt;std::size_t&gt;(order.rbegin(), order.rend());
+}
+
+int main() {
+    // Демонстрация: зависимости между шестью задачами
+    const std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt; edges = {{5, 2}, {5, 0}, {4, 0}, {4, 1}, {2, 3}, {3, 1}};
+    const auto order = topological_order(6, edges);
+    std::cout &lt;&lt; "порядок:";
+    for (std::size_t v : *order) std::cout &lt;&lt; ' ' &lt;&lt; v;
+    std::cout &lt;&lt; '\n';
+    // Цикл 0 -&gt; 1 -&gt; 2 -&gt; 0: порядка нет
+    const std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt; cyclic = {{0, 1}, {1, 2}, {2, 0}};
+    std::cout &lt;&lt; "цикл есть: " &lt;&lt; (topological_order(3, cyclic) ? "нет" : "да") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p>Программа упорядочивает шесть задач с зависимостями и проверяет граф с циклом 0 → 1 → 2 → 0, для которого порядка нет.</p>
 
 
 </div>
