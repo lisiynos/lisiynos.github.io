@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Алгоритмы на графах</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
@@ -7,12 +8,12 @@
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -36,7 +37,7 @@
         хранятся в
         <strong>стеке</strong>). Обход в глубину получается естественным образом при рекурсивном обходе графа.</p>
 
-    <img src="graph_alg/primer.gif">
+    <img loading="lazy" decoding="async" src="graph_alg/primer.gif">
 
     <pre class="sh_python">
 # Смежность вершин
@@ -79,7 +80,7 @@ print(visited)
 
     <p style="text-align: center">Порядок обхода вершин при поиске в ширину</p>
 
-    <p style="text-align: center"><img src="graph_alg/breadth-first-tree.png" width="390" height="250"
+    <p style="text-align: center"><img loading="lazy" decoding="async" src="graph_alg/breadth-first-tree.png" width="390" height="250"
                                        alt="Обход при поиске в ширину">
     </p>
 
@@ -140,7 +141,7 @@ print(BFS)  # Выводится: [1, 2, 8, 3, 7, 4, 5, 9, 6]
         для каждого известна стоимость. Стоимость перелёта из A в B может быть не равна стоимости перелёта из B в A.
         Найти маршрут минимальной стоимости (возможно, с пересадками) от Копенгагена до Барнаула.</p>
 
-    <p><img src="graph_alg/dijksta_anim.gif" alt=""></p>
+    <p><img loading="lazy" decoding="async" src="graph_alg/dijksta_anim.gif" alt=""></p>
 
     <p><strong>Идея алгоритма Дейкстры</strong></p>
 

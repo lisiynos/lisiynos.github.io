@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Декартово дерево</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
@@ -8,12 +9,12 @@
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-    </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -36,7 +37,7 @@
     кучу
     (отсюда и второе её название: treap (tree+heap) и дерамида (дерево+пирамида).</p>
 
-<img src="structures/treap.png" width="1470" height="608">
+<img loading="lazy" decoding="async" src="structures/treap.png" width="1470" height="608">
 
 <pre class="sh_pascal">
 type
@@ -48,9 +49,9 @@ type
 
 <h3>Merge (склеивание)</h3>
 
-<p><img src="structures/treap_merge.png"></p>
+<p><img loading="lazy" decoding="async" src="structures/treap_merge.png"></p>
 
-<p><img src="structures/treap_merge2.png"></p>
+<p><img loading="lazy" decoding="async" src="structures/treap_merge2.png"></p>
 
 <pre class="sh_pascal">
 { Слияние декартовых деревьев }
@@ -77,9 +78,9 @@ end;
 
 <h3>Split (разрезание)</h3>
 
-<p><img src="structures/treap_split.png"></p>
+<p><img loading="lazy" decoding="async" src="structures/treap_split.png"></p>
 
-<p><img src="structures/treap_split2.png"></p>
+<p><img loading="lazy" decoding="async" src="structures/treap_split2.png"></p>
 
 <pre class="sh_pascal">
 { Операция разрезания дерева T по ключу x на 2 поддерева L и R }
@@ -111,7 +112,7 @@ end;
 
 <h3>Добавление новой вершины</h3>
 
-<img src="structures/treap_add.png">
+<img loading="lazy" decoding="async" src="structures/treap_add.png">
 
 <pre class="sh_pascal">
 { Добавление вершины с ключём x в дерево T }
@@ -131,7 +132,7 @@ end;
 
 <h3>Удаление вершины с заданным ключом x</h3>
 
-<img src="structures/treap_delete.png">
+<img loading="lazy" decoding="async" src="structures/treap_delete.png">
 
 <pre class="sh_pascal">
 { Удаление вершины }

@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Деревья в программировании</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
@@ -7,13 +8,12 @@
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_basic.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -602,7 +602,7 @@ end
         <span
                 class="keyword">вершин</span> <span class="keyword">графа</span>.</p>
 
-    <p><img src="trees/Info3.3.0_clip_image002.gif" alt="F" width="238" height="175"></p>
+    <p><img loading="lazy" decoding="async" src="trees/Info3.3.0_clip_image002.gif" alt="F" width="238" height="175"></p>
 
     <p>Мы рассмотрели бинарное дерево и алгоритмы работы с ним. Представленные нами алгоритмы анализировали, в основном,
         структуру дерева и, в меньшей мере, элементы, из которых дерево строилось.</p>

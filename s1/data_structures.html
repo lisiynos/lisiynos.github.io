@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Структуры данных: стеки и очереди</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
@@ -8,19 +9,12 @@
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
 
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-
-
-
-
-
-
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -91,7 +85,7 @@ end;
         <strong>LIFO</strong> (англ. Last In — First Out, «последним пришёл — первым вышел»). Чаще всего принцип работы
         стека сравнивают со стопкой тарелок: чтобы взять вторую сверху, нужно снять верхнюю. </p>
 
-    <img src="img/stack.png">
+    <img loading="lazy" decoding="async" src="img/stack.png">
 
     <pre class="sh_pascal">
 const StackSize = 10000; { Размер стека (сколько в него можно положить элементов) }
@@ -143,7 +137,7 @@ end.</pre>
         —
         убрать из очереди), при этом выбранный элемент из очереди удаляется. </p>
 
-    <p><img src="img/queue.gif" width="517" height="214" alt="Очередь"></p>
+    <p><img loading="lazy" decoding="async" src="img/queue.gif" width="517" height="214" alt="Очередь"></p>
 
     <p>&nbsp;</p>
 

@@ -1,26 +1,21 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Сортировка</title>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-
-
-
-
-
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -204,7 +199,7 @@ end.</pre>
     </li>
     <li> повторить рекурсивно для «меньших» и «больших».</li>
 </ul>
-<p><img src="sort/quicksort.gif" width="280" height="214" alt="Quicksort"></p>
+<p><img loading="lazy" decoding="async" src="sort/quicksort.gif" width="280" height="214" alt="Quicksort"></p>
 
 <pre class="sh_pascal">
 var A : array [1..1000000] of Integer; { Сортируемый массив }  
@@ -512,7 +507,7 @@ end;
 
 <p>Основное свойство кучи, любая функция, которая допускает линейное упорядочивание.</p>
 
-<p><img src="sort/heap.gif" width="340" height="265" alt="Двоичная куча"></p>
+<p><img loading="lazy" decoding="async" src="sort/heap.gif" width="340" height="265" alt="Двоичная куча"></p>
 
 <h2>HeapSort - сортировка при помощи кучи</h2>
 

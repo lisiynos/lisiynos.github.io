@@ -1,26 +1,21 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Динамическое программирование</title>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_python.js"></script>
     <script type="text/javascript" src="../syntax/sh_basic.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-
-
-
-
-
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -80,7 +75,7 @@
     цифр, через которые проходит оптимальный путь в такой таблице.<br>
     Построение вспомогательной таблицы $B$ необходимо начать с конца таблицы $A$, что приведет к следующим формулам
     (рис. 1): </p>
-<img src="dynamic1/Info3.4.0_clip_image001.png" alt="Картинка">
+<img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image001.png" alt="Картинка">
 <ol>
     <li>$B(N, N) = A(N, N)$<br>
         последняя клетка обязательно входит в маршрут
@@ -314,7 +309,7 @@
 
 <p><strong><cite>Задача 3</cite>. «INTERNETомания». </strong>(Районная олимпиада 1999)</p>
 
-<p><img src="dynamic1/Info3.4.0_clip_image002.jpg" alt="1" width="142" height="133">Компания
+<p><img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image002.jpg" alt="1" width="142" height="133">Компания
     «Питерские
     сети» проводит подключение к сети INTERNET N-этажных домов. На каждом этаже компьютеры подключаются к концентратору
     (HUB) по топологии «звезда», т.е. каждый компьютер соединяется с концентратором отдельным кабелем (рис. 2).<br>
@@ -326,7 +321,7 @@
     обозначаются 1 (единицей), а остальные 0 (нулями). Переход с одного этажа на другой возможен только в ближайшие
     квартиры (рис. 3).</p>
 
-<p><img src="dynamic1/internet2.jpg" alt="2-ая картинка к задаче INTERNETомания" width="233" height="92"></p>
+<p><img loading="lazy" decoding="async" src="dynamic1/internet2.jpg" alt="2-ая картинка к задаче INTERNETомания" width="233" height="92"></p>
 
 <p>Требуется написать программу, которая выведет номера квартир, начиная с первого этажа, в которых должны быть
     расположены HUB’ы, при условии, что общая длина кабеля, соединяющего все компьютеры в сети, минимальна.</p>
@@ -342,7 +337,7 @@
 </ul>
 <p><cite>Формат выходных данных:</cite><br>
     Результат работы программы выводится в файл OUTPUT.TXT и представляет собой последовательность номеров квартир,
-    начиная с первого этажа, в которых должны располагаться концентраторы HUB.<img
+    начиная с первого этажа, в которых должны располагаться концентраторы HUB.<img loading="lazy" decoding="async"
             src="dynamic1/Info3.4.0_clip_image002_0000.jpg"
             alt="1" width="148" height="139"
             ></p>
@@ -569,11 +564,11 @@ end.</pre>
 <table border="0">
     <tr>
         <td width="319"><br>
-            <img src="dynamic1/Info3.4.0_clip_image008_0000.gif" alt="" width="295" height="181"></td>
-        <td width="169"><p><img src="dynamic1/Info3.4.0_clip_image010.gif" alt="" width="59" height="89">
+            <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image008_0000.gif" alt="" width="295" height="181"></td>
+        <td width="169"><p><img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image010.gif" alt="" width="59" height="89">
         </p>
         </td>
-        <td width="244"><p><img src="dynamic1/Info3.4.0_clip_image012.gif" alt="" width="166" height="89">
+        <td width="244"><p><img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image012.gif" alt="" width="166" height="89">
         </p>
         </td>
     </tr>
@@ -601,11 +596,11 @@ end.</pre>
     </tr>
 </table>
 <p><strong>Решение</strong><strong>:</strong><br>
-    <img src="dynamic1/Info3.4.0_clip_image014.gif" alt="" width="329" height="134"> <br>
-    Для <img src="dynamic1/Info3.4.0_clip_image016.gif" alt="" width="33" height="11"> будет:<br>
-    <img src="dynamic1/Info3.4.0_clip_image018.gif" alt="" width="78" height="64"> <br>
+    <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image014.gif" alt="" width="329" height="134"> <br>
+    Для <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image016.gif" alt="" width="33" height="11"> будет:<br>
+    <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image018.gif" alt="" width="78" height="64"> <br>
     Динамический переход:<br>
-    <img src="dynamic1/Info3.4.0_clip_image020.gif" alt="" width="181" height="92"></p>
+    <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image020.gif" alt="" width="181" height="92"></p>
 
 <p><strong><cite>Паровозики </cite></strong><br>
     N локомотивов, имеющих номера от 1 до N и установленных на железнодорожную колею, начинают двигаться в одну сторону,

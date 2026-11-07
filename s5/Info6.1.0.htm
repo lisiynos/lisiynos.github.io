@@ -1,18 +1,18 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Компьютерное представление и обработка формул</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
-
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body>
 
@@ -153,9 +153,9 @@
     после перечисления операндов или перед ними. Обратим внимание, что для операций с одним аргументом, таких как воз-
     ведение в степень или извлечение корня, мы обычно употребляем постфиксную или префиксную записи:</p>
 
-<p><img class="formula" src="" alt="x^2"> - действие записано после аргумента (постфиксная запись).</p>
+<p><img loading="lazy" decoding="async" class="formula" src="" alt="x^2"> - действие записано после аргумента (постфиксная запись).</p>
 
-<p><img class="formula" src="" alt="\sqrt{x}"> - действие записано перед аргументом (префиксная запись).</p>
+<p><img loading="lazy" decoding="async" class="formula" src="" alt="\sqrt{x}"> - действие записано перед аргументом (префиксная запись).</p>
 
 <p>Как же строить префиксную и постфиксную записи формулы, которая содержит большее количество операций, например,
     (a+b*c)/(dc)?</p>

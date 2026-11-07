@@ -1,20 +1,18 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Классические идеи теории графов</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-
-
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -76,12 +74,12 @@
     </ul>
     <p>Граф кёнигсбергских мостов имел четыре нечётные вершины (т.е. все), следовательно, невозможно пройти по всем
         мостам, не проходя ни по одному из них дважды.</p>
-    <img src="graphs/konigsberg.png" alt=""> <img src="graphs/konigsberg_bridges.png" alt=""> <img
+    <img loading="lazy" decoding="async" src="graphs/konigsberg.png" alt=""> <img loading="lazy" decoding="async" src="graphs/konigsberg_bridges.png" alt=""> <img loading="lazy" decoding="async"
         src="graphs/konigsberg_graph.png" alt="Кёнигсбергские мосты в виде графа">
 
     <h3>Проблема четырёх красок</h3>
 
-    <img src="graphs/four_colour_map_example.png" alt="">
+    <img loading="lazy" decoding="async" src="graphs/four_colour_map_example.png" alt="">
 
     <p>Проблема четырёх красок &mdash; математическая задача, предложенная Гутри в 1852 году.</p>
 
@@ -116,7 +114,7 @@
         линиями.</p>
 
 
-    <p style="text-align: center"><img src="graphs/img00.gif" width="340" height="358" alt="Граф"></p>
+    <p style="text-align: center"><img loading="lazy" decoding="async" src="graphs/img00.gif" width="340" height="358" alt="Граф"></p>
 
     <p style="text-align: center">Пример ориентированного графа</p>
 
@@ -125,7 +123,7 @@
         &mdash; <em>весами</em>.
 
     <div align="center"><strong>Пример: граф с шестью вершинами и семью рёбрами</strong><br>
-        <img src="graphs/graph_6_7.png" alt="">
+        <img loading="lazy" decoding="async" src="graphs/graph_6_7.png" alt="">
 
     </div>
 
@@ -145,10 +143,10 @@
             <th><span class="texhtml"><i>K</i><sub>4</sub></span>: 6</th>
         </tr>
         <tr>
-            <td><img alt="Complete graph K1" src="graphs/complete_graph_K1.png"/></td>
-            <td><img alt="Complete graph K2" src="graphs/complete_graph_K2.png"/></td>
-            <td><img alt="Complete graph K3" src="graphs/complete_graph_K3.png"/></td>
-            <td><img alt="Complete graph K4" src="graphs/complete_graph_K4.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K1" src="graphs/complete_graph_K1.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K2" src="graphs/complete_graph_K2.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K3" src="graphs/complete_graph_K3.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K4" src="graphs/complete_graph_K4.png"/></td>
         </tr>
         <tr>
             <th><span class="texhtml"><i>K</i><sub>5</sub></span>: 10</th>
@@ -157,10 +155,10 @@
             <th><span class="texhtml"><i>K</i><sub>8</sub></span>: 28</th>
         </tr>
         <tr>
-            <td><img alt="Complete graph K5" src="graphs/complete_graph_K5.png"/></td>
-            <td><img alt="Complete graph K6" src="graphs/complete_graph_K6.png"/></td>
-            <td><img alt="Complete graph K7" src="graphs/complete_graph_K7.png"/></td>
-            <td><img alt="Complete graph K8" src="graphs/complete_graph_K8.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K5" src="graphs/complete_graph_K5.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K6" src="graphs/complete_graph_K6.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K7" src="graphs/complete_graph_K7.png"/></td>
+            <td><img loading="lazy" decoding="async" alt="Complete graph K8" src="graphs/complete_graph_K8.png"/></td>
         </tr>
     </table>
 
@@ -189,7 +187,7 @@
     <p><strong>Циклом</strong> называется путь, в котором совпадают
         начальная и конечная точка (т.е. можно &laquo;ходить по циклу&raquo; &mdash; &laquo;ходить по кругу&raquo;).</p>
 
-    <img src="graphs/graph_cycle.png" alt="">
+    <img loading="lazy" decoding="async" src="graphs/graph_cycle.png" alt="">
 
     <p><strong>Простым циклом</strong> называется цикл, не проходящий ни
         через одну из вершин графа более одного раза.</p>
@@ -210,7 +208,7 @@
         очередь могут иметь своих потомков. Вершина, не имеющая потомков, называется <em>листом</em>. Наглядный пример
         дерева &mdash; иерархия файлов и папок в файловой системе компьютера или систематика живых организмов</p>
 
-    <p style="text-align:center;"><img src="graphs/fs_tree.gif" alt="файловая система"></p>
+    <p style="text-align:center;"><img loading="lazy" decoding="async" src="graphs/fs_tree.gif" alt="файловая система"></p>
 
     <p>Если не выделять особым образом корень, то дерево &mdash; это просто любой связный граф, не имеющий циклов</p>
 
@@ -230,7 +228,7 @@
         очень большое число. Какой именно вариант использовать, зависит от каждой конкретной задачи. Также задача
         определяет, что ставить на диагонали получившейся матрицы.</p>
 
-    <p style="text-align: center"><img src="graphs/175px-6n-graph2.svg.png" alt="6n-graph2.svg"/> <img
+    <p style="text-align: center"><img loading="lazy" decoding="async" src="graphs/175px-6n-graph2.svg.png" alt="6n-graph2.svg"/> <img loading="lazy" decoding="async"
             src="graphs/53e3bdee8fec62c1002ccb39c461b51e.png"
             alt="\begin{pmatrix}  1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; 0\\  1 &amp; 0 &amp; 1 &amp; 0 &amp; 1 &amp; 0\\  0 &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 0\\  0 &amp; 0 &amp; 1 &amp; 0 &amp; 1 &amp; 1\\  1 &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 0\\  0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0\\  \end{pmatrix}"/>
     </p>

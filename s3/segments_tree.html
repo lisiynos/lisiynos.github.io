@@ -1,18 +1,18 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Segments (Intervals?) tree</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-
-
-    </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -53,7 +53,7 @@
 
 <h2>2. Корневая оптимизация</h2>
 
-<div style="float:right;margin:50px 0 0 10px;"><img src="segments_tree/1.png">
+<div style="float:right;margin:50px 0 0 10px;"><img loading="lazy" decoding="async" src="segments_tree/1.png">
 </div>
 
 <p>
@@ -91,7 +91,7 @@
 </p>
 
 <div class="picture">
-    <img src="segments_tree/2.png"><br>Рисунок 1
+    <img loading="lazy" decoding="async" src="segments_tree/2.png"><br>Рисунок 1
 </div>
 
 <p>
@@ -124,20 +124,20 @@
 </p>
 
 <div style="margin:50px 0 0 10px;">
-    <div align="center"><img src="segments_tree/3.png"></div>
+    <div align="center"><img loading="lazy" decoding="async" src="segments_tree/3.png"></div>
 </div>
 <br>
 
 <p> Тогда переход сверху вниз выполняется по следующей схеме:</p>
 
-<div style="margin:50px 0 0 10px;"><p align="center" style="align:center"><img src="segments_tree/4.png"></p></div>
+<div style="margin:50px 0 0 10px;"><p align="center" style="align:center"><img loading="lazy" decoding="async" src="segments_tree/4.png"></p></div>
 
 <p>
     , а снизу вверх так:
 </p>
 
 <div style="margin:50px 0 0 10px;">
-    <div align="center"><img src="segments_tree/5.png"></div>
+    <div align="center"><img loading="lazy" decoding="async" src="segments_tree/5.png"></div>
 </div>
 
 <h3> 3.2. Сколько места занимает дерево отрезков? </h3>
@@ -253,7 +253,7 @@ int sum(int a, int b)
     $N-1$, чтобы получить номер элемента в дереве.
 </p>
 
-<div style="margin:50px 0 0 10px;"><img src="segments_tree/6.png"></div>
+<div style="margin:50px 0 0 10px;"><img loading="lazy" decoding="async" src="segments_tree/6.png"></div>
 
 </div>
 </body>

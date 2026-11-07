@@ -1,14 +1,15 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <title>Метод Монте-Карло</title>
     <link rel="stylesheet" type="text/css" href="../style/style.css">
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
 </head>
 <body>
 <div id="content">
@@ -310,7 +311,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 <p style='margin-left:53.4pt'><span style='position:relative;top:-17.0pt'>То есть 
 результат
-приближенно равен числу </span> <img src="monte_carlo/1.png" width="108"
+приближенно равен числу </span> <img loading="lazy" decoding="async" src="monte_carlo/1.png" width="108"
                                      height="61"><span
         style='position:relative;top:-17.0pt'>,</span></p>
 
@@ -353,39 +354,39 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <p style='margin-left:35.45pt;text-align:justify'>&nbsp;</p>
 
 <p>Последний недостаток компенсируется тем, что с использованием
-    данного метода вместе со значением <img src="monte_carlo/2.png" width="11"
+    данного метода вместе со значением <img loading="lazy" decoding="async" src="monte_carlo/2.png" width="11"
                                             height="11"> может
     одновременно определяться и его
-    погрешность <span style='position:relative;top:5.0pt'><img src="monte_carlo/3.png"
+    погрешность <span style='position:relative;top:5.0pt'><img loading="lazy" decoding="async" src="monte_carlo/3.png"
                                                                width="17"
                                                                height="17"></span> по
     формулам:</p>
 
-<p><img src="monte_carlo/4.png" width="243" height="80"></p>
+<p><img loading="lazy" decoding="async" src="monte_carlo/4.png" width="243" height="80"></p>
 
 <p class=31 style='text-indent:0'>При больших <span>N</span>
-    формулу можно упростить: <img src="monte_carlo/5.png" width="104" height="21">,
+    формулу можно упростить: <img loading="lazy" decoding="async" src="monte_carlo/5.png" width="104" height="21">,
     где
 <span
-        style='position:relative;top:10.0pt'><img src="monte_carlo/6.png" width="112"
+        style='position:relative;top:10.0pt'><img loading="lazy" decoding="async" src="monte_carlo/6.png" width="112"
                                                   height="44"></span></p>
 
 <p>&nbsp;</p>
 
-<p>В пределах [<img src="monte_carlo/2.png" width="11" height="11"> - <span
-        style='position:relative;top:5.0pt'><img src="monte_carlo/3.png" width="17"
-                                                 height="17"></span>, <img
+<p>В пределах [<img loading="lazy" decoding="async" src="monte_carlo/2.png" width="11" height="11"> - <span
+        style='position:relative;top:5.0pt'><img loading="lazy" decoding="async" src="monte_carlo/3.png" width="17"
+                                                 height="17"></span>, <img loading="lazy" decoding="async"
         src="monte_carlo/2.png" width="11" height="11"> + <span
-        style='position:relative;top:5.0pt'><img
+        style='position:relative;top:5.0pt'><img loading="lazy" decoding="async"
         src="monte_carlo/3.png" width="17" height="17"></span>] с достоверностью 68.27%
     находится
-    искомая величина, а в пределах <sub><img src="monte_carlo/2.png" width="11"
+    искомая величина, а в пределах <sub><img loading="lazy" decoding="async" src="monte_carlo/2.png" width="11"
                                              height="11"></sub><span
             style='font-family:Symbol'> ±</span><span>&nbsp;</span>2<span
-            style='position:relative;top:5.0pt'><img src="monte_carlo/3.png" width="17"
-                                                     height="17"></span> или <img
+            style='position:relative;top:5.0pt'><img loading="lazy" decoding="async" src="monte_carlo/3.png" width="17"
+                                                     height="17"></span> или <img loading="lazy" decoding="async"
             src="monte_carlo/2.png" width="11" height="11"><span style='font-family:Symbol'>
-±</span><span>&nbsp;</span>3<span style='position:relative;top:5.0pt'><img
+±</span><span>&nbsp;</span>3<span style='position:relative;top:5.0pt'><img loading="lazy" decoding="async"
             src="monte_carlo/3.png"
             width="17" height="17"></span></sub> достоверность уже 95.45% и 99.73%
     соответственно. Поэтому метод по праву называют порой прецизионным или
@@ -400,7 +401,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     среднее значение определяется в программе после каждого испытания по
     формуле:</p>
 
-<p><img src="monte_carlo/7.png" width="143" height="37"></p>
+<p><img loading="lazy" decoding="async" src="monte_carlo/7.png" width="143" height="37"></p>
 
 <p>Так как программа с использованием метода
     Монте-
@@ -461,7 +462,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <p class="title">Таблица R(A,B)</p>
 
 
-<p class="image"><img src="monte_carlo/8.png" width="392" height="190"></p>
+<p class="image"><img loading="lazy" decoding="async" src="monte_carlo/8.png" width="392" height="190"></p>
 
 <p><cite>Указание</cite>.
     При решении задачи полученные результаты по пункту <span>a</span>)
@@ -1090,7 +1091,7 @@ Roman","serif"'>Integer</span><span
 <p style='text-indent:20pt'><span style='font-size:12.0pt;
 font-family:"","serif"'>&nbsp;</span></p>
 
-<div style="float:right;margin-right:40px;"><img src="monte_carlo/img2.png">
+<div style="float:right;margin-right:40px;"><img loading="lazy" decoding="async" src="monte_carlo/img2.png">
 
     <p class="title">Рис. 1</p>
 </div>
@@ -1328,7 +1329,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
     область на рисунке 3. Следовательно, искомая вероятность равна отношению
     площади этой области к площади квадрата разброса точек, то есть 1/4.</p>
 
-<p><img src="monte_carlo/9.png" width="307" height="150"></p>
+<p><img loading="lazy" decoding="async" src="monte_carlo/9.png" width="307" height="150"></p>
 
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Рис. 2
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
@@ -1458,7 +1459,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
     клеточный автомат, в котором каждая строка соответствует одному моменту
     времени.</p>
 
-<div style="float:left;margin-right:10px;"><img src="monte_carlo/10.png">
+<div style="float:left;margin-right:10px;"><img loading="lazy" decoding="async" src="monte_carlo/10.png">
 
     <p class="title">Рис. 4</p>
 </div>
@@ -1486,7 +1487,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
     случае –
     1 (возбуждение). </p>
 
-<div style="float:right;margin-top:10px;"><img src="monte_carlo/11.png">
+<div style="float:right;margin-top:10px;"><img loading="lazy" decoding="async" src="monte_carlo/11.png">
 
     <p class="title">Рис. 5</p>
 </div>
@@ -1508,7 +1509,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
 
 <p><strong>Задача 9.</strong></p>
 
-<div style="float:right;margin:10px 0 0 10px;"><img src="monte_carlo/12.png">
+<div style="float:right;margin:10px 0 0 10px;"><img loading="lazy" decoding="async" src="monte_carlo/12.png">
 
     <p class="title">Рис. 6</p>
 </div>
@@ -1619,7 +1620,7 @@ LongInt;</span></p>
     заданный
     интервал.</p>
 
-<p class="image"><img src="monte_carlo/14.png" width="623" height="299"></p>
+<p class="image"><img loading="lazy" decoding="async" src="monte_carlo/14.png" width="623" height="299"></p>
 
 <p class="title">Рис. 7</p>
 
@@ -1629,7 +1630,7 @@ LongInt;</span></p>
     В таком случае, говорят о кривой плотности распределения (на рисунке 8
     приближенно представлен график кривой Гаусса).</p>
 
-<p class="image"><img src="monte_carlo/13.png" width="593" height="325"></p>
+<p class="image"><img loading="lazy" decoding="async" src="monte_carlo/13.png" width="593" height="325"></p>
 
 <p class="title">Рис. 8</p>
 
@@ -1652,7 +1653,7 @@ LongInt;</span></p>
     единичной
     сфере с центром в исходной точке).</p>
 
-<div style="float:left;margin:10px 10px 10px 0;"><img src="monte_carlo/15.png">
+<div style="float:left;margin:10px 10px 10px 0;"><img loading="lazy" decoding="async" src="monte_carlo/15.png">
 
     <p class="title">Рис. 9</p>
 </div>
@@ -1683,7 +1684,7 @@ Symbol'>j</span>, который определяет положение точ�
 
 <p style='margin-left:45pt;text-indent:-10pt'>3.<span
         style='font:7.0pt "Times New
-Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Полагаем <img
+Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Полагаем <img loading="lazy" decoding="async"
         src="monte_carlo/16.png" width="76" height="20">.</p>
 
 <p style='margin-left:45pt;text-indent:-10pt'>4.<span
@@ -1734,7 +1735,7 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Полагаем <img
     <i><span>t</span></i><sup><span>o</span></sup> в
     любой точке (<i><span>x</span>, </i><i><span>y</span>,
     </i><i><span>z</span></i>)
-    на поверхности однородного единичного шара постоянна и равна <img
+    на поверхности однородного единичного шара постоянна и равна <img loading="lazy" decoding="async"
             src="monte_carlo/17.png"
             width="292" height="40"></p>
 
