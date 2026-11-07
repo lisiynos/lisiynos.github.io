@@ -990,6 +990,20 @@
    ]
   },
   {
+   "id": "permutations",
+   "name": "Перебор перестановок",
+   "category": "Рекурсия и перебор",
+   "complexity": "O(n!)",
+   "pages": [
+    {
+     "path": "s2/backtracking.html",
+     "anchor": "2-3-1-перебор-с-отсечениями",
+     "title": "Переборные алгоритмы. Перебор вариантов, Backtracking",
+     "section": "2.3.1. Перебор с отсечениями"
+    }
+   ]
+  },
+  {
    "id": "monte-carlo",
    "name": "Метод Монте-Карло",
    "category": "Рандомизированные алгоритмы",
@@ -1136,7 +1150,8 @@
    "combinatorics"
   ],
   "s2/backtracking.html": [
-   "backtracking"
+   "backtracking",
+   "permutations"
   ],
   "s2/monte_carlo.html": [
    "monte-carlo"

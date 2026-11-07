@@ -552,6 +552,56 @@ h4:hover .anchor,
   color: #556;
 }
 
+/* Complexity classes with examples and a log-scale meter (s1/alg.html) */
+.complexity-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+}
+
+.complexity-table th:nth-child(1),
+.complexity-table td:nth-child(1) {
+  width: 24%;
+}
+
+.complexity-table th:nth-child(2),
+.complexity-table td:nth-child(2) {
+  width: 30%;
+}
+
+.complexity-table th,
+.complexity-table td {
+  padding: 6px 6px;
+  border-bottom: 1px solid #dde3ea;
+  text-align: left;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.complexity-table meter {
+  display: block;
+  width: 100%;
+  max-width: 9em;
+  height: 0.9em;
+  margin-bottom: 2px;
+}
+
+.complexity-table meter::-webkit-meter-bar {
+  background: #eef3f8;
+  border: 1px solid #aab;
+}
+
+.complexity-table meter::-webkit-meter-optimum-value,
+.complexity-table meter::-webkit-meter-suboptimum-value,
+.complexity-table meter::-webkit-meter-even-less-good-value {
+  background: #4a90d9;
+}
+
+.complexity-table meter::-moz-meter-bar {
+  background: #4a90d9;
+}
+
 .site-pager {
   display: flex;
   flex-wrap: wrap;

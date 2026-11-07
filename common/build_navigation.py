@@ -97,6 +97,8 @@ ALGORITHMS = [
      "pages": [("s3/recursion.html", "Ханойские башни")]},
     {"id": "backtracking", "name": "Перебор с возвратом (backtracking)", "category": "Рекурсия и перебор",
      "complexity": "зависит от задачи", "pages": [("s2/backtracking.html", "Перебор с возвратом")]},
+    {"id": "permutations", "name": "Перебор перестановок", "category": "Рекурсия и перебор",
+     "complexity": "O(n!)", "pages": [("s2/backtracking.html", "Перебор с отсечениями")]},
     {"id": "monte-carlo", "name": "Метод Монте-Карло", "category": "Рандомизированные алгоритмы", "complexity": "—",
      "pages": [("s2/monte_carlo.html", "метод Монте-Карло")]},
     {"id": "graham", "name": "Выпуклая оболочка: алгоритм Грэхема", "category": "Геометрия", "complexity": "O(n log n)",

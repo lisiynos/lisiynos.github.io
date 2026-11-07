@@ -61,6 +61,29 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         $n \ge n_0$.</p>
     <p>Пример: $\forall k \ge 1$: $n^{k-1} = o(n^k)$.</p>
 
+    <h3>Классы сложности на примерах</h3>
+    <p>Время работы алгоритма растёт с размером входа $n$ по-разному. Предел $n$ — наибольший размер входа, который
+        алгоритм успевает обработать за секунду, если компьютер делает около $10^8$ простых операций в секунду.
+        Полоска показывает предел в логарифмической шкале от $1$ до $10^{16}$: чем короче полоска, тем меньше $n$.
+        Названия ведут к разделам курса.</p>
+
+    <table class="complexity-table">
+        <thead>
+            <tr><th>Класс</th><th>Предел $n$</th><th>Пример алгоритма</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$O(1)$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>любое $n$</td><td><a href="data_structures.html#реализация-стека-и-очереди-на-базе-массива">Стек на массиве</a></td></tr>
+            <tr><td>$O(\log n)$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>любое $n$</td><td><a href="binsearch.html#двоичный-бинарный-поиск-binsearch-бинпоиск">Двоичный поиск</a></td></tr>
+            <tr><td>$O(\sqrt{n})$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>около $10^{16}$</td><td><a href="../s3/segments_tree.html#2-корневая-оптимизация">Корневая оптимизация</a></td></tr>
+            <tr><td>$O(n)$</td><td><meter aria-hidden="true" min="0" max="16" value="8"></meter>около $10^8$</td><td><a href="../s6/trees.html#обходы-бинарного-дерева">Обход бинарного дерева</a></td></tr>
+            <tr><td>$O(n\log n)$</td><td><meter aria-hidden="true" min="0" max="16" value="6.6"></meter>около $4\cdot10^6$</td><td><a href="sort.html#сортировка-слиянием-mergesort">Сортировка слиянием</a></td></tr>
+            <tr><td>$O(n^2)$</td><td><meter aria-hidden="true" min="0" max="16" value="4"></meter>около $10^4$</td><td><a href="sort.html#квадратичные-сортировки-сортировка-пузырьком">Сортировка пузырьком</a></td></tr>
+            <tr><td>$O(n^3)$</td><td><meter aria-hidden="true" min="0" max="16" value="2.7"></meter>около $500$</td><td><a href="graph_alg_py.html#алгоритм-флойда">Алгоритм Флойда</a></td></tr>
+            <tr><td>$O(2^n)$</td><td><meter aria-hidden="true" min="0" max="16" value="1.4"></meter>около $26$</td><td><a href="../s3/recursion.html#ханойские-башни-рекурсивное-перемещение">Ханойские башни</a></td></tr>
+            <tr><td>$O(n!)$</td><td><meter aria-hidden="true" min="0" max="16" value="1"></meter>около $11$</td><td><a href="../s2/backtracking.html#2-3-1-перебор-с-отсечениями">Перебор перестановок</a></td></tr>
+        </tbody>
+    </table>
+
     <p>$O(1)$ - время выполнения алгоритма константа (не зависит от количества элементов во входном множестве).</p>
 
     <p>$O(n)$ - линейная сложность.</p>
