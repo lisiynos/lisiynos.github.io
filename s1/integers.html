@@ -214,6 +214,22 @@ def GCD(a,b): # Функция для вычисления НОД при пом�
   # НОД = a если b = 0 иначе НОД=НОД(b,r), r - остаток от деления a на b
 
 print GCD(264, 192) # Выведет: 24 </pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Евклида с делением для НОД: O(log(min(a, b))) делений
+pub fn gcd(a: u64, b: u64) -&gt; u64 {
+    if b == 0 {
+        return a;
+    }
+    // НОД(a, b) = НОД(b, r), где r - остаток от деления a на b
+    gcd(b, a % b)
+}
+
+fn main() {
+    println!("НОД(264, 192) = {}", gcd(264, 192));
+    println!("НОД(6069, 663) = {}", gcd(6069, 663));
+    println!("НОД(0, 5) = {}", gcd(0, 5));
+}</code></pre>
+
 <p>Вычислить НОД трех натуральных чисел $a$, $b$ и $c$ можно так:</p>
 
 <p> $GCD(a,b,c)=GCD(GCD(a,b),c)$</p>
@@ -397,6 +413,24 @@ begin
     assert( a*x0+b*y0 = GCD ); { Проверка что ответ верный! }
   end;
 end.</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Расширенный алгоритм Евклида: O(log(min(a, b))) шагов; для a, b &gt;= 0 возвращает (d, x, y),
+// где d = НОД(a, b) и a*x + b*y = d
+pub fn ext_gcd(a: i64, b: i64) -&gt; (i64, i64, i64) {
+    if b == 0 {
+        return (a, 1, 0);
+    }
+    // Для пары (b, a mod b) решение (x1, y1) уже найдено; подставляем a mod b = a - (a / b) * b
+    let (d, x1, y1) = ext_gcd(b, a % b);
+    (d, y1, x1 - (a / b) * y1)
+}
+
+fn main() {
+    let (d, x, y) = ext_gcd(258, 114);
+    println!("НОД(258, 114) = {d}");
+    println!("258 * {x} + 114 * {y} = {}", 258 * x + 114 * y);
+}</code></pre>
+
 <h3>Решение общего линейного диофантова уравнения. </h3>
 
 <p>Диофантово уравнение общего вида:
@@ -1062,6 +1096,30 @@ begin
       end;
     end;
 end.</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Решето Эратосфена: O(n log log n) по времени, O(n) по памяти
+pub fn sieve(limit: usize) -&gt; Vec&lt;usize&gt; {
+    // is_prime[k] - простое ли число k; сначала считаем простыми все числа от 2
+    let mut is_prime: Vec&lt;bool&gt; = (0..=limit).map(|number| number &gt;= 2).collect();
+    let mut number = 2;
+    while number * number &lt;= limit {
+        if is_prime[number] {
+            // Вычёркиваем кратные числа, начиная с квадрата: меньшие кратные уже вычеркнуты
+            for multiple in (number * number..=limit).step_by(number) {
+                is_prime[multiple] = false;
+            }
+        }
+        number += 1;
+    }
+    (0..=limit).filter(|&amp;n| is_prime[n]).collect()
+}
+
+fn main() {
+    let primes = sieve(50);
+    let text: Vec&lt;String&gt; = primes.iter().map(|p| p.to_string()).collect();
+    println!("простые до 50: {}", text.join(" "));
+}</code></pre>
 
 <h2>Цепные дроби</h2>
 

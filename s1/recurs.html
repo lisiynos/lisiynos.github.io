@@ -14,6 +14,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -56,6 +57,45 @@ int factorial(int n) {
   return !n ? 1 : n * factorial(n - 1);
 }
 </pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Факториал, рекурсивный способ: O(n) по времени, O(n) памяти на стек вызовов
+def factorial(n):
+    """Возвращает n! для целого n &gt;= 0."""
+    if n &lt; 0:
+        raise ValueError("факториал определён только для n &gt;= 0")
+    if n &lt;= 1:
+        return 1
+    return n * factorial(n - 1)  # n! = n * (n-1)!
+
+
+def main():
+    for n in range(6):
+        print(f"{n}! = {factorial(n)}")
+    print(f"20! = {factorial(20)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Факториал, рекурсивный способ: O(n) по времени, O(n) памяти на стек вызовов
+// При n &gt; 20 результат не помещается в u64
+pub fn factorial(n: u64) -&gt; u64 {
+    if n &lt;= 1 {
+        return 1;
+    }
+    n * factorial(n - 1) // n! = n * (n-1)!
+}
+
+fn main() {
+    for n in 0..6 {
+        println!("{n}! = {}", factorial(n));
+    }
+    println!("20! = {}", factorial(20));
+}</code></pre>
 
     <h2>Рекурсивные функции</h2>
 
@@ -306,6 +346,47 @@ BEGIN
 END.
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Разворот слова рекурсией: O(n) по времени, O(n) памяти на стек вызовов
+def reverse_word(word):
+    """Возвращает слово, записанное с конца."""
+    if len(word) &lt;= 1:  # пустое слово и одна буква развернуты уже сами по себе
+        return word
+    # Первую букву ставим в конец, а остаток слова разворачиваем рекурсивно
+    return reverse_word(word[1:]) + word[0]
+
+
+def main():
+    for word in ["рекурсия", "паровоз", "а", ""]:
+        print(f"{word} -&gt; {reverse_word(word)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Разворот слова рекурсией: O(n) по времени, O(n) памяти на стек вызовов
+pub fn reverse_word(word: &amp;str) -&gt; String {
+    let chars: Vec&lt;char&gt; = word.chars().collect();
+    reverse_chars(&amp;chars)
+}
+
+// Первая буква уходит в конец, остаток слова разворачивается рекурсивно
+fn reverse_chars(chars: &amp;[char]) -&gt; String {
+    match chars.split_first() {
+        None =&gt; String::new(),
+        Some((first, rest)) =&gt; reverse_chars(rest) + &amp;first.to_string(),
+    }
+}
+
+fn main() {
+    for word in ["рекурсия", "паровоз", "а", ""] {
+        println!("{word} -&gt; {}", reverse_word(word));
+    }
+}</code></pre>
+
     <h3>Фракталы</h3>
 
     <p style="text-indent:1.25cm;">
@@ -494,6 +575,61 @@ US">
     </p>
     <img loading="lazy" decoding="async" class="image" SRC="../s2/img/2.2_html_m14572a1e.png" WIDTH=615 HEIGHT=398
          BORDER=0>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Драконова ломаная рекурсией: 2^depth отрезков, O(2^depth) по времени и памяти
+def dragon(start, end, depth):
+    """Возвращает отрезки драконовой ломаной глубины depth между точками start и end.
+
+    Координаты должны делиться на 2^depth, иначе деление на 2 даст дробную часть.
+    """
+    if depth == 0:
+        return [(start, end)]
+    (x1, y1), (x2, y2) = start, end
+    # Новая вершина: середина отрезка, сдвинутая перпендикулярно на половину его длины
+    middle = ((x1 + x2) // 2 + (y2 - y1) // 2, (y1 + y2) // 2 - (x2 - x1) // 2)
+    return dragon(start, middle, depth - 1) + dragon(end, middle, depth - 1)
+
+
+def main():
+    # Отрезок от (0, 0) до (8, 0) делим три раза: получаем 8 отрезков
+    segments = dragon((0, 0), (8, 0), 3)
+    print(f"{len(segments)} отрезков")
+    for start, end in segments:
+        print(start, "-&gt;", end)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Драконова ломаная рекурсией: 2^depth отрезков, O(2^depth) по времени и памяти
+pub type Point = (i64, i64);
+
+pub fn dragon(start: Point, end: Point, depth: u32) -&gt; Vec&lt;(Point, Point)&gt; {
+    if depth == 0 {
+        return vec![(start, end)];
+    }
+    // Новая вершина: середина отрезка, сдвинутая перпендикулярно на половину его длины
+    let middle = (
+        (start.0 + end.0) / 2 + (end.1 - start.1) / 2,
+        (start.1 + end.1) / 2 - (end.0 - start.0) / 2,
+    );
+    let mut segments = dragon(start, middle, depth - 1);
+    segments.extend(dragon(end, middle, depth - 1));
+    segments
+}
+
+fn main() {
+    // Отрезок от (0, 0) до (8, 0) делим три раза: получаем 8 отрезков
+    let segments = dragon((0, 0), (8, 0), 3);
+    println!("{} отрезков", segments.len());
+    for (start, end) in segments {
+        println!("{:?} -&gt; {:?}", start, end);
+    }
+}</code></pre>
 
     <h2>Литература</h2>
 

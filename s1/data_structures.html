@@ -15,6 +15,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -128,6 +129,88 @@ begin
   Writeln(Pop); { Выводит "5", в стеке: 2 }
   Writeln(Pop); { Выводит "2", в стеке пусто }
 end.</pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Стек на массиве фиксированного размера: push, pop и проверка пустоты за O(1), память O(n).
+class ArrayStack:
+    def __init__(self, capacity):
+        self.items = [0] * capacity
+        self.top = 0  # число элементов; items[top] - первая свободная ячейка
+
+    def is_empty(self):
+        return self.top == 0
+
+    def push(self, value):
+        if self.top == len(self.items):
+            raise OverflowError("стек полон")
+        self.items[self.top] = value
+        self.top += 1
+
+    def pop(self):
+        if self.is_empty():
+            raise IndexError("стек пуст")
+        self.top -= 1
+        return self.items[self.top]
+
+
+def main():
+    stack = ArrayStack(3)
+    print(stack.is_empty())  # True
+    stack.push(2)
+    stack.push(5)
+    print(stack.pop())  # 5
+    print(stack.pop())  # 2
+    print(stack.is_empty())  # True
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Стек на массиве фиксированного размера: push, pop и проверка пустоты за O(1), память O(N).
+pub struct ArrayStack&lt;const N: usize&gt; {
+    items: [i32; N],
+    top: usize, // число элементов; items[top] - первая свободная ячейка
+}
+
+impl&lt;const N: usize&gt; ArrayStack&lt;N&gt; {
+    pub fn new() -&gt; Self {
+        ArrayStack { items: [0; N], top: 0 }
+    }
+
+    pub fn is_empty(&amp;self) -&gt; bool {
+        self.top == 0
+    }
+
+    // Возвращает false, если стек полон.
+    pub fn push(&amp;mut self, value: i32) -&gt; bool {
+        if self.top == N {
+            return false;
+        }
+        self.items[self.top] = value;
+        self.top += 1;
+        true
+    }
+
+    // Возвращает None, если стек пуст.
+    pub fn pop(&amp;mut self) -&gt; Option&lt;i32&gt; {
+        if self.is_empty() {
+            return None;
+        }
+        self.top -= 1;
+        Some(self.items[self.top])
+    }
+}
+
+fn main() {
+    let mut stack: ArrayStack&lt;3&gt; = ArrayStack::new();
+    println!("{}", stack.is_empty()); // true
+    stack.push(2);
+    stack.push(5);
+    println!("{:?}", stack.pop()); // Some(5)
+    println!("{:?}", stack.pop()); // Some(2)
+    println!("{}", stack.is_empty()); // true
+}</code></pre>
 
     <p>
         <strong>Очередь</strong> — структура данных с дисциплиной доступа к элементам «первый пришёл — первый вышел»
@@ -184,6 +267,102 @@ begin
   Writeln(Get); { Выводит "5", в очереди пусто }
 end.
 </pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Очередь на кольцевом массиве: enqueue и dequeue за O(1), память O(n).
+class RingQueue:
+    def __init__(self, capacity):
+        self.items = [0] * capacity
+        self.head = 0  # индекс первого элемента
+        self.size = 0  # число элементов в очереди
+
+    def is_empty(self):
+        return self.size == 0
+
+    def enqueue(self, value):
+        if self.size == len(self.items):
+            raise OverflowError("очередь полна")
+        tail = (self.head + self.size) % len(self.items)  # первая свободная ячейка
+        self.items[tail] = value
+        self.size += 1
+
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("очередь пуста")
+        value = self.items[self.head]
+        self.head = (self.head + 1) % len(self.items)  # кольцо: после последней ячейки снова первая
+        self.size -= 1
+        return value
+
+
+def main():
+    queue = RingQueue(3)
+    for value in [1, 2, 3]:
+        queue.enqueue(value)
+    print(queue.dequeue())  # 1
+    queue.enqueue(4)  # занимает освободившуюся ячейку в начале массива
+    rest = []
+    while not queue.is_empty():
+        rest.append(queue.dequeue())
+    print(rest)  # [2, 3, 4]
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Очередь на кольцевом массиве: enqueue и dequeue за O(1), память O(N).
+pub struct RingQueue&lt;const N: usize&gt; {
+    items: [i32; N],
+    head: usize, // индекс первого элемента
+    size: usize, // число элементов в очереди
+}
+
+impl&lt;const N: usize&gt; RingQueue&lt;N&gt; {
+    pub fn new() -&gt; Self {
+        RingQueue { items: [0; N], head: 0, size: 0 }
+    }
+
+    pub fn is_empty(&amp;self) -&gt; bool {
+        self.size == 0
+    }
+
+    // Возвращает false, если очередь полна.
+    pub fn enqueue(&amp;mut self, value: i32) -&gt; bool {
+        if self.size == N {
+            return false;
+        }
+        let tail = (self.head + self.size) % N; // первая свободная ячейка
+        self.items[tail] = value;
+        self.size += 1;
+        true
+    }
+
+    // Возвращает None, если очередь пуста.
+    pub fn dequeue(&amp;mut self) -&gt; Option&lt;i32&gt; {
+        if self.is_empty() {
+            return None;
+        }
+        let value = self.items[self.head];
+        self.head = (self.head + 1) % N; // кольцо: после последней ячейки снова первая
+        self.size -= 1;
+        Some(value)
+    }
+}
+
+fn main() {
+    let mut queue: RingQueue&lt;3&gt; = RingQueue::new();
+    for value in [1, 2, 3] {
+        queue.enqueue(value);
+    }
+    println!("{:?}", queue.dequeue()); // Some(1)
+    queue.enqueue(4); // занимает освободившуюся ячейку в начале массива
+    let mut rest = Vec::new();
+    while let Some(value) = queue.dequeue() {
+        rest.push(value);
+    }
+    println!("{:?}", rest); // [2, 3, 4]
+}</code></pre>
 
     <h1>Реализация на C/C++</h1>
 

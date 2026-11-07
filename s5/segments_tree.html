@@ -15,6 +15,9 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_java.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -253,6 +256,188 @@ public class SegTree {
 }
 </pre>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Дерево отрезков снизу (итеративное): set и get за O(log N), построение за O(N)
+def pull(tree, vertex):
+    """Сумма вершины равна сумме ее двух сыновей."""
+    tree[vertex] = tree[2 * vertex] + tree[2 * vertex + 1]
+
+
+def build(values):
+    """Строит дерево за O(N): листья заполняем числами, затем пересчитываем вершины снизу вверх."""
+    size = 1
+    while size &lt; len(values):
+        size *= 2
+    tree = [0] * (2 * size)
+    tree[size:size + len(values)] = values
+    for vertex in range(size - 1, 0, -1):
+        pull(tree, vertex)
+    return tree, size
+
+
+def set_value(tree, size, pos, value):
+    """Устанавливает элемент pos (с нуля) равным value и пересчитывает всех его предков."""
+    vertex = pos + size
+    tree[vertex] = value
+    while vertex &gt; 1:
+        vertex //= 2
+        pull(tree, vertex)
+
+
+def get_sum(tree, size, left, right):
+    """Сумма элементов на отрезке [left, right] (с нуля, включительно)."""
+    left += size
+    right += size
+    answer = 0
+    while left &lt;= right:
+        if left % 2 == 1:
+            answer += tree[left]
+            left += 1
+        if right % 2 == 0:
+            answer += tree[right]
+            right -= 1
+        left //= 2
+        right //= 2
+    return answer
+
+
+if __name__ == "__main__":
+    tree, size = build([5, 3, 8, 6, 1, 4, 7, 2])
+    print(get_sum(tree, size, 2, 5))  # 8 + 6 + 1 + 4 = 19
+    set_value(tree, size, 3, 10)
+    print(get_sum(tree, size, 2, 5))  # 8 + 10 + 1 + 4 = 23
+    print(get_sum(tree, size, 0, 7))  # 5 + 3 + 8 + 10 + 1 + 4 + 7 + 2 = 40
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Дерево отрезков снизу (итеративное): set и get за O(log N), построение за O(N)
+// Листья лежат в tree[size..2*size], вершина v имеет сыновей 2v и 2v+1.
+pub struct SegTree {
+    tree: Vec&lt;i64&gt;,
+    size: usize, // степень двойки, не меньше числа элементов
+}
+
+impl SegTree {
+    // Строит дерево за O(N): сначала листья, потом вершины снизу вверх
+    pub fn new(values: &amp;[i64]) -&gt; Self {
+        let size = values.len().next_power_of_two();
+        let mut seg = SegTree { tree: vec![0; 2 * size], size };
+        seg.tree[size..size + values.len()].copy_from_slice(values);
+        for vertex in (1..size).rev() {
+            seg.pull(vertex);
+        }
+        seg
+    }
+
+    // Сумма вершины равна сумме ее двух сыновей
+    fn pull(&amp;mut self, vertex: usize) {
+        self.tree[vertex] = self.tree[2 * vertex] + self.tree[2 * vertex + 1];
+    }
+
+    // Устанавливает элемент pos (с нуля) равным value и пересчитывает предков: O(log N)
+    pub fn set(&amp;mut self, pos: usize, value: i64) {
+        let mut vertex = pos + self.size;
+        self.tree[vertex] = value;
+        while vertex &gt; 1 {
+            vertex /= 2;
+            self.pull(vertex);
+        }
+    }
+
+    // Сумма на отрезке [left, right] включительно: O(log N)
+    pub fn get(&amp;self, left: usize, right: usize) -&gt; i64 {
+        let (mut left, mut right) = (left + self.size, right + self.size);
+        let mut answer = 0;
+        while left &lt;= right {
+            if left % 2 == 1 {
+                answer += self.tree[left];
+                left += 1;
+            }
+            if right % 2 == 0 {
+                answer += self.tree[right];
+                right -= 1;
+            }
+            left /= 2;
+            right /= 2;
+        }
+        answer
+    }
+}
+
+fn main() {
+    let mut seg = SegTree::new(&amp;[5, 3, 8, 6, 1, 4, 7, 2]);
+    println!("{}", seg.get(2, 5)); // 8 + 6 + 1 + 4 = 19
+    seg.set(3, 10);
+    println!("{}", seg.get(2, 5)); // 8 + 10 + 1 + 4 = 23
+    println!("{}", seg.get(0, 7)); // 5 + 3 + 8 + 10 + 1 + 4 + 7 + 2 = 40
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Дерево отрезков снизу (итеративное): set и get за O(log N), построение за O(N)
+// Листья лежат в tree[size..2*size-1], вершина v имеет сыновей 2v и 2v+1.
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+struct SegTree {
+  std::size_t size = 1;        // степень двойки, не меньше числа элементов
+  std::vector&lt;long long&gt; tree;
+
+  // Строит дерево за O(N): сначала листья, потом вершины снизу вверх
+  explicit SegTree(const std::vector&lt;long long&gt;&amp; values) {
+    while (size &lt; values.size()) size *= 2;
+    tree.assign(2 * size, 0);
+    for (std::size_t i = 0; i &lt; values.size(); ++i) tree[size + i] = values[i];
+    for (std::size_t vertex = size - 1; vertex &gt;= 1; --vertex) pull(vertex);
+  }
+
+  // Сумма вершины равна сумме ее двух сыновей
+  void pull(std::size_t vertex) { tree[vertex] = tree[2 * vertex] + tree[2 * vertex + 1]; }
+
+  // Устанавливает элемент pos (с нуля) равным value и пересчитывает предков: O(log N)
+  void set(std::size_t pos, long long value) {
+    std::size_t vertex = pos + size;
+    tree[vertex] = value;
+    while (vertex &gt; 1) {
+      vertex /= 2;
+      pull(vertex);
+    }
+  }
+
+  // Сумма на отрезке [left, right] включительно: O(log N)
+  long long get(std::size_t left, std::size_t right) const {
+    left += size;
+    right += size;
+    long long answer = 0;
+    while (left &lt;= right) {
+      if (left % 2 == 1) {
+        answer += tree[left];
+        ++left;
+      }
+      if (right % 2 == 0) {
+        answer += tree[right];
+        --right;
+      }
+      left /= 2;
+      right /= 2;
+    }
+    return answer;
+  }
+};
+
+int main() {
+  SegTree seg({5, 3, 8, 6, 1, 4, 7, 2});
+  std::cout &lt;&lt; seg.get(2, 5) &lt;&lt; '\n';  // 8 + 6 + 1 + 4 = 19
+  seg.set(3, 10);
+  std::cout &lt;&lt; seg.get(2, 5) &lt;&lt; '\n';  // 8 + 10 + 1 + 4 = 23
+  std::cout &lt;&lt; seg.get(0, 7) &lt;&lt; '\n';  // 5 + 3 + 8 + 10 + 1 + 4 + 7 + 2 = 40
+  return 0;
+}
+</pre>
+
+
 <b>Реализация сверху:</b>
 
 <pre class="sh_java">
@@ -314,6 +499,192 @@ public class SegTree {
 
   }
 </pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Дерево отрезков сверху (рекурсивное): set и get за O(log N), построение за O(N)
+# Требует n &gt;= 1: корень отвечает за отрезок (0, n - 1). Вершина vertex отвечает за отрезок node = (lo, hi),
+# ее сыновья - за левую и правую половины.
+def pull(tree, vertex):
+    """Сумма вершины равна сумме ее двух сыновей."""
+    tree[vertex] = tree[2 * vertex] + tree[2 * vertex + 1]
+
+
+def build(tree, vertex, node, values):
+    """Строит поддерево вершины vertex за время, пропорциональное длине отрезка."""
+    lo, hi = node
+    if lo == hi:
+        tree[vertex] = values[lo]
+        return
+    mid = (lo + hi) // 2
+    build(tree, 2 * vertex, (lo, mid), values)
+    build(tree, 2 * vertex + 1, (mid + 1, hi), values)
+    pull(tree, vertex)
+
+
+def set_value(tree, vertex, node, pos, value):
+    """Устанавливает элемент pos равным value, спускаясь от корня к листу."""
+    lo, hi = node
+    if lo == hi:
+        tree[vertex] = value
+        return
+    mid = (lo + hi) // 2
+    if pos &lt;= mid:
+        set_value(tree, 2 * vertex, (lo, mid), pos, value)
+    else:
+        set_value(tree, 2 * vertex + 1, (mid + 1, hi), pos, value)
+    pull(tree, vertex)
+
+
+def get_sum(tree, vertex, node, query):
+    """Сумма на отрезке query = (left, right); вершины вне запроса пропускаются."""
+    lo, hi = node
+    left, right = query
+    if right &lt; lo or hi &lt; left:
+        return 0
+    if left &lt;= lo and hi &lt;= right:
+        return tree[vertex]
+    mid = (lo + hi) // 2
+    return (get_sum(tree, 2 * vertex, (lo, mid), query)
+            + get_sum(tree, 2 * vertex + 1, (mid + 1, hi), query))
+
+
+if __name__ == "__main__":
+    values = [5, 3, 8, 6, 1, 4, 7, 2]
+    root = (0, len(values) - 1)
+    tree = [0] * (4 * len(values))
+    build(tree, 1, root, values)
+    print(get_sum(tree, 1, root, (2, 5)))  # 8 + 6 + 1 + 4 = 19
+    set_value(tree, 1, root, 3, 10)
+    print(get_sum(tree, 1, root, (2, 5)))  # 8 + 10 + 1 + 4 = 23
+    print(get_sum(tree, 1, root, (0, 7)))  # 5 + 3 + 8 + 10 + 1 + 4 + 7 + 2 = 40
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Дерево отрезков сверху (рекурсивное): set и get за O(log N), построение за O(N)
+// Требует n &gt;= 1: корень отвечает за отрезок [0, n-1]. Вершина v отвечает за отрезок [lo, hi],
+// сыновья 2v и 2v+1 - за его левую и правую половины. Сумма вершины равна сумме ее двух сыновей
+fn pull(tree: &amp;mut [i64], vertex: usize) {
+    tree[vertex] = tree[2 * vertex] + tree[2 * vertex + 1];
+}
+
+// Строит поддерево вершины vertex за время, пропорциональное длине отрезка
+pub fn build(tree: &amp;mut [i64], vertex: usize, node: (usize, usize), values: &amp;[i64]) {
+    let (lo, hi) = node;
+    if lo == hi {
+        tree[vertex] = values[lo];
+        return;
+    }
+    let mid = (lo + hi) / 2;
+    build(tree, 2 * vertex, (lo, mid), values);
+    build(tree, 2 * vertex + 1, (mid + 1, hi), values);
+    pull(tree, vertex);
+}
+
+// Устанавливает элемент pos равным value, спускаясь от корня к листу: O(log N)
+pub fn set_value(tree: &amp;mut [i64], vertex: usize, node: (usize, usize), pos: usize, value: i64) {
+    let (lo, hi) = node;
+    if lo == hi {
+        tree[vertex] = value;
+        return;
+    }
+    let mid = (lo + hi) / 2;
+    if pos &lt;= mid {
+        set_value(tree, 2 * vertex, (lo, mid), pos, value);
+    } else {
+        set_value(tree, 2 * vertex + 1, (mid + 1, hi), pos, value);
+    }
+    pull(tree, vertex);
+}
+
+// Сумма на отрезке query = (left, right); вершины вне запроса пропускаются: O(log N)
+pub fn get_sum(tree: &amp;[i64], vertex: usize, node: (usize, usize), query: (usize, usize)) -&gt; i64 {
+    let (lo, hi) = node;
+    let (left, right) = query;
+    if right &lt; lo || hi &lt; left {
+        return 0;
+    }
+    if left &lt;= lo &amp;&amp; hi &lt;= right {
+        return tree[vertex];
+    }
+    let mid = (lo + hi) / 2;
+    get_sum(tree, 2 * vertex, (lo, mid), query) + get_sum(tree, 2 * vertex + 1, (mid + 1, hi), query)
+}
+
+fn main() {
+    let values: [i64; 8] = [5, 3, 8, 6, 1, 4, 7, 2];
+    let root = (0, values.len() - 1);
+    let mut tree = vec![0; 4 * values.len()];
+    build(&amp;mut tree, 1, root, &amp;values);
+    println!("{}", get_sum(&amp;tree, 1, root, (2, 5))); // 8 + 6 + 1 + 4 = 19
+    set_value(&amp;mut tree, 1, root, 3, 10);
+    println!("{}", get_sum(&amp;tree, 1, root, (2, 5))); // 8 + 10 + 1 + 4 = 23
+    println!("{}", get_sum(&amp;tree, 1, root, (0, 7))); // 40
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Дерево отрезков сверху (рекурсивное): set и get за O(log N), построение за O(N)
+// Требует n &gt;= 1: корень отвечает за отрезок [0, n-1]. Вершина v отвечает за отрезок [lo, hi],
+// сыновья 2v и 2v+1 - за его левую и правую половины.
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Node = std::pair&lt;std::size_t, std::size_t&gt;;  // отрезок [lo, hi] вершины
+
+// Сумма вершины равна сумме ее двух сыновей
+void pull(std::vector&lt;long long&gt;&amp; tree, std::size_t vertex) {
+  tree[vertex] = tree[2 * vertex] + tree[2 * vertex + 1];
+}
+
+// Строит поддерево вершины vertex за время, пропорциональное длине отрезка
+void build(std::vector&lt;long long&gt;&amp; tree, std::size_t vertex, Node node, const std::vector&lt;long long&gt;&amp; values) {
+  auto [lo, hi] = node;
+  if (lo == hi) { tree[vertex] = values[lo]; return; }
+  std::size_t mid = (lo + hi) / 2;
+  build(tree, 2 * vertex, {lo, mid}, values);
+  build(tree, 2 * vertex + 1, {mid + 1, hi}, values);
+  pull(tree, vertex);
+}
+
+// Устанавливает элемент pos равным value, спускаясь от корня к листу: O(log N)
+void set_value(std::vector&lt;long long&gt;&amp; tree, std::size_t vertex, Node node, std::size_t pos, long long value) {
+  auto [lo, hi] = node;
+  if (lo == hi) { tree[vertex] = value; return; }
+  std::size_t mid = (lo + hi) / 2;
+  if (pos &lt;= mid) {
+    set_value(tree, 2 * vertex, {lo, mid}, pos, value);
+  } else {
+    set_value(tree, 2 * vertex + 1, {mid + 1, hi}, pos, value);
+  }
+  pull(tree, vertex);
+}
+
+// Сумма на отрезке query = [left, right]; вершины вне запроса пропускаются: O(log N)
+long long get_sum(const std::vector&lt;long long&gt;&amp; tree, std::size_t vertex, Node node, Node query) {
+  auto [lo, hi] = node;
+  auto [left, right] = query;
+  if (right &lt; lo || hi &lt; left) return 0;
+  if (left &lt;= lo &amp;&amp; hi &lt;= right) return tree[vertex];
+  std::size_t mid = (lo + hi) / 2;
+  return get_sum(tree, 2 * vertex, {lo, mid}, query) + get_sum(tree, 2 * vertex + 1, {mid + 1, hi}, query);
+}
+
+int main() {
+  std::vector&lt;long long&gt; values = {5, 3, 8, 6, 1, 4, 7, 2};
+  Node root{0, values.size() - 1};
+  std::vector&lt;long long&gt; tree(4 * values.size(), 0);
+  build(tree, 1, root, values);
+  std::cout &lt;&lt; get_sum(tree, 1, root, {2, 5}) &lt;&lt; '\n';  // 8 + 6 + 1 + 4 = 19
+  set_value(tree, 1, root, 3, 10);
+  std::cout &lt;&lt; get_sum(tree, 1, root, {2, 5}) &lt;&lt; '\n';  // 8 + 10 + 1 + 4 = 23
+  std::cout &lt;&lt; get_sum(tree, 1, root, {0, 7}) &lt;&lt; '\n';  // 40
+  return 0;
+}
+</pre>
+
 
 <ul>
 <li><a href="http://neerc.ifmo.ru/wiki/index.php?title=%D0%94%D0%B5%D1%80%D0%B5%D0%B2%D0%BE_%D0%BE%D1%82%D1%80%D0%B5%D0%B7%D0%BA%D0%BE%D0%B2._%D0%9F%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B5%D0%BD%D0%B8%D0%B5">Дерево отрезков на neerc.ifmo.ru</a></li>

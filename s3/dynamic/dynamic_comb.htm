@@ -238,6 +238,51 @@ def GCD(a,b): # Функция для вычисления НОД при пом�
   # НОД = a если b = 0 иначе НОД=НОД(b,r), r - остаток от деления a на b
 
 print GCD(264, 192) # Выведет: 24 </pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Евклида с делением: НОД(a, b) за O(log(min(a, b))) шагов.
+#include &lt;cstdio&gt;
+
+// НОД двух неотрицательных чисел: НОД(a, b) = НОД(b, a mod b), при b = 0 ответ a.
+unsigned long long gcd_euclid(unsigned long long a, unsigned long long b) {
+    while (b != 0) {
+        const unsigned long long remainder = a % b;  // остаток от деления a на b
+        a = b;
+        b = remainder;
+    }
+    return a;
+}
+
+int main() {
+    std::printf("НОД(264, 192) = %llu\n", gcd_euclid(264, 192));    // 24
+    std::printf("НОД(6069, 663) = %llu\n", gcd_euclid(6069, 663));  // 51
+    std::printf("НОД(10, 15) = %llu\n", gcd_euclid(10, 15));        // 5
+    std::printf("НОД(7, 0) = %llu\n", gcd_euclid(7, 0));            // 7
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Евклида с делением: НОД(a, b) за O(log(min(a, b))) шагов.
+
+/// НОД двух неотрицательных чисел: НОД(a, b) = НОД(b, a mod b), при b = 0 ответ a.
+pub fn gcd_euclid(mut a: u64, mut b: u64) -&gt; u64 {
+    while b != 0 {
+        let remainder = a % b; // остаток от деления a на b
+        a = b;
+        b = remainder;
+    }
+    a
+}
+
+fn main() {
+    println!("НОД(264, 192) = {}", gcd_euclid(264, 192)); // 24
+    println!("НОД(6069, 663) = {}", gcd_euclid(6069, 663)); // 51
+    println!("НОД(10, 15) = {}", gcd_euclid(10, 15)); // 5
+    println!("НОД(7, 0) = {}", gcd_euclid(7, 0)); // 7
+}
+</code></pre>
 <p>Вычислить НОД трех натуральных чисел $a$, $b$ и $c$ можно так:</p>
 
 <p> $GCD(a,b,c)=GCD(GCD(a,b),c)$</p>
@@ -421,6 +466,91 @@ begin
     assert( a*x0+b*y0 = GCD ); { Проверка что ответ верный! }
   end;
 end.</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Расширенный алгоритм Евклида: НОД(a, b) и такие x, y, что a*x + b*y = НОД(a, b); O(log(min(a, b))) по времени.
+def extended_gcd(a: int, b: int) -&gt; tuple[int, int, int]:
+    # Инварианты: a = A*x0 + B*y0 и b = A*x1 + B*y1, где A и B - исходные числа (a, b &gt;= 0).
+    x0, y0 = 1, 0
+    x1, y1 = 0, 1
+    while b != 0:
+        q = a // b
+        a, b = b, a - q * b
+        x0, x1 = x1, x0 - q * x1
+        y0, y1 = y1, y0 - q * y1
+    return a, x0, y0
+
+
+def main() -&gt; None:
+    d, x, y = extended_gcd(258, 114)
+    print(f"НОД(258, 114) = {d}: 258*({x}) + 114*({y}) = {258 * x + 114 * y}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Расширенный алгоритм Евклида: НОД(a, b) и x, y с a*x + b*y = НОД(a, b); O(log(min(a, b))) по времени.
+#include &lt;cstdio&gt;
+
+// Возвращает d = НОД(a, b) (a, b &gt;= 0) и записывает x, y такие, что a*x + b*y = d.
+long long extended_gcd(long long a, long long b, long long&amp; x, long long&amp; y) {
+    // Инварианты: a = A*x0 + B*y0 и b = A*x1 + B*y1, где A и B - исходные числа.
+    long long x0 = 1;
+    long long y0 = 0;
+    long long x1 = 0;
+    long long y1 = 1;
+    while (b != 0) {
+        const long long q = a / b;
+        const long long remainder = a % b;
+        a = b;
+        b = remainder;
+        const long long next_x = x0 - q * x1;
+        x0 = x1;
+        x1 = next_x;
+        const long long next_y = y0 - q * y1;
+        y0 = y1;
+        y1 = next_y;
+    }
+    x = x0;
+    y = y0;
+    return a;
+}
+
+int main() {
+    long long x = 0;
+    long long y = 0;
+    const long long d = extended_gcd(258, 114, x, y);
+    std::printf("НОД(258, 114) = %lld: 258*(%lld) + 114*(%lld) = %lld\n", d, x, y, 258 * x + 114 * y);
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Расширенный алгоритм Евклида: НОД(a, b) и x, y с a*x + b*y = НОД(a, b); O(log(min(a, b))) по времени.
+
+/// Возвращает (d, x, y): d = НОД(a, b) (a, b &gt;= 0) и a*x + b*y = d.
+pub fn extended_gcd(mut a: i64, mut b: i64) -&gt; (i64, i64, i64) {
+    // Инварианты: a = A*x0 + B*y0 и b = A*x1 + B*y1, где A и B - исходные числа.
+    let (mut x0, mut y0) = (1i64, 0i64);
+    let (mut x1, mut y1) = (0i64, 1i64);
+    while b != 0 {
+        let q = a / b;
+        (a, b) = (b, a - q * b);
+        (x0, x1) = (x1, x0 - q * x1);
+        (y0, y1) = (y1, y0 - q * y1);
+    }
+    (a, x0, y0)
+}
+
+fn main() {
+    let (d, x, y) = extended_gcd(258, 114);
+    println!("НОД(258, 114) = {}: 258*({}) + 114*({}) = {}", d, x, y, 258 * x + 114 * y);
+}
+</code></pre>
 <h3>Решение общего линейного диофантова уравнения. </h3>
 
 <p>Диофантово уравнение общего вида:
@@ -1109,6 +1239,87 @@ begin
       end;  
     end;
 end.</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Решето Эратосфена: все простые числа до N, O(N log log N) по времени, O(N) по памяти.
+def primes_up_to(n: int) -&gt; list[int]:
+    # crossed[i] - число i вычеркнуто, то есть оно составное.
+    crossed = [False] * (n + 1)
+    primes: list[int] = []
+    for i in range(2, n + 1):
+        if crossed[i]:
+            continue
+        primes.append(i)
+        for multiple in range(2 * i, n + 1, i):
+            crossed[multiple] = True
+    return primes
+
+
+def main() -&gt; None:
+    print(f"Простые до 30: {primes_up_to(30)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Решето Эратосфена: все простые числа до N, O(N log log N) по времени, O(N) по памяти.
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Простые числа от 2 до n включительно.
+std::vector&lt;std::size_t&gt; primes_up_to(std::size_t n) {
+    // crossed[i] - число i вычеркнуто, то есть оно составное.
+    std::vector&lt;bool&gt; crossed(n + 1, false);
+    std::vector&lt;std::size_t&gt; primes;
+    for (std::size_t i = 2; i &lt;= n; ++i) {
+        if (crossed[i]) continue;
+        primes.push_back(i);
+        for (std::size_t multiple = 2 * i; multiple &lt;= n; multiple += i) {
+            crossed[multiple] = true;
+        }
+    }
+    return primes;
+}
+
+int main() {
+    std::printf("Простые до 30:");
+    for (std::size_t p : primes_up_to(30)) {
+        std::printf(" %zu", p);
+    }
+    std::printf("\n");
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Решето Эратосфена: все простые числа до N, O(N log log N) по времени, O(N) по памяти.
+
+/// Простые числа от 2 до n включительно.
+pub fn primes_up_to(n: usize) -&gt; Vec&lt;usize&gt; {
+    // crossed[i] - число i вычеркнуто, то есть оно составное.
+    let mut crossed = vec![false; n + 1];
+    let mut primes = Vec::new();
+    for i in 2..=n {
+        if crossed[i] {
+            continue;
+        }
+        primes.push(i);
+        for multiple in (2 * i..=n).step_by(i) {
+            crossed[multiple] = true;
+        }
+    }
+    primes
+}
+
+fn main() {
+    println!("Простые до 30: {:?}", primes_up_to(30));
+}
+</code></pre>
 
 <h2>Цепные дроби</h2>
 

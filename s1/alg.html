@@ -100,6 +100,78 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <p>$O(n^2)$ - квадратичная сложность. Например, сортировки &quot;пузырьком&quot;, вставками и т.д.</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+def bubble_sort(items):
+    """Сортирует список по возрастанию на месте и возвращает его."""
+    for last in range(len(items) - 1, 0, -1):
+        # Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0..last]
+        for i in range(last):
+            if items[i] &gt; items[i + 1]:
+                items[i], items[i + 1] = items[i + 1], items[i]
+    return items
+
+
+def main():
+    print(bubble_sort([5, 3, 8, 1, 9, 2, 7]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+pub fn bubble_sort(items: &amp;mut [i32]) {
+    for last in (1..items.len()).rev() {
+        // Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0..=last]
+        for i in 0..last {
+            if items[i] &gt; items[i + 1] {
+                items.swap(i, i + 1);
+            }
+        }
+    }
+}
+
+fn main() {
+    let mut items = vec![5, 3, 8, 1, 9, 2, 7];
+    bubble_sort(&amp;mut items);
+    println!("{:?}", items);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+void bubble_sort(std::vector&lt;int&gt;&amp; items) {
+    // Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0, last)
+    for (std::size_t last = items.size(); last &gt; 1; --last) {
+        for (std::size_t i = 0; i + 1 &lt; last; ++i) {
+            if (items[i] &gt; items[i + 1]) {
+                std::swap(items[i], items[i + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; items = {5, 3, 8, 1, 9, 2, 7};
+    bubble_sort(items);
+    for (int item : items) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <p>Пример: поиск двух точек на плоскости с максимальным расстоянием между ними.</p>
 
     <p>$O(n^3)$ - кубическая сложность.</p>
@@ -111,7 +183,222 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <p>$O(\ln{n})$ - <strong>Бинарный поиск</strong> - логарифмическая сложность.</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Бинарный поиск в отсортированном списке: O(log n) сравнений
+def binary_search(items, target):
+    """Возвращает индекс target в отсортированном списке или None, если его там нет."""
+    low, high = 0, len(items)  # искомое ищем в полуинтервале [low, high)
+    while low &lt; high:
+        middle = (low + high) // 2
+        if items[middle] == target:
+            return middle
+        if items[middle] &lt; target:
+            low = middle + 1
+        else:
+            high = middle
+    return None
+
+
+def main():
+    values = [1, 3, 5, 7, 9, 11, 13]
+    print(binary_search(values, 7))
+    print(binary_search(values, 8))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Бинарный поиск в отсортированном срезе: O(log n) сравнений
+use std::cmp::Ordering;
+
+pub fn binary_search(items: &amp;[i32], target: i32) -&gt; Option&lt;usize&gt; {
+    // Искомое ищем в полуинтервале [low, high)
+    let (mut low, mut high) = (0, items.len());
+    while low &lt; high {
+        let middle = low + (high - low) / 2;
+        match items[middle].cmp(&amp;target) {
+            Ordering::Equal =&gt; return Some(middle),
+            Ordering::Less =&gt; low = middle + 1,
+            Ordering::Greater =&gt; high = middle,
+        }
+    }
+    None
+}
+
+fn main() {
+    let values = [1, 3, 5, 7, 9, 11, 13];
+    println!("{:?}", binary_search(&amp;values, 7));
+    println!("{:?}", binary_search(&amp;values, 8));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Бинарный поиск в отсортированном векторе: O(log n) сравнений
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;vector&gt;
+
+std::optional&lt;std::size_t&gt; binary_search(const std::vector&lt;int&gt;&amp; items, int target) {
+    // Искомое ищем в полуинтервале [low, high)
+    std::size_t low = 0;
+    std::size_t high = items.size();
+    while (low &lt; high) {
+        std::size_t middle = low + (high - low) / 2;
+        if (items[middle] == target) {
+            return middle;
+        }
+        if (items[middle] &lt; target) {
+            low = middle + 1;
+        } else {
+            high = middle;
+        }
+    }
+    return std::nullopt;
+}
+
+int main() {
+    const std::vector&lt;int&gt; values = {1, 3, 5, 7, 9, 11, 13};
+    for (int target : {7, 8}) {
+        auto index = binary_search(values, target);
+        if (index) {
+            std::cout &lt;&lt; "индекс " &lt;&lt; *index &lt;&lt; '\n';
+        } else {
+            std::cout &lt;&lt; "нет\n";
+        }
+    }
+    return 0;
+}
+</pre>
+
     <p>$O(n\log{n})$ - быстрая сортировка Хоара (рус) - QuickSort, HeapSort, MergeSort.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+def quick_sort(items):
+    """Сортирует список по возрастанию на месте и возвращает его."""
+    sort_range(items, 0, len(items) - 1)
+    return items
+
+
+def sort_range(items, low, high):
+    """Сортирует отрезок items[low..high] (границы включены) разбиением Хоара."""
+    if low &gt;= high:
+        return
+    pivot = items[(low + high) // 2]
+    i, j = low, high
+    while i &lt;= j:
+        while items[i] &lt; pivot:
+            i += 1
+        while items[j] &gt; pivot:
+            j -= 1
+        if i &lt;= j:
+            items[i], items[j] = items[j], items[i]
+            i += 1
+            j -= 1
+    # После разбиения [low..j] не больше опорного, [i..high] не меньше опорного
+    sort_range(items, low, j)
+    sort_range(items, i, high)
+
+
+def main():
+    print(quick_sort([5, 3, 8, 1, 9, 2, 7, 3]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+pub fn quick_sort(items: &amp;mut [i32]) {
+    if items.len() &lt;= 1 {
+        return;
+    }
+    let pivot = items[items.len() / 2];
+    // Индексы со знаком: j может стать -1, и это не должно переполнять usize
+    let (mut i, mut j) = (0_isize, items.len() as isize - 1);
+    while i &lt;= j {
+        while items[i as usize] &lt; pivot {
+            i += 1;
+        }
+        while items[j as usize] &gt; pivot {
+            j -= 1;
+        }
+        if i &lt;= j {
+            items.swap(i as usize, j as usize);
+            i += 1;
+            j -= 1;
+        }
+    }
+    // После разбиения [0..=j] не больше опорного, [i..] не меньше опорного
+    if j &gt;= 0 {
+        quick_sort(&amp;mut items[..=j as usize]);
+    }
+    quick_sort(&amp;mut items[i as usize..]);
+}
+
+fn main() {
+    let mut items = [5, 3, 8, 1, 9, 2, 7, 3];
+    quick_sort(&amp;mut items);
+    println!("{:?}", items);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Сортирует отрезок items[low..high] (границы включены) разбиением Хоара
+void sort_range(std::vector&lt;int&gt;&amp; items, int low, int high) {
+    if (low &gt;= high) {
+        return;
+    }
+    int pivot = items[(low + high) / 2];
+    int i = low;
+    int j = high;
+    while (i &lt;= j) {
+        while (items[i] &lt; pivot) {
+            ++i;
+        }
+        while (items[j] &gt; pivot) {
+            --j;
+        }
+        if (i &lt;= j) {
+            std::swap(items[i], items[j]);
+            ++i;
+            --j;
+        }
+    }
+    // После разбиения [low..j] не больше опорного, [i..high] не меньше опорного
+    sort_range(items, low, j);
+    sort_range(items, i, high);
+}
+
+void quick_sort(std::vector&lt;int&gt;&amp; items) {
+    sort_range(items, 0, static_cast&lt;int&gt;(items.size()) - 1);
+}
+
+int main() {
+    std::vector&lt;int&gt; items = {5, 3, 8, 1, 9, 2, 7, 3};
+    quick_sort(items);
+    for (int item : items) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <p>При оценке сложности важна только самая старшая степень. Например:</p>
 

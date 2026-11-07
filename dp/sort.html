@@ -256,6 +256,71 @@ int main(){
 }
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Быстрая сортировка QuickSort (схема Хоара): O(n log n) в среднем, O(n^2) в худшем случае
+def quick_sort(items, low=0, high=None):
+    """Сортирует список items на месте по возрастанию и возвращает его."""
+    if high is None:
+        high = len(items) - 1
+    if low &gt;= high:
+        return items
+    pivot = items[(low + high) // 2]  # опорный элемент - середина отрезка
+    i, j = low, high
+    while i &lt;= j:
+        while items[i] &lt; pivot:
+            i += 1
+        while items[j] &gt; pivot:
+            j -= 1
+        if i &lt;= j:  # меняем местами два элемента, стоящие не на своих местах
+            items[i], items[j] = items[j], items[i]
+            i += 1
+            j -= 1
+    quick_sort(items, low, j)  # сортируем левую часть
+    quick_sort(items, i, high)  # сортируем правую часть
+    return items
+
+
+def main():
+    data = [33, 5, 18, 2, 9, 41, 5, 0]
+    print(quick_sort(data))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Быстрая сортировка QuickSort (схема Ломуто): O(n log n) в среднем, O(n^2) в худшем случае
+pub fn quick_sort(items: &amp;mut [i64]) {
+    if items.len() &lt;= 1 {
+        return;
+    }
+    let last = items.len() - 1;
+    // Опорный элемент (из середины) переносим в конец отрезка
+    items.swap(items.len() / 2, last);
+    let pivot = items[last];
+    // Все элементы меньше опорного переставляем в начало отрезка
+    let mut store = 0;
+    for index in 0..last {
+        if items[index] &lt; pivot {
+            items.swap(index, store);
+            store += 1;
+        }
+    }
+    // Ставим опорный элемент на его окончательное место
+    items.swap(store, last);
+    let (left, right) = items.split_at_mut(store);
+    quick_sort(left);
+    quick_sort(&amp;mut right[1..]);
+}
+
+fn main() {
+    let mut data: Vec&lt;i64&gt; = vec![33, 5, 18, 2, 9, 41, 5, 0];
+    quick_sort(&amp;mut data);
+    println!("{:?}", data);
+}</code></pre>
+
     <h2>Сортировка слиянием - MergeSort</h2>
 
     <p>Алгоритм сортировки, который упорядочивает списки (или другие структуры данных, доступ к элементам которых можно
@@ -391,6 +456,82 @@ void merge(T a[], long lb, long split, long ub) {
 }
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Сортировка слиянием MergeSort: O(n log n) по времени, O(n) дополнительной памяти
+def merge_sort(items):
+    """Возвращает новый отсортированный список, исходный список не меняется."""
+    if len(items) &lt;= 1:
+        return list(items)
+    middle = len(items) // 2
+    left = merge_sort(items[:middle])  # сортируем левую половину
+    right = merge_sort(items[middle:])  # сортируем правую половину
+    return merge(left, right)
+
+
+def merge(left, right):
+    """Сливает два отсортированных списка в один отсортированный список."""
+    result = []
+    i, j = 0, 0
+    while i &lt; len(left) and j &lt; len(right):
+        # Берём меньший из двух первых оставшихся элементов
+        if left[i] &lt;= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    result.extend(left[i:])  # одна из частей закончилась - дописываем хвост другой
+    result.extend(right[j:])
+    return result
+
+
+def main():
+    data = [33, 5, 18, 2, 9, 41, 5, 0]
+    print(merge_sort(data))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Сортировка слиянием MergeSort: O(n log n) по времени, O(n) дополнительной памяти
+pub fn merge_sort(items: &amp;[i64]) -&gt; Vec&lt;i64&gt; {
+    if items.len() &lt;= 1 {
+        return items.to_vec();
+    }
+    let middle = items.len() / 2;
+    let left = merge_sort(&amp;items[..middle]); // сортируем левую половину
+    let right = merge_sort(&amp;items[middle..]); // сортируем правую половину
+    merge(&amp;left, &amp;right)
+}
+
+// Сливает два отсортированных среза в один отсортированный вектор
+fn merge(left: &amp;[i64], right: &amp;[i64]) -&gt; Vec&lt;i64&gt; {
+    let mut result = Vec::with_capacity(left.len() + right.len());
+    let (mut i, mut j) = (0, 0);
+    while i &lt; left.len() &amp;&amp; j &lt; right.len() {
+        // Берём меньший из двух первых оставшихся элементов
+        if left[i] &lt;= right[j] {
+            result.push(left[i]);
+            i += 1;
+        } else {
+            result.push(right[j]);
+            j += 1;
+        }
+    }
+    // Одна из частей закончилась - дописываем хвост другой
+    result.extend_from_slice(&amp;left[i..]);
+    result.extend_from_slice(&amp;right[j..]);
+    result
+}
+
+fn main() {
+    let data: Vec&lt;i64&gt; = vec![33, 5, 18, 2, 9, 41, 5, 0];
+    println!("{:?}", merge_sort(&amp;data));
+}</code></pre>
+
     <h2>Heap - куча</h2>
 
     <p><b>Бинарное дерево</b> - у каждого родителя максимум 2 потомка</p>
@@ -483,6 +624,88 @@ int main() {
 
 	return 0;
 }</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пирамидальная сортировка HeapSort: O(n log n) по времени, O(1) дополнительной памяти
+def sift_down(items, root, size):
+    """Опускает элемент items[root] вниз, пока куча из size элементов не восстановится."""
+    while True:
+        largest = root
+        left = 2 * root + 1
+        right = 2 * root + 2
+        if left &lt; size and items[left] &gt; items[largest]:
+            largest = left
+        if right &lt; size and items[right] &gt; items[largest]:
+            largest = right
+        if largest == root:
+            return
+        items[root], items[largest] = items[largest], items[root]
+        root = largest
+
+
+def heap_sort(items):
+    """Сортирует список на месте по возрастанию и возвращает его."""
+    size = len(items)
+    # Строим кучу: от последнего родителя к корню
+    for root in range(size // 2 - 1, -1, -1):
+        sift_down(items, root, size)
+    # Максимум лежит в вершине кучи: переносим его в конец и уменьшаем кучу
+    for end in range(size - 1, 0, -1):
+        items[0], items[end] = items[end], items[0]
+        sift_down(items, 0, end)
+    return items
+
+
+def main():
+    data = [33, 5, 18, 2, 9, 41, 5, 0]
+    print(heap_sort(data))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Пирамидальная сортировка HeapSort: O(n log n) по времени, O(1) дополнительной памяти
+// Опускает элемент с индексом root вниз, пока куча из size элементов не восстановится
+fn sift_down(items: &amp;mut [i64], mut root: usize, size: usize) {
+    loop {
+        let mut largest = root;
+        let left = 2 * root + 1;
+        let right = 2 * root + 2;
+        if left &lt; size &amp;&amp; items[left] &gt; items[largest] {
+            largest = left;
+        }
+        if right &lt; size &amp;&amp; items[right] &gt; items[largest] {
+            largest = right;
+        }
+        if largest == root {
+            return;
+        }
+        items.swap(root, largest);
+        root = largest;
+    }
+}
+
+pub fn heap_sort(items: &amp;mut [i64]) {
+    let size = items.len();
+    // Строим кучу: от последнего родителя к корню
+    for root in (0..size / 2).rev() {
+        sift_down(items, root, size);
+    }
+    // Максимум лежит в вершине кучи: переносим его в конец и уменьшаем кучу
+    for end in (1..size).rev() {
+        items.swap(0, end);
+        sift_down(items, 0, end);
+    }
+}
+
+fn main() {
+    let mut data: Vec&lt;i64&gt; = vec![33, 5, 18, 2, 9, 41, 5, 0];
+    heap_sort(&amp;mut data);
+    println!("{:?}", data);
+}</code></pre>
 
     <h2>Алгоритмы сортировки в стандартных библиотеках</h2>
 

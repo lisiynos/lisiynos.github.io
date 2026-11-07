@@ -14,6 +14,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -88,6 +89,45 @@ def fact3(n):
 print(fact3(6))
 </pre>
 
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Факториал N! итеративным умножением 1 * 2 * ... * N, O(N) времени (до 20! помещается в 64 бита)
+#include &lt;cstdio&gt;
+
+unsigned long long factorial(int n) {
+    unsigned long long result = 1;  // 0! = 1
+    for (int i = 2; i &lt;= n; ++i) {
+        result *= static_cast&lt;unsigned long long&gt;(i);
+    }
+    return result;
+}
+
+int main() {
+    for (int n = 0; n &lt;= 20; n += 4) {
+        std::printf("%d! = %llu\n", n, factorial(n));
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Факториал N! итеративным умножением 1 * 2 * ... * N, O(N) времени
+// До 20! включительно результат помещается в 64 бита
+
+pub fn factorial(n: u64) -&gt; u64 {
+    let mut result = 1; // 0! = 1
+    for i in 2..=n {
+        result *= i;
+    }
+    result
+}
+
+fn main() {
+    for n in (0..=20).step_by(4) {
+        println!("{n}! = {}", factorial(n));
+    }
+}
+</code></pre>
+
     <h3>Число размещений $A_N^K$</h3>
 
     <p>Под <i>числом размещений</i> понимают количество вариантов, которыми можно записать в ряд подпоследовательность
@@ -131,6 +171,84 @@ print(fact3(6))
             ...+C<sub>N</sub><sup>K</sup>*x<sup>K</sup>*y<sup>N-K</sup>+...+C<sub>N</sub><sup>N</sup>*x<sup>N</sup>*y<sup>0</sup>
         </li>
     </ul>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Сочетания C(N, K) через треугольник Паскаля (рекуррентная формула), O(N^2) времени
+def binomial(n, k):
+    """C(n, k) = C(n-1, k-1) + C(n-1, k): строим строки треугольника Паскаля до строки n."""
+    if k &lt; 0 or k &gt; n:
+        return 0
+    row = [1]  # строка 0
+    for line in range(1, n + 1):
+        # Края строки равны 1, внутренние элементы складываются из двух верхних
+        next_row = [1] * (line + 1)
+        for i in range(1, line):
+            next_row[i] = row[i - 1] + row[i]
+        row = next_row
+    return row[k]
+
+
+if __name__ == "__main__":
+    print("C(4, 2) =", binomial(4, 2))
+    print("C(36, 5) =", binomial(36, 5))
+    print("C(10, 0) =", binomial(10, 0))
+    print("C(5, 6) =", binomial(5, 6))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Сочетания C(N, K) через треугольник Паскаля (рекуррентная формула), O(N^2) времени
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// C(line, i) = C(line-1, i-1) + C(line-1, i); края строки равны 1
+unsigned long long binomial(int n, int k) {
+    if (k &lt; 0 || k &gt; n) return 0;
+    std::vector&lt;unsigned long long&gt; row{1};  // строка 0
+    for (int line = 1; line &lt;= n; ++line) {
+        std::vector&lt;unsigned long long&gt; nextRow(line + 1, 1ULL);
+        for (int i = 1; i &lt; line; ++i) {
+            nextRow[i] = row[i - 1] + row[i];
+        }
+        row = nextRow;
+    }
+    return row[k];
+}
+
+int main() {
+    std::printf("C(4, 2) = %llu\n", binomial(4, 2));
+    std::printf("C(36, 5) = %llu\n", binomial(36, 5));
+    std::printf("C(10, 0) = %llu\n", binomial(10, 0));
+    std::printf("C(5, 6) = %llu\n", binomial(5, 6));
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Сочетания C(N, K) через треугольник Паскаля (рекуррентная формула), O(N^2) времени
+
+// C(line, i) = C(line-1, i-1) + C(line-1, i); края строки равны 1
+pub fn binomial(n: usize, k: usize) -&gt; u64 {
+    if k &gt; n {
+        return 0;
+    }
+    let mut row = vec![1u64]; // строка 0
+    for line in 1..=n {
+        let mut next_row = vec![1u64; line + 1];
+        for i in 1..line {
+            next_row[i] = row[i - 1] + row[i];
+        }
+        row = next_row;
+    }
+    row[k]
+}
+
+fn main() {
+    println!("C(4, 2) = {}", binomial(4, 2));
+    println!("C(36, 5) = {}", binomial(36, 5));
+    println!("C(10, 0) = {}", binomial(10, 0));
+    println!("C(5, 6) = {}", binomial(5, 6));
+}
+</code></pre>
 
     <h2>Задача 1. Точки на костях Домино</h2>
 

@@ -13,6 +13,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -58,6 +59,167 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <p>Описываемая ниже структура данных позволяет делать каждую из этих операций почти за $O(1)$ в среднем
         (более подробно об асимптотике см. ниже после описания алгоритма).
     </p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# DSU (система непересекающихся множеств): сжатие путей и объединение по размеру, O(α(n)) амортизированно
+def make_set(parent, set_size, x):
+    """Добавляет элемент x в новое множество из одного элемента."""
+    if x in parent:
+        return
+    parent[x] = x
+    set_size[x] = 1
+
+
+def find_set(parent, x):
+    """Возвращает представителя множества, в котором лежит x; по пути сжимает цепочку."""
+    if parent[x] != x:
+        parent[x] = find_set(parent, parent[x])
+    return parent[x]
+
+
+def union_sets(parent, set_size, x, y):
+    """Объединяет множества элементов x и y: меньшее подвешивается к большему."""
+    root_x = find_set(parent, x)
+    root_y = find_set(parent, y)
+    if root_x == root_y:
+        return
+    if set_size[root_x] &lt; set_size[root_y]:
+        root_x, root_y = root_y, root_x
+    parent[root_y] = root_x
+    set_size[root_x] += set_size[root_y]
+
+
+if __name__ == "__main__":
+    parent, set_size = {}, {}
+    for x in range(1, 7):
+        make_set(parent, set_size, x)
+    union_sets(parent, set_size, 1, 2)
+    union_sets(parent, set_size, 3, 4)
+    union_sets(parent, set_size, 2, 4)
+    print(find_set(parent, 1) == find_set(parent, 3))  # True
+    print(find_set(parent, 5) == find_set(parent, 1))  # False
+    print(set_size[find_set(parent, 1)])  # 4
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// DSU (система непересекающихся множеств): сжатие путей и объединение по размеру, O(α(n)) амортизированно
+use std::collections::HashMap;
+
+#[derive(Default)]
+pub struct Dsu {
+    parent: HashMap&lt;usize, usize&gt;,
+    set_size: HashMap&lt;usize, usize&gt;, // размер множества хранится только у его представителя
+}
+
+impl Dsu {
+    // Добавляет элемент x в новое множество из одного элемента: O(1) в среднем
+    pub fn make_set(&amp;mut self, x: usize) {
+        if !self.parent.contains_key(&amp;x) {
+            self.parent.insert(x, x);
+            self.set_size.insert(x, 1);
+        }
+    }
+
+    // Возвращает представителя множества x; по пути сжимает цепочку родителей
+    pub fn find_set(&amp;mut self, x: usize) -&gt; usize {
+        let up = self.parent[&amp;x];
+        if up == x {
+            return x;
+        }
+        let root = self.find_set(up);
+        self.parent.insert(x, root);
+        root
+    }
+
+    // Объединяет множества элементов x и y: меньшее подвешивается к большему
+    pub fn union_sets(&amp;mut self, x: usize, y: usize) {
+        let (mut root_x, mut root_y) = (self.find_set(x), self.find_set(y));
+        if root_x == root_y {
+            return;
+        }
+        if self.set_size[&amp;root_x] &lt; self.set_size[&amp;root_y] {
+            std::mem::swap(&amp;mut root_x, &amp;mut root_y);
+        }
+        self.parent.insert(root_y, root_x);
+        let added = self.set_size[&amp;root_y];
+        *self.set_size.get_mut(&amp;root_x).unwrap() += added;
+    }
+
+    // Размер множества, в котором лежит x
+    pub fn size_of(&amp;mut self, x: usize) -&gt; usize {
+        let root = self.find_set(x);
+        self.set_size[&amp;root]
+    }
+}
+
+fn main() {
+    let mut dsu = Dsu::default();
+    for x in 1..=6 { dsu.make_set(x); }
+    dsu.union_sets(1, 2);
+    dsu.union_sets(3, 4);
+    dsu.union_sets(2, 4);
+    println!("{}", dsu.find_set(1) == dsu.find_set(3)); // true
+    println!("{}", dsu.find_set(5) == dsu.find_set(1)); // false
+    println!("{}", dsu.size_of(1)); // 4
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// DSU (система непересекающихся множеств): сжатие путей и объединение по размеру, O(α(n)) амортизированно
+#include &lt;iostream&gt;
+#include &lt;unordered_map&gt;
+#include &lt;utility&gt;
+
+struct Dsu {
+  std::unordered_map&lt;int, int&gt; parent;
+  std::unordered_map&lt;int, int&gt; set_size;  // размер множества хранится только у его представителя
+
+  // Добавляет элемент x в новое множество из одного элемента: O(1) в среднем
+  void make_set(int x) {
+    if (parent.count(x)) return;
+    parent[x] = x;
+    set_size[x] = 1;
+  }
+
+  // Возвращает представителя множества x; по пути сжимает цепочку родителей
+  int find_set(int x) {
+    int up = parent.at(x);
+    if (up == x) return x;
+    int root = find_set(up);
+    parent[x] = root;
+    return root;
+  }
+
+  // Объединяет множества элементов x и y: меньшее подвешивается к большему
+  void union_sets(int x, int y) {
+    int root_x = find_set(x);
+    int root_y = find_set(y);
+    if (root_x == root_y) return;
+    if (set_size.at(root_x) &lt; set_size.at(root_y)) std::swap(root_x, root_y);
+    parent[root_y] = root_x;
+    set_size[root_x] += set_size[root_y];
+  }
+
+  // Размер множества, в котором лежит x
+  int size_of(int x) { return set_size.at(find_set(x)); }
+};
+
+int main() {
+  Dsu dsu;
+  for (int x = 1; x &lt;= 6; ++x) dsu.make_set(x);
+  dsu.union_sets(1, 2);
+  dsu.union_sets(3, 4);
+  dsu.union_sets(2, 4);
+  int root1 = dsu.find_set(1);
+  int root3 = dsu.find_set(3);
+  std::cout &lt;&lt; std::boolalpha &lt;&lt; (root1 == root3) &lt;&lt; '\n';          // true
+  std::cout &lt;&lt; (dsu.find_set(5) == root1) &lt;&lt; '\n';                  // false
+  std::cout &lt;&lt; dsu.size_of(1) &lt;&lt; '\n';                              // 4
+  return 0;
+}
+</pre>
+
 
 </div>
 </body>

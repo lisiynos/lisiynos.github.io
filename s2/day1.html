@@ -13,6 +13,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -53,6 +54,91 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 <p>Числа до $10^6$, тогда у составных чисел хотя бы один из множителей не больше $10^3$ и простые числа встречаются не реже чем раз в 1000 чисел,
 поэтому достаточно проверить интервал $[b-1000,b]$, если $b - 1000 > a$.</p>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Наибольшее простое число в отрезке [a, b]: перебор от b вниз, проверка делением, O(len * sqrt(b))
+from math import isqrt
+
+
+def is_prime(n):
+    """Число простое, если у него нет делителей от 2 до sqrt(n)."""
+    if n &lt; 2:
+        return False
+    for divisor in range(2, isqrt(n) + 1):
+        if n % divisor == 0:
+            return False
+    return True
+
+
+def largest_prime(a, b):
+    """Идем от b вниз до a и возвращаем первое простое число; если простых нет, возвращаем None."""
+    for number in range(b, a - 1, -1):
+        if is_prime(number):
+            return number
+    return None
+
+
+if __name__ == "__main__":
+    print("Наибольшее простое в [1, 100]:", largest_prime(1, 100))
+    print("Наибольшее простое в [90, 96]:", largest_prime(90, 96))
+    print("Наибольшее простое в [1, 10^6]:", largest_prime(1, 10**6))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Наибольшее простое число в отрезке [a, b]: перебор от b вниз, проверка делением, O(len * sqrt(b))
+#include &lt;cstdio&gt;
+
+bool isPrime(long long n) {
+    if (n &lt; 2) return false;
+    for (long long d = 2; d * d &lt;= n; ++d) {
+        if (n % d == 0) return false;
+    }
+    return true;
+}
+
+// Возвращает наибольшее простое число в [a, b] или -1, если простых чисел в отрезке нет
+long long largestPrime(long long a, long long b) {
+    for (long long number = b; number &gt;= a; --number) {
+        if (isPrime(number)) return number;
+    }
+    return -1;
+}
+
+int main() {
+    std::printf("Наибольшее простое в [1, 100]: %lld\n", largestPrime(1, 100));
+    std::printf("Наибольшее простое в [90, 96]: %lld\n", largestPrime(90, 96));
+    std::printf("Наибольшее простое в [1, 10^6]: %lld\n", largestPrime(1, 1000000));
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Наибольшее простое число в отрезке [a, b]: перебор от b вниз, проверка делением, O(len * sqrt(b))
+pub fn is_prime(n: u64) -&gt; bool {
+    if n &lt; 2 {
+        return false;
+    }
+    let mut d = 2;
+    while d * d &lt;= n {
+        if n % d == 0 {
+            return false;
+        }
+        d += 1;
+    }
+    true
+}
+
+// Наибольшее простое число в [a, b]; None, если простых чисел в отрезке нет
+pub fn largest_prime(a: u64, b: u64) -&gt; Option&lt;u64&gt; {
+    (a..=b).rev().find(|&amp;number| is_prime(number))
+}
+
+fn main() {
+    println!("Наибольшее простое в [1, 100]: {:?}", largest_prime(1, 100));
+    println!("Наибольшее простое в [90, 96]: {:?}", largest_prime(90, 96));
+    println!("Наибольшее простое в [1, 10^6]: {:?}", largest_prime(1, 1_000_000));
+}
+</code></pre>
+
 <p><b>Как быстро посчитать тривиальность числа?</b></p>
 
 <pre class="sh_python">
@@ -69,6 +155,63 @@ def trivial(N):
                 sum += ii
     return sum / n
 </pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Сумма собственных делителей N (без самого N) перебором до sqrt(N), O(sqrt(N)) времени
+#include &lt;cstdio&gt;
+
+long long properDivisorSum(long long n) {
+    if (n == 1) return 0;  // у единицы нет собственных делителей
+    long long sum = 1;     // делитель 1 есть у любого N &gt; 1
+    for (long long i = 2; i * i &lt;= n; ++i) {
+        if (n % i != 0) continue;
+        sum += i;
+        const long long pair = n / i;  // парный делитель: n = i * pair
+        if (pair != i) sum += pair;    // при i = sqrt(n) пару не добавляем
+    }
+    return sum;
+}
+
+int main() {
+    const long long numbers[] = {1, 2, 4, 6, 12, 13};
+    for (long long n : numbers) {
+        const long long sum = properDivisorSum(n);
+        const double triviality = static_cast&lt;double&gt;(sum) / static_cast&lt;double&gt;(n);
+        std::printf("N=%lld: сумма делителей=%lld, тривиальность=%.6f\n", n, sum, triviality);
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Сумма собственных делителей N (без самого N) перебором до sqrt(N), O(sqrt(N)) времени
+pub fn proper_divisor_sum(n: u64) -&gt; u64 {
+    if n == 1 {
+        return 0; // у единицы нет собственных делителей
+    }
+    let mut sum = 1; // делитель 1 есть у любого N &gt; 1
+    let mut i = 2;
+    while i * i &lt;= n {
+        if n % i == 0 {
+            sum += i;
+            let pair = n / i; // парный делитель: n = i * pair
+            if pair != i {
+                sum += pair; // при i = sqrt(n) пару не добавляем
+            }
+        }
+        i += 1;
+    }
+    sum
+}
+
+fn main() {
+    for n in [1, 2, 4, 6, 12, 13] {
+        let sum = proper_divisor_sum(n);
+        let triviality = sum as f64 / n as f64;
+        println!("N={n}: сумма делителей={sum}, тривиальность={triviality:.6}");
+    }
+}
+</code></pre>
 
 
 </div>

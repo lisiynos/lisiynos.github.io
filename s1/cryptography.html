@@ -10,8 +10,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
 </head>
-<body>
+<body onLoad="sh_highlightDocument();">
 
 <div id="content">
     <h1>Криптография и помехоустойчивое кодирование</h1>
@@ -170,6 +174,153 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         П+Е mod 32= Ф, А+И mod 32= И<br>
     </p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Шифр одноразового блокнота: буквы складываются по модулю 32, O(n) операций
+ALPHABET = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"  # 32 буквы, номера от 0 до 31
+MODULUS = len(ALPHABET)
+
+
+def apply_key(text, key, sign):
+    """Складывает (sign = 1) или вычитает (sign = -1) номера букв текста и ключа по модулю 32."""
+    if len(text) != len(key):
+        raise ValueError("ключ должен быть той же длины, что и текст")
+    result = []
+    for letter, key_letter in zip(text, key):
+        number = (ALPHABET.index(letter) + sign * ALPHABET.index(key_letter)) % MODULUS
+        result.append(ALPHABET[number])
+    return "".join(result)
+
+
+def encrypt(message, key):
+    """Шифрование: c = (m + k) mod 32 для каждой пары букв сообщения и ключа."""
+    return apply_key(message, key, 1)
+
+
+def decrypt(cipher, key):
+    """Расшифрование: m = (c - k) mod 32."""
+    return apply_key(cipher, key, -1)
+
+
+def main():
+    message = "ПАКЕТВЫКРАЛ"
+    key = "ЕИАКПАФКАЬЯ"
+    cipher = encrypt(message, key)
+    print(cipher)
+    print(decrypt(cipher, key))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Шифр одноразового блокнота: буквы складываются по модулю 32, O(n) операций
+const ALPHABET: &amp;str = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"; // 32 буквы, номера от 0 до 31
+const MODULUS: i32 = 32;
+
+// Складывает (sign = 1) или вычитает (sign = -1) номера букв текста и ключа по модулю 32
+// Возвращает None, если длины не совпадают или есть буква не из алфавита
+pub fn apply_key(text: &amp;str, key: &amp;str, sign: i32) -&gt; Option&lt;String&gt; {
+    let letters: Vec&lt;char&gt; = ALPHABET.chars().collect();
+    let number_of = |letter: char| letters.iter().position(|&amp;c| c == letter).map(|p| p as i32);
+    let text_chars: Vec&lt;char&gt; = text.chars().collect();
+    let key_chars: Vec&lt;char&gt; = key.chars().collect();
+    if text_chars.len() != key_chars.len() {
+        return None;
+    }
+    let mut result = String::new();
+    for (&amp;letter, &amp;key_letter) in text_chars.iter().zip(&amp;key_chars) {
+        // Номер буквы текста плюс (или минус) номер буквы ключа; + MODULUS защищает от отрицательного остатка
+        let index = (number_of(letter)? + sign * number_of(key_letter)? + MODULUS) % MODULUS;
+        result.push(letters[index as usize]);
+    }
+    Some(result)
+}
+
+pub fn encrypt(message: &amp;str, key: &amp;str) -&gt; Option&lt;String&gt; {
+    apply_key(message, key, 1)
+}
+
+pub fn decrypt(cipher: &amp;str, key: &amp;str) -&gt; Option&lt;String&gt; {
+    apply_key(cipher, key, -1)
+}
+
+fn main() {
+    let message = "ПАКЕТВЫКРАЛ";
+    let key = "ЕИАКПАФКАЬЯ";
+    let cipher = encrypt(message, key).unwrap();
+    println!("{cipher}");
+    println!("{}", decrypt(&amp;cipher, key).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Шифр одноразового блокнота: буквы складываются по модулю 32, O(n) операций
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// 32 буквы алфавита в UTF-8: каждая буква занимает два байта
+const std::string ALPHABET = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+const int MODULUS = 32;
+
+// Разбивает UTF-8 строку на буквы: байты продолжения (10xxxxxx) относятся к предыдущей букве
+std::vector&lt;std::string&gt; split_letters(const std::string&amp; text) {
+    std::vector&lt;std::string&gt; letters;
+    for (char byte : text) {
+        if ((static_cast&lt;unsigned char&gt;(byte) &amp; 0xC0) == 0x80) {
+            letters.back() += byte;
+        } else {
+            letters.push_back(std::string(1, byte));
+        }
+    }
+    return letters;
+}
+
+const std::vector&lt;std::string&gt; LETTERS = split_letters(ALPHABET);  // 32 буквы, номера 0..31
+
+// Номер буквы в алфавите (от 0 до 31)
+int letter_number(const std::string&amp; letter) {
+    auto it = std::find(LETTERS.begin(), LETTERS.end(), letter);
+    if (it == LETTERS.end()) throw std::invalid_argument("буква не из алфавита");
+    return static_cast&lt;int&gt;(it - LETTERS.begin());
+}
+
+// Складывает (sign = 1) или вычитает (sign = -1) номера букв текста и ключа по модулю 32
+std::string apply_key(const std::string&amp; text, const std::string&amp; key, int sign) {
+    const std::vector&lt;std::string&gt; text_letters = split_letters(text);
+    const std::vector&lt;std::string&gt; key_letters = split_letters(key);
+    if (text_letters.size() != key_letters.size()) {
+        throw std::invalid_argument("ключ должен быть той же длины, что и текст");
+    }
+    std::string result;
+    for (std::size_t i = 0; i &lt; text_letters.size(); ++i) {
+        // + MODULUS защищает от отрицательного остатка при вычитании
+        int number = (letter_number(text_letters[i]) + sign * letter_number(key_letters[i]) + MODULUS) % MODULUS;
+        result += LETTERS[static_cast&lt;std::size_t&gt;(number)];
+    }
+    return result;
+}
+
+std::string encrypt(const std::string&amp; message, const std::string&amp; key) { return apply_key(message, key, 1); }
+
+std::string decrypt(const std::string&amp; cipher, const std::string&amp; key) { return apply_key(cipher, key, -1); }
+
+int main() {
+    const std::string message = "ПАКЕТВЫКРАЛ";
+    const std::string key = "ЕИАКПАФКАЬЯ";
+    const std::string cipher = encrypt(message, key);
+    std::cout &lt;&lt; cipher &lt;&lt; '\n' &lt;&lt; decrypt(cipher, key) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
 
     <p>К сожалению, у этого абсолютно надежного метода есть несколько существенных недостатков. Во-первых, длина ключа
         оказывается равной длине шифруемого сообщения. Во-вторых, ключ должен использоваться не больше одного раза
@@ -213,6 +364,91 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         участников. Вася прибавит свой результат и сообщит его Гене. Гена, добавив к числу свой IQ, пошлет его Ане. Ане
         вычтет из полученного числа R, поделит его на четыре и объявит результат.
     </p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Защищённое суммирование по кольцу (протокол из текста): O(n) передач сообщений
+def ring_sum(values, mask):
+    """Складывает значения по кольцу, начиная с маски mask, которую знает только инициатор.
+
+    Возвращает сумму значений и список всех сообщений, переданных по кругу.
+    """
+    messages = []
+    masked_sum = mask
+    for value in values:
+        # Каждый участник прибавляет своё значение к числу, полученному от соседа
+        masked_sum += value
+        messages.append(masked_sum)
+    total = masked_sum - mask  # инициатор вычитает свою маску
+    return total, messages
+
+
+def main():
+    values = [100, 120, 110, 130]  # значения четырёх участников по кругу
+    total, messages = ring_sum(values, mask=57)
+    print("сообщения:", messages)
+    print("сумма:", total, "среднее:", total / len(values))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Защищённое суммирование по кольцу (протокол из текста): O(n) передач сообщений
+
+// Возвращает сумму значений и все сообщения, переданные по кругу
+pub fn ring_sum(values: &amp;[i64], mask: i64) -&gt; (i64, Vec&lt;i64&gt;) {
+    let mut messages = Vec::new();
+    let mut masked_sum = mask; // инициатор стартует со своей маски
+    for &amp;value in values {
+        // Каждый участник прибавляет своё значение к числу, полученному от соседа
+        masked_sum += value;
+        messages.push(masked_sum);
+    }
+    (masked_sum - mask, messages) // инициатор вычитает свою маску
+}
+
+fn main() {
+    let values = [100, 120, 110, 130];
+    let (total, messages) = ring_sum(&amp;values, 57);
+    println!("сообщения: {messages:?}");
+    println!("сумма: {total} среднее: {}", total as f64 / values.len() as f64);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Защищённое суммирование по кольцу (протокол из текста): O(n) передач сообщений
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Возвращает сумму значений и все сообщения, переданные по кругу
+std::pair&lt;long long, std::vector&lt;long long&gt;&gt; ring_sum(const std::vector&lt;long long&gt;&amp; values, long long mask) {
+    std::vector&lt;long long&gt; messages;
+    long long masked_sum = mask;  // инициатор стартует со своей маски
+    for (long long value : values) {
+        // Каждый участник прибавляет своё значение к числу, полученному от соседа
+        masked_sum += value;
+        messages.push_back(masked_sum);
+    }
+    return {masked_sum - mask, messages};  // инициатор вычитает свою маску
+}
+
+int main() {
+    const std::vector&lt;long long&gt; values = {100, 120, 110, 130};
+    auto [total, messages] = ring_sum(values, 57);
+    std::cout &lt;&lt; "сообщения:";
+    for (long long message : messages) {
+        std::cout &lt;&lt; ' ' &lt;&lt; message;
+    }
+    std::cout &lt;&lt; "\nсумма: " &lt;&lt; total &lt;&lt; " среднее: " &lt;&lt; static_cast&lt;double&gt;(total) / static_cast&lt;double&gt;(values.size())
+              &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <p>Можно заметить, что, если все честно следуют правилам, то полученный результат и будет средним IQ в классе.
         Конечно, Аня и Вася, сговорившись, могут узнать результат Бори. Немного модифицированная версия этого алгоритма

@@ -24,8 +24,114 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <h2>Постановка задачи, рекурсивная реализация, отличия от BFS (поиска в ширину)</h2>
 
+<p><strong>Реализация на Python</strong></p>
     <pre class="sh_python">
 
+# Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
+
+
+def dfs(adjacency, v, visited, order):
+    """Рекурсивно посещает вершину v и все достижимые из неё непосещённые вершины."""
+    if visited[v]:
+        return
+    visited[v] = True
+    order.append(v)  # Запоминаем порядок посещения вершин
+    for u in adjacency[v]:
+        dfs(adjacency, u, visited, order)
+
+
+def dfs_order(adjacency, source):
+    """Возвращает порядок посещения вершин при обходе в глубину из source."""
+    if not adjacency:
+        return []
+    visited = [False] * len(adjacency)
+    order = []
+    dfs(adjacency, source, visited, order)
+    return order
+
+
+if __name__ == "__main__":
+    # Демонстрация: граф из 9 вершин (нумерация с нуля), тот же, что в примерах на странице
+    adjacency = [
+        [1, 7], [0, 2, 7], [1, 3, 7], [2, 6, 8], [5, 6],
+        [4], [3, 4, 7], [0, 1, 2, 6], [3],
+    ]
+    # Ожидаемый порядок посещения: [0, 1, 2, 3, 6, 4, 5, 7, 8]
+    print(dfs_order(adjacency, 0))
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
+
+/// Рекурсивно посещает вершину v и все достижимые из неё непосещённые вершины.
+pub fn dfs(adjacency: &amp;[Vec&lt;usize&gt;], v: usize, visited: &amp;mut [bool], order: &amp;mut Vec&lt;usize&gt;) {
+    if visited[v] {
+        return;
+    }
+    visited[v] = true;
+    order.push(v); // Запоминаем порядок посещения вершин
+    for &amp;u in &amp;adjacency[v] {
+        dfs(adjacency, u, visited, order);
+    }
+}
+
+/// Возвращает порядок посещения вершин при обходе в глубину из source.
+pub fn dfs_order(adjacency: &amp;[Vec&lt;usize&gt;], source: usize) -&gt; Vec&lt;usize&gt; {
+    let mut order = Vec::new();
+    if adjacency.is_empty() {
+        return order;
+    }
+    let mut visited = vec![false; adjacency.len()];
+    dfs(adjacency, source, &amp;mut visited, &amp;mut order);
+    order
+}
+
+fn main() {
+    // Демонстрация: граф из 9 вершин (нумерация с нуля), тот же, что в примерах на странице
+    let adjacency: Vec&lt;Vec&lt;usize&gt;&gt; = vec![
+        vec![1, 7], vec![0, 2, 7], vec![1, 3, 7], vec![2, 6, 8], vec![5, 6],
+        vec![4], vec![3, 4, 7], vec![0, 1, 2, 6], vec![3],
+    ];
+    // Ожидаемый порядок посещения: 0 1 2 3 6 4 5 7 8
+    let order = dfs_order(&amp;adjacency, 0);
+    let line: Vec&lt;String&gt; = order.iter().map(|v| v.to_string()).collect();
+    println!("{}", line.join(" "));
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E) при списках смежности
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Рекурсивно посещает вершину v и все достижимые из неё непосещённые вершины
+void dfs(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int v, std::vector&lt;bool&gt;&amp; visited, std::vector&lt;int&gt;&amp; order) {
+    if (visited[v]) return;
+    visited[v] = true;
+    order.push_back(v);  // Запоминаем порядок посещения вершин
+    for (const int u : adjacency[v]) dfs(adjacency, u, visited, order);
+}
+
+// Возвращает порядок посещения вершин при обходе в глубину из source
+std::vector&lt;int&gt; dfs_order(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int source) {
+    std::vector&lt;int&gt; order;
+    if (adjacency.empty()) return order;
+    std::vector&lt;bool&gt; visited(adjacency.size(), false);
+    dfs(adjacency, source, visited, order);
+    return order;
+}
+
+int main() {
+    // Демонстрация: граф из 9 вершин (нумерация с нуля), тот же, что в примерах на странице
+    const std::vector&lt;std::vector&lt;int&gt;&gt; adjacency = {
+        {1, 7}, {0, 2, 7}, {1, 3, 7}, {2, 6, 8}, {5, 6}, {4}, {3, 4, 7}, {0, 1, 2, 6}, {3},
+    };
+    // Ожидаемый порядок посещения: 0 1 2 3 6 4 5 7 8
+    for (const int v : dfs_order(adjacency, 0)) std::cout &lt;&lt; v &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
 </pre>
 
 

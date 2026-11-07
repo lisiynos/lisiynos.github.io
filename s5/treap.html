@@ -75,6 +75,150 @@ begin
   end;
 end;
 </pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    # Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def keys_in_order(node, keys):
+    # Обход по возрастанию ключей
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    # Склеиваем одиночные вершины в порядке возрастания ключей
+    root = None
+    for key, prio in [(1, 30), (2, 50), (3, 10), (4, 40)]:
+        root = merge(root, Node(key, prio))
+    keys = []
+    keys_in_order(root, keys)
+    print(keys, root.key)  # [1, 2, 3, 4] 2
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+// Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом.
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Обход по возрастанию ключей.
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    // Склеиваем одиночные вершины в порядке возрастания ключей
+    let mut root: Tree = None;
+    for (key, prio) in [(1, 30), (2, 50), (3, 10), (4, 40)] {
+        root = merge(root, Some(Box::new(Node { key, prio, left: None, right: None })));
+    }
+    let mut keys = Vec::new();
+    keys_in_order(&amp;root, &amp;mut keys);
+    println!("{:?} {}", keys, root.as_ref().map_or(0, |n| n.key)); // [1, 2, 3, 4] 2
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+// Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом.
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Обход по возрастанию ключей.
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    // Склеиваем одиночные вершины в порядке возрастания ключей
+    Tree root;
+    for (auto [key, prio] : {std::pair{1, 30}, std::pair{2, 50}, std::pair{3, 10}, std::pair{4, 40}}) {
+        root = merge(std::move(root), std::make_unique&lt;Node&gt;(key, prio));
+    }
+    std::vector&lt;int&gt; keys;
+    keys_in_order(root.get(), keys);
+    for (int key : keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "корень " &lt;&lt; root-&gt;key &lt;&lt; '\n';  // 1 2 3 4 корень 2
+    return 0;
+}
+</pre>
 
 <h3>Split (разрезание)</h3>
 
@@ -109,6 +253,189 @@ begin
   end;
 end;
 </pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def split(node, split_key):
+    # Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные
+    if node is None:
+        return None, None
+    if node.key &lt;= split_key:
+        left, right = split(node.right, split_key)
+        node.right = left
+        return node, right
+    left, right = split(node.left, split_key)
+    node.left = right
+    return left, node
+
+
+def keys_in_order(node, keys):
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    root = None
+    for key, prio in [(1, 30), (2, 50), (3, 10), (4, 40), (5, 20)]:
+        root = merge(root, Node(key, prio))
+    left, right = split(root, 3)
+    left_keys, right_keys = [], []
+    keys_in_order(left, left_keys)
+    keys_in_order(right, right_keys)
+    print(left_keys, right_keys)  # [1, 2, 3] [4, 5]
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные.
+pub fn split(node: Tree, split_key: i32) -&gt; (Tree, Tree) {
+    let Some(mut current) = node else { return (None, None) };
+    if current.key &lt;= split_key {
+        let (left, right) = split(current.right.take(), split_key);
+        current.right = left;
+        (Some(current), right)
+    } else {
+        let (left, right) = split(current.left.take(), split_key);
+        current.left = right;
+        (left, Some(current))
+    }
+}
+
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    let mut root: Tree = None;
+    for (key, prio) in [(1, 30), (2, 50), (3, 10), (4, 40), (5, 20)] {
+        root = merge(root, Some(Box::new(Node { key, prio, left: None, right: None })));
+    }
+    let (left, right) = split(root, 3);
+    let mut left_keys = Vec::new();
+    keys_in_order(&amp;left, &amp;mut left_keys);
+    let mut right_keys = Vec::new();
+    keys_in_order(&amp;right, &amp;mut right_keys);
+    println!("{:?} {:?}", left_keys, right_keys); // [1, 2, 3] [4, 5]
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Возвращает пару (left, right): в left ключи &lt;= split_key, в right - остальные.
+std::pair&lt;Tree, Tree&gt; split(Tree node, int split_key) {
+    if (!node) return {nullptr, nullptr};
+    if (node-&gt;key &lt;= split_key) {
+        auto [left, right] = split(std::move(node-&gt;right), split_key);
+        node-&gt;right = std::move(left);
+        return {std::move(node), std::move(right)};
+    }
+    auto [left, right] = split(std::move(node-&gt;left), split_key);
+    node-&gt;left = std::move(right);
+    return {std::move(left), std::move(node)};
+}
+
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    Tree root;
+    for (auto [key, prio] : {std::pair{1, 30}, std::pair{2, 50}, std::pair{3, 10}, std::pair{4, 40}, std::pair{5, 20}}) {
+        root = merge(std::move(root), std::make_unique&lt;Node&gt;(key, prio));
+    }
+    auto [left, right] = split(std::move(root), 3);
+    std::vector&lt;int&gt; left_keys, right_keys;
+    keys_in_order(left.get(), left_keys);
+    keys_in_order(right.get(), right_keys);
+    for (int key : left_keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "| ";
+    for (int key : right_keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';  // 1 2 3 | 4 5
+    return 0;
+}
+</pre>
 
 <h3>Добавление новой вершины</h3>
 
@@ -128,6 +455,198 @@ begin
   { Склеиваем 3 получившихся дерева }
   T := Merge(Merge(L,NV),R);
 end;
+</pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def split(node, split_key):
+    # Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные
+    if node is None:
+        return None, None
+    if node.key &lt;= split_key:
+        left, right = split(node.right, split_key)
+        node.right = left
+        return node, right
+    left, right = split(node.left, split_key)
+    node.left = right
+    return left, node
+
+
+def insert(root, key, prio):
+    # Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть
+    left, right = split(root, key)
+    return merge(merge(left, Node(key, prio)), right)
+
+
+def keys_in_order(node, keys):
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    root = None
+    for key, prio in [(5, 50), (3, 80), (8, 20), (1, 90), (4, 10)]:
+        root = insert(root, key, prio)
+    keys = []
+    keys_in_order(root, keys)
+    print(keys, root.key)  # [1, 3, 4, 5, 8] 1
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные.
+pub fn split(node: Tree, split_key: i32) -&gt; (Tree, Tree) {
+    let Some(mut current) = node else { return (None, None) };
+    if current.key &lt;= split_key {
+        let (left, right) = split(current.right.take(), split_key);
+        current.right = left;
+        (Some(current), right)
+    } else {
+        let (left, right) = split(current.left.take(), split_key);
+        current.left = right;
+        (left, Some(current))
+    }
+}
+
+// Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть.
+pub fn insert(root: Tree, key: i32, prio: i32) -&gt; Tree {
+    let (left, right) = split(root, key);
+    merge(merge(left, Some(Box::new(Node { key, prio, left: None, right: None }))), right)
+}
+
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    let mut root: Tree = None;
+    for (key, prio) in [(5, 50), (3, 80), (8, 20), (1, 90), (4, 10)] {
+        root = insert(root, key, prio);
+    }
+    let mut keys = Vec::new();
+    keys_in_order(&amp;root, &amp;mut keys);
+    println!("{:?} {}", keys, root.as_ref().map_or(0, |n| n.key)); // [1, 3, 4, 5, 8] 1
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Возвращает пару (left, right): в left ключи &lt;= split_key, в right - остальные.
+std::pair&lt;Tree, Tree&gt; split(Tree node, int split_key) {
+    if (!node) return {nullptr, nullptr};
+    if (node-&gt;key &lt;= split_key) {
+        auto [left, right] = split(std::move(node-&gt;right), split_key);
+        node-&gt;right = std::move(left);
+        return {std::move(node), std::move(right)};
+    }
+    auto [left, right] = split(std::move(node-&gt;left), split_key);
+    node-&gt;left = std::move(right);
+    return {std::move(left), std::move(node)};
+}
+
+// Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть.
+Tree insert(Tree root, int key, int prio) {
+    auto [left, right] = split(std::move(root), key);
+    return merge(merge(std::move(left), std::make_unique&lt;Node&gt;(key, prio)), std::move(right));
+}
+
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    Tree root;
+    for (auto [key, prio] : {std::pair{5, 50}, std::pair{3, 80}, std::pair{8, 20}, std::pair{1, 90}, std::pair{4, 10}}) {
+        root = insert(std::move(root), key, prio);
+    }
+    std::vector&lt;int&gt; keys;
+    keys_in_order(root.get(), keys);
+    for (int key : keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "корень " &lt;&lt; root-&gt;key &lt;&lt; '\n';  // 1 3 4 5 8 корень 1
+    return 0;
+}
 </pre>
 
 <h3>Удаление вершины с заданным ключом x</h3>

@@ -14,6 +14,8 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -247,6 +249,120 @@ end;</pre>
 
     <p>h(t)=max(h(tl),h(tr))+1, h(null)=0, где t исходное дерево, tl, tr левые и
         правые поддеревья, null пустое дерево. </p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Высота дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии.
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+
+def insert(node, value):
+    if node is None:
+        return Node(value)
+    if value &lt; node.value:
+        node.left = insert(node.left, value)
+    else:
+        node.right = insert(node.right, value)
+    return node
+
+
+def height(node):
+    # Пустое дерево имеет высоту 0, иначе максимум высот поддеревьев плюс 1
+    if node is None:
+        return 0
+    return max(height(node.left), height(node.right)) + 1
+
+
+def main():
+    root = None
+    for value in [2, 9, 8, 6, 5]:
+        root = insert(root, value)
+    print(height(root))  # путь 2 - 9 - 8 - 6 - 5
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Высота дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии.
+pub struct Node {
+    pub value: i32,
+    pub left: Option&lt;Box&lt;Node&gt;&gt;,
+    pub right: Option&lt;Box&lt;Node&gt;&gt;,
+}
+
+// Вставка по правилу дерева поиска: меньшие значения влево, остальные (включая равные) вправо.
+pub fn insert(node: &amp;mut Option&lt;Box&lt;Node&gt;&gt;, value: i32) {
+    match node {
+        None =&gt; *node = Some(Box::new(Node { value, left: None, right: None })),
+        Some(current) =&gt; {
+            if value &lt; current.value {
+                insert(&amp;mut current.left, value);
+            } else {
+                insert(&amp;mut current.right, value);
+            }
+        }
+    }
+}
+
+// Пустое дерево имеет высоту 0, иначе максимум высот поддеревьев плюс 1.
+pub fn height(node: &amp;Option&lt;Box&lt;Node&gt;&gt;) -&gt; usize {
+    match node {
+        None =&gt; 0,
+        Some(current) =&gt; height(&amp;current.left).max(height(&amp;current.right)) + 1,
+    }
+}
+
+fn main() {
+    let mut root = None;
+    for value in [2, 9, 8, 6, 5] {
+        insert(&amp;mut root, value);
+    }
+    println!("{}", height(&amp;root)); // путь 2 - 9 - 8 - 6 - 5
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Высота дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии.
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    explicit Node(int v) : value(v) {}
+};
+
+// Вставка по правилу дерева поиска: меньшие значения влево, остальные (включая равные) вправо.
+std::unique_ptr&lt;Node&gt; insert(std::unique_ptr&lt;Node&gt; node, int value) {
+    if (!node) return std::make_unique&lt;Node&gt;(value);
+    if (value &lt; node-&gt;value) {
+        node-&gt;left = insert(std::move(node-&gt;left), value);
+    } else {
+        node-&gt;right = insert(std::move(node-&gt;right), value);
+    }
+    return node;
+}
+
+// Пустое дерево имеет высоту 0, иначе максимум высот поддеревьев плюс 1.
+int height(const Node* node) {
+    if (!node) return 0;
+    return std::max(height(node-&gt;left.get()), height(node-&gt;right.get())) + 1;
+}
+
+int main() {
+    std::unique_ptr&lt;Node&gt; root;
+    for (int value : {2, 9, 8, 6, 5}) {
+        root = insert(std::move(root), value);
+    }
+    std::cout &lt;&lt; height(root.get()) &lt;&lt; '\n';  // путь 2 - 9 - 8 - 6 - 5
+    return 0;
+}
+</pre>
 
     <p><strong>ПОИСК ЭЛЕМЕНТА В ДЕРЕВЕ </strong></p>
 
@@ -301,6 +417,133 @@ end;</pre>
         правое
         поддерево. При этом поддерево обходится левосторонним способом, то есть описанный алгоритм является
         рекурсивным.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Левосторонний (симметричный) обход дерева поиска: O(n) по времени, O(h) по памяти стека рекурсии.
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+
+def insert(node, value):
+    # Вставка по правилу дерева поиска: меньшие значения влево, остальные (включая равные) вправо
+    if node is None:
+        return Node(value)
+    if value &lt; node.value:
+        node.left = insert(node.left, value)
+    else:
+        node.right = insert(node.right, value)
+    return node
+
+
+def inorder(node, values):
+    # Сначала левое поддерево, потом корень, потом правое поддерево
+    if node is None:
+        return
+    inorder(node.left, values)
+    values.append(node.value)
+    inorder(node.right, values)
+
+
+def main():
+    root = None
+    for value in [9, 8, 6, 2, 8, 5, 2]:
+        root = insert(root, value)
+    values = []
+    inorder(root, values)
+    print(values)  # [2, 2, 5, 6, 8, 8, 9]
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Левосторонний (симметричный) обход дерева поиска: O(n) по времени, O(h) по памяти стека рекурсии.
+pub struct Node {
+    pub value: i32,
+    pub left: Option&lt;Box&lt;Node&gt;&gt;,
+    pub right: Option&lt;Box&lt;Node&gt;&gt;,
+}
+
+// Вставка по правилу дерева поиска: меньшие значения влево, остальные (включая равные) вправо.
+pub fn insert(node: &amp;mut Option&lt;Box&lt;Node&gt;&gt;, value: i32) {
+    match node {
+        None =&gt; *node = Some(Box::new(Node { value, left: None, right: None })),
+        Some(current) =&gt; {
+            if value &lt; current.value {
+                insert(&amp;mut current.left, value);
+            } else {
+                insert(&amp;mut current.right, value);
+            }
+        }
+    }
+}
+
+// Сначала левое поддерево, потом корень, потом правое поддерево.
+pub fn inorder(node: &amp;Option&lt;Box&lt;Node&gt;&gt;, values: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        inorder(&amp;current.left, values);
+        values.push(current.value);
+        inorder(&amp;current.right, values);
+    }
+}
+
+fn main() {
+    let mut root = None;
+    for value in [9, 8, 6, 2, 8, 5, 2] {
+        insert(&amp;mut root, value);
+    }
+    let mut values = Vec::new();
+    inorder(&amp;root, &amp;mut values);
+    println!("{:?}", values); // [2, 2, 5, 6, 8, 8, 9]
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Левосторонний (симметричный) обход дерева поиска: O(n) по времени, O(h) по памяти стека рекурсии.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;vector&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    explicit Node(int v) : value(v) {}
+};
+
+// Вставка по правилу дерева поиска: меньшие значения влево, остальные (включая равные) вправо.
+std::unique_ptr&lt;Node&gt; insert(std::unique_ptr&lt;Node&gt; node, int value) {
+    if (!node) return std::make_unique&lt;Node&gt;(value);
+    if (value &lt; node-&gt;value) {
+        node-&gt;left = insert(std::move(node-&gt;left), value);
+    } else {
+        node-&gt;right = insert(std::move(node-&gt;right), value);
+    }
+    return node;
+}
+
+// Сначала левое поддерево, потом корень, потом правое поддерево.
+void inorder(const Node* node, std::vector&lt;int&gt;&amp; values) {
+    if (!node) return;
+    inorder(node-&gt;left.get(), values);
+    values.push_back(node-&gt;value);
+    inorder(node-&gt;right.get(), values);
+}
+
+int main() {
+    std::unique_ptr&lt;Node&gt; root;
+    for (int value : {9, 8, 6, 2, 8, 5, 2}) {
+        root = insert(std::move(root), value);
+    }
+    std::vector&lt;int&gt; values;
+    inorder(root.get(), values);
+    for (int value : values) std::cout &lt;&lt; value &lt;&lt; ' ';  // 2 2 5 6 8 8 9
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <p> Опишем алгоритм нахождения всех узлов дерева, расположенных на i-ом уровне (i &gt; 0). В этом случае задача
         имеет
@@ -397,6 +640,115 @@ end
     <p> При решении многих задач используется алгоритм, который получил название Поиск с включением. Согласно этому
         алгоритму элемент добавляется в дерево поиска лишь в тех случаях, если такого элемента в дереве не было. Таким
         образом, все элементы дерева различны.
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Поиск с включением в дерево поиска: O(h) по времени, h - высота дерева.
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+
+def search_or_insert(node, value):
+    # Возвращает (корень, added): added = True, если значение добавлено новым листом
+    if node is None:
+        return Node(value), True
+    if value == node.value:
+        return node, False
+    if value &lt; node.value:
+        node.left, added = search_or_insert(node.left, value)
+    else:
+        node.right, added = search_or_insert(node.right, value)
+    return node, added
+
+
+def main():
+    root = None
+    added_flags = []
+    for value in [2, 9, 8, 6, 2, 8, 5]:
+        root, added = search_or_insert(root, value)
+        added_flags.append(added)
+    print(added_flags)  # [True, True, True, True, False, False, True]
+    print(sum(added_flags))  # 5 различных значений
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск с включением в дерево поиска: O(h) по времени, h - высота дерева.
+pub struct Node {
+    pub value: i32,
+    pub left: Option&lt;Box&lt;Node&gt;&gt;,
+    pub right: Option&lt;Box&lt;Node&gt;&gt;,
+}
+
+// Возвращает true, если значение добавлено новым листом; найденное значение повторно не добавляется.
+pub fn search_or_insert(node: &amp;mut Option&lt;Box&lt;Node&gt;&gt;, value: i32) -&gt; bool {
+    match node {
+        None =&gt; {
+            *node = Some(Box::new(Node { value, left: None, right: None }));
+            true
+        }
+        Some(current) =&gt; {
+            if value == current.value {
+                false
+            } else if value &lt; current.value {
+                search_or_insert(&amp;mut current.left, value)
+            } else {
+                search_or_insert(&amp;mut current.right, value)
+            }
+        }
+    }
+}
+
+fn main() {
+    let mut root = None;
+    let mut flags = Vec::new();
+    for value in [2, 9, 8, 6, 2, 8, 5] {
+        flags.push(search_or_insert(&amp;mut root, value));
+    }
+    println!("{:?}", flags); // [true, true, true, true, false, false, true]
+    println!("{}", flags.iter().filter(|&amp;&amp;added| added).count()); // 5 различных значений
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск с включением в дерево поиска: O(h) по времени, h - высота дерева.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    explicit Node(int v) : value(v) {}
+};
+
+// Возвращает true, если значение добавлено новым листом; найденное значение повторно не добавляется.
+bool search_or_insert(std::unique_ptr&lt;Node&gt;&amp; node, int value) {
+    if (!node) {
+        node = std::make_unique&lt;Node&gt;(value);
+        return true;
+    }
+    if (value == node-&gt;value) return false;
+    if (value &lt; node-&gt;value) return search_or_insert(node-&gt;left, value);
+    return search_or_insert(node-&gt;right, value);
+}
+
+int main() {
+    std::unique_ptr&lt;Node&gt; root;
+    int distinct = 0;
+    std::cout &lt;&lt; std::boolalpha;
+    for (int value : {2, 9, 8, 6, 2, 8, 5}) {
+        const bool added = search_or_insert(root, value);
+        std::cout &lt;&lt; added &lt;&lt; ' ';  // true true true true false false true
+        distinct += added;
+    }
+    std::cout &lt;&lt; "\nразличных значений: " &lt;&lt; distinct &lt;&lt; '\n';  // 5
+    return 0;
+}
+</pre>
 
     <p><strong>Задача 4. </strong>
 

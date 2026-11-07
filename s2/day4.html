@@ -73,6 +73,108 @@ maxdist = max(map(max,A))
 print -1 if maxdist == Inf else maxdist
 </pre>
 
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Флойда-Уоршелла: кратчайшие расстояния между всеми парами городов, O(N^3) времени
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;limits&gt;
+#include &lt;vector&gt;
+
+struct Road {
+    int from;
+    int to;
+    double length;
+};
+
+using Matrix = std::vector&lt;std::vector&lt;double&gt;&gt;;
+
+const double kInf = std::numeric_limits&lt;double&gt;::infinity();
+
+// Для каждой промежуточной вершины k проверяем, не короче ли путь i -&gt; k -&gt; j
+void floydWarshall(Matrix&amp; dist) {
+    const int n = static_cast&lt;int&gt;(dist.size());
+    for (int k = 0; k &lt; n; ++k) {
+        for (int i = 0; i &lt; n; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                dist[i][j] = std::min(dist[i][j], dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+}
+
+// Наибольшее из кратчайших расстояний между городами; -1, если какие-то города не связаны
+double maxDistance(int n, const std::vector&lt;Road&gt;&amp; roads) {
+    Matrix dist(n, std::vector&lt;double&gt;(n, kInf));
+    for (int i = 0; i &lt; n; ++i) dist[i][i] = 0;
+    for (const Road&amp; road : roads) {
+        dist[road.from][road.to] = std::min(dist[road.from][road.to], road.length);
+        dist[road.to][road.from] = dist[road.from][road.to];
+    }
+    floydWarshall(dist);
+    double best = 0;
+    for (const std::vector&lt;double&gt;&amp; row : dist) {
+        for (double d : row) {
+            if (d == kInf) return -1;
+            best = std::max(best, d);
+        }
+    }
+    return best;
+}
+
+int main() {
+    // Города 0..3 и дороги (откуда, куда, длина)
+    const std::vector&lt;Road&gt; roads = {{0, 1, 3}, {1, 2, 4}, {2, 3, 2}, {3, 0, 6}, {0, 2, 10}};
+    std::printf("Наибольшее расстояние = %.0f\n", maxDistance(4, roads));
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Флойда-Уоршелла: кратчайшие расстояния между всеми парами городов, O(N^3) времени
+// Для каждой промежуточной вершины k проверяем, не короче ли путь i -&gt; k -&gt; j
+pub fn floyd_warshall(dist: &amp;mut [Vec&lt;f64&gt;]) {
+    let n = dist.len();
+    for k in 0..n {
+        for i in 0..n {
+            for j in 0..n {
+                dist[i][j] = dist[i][j].min(dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+}
+
+// Наибольшее из кратчайших расстояний между городами; None, если какие-то города не связаны
+pub fn max_distance(n: usize, roads: &amp;[(usize, usize, f64)]) -&gt; Option&lt;f64&gt; {
+    let mut dist = vec![vec![f64::INFINITY; n]; n];
+    for (i, row) in dist.iter_mut().enumerate() {
+        row[i] = 0.0;
+    }
+    for &amp;(from, to, length) in roads {
+        let shortest = dist[from][to].min(length);
+        dist[from][to] = shortest;
+        dist[to][from] = shortest;
+    }
+    floyd_warshall(&amp;mut dist);
+    let mut best = 0.0_f64;
+    for &amp;d in dist.iter().flatten() {
+        if d.is_infinite() {
+            return None;
+        }
+        best = best.max(d);
+    }
+    Some(best)
+}
+
+fn main() {
+    // Города 0..3 и дороги (откуда, куда, длина)
+    let roads = [(0, 1, 3.0), (1, 2, 4.0), (2, 3, 2.0), (3, 0, 6.0), (0, 2, 10.0)];
+    match max_distance(4, &amp;roads) {
+        Some(d) =&gt; println!("Наибольшее расстояние = {d}"),
+        None =&gt; println!("Есть несвязанные города"),
+    }
+}
+</code></pre>
+
 </div>
 </body>
 

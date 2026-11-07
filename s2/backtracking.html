@@ -10,8 +10,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
 </head>
-<body>
+<body onLoad="sh_highlightDocument();">
 
 <div id="content">
     <h1>Переборные алгоритмы. Перебор вариантов, Backtracking</h1>
@@ -147,6 +151,132 @@ y(km))-(x(jm), y(jm)), 2</span></p>
     <p style='text-indent:18pt'>В последующих
         задачах будет показано, как ограничить число вариантов перебора, используя
         условия задачи, различные приемы и методы программирования.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+def doubled_area(a, b, c):
+    """Удвоенная площадь треугольника abc: модуль векторного произведения (целое число)."""
+    x1, y1 = a
+    x2, y2 = b
+    x3, y3 = c
+    return abs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1))
+
+
+def max_triangle(points):
+    """Перебирает все тройки i &lt; j &lt; k и возвращает (удвоенная площадь, индексы) лучшего треугольника.
+
+    Если треугольника ненулевой площади нет, возвращает (0, None)."""
+    best_area2, best_triple = 0, None
+    n = len(points)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                area2 = doubled_area(points[i], points[j], points[k])
+                if area2 &gt; best_area2:
+                    best_area2, best_triple = area2, (i, j, k)
+    return best_area2, best_triple
+
+
+if __name__ == "__main__":
+    points = [(0, 0), (4, 0), (0, 3), (1, 1), (5, 5), (-2, 4), (3, -3)]
+    area2, triple = max_triangle(points)
+    print("Удвоенная площадь =", area2)
+    print("Номера точек:", *[index + 1 for index in triple])
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+// Удвоенная площадь треугольника abc: модуль векторного произведения (целое число)
+long long doubledArea(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    long long cross = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    return cross &lt; 0 ? -cross : cross;
+}
+
+struct BestTriangle {
+    long long area2 = 0;         // удвоенная площадь лучшего треугольника
+    int i = -1, j = -1, k = -1;  // номера его вершин (от 0)
+};
+
+// Перебираем все тройки i &lt; j &lt; k и запоминаем треугольник наибольшей площади
+BestTriangle maxTriangle(const std::vector&lt;Point&gt;&amp; points) {
+    BestTriangle best;
+    const int n = static_cast&lt;int&gt;(points.size());
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = i + 1; j &lt; n; ++j) {
+            for (int k = j + 1; k &lt; n; ++k) {
+                long long area2 = doubledArea(points[i], points[j], points[k]);
+                if (area2 &gt; best.area2) best = {area2, i, j, k};
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {4, 0}, {0, 3}, {1, 1}, {5, 5}, {-2, 4}, {3, -3}};
+    const BestTriangle best = maxTriangle(points);
+    std::printf("Удвоенная площадь = %lld\n", best.area2);
+    std::printf("Номера точек: %d %d %d\n", best.i + 1, best.j + 1, best.k + 1);
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+#[derive(Clone, Copy)]
+pub struct Point {
+    pub x: i64,
+    pub y: i64,
+}
+
+// Удвоенная площадь треугольника abc: модуль векторного произведения (целое число)
+pub fn doubled_area(a: Point, b: Point, c: Point) -&gt; i64 {
+    ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)).abs()
+}
+
+// Перебираем все тройки i &lt; j &lt; k и запоминаем треугольник наибольшей площади.
+// Возвращает удвоенную площадь и номера вершин (от 0); None, если все площади нулевые.
+pub fn max_triangle(points: &amp;[Point]) -&gt; (i64, Option&lt;(usize, usize, usize)&gt;) {
+    let n = points.len();
+    let mut best = (0, None);
+    for i in 0..n {
+        for j in i + 1..n {
+            for k in j + 1..n {
+                let area2 = doubled_area(points[i], points[j], points[k]);
+                if area2 &gt; best.0 {
+                    best = (area2, Some((i, j, k)));
+                }
+            }
+        }
+    }
+    best
+}
+
+fn main() {
+    let points = [
+        Point { x: 0, y: 0 },
+        Point { x: 4, y: 0 },
+        Point { x: 0, y: 3 },
+        Point { x: 1, y: 1 },
+        Point { x: 5, y: 5 },
+        Point { x: -2, y: 4 },
+        Point { x: 3, y: -3 },
+    ];
+    let (area2, triple) = max_triangle(&amp;points);
+    println!("Удвоенная площадь = {area2}");
+    if let Some((i, j, k)) = triple {
+        println!("Номера точек: {} {} {}", i + 1, j + 1, k + 1);
+    }
+}
+</code></pre>
 
     <h2>2.3.1. Перебор с отсечениями</h2>
 
@@ -332,6 +462,122 @@ IF</span></p>
             -1</strong>. Интуитивно понятно, что, начиная перебор с больших значений переменных
         (6, 5, 4), мы быстрее «доберемся» до решения нежели, чем «пробуя» меньшие
         значения.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+def find_solutions(n, target):
+    """Все наборы натуральных чисел x1 &lt;= ... &lt;= xn с суммой четвертых степеней target."""
+    solutions = []
+    search(n, 1, target, [], solutions)
+    return solutions
+
+
+def search(count_left, low, rest, chosen, solutions):
+    """Подбирает count_left чисел не меньше low с суммой четвертых степеней rest."""
+    if count_left == 0:
+        if rest == 0:
+            solutions.append(tuple(chosen))
+        return
+    value = low
+    # Отсечение: даже count_left одинаковых чисел value дают сумму больше rest
+    while count_left * value ** 4 &lt;= rest:
+        chosen.append(value)
+        search(count_left - 1, value, rest - value ** 4, chosen, solutions)
+        chosen.pop()  # возврат
+        value += 1
+
+
+if __name__ == "__main__":
+    solutions = find_solutions(15, 2000)
+    print("Решений:", len(solutions))
+    for solution in solutions:
+        print(*solution)
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+using Solution = std::vector&lt;long long&gt;;
+
+// Подбирает countLeft чисел не меньше low с суммой четвертых степеней rest
+void search(int countLeft, long long low, long long rest, Solution&amp; chosen,
+            std::vector&lt;Solution&gt;&amp; solutions) {
+    if (countLeft == 0) {
+        if (rest == 0) solutions.push_back(chosen);
+        return;
+    }
+    // Отсечение: даже countLeft одинаковых чисел value дают сумму больше rest
+    for (long long value = low; countLeft * value * value * value * value &lt;= rest; ++value) {
+        chosen.push_back(value);
+        search(countLeft - 1, value, rest - value * value * value * value, chosen, solutions);
+        chosen.pop_back();  // возврат
+    }
+}
+
+// Все наборы натуральных чисел x1 &lt;= ... &lt;= xn с суммой четвертых степеней target
+std::vector&lt;Solution&gt; findSolutions(int n, long long target) {
+    std::vector&lt;Solution&gt; solutions;
+    Solution chosen;
+    search(n, 1, target, chosen, solutions);
+    return solutions;
+}
+
+int main() {
+    const std::vector&lt;Solution&gt; solutions = findSolutions(15, 2000);
+    std::printf("Решений: %zu\n", solutions.size());
+    for (const Solution&amp; solution : solutions) {
+        for (long long value : solution) std::printf("%lld ", value);
+        std::printf("\n");
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+
+// Подбирает count_left чисел не меньше low с суммой четвертых степеней rest
+pub fn search(
+    count_left: u32,
+    low: u64,
+    rest: u64,
+    chosen: &amp;mut Vec&lt;u64&gt;,
+    solutions: &amp;mut Vec&lt;Vec&lt;u64&gt;&gt;,
+) {
+    if count_left == 0 {
+        if rest == 0 {
+            solutions.push(chosen.clone());
+        }
+        return;
+    }
+    let mut value = low;
+    // Отсечение: даже count_left одинаковых чисел value дают сумму больше rest
+    while u64::from(count_left) * value.pow(4) &lt;= rest {
+        chosen.push(value);
+        search(count_left - 1, value, rest - value.pow(4), chosen, solutions);
+        chosen.pop(); // возврат
+        value += 1;
+    }
+}
+
+// Все наборы натуральных чисел x1 &lt;= ... &lt;= xn с суммой четвертых степеней target
+pub fn find_solutions(n: u32, target: u64) -&gt; Vec&lt;Vec&lt;u64&gt;&gt; {
+    let mut solutions = Vec::new();
+    search(n, 1, target, &amp;mut Vec::new(), &amp;mut solutions);
+    solutions
+}
+
+fn main() {
+    let solutions = find_solutions(15, 2000);
+    println!("Решений: {}", solutions.len());
+    for solution in &amp;solutions {
+        let line: Vec&lt;String&gt; = solution.iter().map(|v| v.to_string()).collect();
+        println!("{}", line.join(" "));
+    }
+}
+</code></pre>
 
     <p>&nbsp;</p>
 
@@ -990,6 +1236,140 @@ Weight(i)</span></p>
     <p style='text-indent:18pt'>После
         завершения работы алгоритма перебора достаточно вывести на печать запомненный
         наилучший вариант заполнения рюкзака – это и будет являться ответом.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+def knapsack(weights, costs, capacity):
+    """Возвращает (максимальная стоимость, номера предметов) для рюкзака вместимостью capacity."""
+    best = (0, [])
+    chosen = []  # предметы, которые сейчас лежат в рюкзаке
+
+    def search(first, weight, cost):
+        nonlocal best
+        if cost &gt; best[0]:
+            best = (cost, list(chosen))
+        for item in range(first, len(weights)):
+            # Отсечение: предмет не помещается в рюкзак
+            if weight + weights[item] &gt; capacity:
+                continue
+            chosen.append(item)  # кладем предмет в рюкзак
+            search(item + 1, weight + weights[item], cost + costs[item])
+            chosen.pop()  # возврат: вынимаем предмет и пробуем следующий
+
+    search(0, 0, 0)
+    return best
+
+
+if __name__ == "__main__":
+    cost, items = knapsack([3, 4, 2, 5, 9], [10, 4, 7, 8, 13], 10)
+    print("Максимальная стоимость:", cost)
+    print("Номера предметов:", *[item + 1 for item in items])
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Problem {
+    std::vector&lt;long long&gt; weights;
+    std::vector&lt;long long&gt; costs;
+    long long capacity;
+};
+
+struct Bag {
+    long long cost = 0;
+    std::vector&lt;int&gt; items;  // номера предметов (от 0), положенных в рюкзак
+};
+
+// Рекурсивно перебирает наборы предметов с номерами от first; текущий набор лежит в chosen
+void search(const Problem&amp; problem, int first, long long weight, long long cost,
+            std::vector&lt;int&gt;&amp; chosen, Bag&amp; best) {
+    if (cost &gt; best.cost) best = {cost, chosen};
+    const int count = static_cast&lt;int&gt;(problem.weights.size());
+    for (int item = first; item &lt; count; ++item) {
+        // Отсечение: предмет не помещается в рюкзак
+        if (weight + problem.weights[item] &gt; problem.capacity) continue;
+        chosen.push_back(item);  // кладем предмет
+        search(problem, item + 1, weight + problem.weights[item], cost + problem.costs[item],
+               chosen, best);
+        chosen.pop_back();  // возврат: вынимаем предмет и пробуем следующий
+    }
+}
+
+Bag knapsack(const Problem&amp; problem) {
+    Bag best;
+    std::vector&lt;int&gt; chosen;
+    search(problem, 0, 0, 0, chosen, best);
+    return best;
+}
+
+int main() {
+    const Problem problem{{3, 4, 2, 5, 9}, {10, 4, 7, 8, 13}, 10};
+    const Bag best = knapsack(problem);
+    std::printf("Максимальная стоимость: %lld\n", best.cost);
+    std::printf("Номера предметов:");
+    for (int item : best.items) std::printf(" %d", item + 1);
+    std::printf("\n");
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+pub struct Problem {
+    pub weights: Vec&lt;u64&gt;,
+    pub costs: Vec&lt;u64&gt;,
+    pub capacity: u64,
+}
+
+pub struct Bag {
+    pub cost: u64,
+    pub items: Vec&lt;usize&gt;, // номера предметов (от 0), положенных в рюкзак
+}
+
+// Рекурсивно перебирает наборы предметов с номерами от first; текущий набор лежит в chosen
+pub fn search(
+    problem: &amp;Problem,
+    first: usize,
+    weight: u64,
+    cost: u64,
+    chosen: &amp;mut Vec&lt;usize&gt;,
+    best: &amp;mut Bag,
+) {
+    if cost &gt; best.cost {
+        *best = Bag { cost, items: chosen.clone() };
+    }
+    for item in first..problem.weights.len() {
+        let new_weight = weight + problem.weights[item];
+        // Отсечение: предмет не помещается в рюкзак
+        if new_weight &gt; problem.capacity {
+            continue;
+        }
+        chosen.push(item); // кладем предмет
+        search(problem, item + 1, new_weight, cost + problem.costs[item], chosen, best);
+        chosen.pop(); // возврат: вынимаем предмет и пробуем следующий
+    }
+}
+
+pub fn knapsack(problem: &amp;Problem) -&gt; Bag {
+    let mut best = Bag { cost: 0, items: Vec::new() };
+    search(problem, 0, 0, 0, &amp;mut Vec::new(), &amp;mut best);
+    best
+}
+
+fn main() {
+    let problem = Problem {
+        weights: vec![3, 4, 2, 5, 9],
+        costs: vec![10, 4, 7, 8, 13],
+        capacity: 10,
+    };
+    let best = knapsack(&amp;problem);
+    println!("Максимальная стоимость: {}", best.cost);
+    let numbers: Vec&lt;String&gt; = best.items.iter().map(|item| (item + 1).to_string()).collect();
+    println!("Номера предметов: {}", numbers.join(" "));
+}
+</code></pre>
 
     <p>&nbsp;</p>
 

@@ -14,6 +14,8 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -248,6 +250,142 @@ END IF
 END SUB
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Сложение длинных чисел в столбик: O(max(n, m)) операций; число - список цифр, младшая цифра первая
+from itertools import zip_longest
+
+
+def add_long(a, b):
+    """Складывает два неотрицательных длинных числа, заданных списками цифр."""
+    result = []
+    carry = 0  # перенос в следующий разряд
+    for digit_a, digit_b in zip_longest(a, b, fillvalue=0):
+        carry, digit = divmod(digit_a + digit_b + carry, 10)
+        result.append(digit)
+    if carry:
+        result.append(carry)
+    return result
+
+
+def parse_long(text):
+    """Строка десятичных цифр -&gt; список цифр, младшая цифра первая."""
+    return [int(symbol) for symbol in reversed(text)]
+
+
+def format_long(digits):
+    """Список цифр -&gt; строка без ведущих нулей."""
+    text = "".join(str(digit) for digit in reversed(digits)).lstrip("0")
+    return text or "0"
+
+
+def main():
+    a = parse_long("99999999999999999999")
+    b = parse_long("12345678901234567890")
+    print(format_long(add_long(a, b)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Сложение длинных чисел в столбик: O(max(n, m)) операций; число - вектор цифр, младшая цифра первая
+
+pub fn add_long(a: &amp;[u8], b: &amp;[u8]) -&gt; Vec&lt;u8&gt; {
+    let mut result = Vec::new();
+    let mut carry = 0; // перенос в следующий разряд
+    for i in 0..a.len().max(b.len()) {
+        let digit_a = a.get(i).copied().unwrap_or(0);
+        let digit_b = b.get(i).copied().unwrap_or(0);
+        let sum = digit_a + digit_b + carry;
+        result.push(sum % 10);
+        carry = sum / 10;
+    }
+    if carry &gt; 0 {
+        result.push(carry);
+    }
+    result
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+pub fn parse_long(text: &amp;str) -&gt; Vec&lt;u8&gt; {
+    text.bytes().rev().map(|byte| byte - b'0').collect()
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+pub fn format_long(digits: &amp;[u8]) -&gt; String {
+    let text: String = digits.iter().rev().map(|&amp;digit| char::from(digit + b'0')).collect();
+    let trimmed = text.trim_start_matches('0');
+    if trimmed.is_empty() {
+        "0".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn main() {
+    let a = parse_long("99999999999999999999");
+    let b = parse_long("12345678901234567890");
+    println!("{}", format_long(&amp;add_long(&amp;a, &amp;b)));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Сложение длинных чисел в столбик: O(max(n, m)) операций; число - вектор цифр, младшая цифра первая
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+using Digits = std::vector&lt;int&gt;;
+
+Digits add_long(const Digits&amp; a, const Digits&amp; b) {
+    Digits result;
+    int carry = 0;  // перенос в следующий разряд
+    for (std::size_t i = 0; i &lt; std::max(a.size(), b.size()); ++i) {
+        int digit_a = i &lt; a.size() ? a[i] : 0;
+        int digit_b = i &lt; b.size() ? b[i] : 0;
+        int sum = digit_a + digit_b + carry;
+        result.push_back(sum % 10);
+        carry = sum / 10;
+    }
+    if (carry &gt; 0) {
+        result.push_back(carry);
+    }
+    return result;
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+Digits parse_long(const std::string&amp; text) {
+    Digits digits;
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        digits.push_back(*it - '0');
+    }
+    return digits;
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+std::string format_long(const Digits&amp; digits) {
+    std::string text;
+    for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+        text += static_cast&lt;char&gt;('0' + *it);
+    }
+    const std::size_t first = text.find_first_not_of('0');
+    return first == std::string::npos ? "0" : text.substr(first);
+}
+
+int main() {
+    Digits a = parse_long("99999999999999999999");
+    Digits b = parse_long("12345678901234567890");
+    std::cout &lt;&lt; format_long(add_long(a, b)) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <p>&nbsp;</p>
 
     <p><strong>Реализация знаковой длинной целой арифметики для Delphi: cложение, вычитание, умножение и
@@ -474,6 +612,320 @@ begin
   Result := A;
   Result[-1] := 1;
 end;</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Вычитание длинных чисел в столбик с заёмом: O(n) операций; требуется a &gt;= b
+from itertools import zip_longest
+
+
+def sub_long(a, b):
+    """Вычитает b из a (a &gt;= b); числа - списки цифр, младшая цифра первая."""
+    result = []
+    borrow = 0  # заём из старшего разряда
+    for digit_a, digit_b in zip_longest(a, b, fillvalue=0):
+        digit = digit_a - digit_b - borrow
+        borrow = 0
+        if digit &lt; 0:
+            digit += 10
+            borrow = 1
+        result.append(digit)
+    if borrow:
+        raise ValueError("требуется a &gt;= b")
+    return strip_zeros(result)
+
+
+def strip_zeros(digits):
+    """Убирает незначащие нули в старших разрядах, оставляя хотя бы одну цифру."""
+    while len(digits) &gt; 1 and digits[-1] == 0:
+        digits.pop()
+    return digits
+
+
+def parse_long(text):
+    """Строка десятичных цифр -&gt; список цифр, младшая цифра первая."""
+    return [int(symbol) for symbol in reversed(text)]
+
+
+def format_long(digits):
+    """Список цифр -&gt; строка без ведущих нулей."""
+    text = "".join(str(digit) for digit in reversed(digits)).lstrip("0")
+    return text or "0"
+
+
+def main():
+    a = parse_long("100000000000000000000")
+    b = parse_long("12345678901234567890")
+    print(format_long(sub_long(a, b)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Вычитание длинных чисел в столбик с заёмом: O(n) операций; требуется a &gt;= b
+
+// Возвращает a - b или None, если a &lt; b
+pub fn sub_long(a: &amp;[u8], b: &amp;[u8]) -&gt; Option&lt;Vec&lt;u8&gt;&gt; {
+    let mut result = Vec::new();
+    let mut borrow: i32 = 0; // заём из старшего разряда
+    for i in 0..a.len().max(b.len()) {
+        let digit_a = i32::from(a.get(i).copied().unwrap_or(0));
+        let digit_b = i32::from(b.get(i).copied().unwrap_or(0));
+        let mut digit = digit_a - digit_b - borrow;
+        borrow = 0;
+        if digit &lt; 0 {
+            digit += 10;
+            borrow = 1;
+        }
+        result.push(digit as u8);
+    }
+    if borrow != 0 {
+        return None;
+    }
+    while result.len() &gt; 1 &amp;&amp; result.last() == Some(&amp;0) {
+        result.pop();
+    }
+    Some(result)
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+pub fn parse_long(text: &amp;str) -&gt; Vec&lt;u8&gt; {
+    text.bytes().rev().map(|byte| byte - b'0').collect()
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+pub fn format_long(digits: &amp;[u8]) -&gt; String {
+    let text: String = digits.iter().rev().map(|&amp;digit| char::from(digit + b'0')).collect();
+    let trimmed = text.trim_start_matches('0');
+    if trimmed.is_empty() {
+        "0".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn main() {
+    let a = parse_long("100000000000000000000");
+    let b = parse_long("12345678901234567890");
+    println!("{}", format_long(&amp;sub_long(&amp;a, &amp;b).unwrap()));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Вычитание длинных чисел в столбик с заёмом: O(n) операций; требуется a &gt;= b
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+using Digits = std::vector&lt;int&gt;;
+
+// Убирает незначащие нули в старших разрядах, оставляя хотя бы одну цифру
+void strip_zeros(Digits&amp; digits) {
+    while (digits.size() &gt; 1 &amp;&amp; digits.back() == 0) {
+        digits.pop_back();
+    }
+}
+
+// Возвращает a - b; бросает исключение, если a &lt; b
+Digits sub_long(const Digits&amp; a, const Digits&amp; b) {
+    Digits result;
+    int borrow = 0;  // заём из старшего разряда
+    for (std::size_t i = 0; i &lt; std::max(a.size(), b.size()); ++i) {
+        int digit_a = i &lt; a.size() ? a[i] : 0;
+        int digit_b = i &lt; b.size() ? b[i] : 0;
+        int digit = digit_a - digit_b - borrow;
+        borrow = digit &lt; 0 ? 1 : 0;
+        result.push_back(digit &lt; 0 ? digit + 10 : digit);
+    }
+    if (borrow != 0) {
+        throw std::invalid_argument("требуется a &gt;= b");
+    }
+    strip_zeros(result);
+    return result;
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+Digits parse_long(const std::string&amp; text) {
+    Digits digits;
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        digits.push_back(*it - '0');
+    }
+    return digits;
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+std::string format_long(const Digits&amp; digits) {
+    std::string text;
+    for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+        text += static_cast&lt;char&gt;('0' + *it);
+    }
+    const std::size_t first = text.find_first_not_of('0');
+    return first == std::string::npos ? "0" : text.substr(first);
+}
+
+int main() {
+    Digits a = parse_long("100000000000000000000");
+    Digits b = parse_long("12345678901234567890");
+    std::cout &lt;&lt; format_long(sub_long(a, b)) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Умножение длинных чисел столбиком: O(n * m) операций для чисел из n и m цифр
+def mul_long(a, b):
+    """Умножает два неотрицательных длинных числа, заданных списками цифр (младшая первая)."""
+    result = [0] * (len(a) + len(b))
+    for i, digit_a in enumerate(a):
+        carry = 0
+        for j, digit_b in enumerate(b):
+            # Накопленная цифра, произведение цифр и перенос дают новую цифру и перенос
+            carry, result[i + j] = divmod(result[i + j] + digit_a * digit_b + carry, 10)
+        result[i + len(b)] += carry
+    return strip_zeros(result)
+
+
+def strip_zeros(digits):
+    """Убирает незначащие нули в старших разрядах, оставляя хотя бы одну цифру."""
+    while len(digits) &gt; 1 and digits[-1] == 0:
+        digits.pop()
+    return digits
+
+
+def parse_long(text):
+    """Строка десятичных цифр -&gt; список цифр, младшая цифра первая."""
+    return [int(symbol) for symbol in reversed(text)]
+
+
+def format_long(digits):
+    """Список цифр -&gt; строка без ведущих нулей."""
+    text = "".join(str(digit) for digit in reversed(digits)).lstrip("0")
+    return text or "0"
+
+
+def main():
+    a = parse_long("12345678901234567890")
+    b = parse_long("98765432109876543210")
+    print(format_long(mul_long(a, b)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Умножение длинных чисел столбиком: O(n * m) операций для чисел из n и m цифр
+
+pub fn mul_long(a: &amp;[u8], b: &amp;[u8]) -&gt; Vec&lt;u8&gt; {
+    let mut result = vec![0u32; a.len() + b.len()];
+    for (i, &amp;digit_a) in a.iter().enumerate() {
+        let mut carry = 0;
+        for (j, &amp;digit_b) in b.iter().enumerate() {
+            // Накопленная цифра, произведение цифр и перенос дают новую цифру и перенос
+            let total = result[i + j] + u32::from(digit_a) * u32::from(digit_b) + carry;
+            result[i + j] = total % 10;
+            carry = total / 10;
+        }
+        result[i + b.len()] += carry;
+    }
+    let mut digits: Vec&lt;u8&gt; = result.into_iter().map(|digit| digit as u8).collect();
+    while digits.len() &gt; 1 &amp;&amp; digits.last() == Some(&amp;0) {
+        digits.pop();
+    }
+    digits
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+pub fn parse_long(text: &amp;str) -&gt; Vec&lt;u8&gt; {
+    text.bytes().rev().map(|byte| byte - b'0').collect()
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+pub fn format_long(digits: &amp;[u8]) -&gt; String {
+    let text: String = digits.iter().rev().map(|&amp;digit| char::from(digit + b'0')).collect();
+    let trimmed = text.trim_start_matches('0');
+    if trimmed.is_empty() {
+        "0".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn main() {
+    let a = parse_long("12345678901234567890");
+    let b = parse_long("98765432109876543210");
+    println!("{}", format_long(&amp;mul_long(&amp;a, &amp;b)));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Умножение длинных чисел столбиком: O(n * m) операций для чисел из n и m цифр
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+using Digits = std::vector&lt;int&gt;;
+
+// Убирает незначащие нули в старших разрядах, оставляя хотя бы одну цифру
+void strip_zeros(Digits&amp; digits) {
+    while (digits.size() &gt; 1 &amp;&amp; digits.back() == 0) {
+        digits.pop_back();
+    }
+}
+
+Digits mul_long(const Digits&amp; a, const Digits&amp; b) {
+    Digits result(a.size() + b.size(), 0);
+    for (std::size_t i = 0; i &lt; a.size(); ++i) {
+        int carry = 0;
+        for (std::size_t j = 0; j &lt; b.size(); ++j) {
+            // Накопленная цифра, произведение цифр и перенос дают новую цифру и перенос
+            int total = result[i + j] + a[i] * b[j] + carry;
+            result[i + j] = total % 10;
+            carry = total / 10;
+        }
+        result[i + b.size()] += carry;
+    }
+    strip_zeros(result);
+    return result;
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+Digits parse_long(const std::string&amp; text) {
+    Digits digits;
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        digits.push_back(*it - '0');
+    }
+    return digits;
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+std::string format_long(const Digits&amp; digits) {
+    std::string text;
+    for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+        text += static_cast&lt;char&gt;('0' + *it);
+    }
+    const std::size_t first = text.find_first_not_of('0');
+    return first == std::string::npos ? "0" : text.substr(first);
+}
+
+int main() {
+    Digits a = parse_long("12345678901234567890");
+    Digits b = parse_long("98765432109876543210");
+    std::cout &lt;&lt; format_long(mul_long(a, b)) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
 </div>
 

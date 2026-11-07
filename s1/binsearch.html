@@ -139,6 +139,59 @@ int main() {
 }
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Двоичный поиск в отсортированном списке: O(log n) по времени, O(1) по памяти
+def binary_search(items, target):
+    """Возвращает индекс элемента target в отсортированном списке или -1."""
+    left, right = 0, len(items) - 1
+    while left &lt;= right:
+        middle = (left + right) // 2
+        if items[middle] == target:
+            return middle
+        if items[middle] &lt; target:
+            left = middle + 1  # искомое значение правее середины
+        else:
+            right = middle - 1  # искомое значение левее середины
+    return -1
+
+
+def main():
+    numbers = [1, 3, 5, 7, 9, 11, 13, 15]
+    for target in (7, 8, 1, 15):
+        print(f"search {target}: index {binary_search(numbers, target)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Двоичный поиск в отсортированном срезе: O(log n) по времени, O(1) по памяти
+pub fn binary_search(items: &amp;[i64], target: i64) -&gt; Option&lt;usize&gt; {
+    let mut left = 0;
+    let mut right = items.len();
+    while left &lt; right {
+        let middle = left + (right - left) / 2;
+        match items[middle].cmp(&amp;target) {
+            std::cmp::Ordering::Equal =&gt; return Some(middle),
+            std::cmp::Ordering::Less =&gt; left = middle + 1, // искомое значение правее середины
+            std::cmp::Ordering::Greater =&gt; right = middle, // искомое значение левее середины
+        }
+    }
+    None
+}
+
+fn main() {
+    let numbers = [1, 3, 5, 7, 9, 11, 13, 15];
+    for target in [7, 8, 1, 15] {
+        match binary_search(&amp;numbers, target) {
+            Some(index) =&gt; println!("search {target}: index {index}"),
+            None =&gt; println!("search {target}: not found"),
+        }
+    }
+}</code></pre>
+
     <h3>Реализация на Delphi</h3>
 
     <p>Добавить картинки </p>

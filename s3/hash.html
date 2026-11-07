@@ -13,6 +13,9 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 </script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_java.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -106,6 +109,164 @@ h = ((hash[r] - hash[l - 1] * pow[r - l + 1]) % base + base) % base;
     </ul>
     <p>В сумме: O(|p|+|t|).</p>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Поиск подстроки полиномиальным хешем (Рабин-Карп): O(|p| + |t|)
+X = 37  # основание хеша x, около 37 (совет Кнута)
+MOD = 10 ** 9 + 7  # простой модуль base
+
+
+def prefix_hashes(s):
+    """hashes[i] - хеш первых i символов строки s."""
+    hashes = [0] * (len(s) + 1)
+    for i, ch in enumerate(s):
+        hashes[i + 1] = (hashes[i] * X + ord(ch)) % MOD
+    return hashes
+
+
+def powers_of_x(n):
+    """powers[k] = X^k mod MOD для k от 0 до n."""
+    powers = [1] * (n + 1)
+    for k in range(1, n + 1):
+        powers[k] = powers[k - 1] * X % MOD
+    return powers
+
+
+def substring_hash(hashes, powers, left, right):
+    """Хеш подстроки s[left:right] за O(1) по разности префиксных хешей."""
+    return (hashes[right] - hashes[left] * powers[right - left]) % MOD
+
+
+def find_occurrences(pattern, text):
+    """Все позиции (с нуля), с которых pattern входит в text."""
+    m = len(pattern)
+    pattern_hash = prefix_hashes(pattern)[m]
+    text_hashes = prefix_hashes(text)
+    powers = powers_of_x(m)
+    return [i for i in range(len(text) - m + 1)
+            if substring_hash(text_hashes, powers, i, i + m) == pattern_hash]
+
+
+if __name__ == "__main__":
+    print(find_occurrences("abra", "abracadabra"))  # [0, 7]
+    print(find_occurrences("a", "abracadabra"))  # [0, 3, 5, 7, 10]
+    print(find_occurrences("xyz", "abracadabra"))  # []
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск подстроки полиномиальным хешем (Рабин-Карп): O(|p| + |t|)
+const X: u64 = 37; // основание хеша x, около 37 (совет Кнута)
+const MOD: u64 = 1_000_000_007; // простой модуль base
+
+// hashes[i] - хеш первых i символов строки
+fn prefix_hashes(s: &amp;[u8]) -&gt; Vec&lt;u64&gt; {
+    let mut hashes = vec![0; s.len() + 1];
+    for (i, &amp;ch) in s.iter().enumerate() {
+        hashes[i + 1] = (hashes[i] * X + ch as u64) % MOD;
+    }
+    hashes
+}
+
+// powers[k] = X^k mod MOD для k от 0 до n
+fn powers_of_x(n: usize) -&gt; Vec&lt;u64&gt; {
+    let mut powers = vec![1; n + 1];
+    for k in 1..=n {
+        powers[k] = powers[k - 1] * X % MOD;
+    }
+    powers
+}
+
+// Хеш подстроки s[left..right] за O(1); вычитание делаем без отрицательных чисел
+fn substring_hash(hashes: &amp;[u64], powers: &amp;[u64], left: usize, right: usize) -&gt; u64 {
+    let shifted = hashes[left] * powers[right - left] % MOD;
+    (hashes[right] + MOD - shifted) % MOD
+}
+
+// Все позиции (с нуля), с которых pattern входит в text
+pub fn find_occurrences(pattern: &amp;[u8], text: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let m = pattern.len();
+    if m &gt; text.len() {
+        return Vec::new();
+    }
+    let pattern_hash = prefix_hashes(pattern)[m];
+    let text_hashes = prefix_hashes(text);
+    let powers = powers_of_x(m);
+    (0..=text.len() - m)
+        .filter(|&amp;i| substring_hash(&amp;text_hashes, &amp;powers, i, i + m) == pattern_hash)
+        .collect()
+}
+
+fn main() {
+    println!("{:?}", find_occurrences(b"abra", b"abracadabra")); // [0, 7]
+    println!("{:?}", find_occurrences(b"a", b"abracadabra")); // [0, 3, 5, 7, 10]
+    println!("{:?}", find_occurrences(b"xyz", b"abracadabra")); // []
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск подстроки полиномиальным хешем (Рабин-Карп): O(|p| + |t|)
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+const std::uint64_t kX = 37;            // основание хеша x, около 37 (совет Кнута)
+const std::uint64_t kMod = 1000000007;  // простой модуль base
+
+// hashes[i] - хеш первых i символов строки
+std::vector&lt;std::uint64_t&gt; prefix_hashes(const std::string&amp; s) {
+  std::vector&lt;std::uint64_t&gt; hashes(s.size() + 1, 0);
+  for (std::size_t i = 0; i &lt; s.size(); ++i) {
+    hashes[i + 1] = (hashes[i] * kX + static_cast&lt;unsigned char&gt;(s[i])) % kMod;
+  }
+  return hashes;
+}
+
+// powers[k] = X^k mod kMod для k от 0 до n
+std::vector&lt;std::uint64_t&gt; powers_of_x(std::size_t n) {
+  std::vector&lt;std::uint64_t&gt; powers(n + 1, 1);
+  for (std::size_t k = 1; k &lt;= n; ++k) powers[k] = powers[k - 1] * kX % kMod;
+  return powers;
+}
+
+// Хеш подстроки s[left..right) за O(1); вычитание делаем без отрицательных чисел
+std::uint64_t substring_hash(const std::vector&lt;std::uint64_t&gt;&amp; hashes, const std::vector&lt;std::uint64_t&gt;&amp; powers,
+                             std::size_t left, std::size_t right) {
+  std::uint64_t shifted = hashes[left] * powers[right - left] % kMod;
+  return (hashes[right] + kMod - shifted) % kMod;
+}
+
+// Все позиции (с нуля), с которых pattern входит в text
+std::vector&lt;std::size_t&gt; find_occurrences(const std::string&amp; pattern, const std::string&amp; text) {
+  std::vector&lt;std::size_t&gt; positions;
+  std::size_t m = pattern.size();
+  if (m &gt; text.size()) return positions;
+  std::uint64_t pattern_hash = prefix_hashes(pattern)[m];
+  std::vector&lt;std::uint64_t&gt; text_hashes = prefix_hashes(text);
+  std::vector&lt;std::uint64_t&gt; powers = powers_of_x(m);
+  for (std::size_t i = 0; i + m &lt;= text.size(); ++i) {
+    if (substring_hash(text_hashes, powers, i, i + m) == pattern_hash) positions.push_back(i);
+  }
+  return positions;
+}
+
+// Печатает позиции списком в квадратных скобках
+void print_positions(const std::vector&lt;std::size_t&gt;&amp; positions) {
+  std::cout &lt;&lt; '[';
+  for (std::size_t i = 0; i &lt; positions.size(); ++i) std::cout &lt;&lt; (i &gt; 0 ? ", " : "") &lt;&lt; positions[i];
+  std::cout &lt;&lt; "]\n";
+}
+
+int main() {
+  print_positions(find_occurrences("abra", "abracadabra"));  // [0, 7]
+  print_positions(find_occurrences("a", "abracadabra"));     // [0, 3, 5, 7, 10]
+  print_positions(find_occurrences("xyz", "abracadabra"));   // []
+  return 0;
+}
+</pre>
+
+
 
     <h2>HashSet и HashMap, обработка коллизий</h2>
 
@@ -174,6 +335,165 @@ hashSet = new boolean[base]; // должно быть заполнено false. 
         оказаться непозволительной роскошью.
         Как правило, при решении олимпиадных задач хватает реализации первого подхода с тремя хешами вместе со
         вторым.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Хеш-множество строк с цепочками: add и contains за O(1) в среднем, сравнение строк - O(длина)
+X = 37  # основание хеша
+MOD = 10 ** 9 + 7  # простой модуль
+BUCKET_COUNT = 8  # мало корзин, чтобы коллизии случались и обрабатывались
+
+
+def string_hash(s):
+    """Полиномиальный хеш строки по модулю MOD."""
+    result = 0
+    for ch in s:
+        result = (result * X + ord(ch)) % MOD
+    return result
+
+
+def bucket_of(buckets, s):
+    """Корзина, в которую попадает строка s по своему хешу."""
+    return buckets[string_hash(s) % len(buckets)]
+
+
+def add(buckets, s):
+    """Добавляет строку, если ее еще нет; в корзине строки сравниваются наивно."""
+    bucket = bucket_of(buckets, s)
+    if s not in bucket:
+        bucket.append(s)
+
+
+def contains(buckets, s):
+    """Есть ли строка s в множестве."""
+    return s in bucket_of(buckets, s)
+
+
+if __name__ == "__main__":
+    buckets = [[] for _ in range(BUCKET_COUNT)]
+    for word in ["abc", "bca", "cab", "abc", "zz", "a"]:
+        add(buckets, word)
+    print(contains(buckets, "cab"))  # True
+    print(contains(buckets, "xyz"))  # False
+    print(sum(len(bucket) for bucket in buckets))  # 5
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Хеш-множество строк с цепочками: add и contains за O(1) в среднем, сравнение строк - O(длина)
+const X: u64 = 37; // основание хеша
+const MOD: u64 = 1_000_000_007; // простой модуль
+const BUCKET_COUNT: usize = 8; // мало корзин, чтобы коллизии случались и обрабатывались
+
+pub struct StringSet {
+    buckets: Vec&lt;Vec&lt;String&gt;&gt;,
+}
+
+impl StringSet {
+    pub fn new() -&gt; Self {
+        StringSet {
+            buckets: vec![Vec::new(); BUCKET_COUNT],
+        }
+    }
+
+    // Полиномиальный хеш строки по модулю MOD
+    fn string_hash(s: &amp;str) -&gt; u64 {
+        s.bytes().fold(0, |hash, ch| (hash * X + ch as u64) % MOD)
+    }
+
+    // Номер корзины, в которую попадает строка s
+    fn bucket_index(s: &amp;str) -&gt; usize {
+        (Self::string_hash(s) % BUCKET_COUNT as u64) as usize
+    }
+
+    // Добавляет строку, если ее еще нет; в корзине строки сравниваются наивно
+    pub fn add(&amp;mut self, s: &amp;str) {
+        if self.contains(s) {
+            return;
+        }
+        let index = Self::bucket_index(s);
+        self.buckets[index].push(s.to_string());
+    }
+
+    // Есть ли строка s в множестве
+    pub fn contains(&amp;self, s: &amp;str) -&gt; bool {
+        self.buckets[Self::bucket_index(s)].iter().any(|word| word == s)
+    }
+
+    // Количество различных строк в множестве
+    pub fn size(&amp;self) -&gt; usize {
+        self.buckets.iter().map(Vec::len).sum()
+    }
+}
+
+fn main() {
+    let mut set = StringSet::new();
+    for word in ["abc", "bca", "cab", "abc", "zz", "a"] {
+        set.add(word);
+    }
+    println!("{}", set.contains("cab")); // true
+    println!("{}", set.contains("xyz")); // false
+    println!("{}", set.size()); // 5
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Хеш-множество строк с цепочками: add и contains за O(1) в среднем, сравнение строк - O(длина)
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+const std::uint64_t kX = 37;            // основание хеша
+const std::uint64_t kMod = 1000000007;  // простой модуль
+const std::size_t kBucketCount = 8;     // мало корзин, чтобы коллизии случались и обрабатывались
+
+struct StringSet {
+  std::vector&lt;std::vector&lt;std::string&gt;&gt; buckets = std::vector&lt;std::vector&lt;std::string&gt;&gt;(kBucketCount);
+
+  // Полиномиальный хеш строки по модулю kMod
+  static std::uint64_t string_hash(const std::string&amp; s) {
+    std::uint64_t hash = 0;
+    for (unsigned char ch : s) hash = (hash * kX + ch) % kMod;
+    return hash;
+  }
+
+  // Номер корзины, в которую попадает строка s
+  static std::size_t bucket_index(const std::string&amp; s) {
+    return string_hash(s) % kBucketCount;
+  }
+
+  // Есть ли строка s в множестве; в корзине строки сравниваются наивно
+  bool contains(const std::string&amp; s) const {
+    const std::vector&lt;std::string&gt;&amp; bucket = buckets[bucket_index(s)];
+    return std::find(bucket.begin(), bucket.end(), s) != bucket.end();
+  }
+
+  // Добавляет строку, если ее еще нет
+  void add(const std::string&amp; s) {
+    if (!contains(s)) buckets[bucket_index(s)].push_back(s);
+  }
+
+  // Количество различных строк в множестве
+  std::size_t size() const {
+    std::size_t total = 0;
+    for (const std::vector&lt;std::string&gt;&amp; bucket : buckets) total += bucket.size();
+    return total;
+  }
+};
+
+int main() {
+  StringSet set;
+  const std::vector&lt;std::string&gt; words = {"abc", "bca", "cab", "abc", "zz", "a"};
+  for (const std::string&amp; word : words) set.add(word);
+  std::cout &lt;&lt; std::boolalpha &lt;&lt; set.contains("cab") &lt;&lt; '\n';  // true
+  std::cout &lt;&lt; set.contains("xyz") &lt;&lt; '\n';                    // false
+  std::cout &lt;&lt; set.size() &lt;&lt; '\n';                             // 5
+  return 0;
+}
+</pre>
+
 
     <h3>Еще пара задач, которые можно и нельзая решать хешами</h3>
 

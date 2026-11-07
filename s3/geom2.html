@@ -10,8 +10,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
 </head>
-<body>
+<body onLoad="sh_highlightDocument();">
 <div id="content">
     <h1>Геометрия: отношения между объектами</h1>
 
@@ -125,6 +129,88 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Площадь
         эти
         две формулы объединяются в одну.</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Площадь многоугольника по формуле шнурка (удвоенная): O(N)
+Point = tuple[int, int]
+
+
+def shoelace_area2(polygon: list[Point]) -&gt; int:
+    """Удвоенная площадь: сумма ориентированных площадей треугольников (начало, P_i, P_i+1)."""
+    total = 0
+    for (x1, y1), (x2, y2) in zip(polygon, polygon[1:] + polygon[:1]):
+        total += x1 * y2 - x2 * y1
+    return abs(total)
+
+
+if __name__ == "__main__":
+    # Квадрат 4x4 и невыпуклый многоугольник в форме буквы "L"
+    square = [(0, 0), (4, 0), (4, 4), (0, 4)]
+    letter_l = [(0, 0), (4, 0), (4, 1), (1, 1), (1, 4), (0, 4)]
+    print("Квадрат: 2S =", shoelace_area2(square))
+    print("Буква L: 2S =", shoelace_area2(letter_l))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Площадь многоугольника по формуле шнурка (удвоенная): O(N)
+type Point = (i64, i64);
+
+/// Удвоенная площадь: сумма ориентированных площадей треугольников (начало, P_i, P_i+1).
+pub fn shoelace_area2(polygon: &amp;[Point]) -&gt; i64 {
+    let n = polygon.len();
+    let mut total: i64 = 0;
+    for i in 0..n {
+        let (x1, y1) = polygon[i];
+        let (x2, y2) = polygon[(i + 1) % n];
+        total += x1 * y2 - x2 * y1;
+    }
+    total.abs()
+}
+
+fn main() {
+    // Квадрат 4x4 и невыпуклый многоугольник в форме буквы "L"
+    let square = [(0, 0), (4, 0), (4, 4), (0, 4)];
+    let letter_l = [(0, 0), (4, 0), (4, 1), (1, 1), (1, 4), (0, 4)];
+    println!("Квадрат: 2S = {}", shoelace_area2(&amp;square));
+    println!("Буква L: 2S = {}", shoelace_area2(&amp;letter_l));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Площадь многоугольника по формуле шнурка (удвоенная): O(N)
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Point = std::pair&lt;long long, long long&gt;;
+
+// Удвоенная площадь: сумма ориентированных площадей треугольников (начало, P_i, P_i+1).
+long long shoelaceArea2(const std::vector&lt;Point&gt;&amp; polygon) {
+    long long total = 0;
+    const std::size_t n = polygon.size();
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        const Point&amp; a = polygon[i];
+        const Point&amp; b = polygon[(i + 1) % n];
+        total += a.first * b.second - b.first * a.second;
+    }
+    return std::llabs(total);
+}
+
+int main() {
+    // Квадрат 4x4 и невыпуклый многоугольник в форме буквы "L"
+    const std::vector&lt;Point&gt; square = {{0, 0}, {4, 0}, {4, 4}, {0, 4}};
+    const std::vector&lt;Point&gt; letterL = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
+    std::printf("Квадрат: 2S = %lld\n", shoelaceArea2(square));
+    std::printf("Буква L: 2S = %lld\n", shoelaceArea2(letterL));
+    return 0;
+}
+</pre>
+
+
     <h3> Параллельность и
         перпендикулярность</h3>
 
@@ -221,6 +307,132 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Площадь
     <p style='text-indent:17.0pt'>Дополнительные
         проверки используются, если точка пересечения лежит на одном из
         отрезков.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пересечение отрезков по векторным произведениям: O(1)
+Point = tuple[int, int]
+
+
+def cross(origin: Point, a: Point, b: Point) -&gt; int:
+    """Векторное произведение (a - origin) x (b - origin): &gt; 0 - поворот влево."""
+    return (a[0] - origin[0]) * (b[1] - origin[1]) - (a[1] - origin[1]) * (b[0] - origin[0])
+
+
+def on_segment(a: Point, b: Point, p: Point) -&gt; bool:
+    """Точка p, лежащая на прямой ab, принадлежит отрезку ab (проверка по рамке)."""
+    return min(a[0], b[0]) &lt;= p[0] &lt;= max(a[0], b[0]) and min(a[1], b[1]) &lt;= p[1] &lt;= max(a[1], b[1])
+
+
+def segments_intersect(p1: Point, p2: Point, p3: Point, p4: Point) -&gt; bool:
+    """Пересекаются ли отрезки p1p2 и p3p4, включая касание и наложение."""
+    d1 = cross(p3, p4, p1)
+    d2 = cross(p3, p4, p2)
+    d3 = cross(p1, p2, p3)
+    d4 = cross(p1, p2, p4)
+    # Общий случай: концы каждого отрезка лежат по разные стороны прямой другого
+    if d1 * d2 &lt; 0 and d3 * d4 &lt; 0:
+        return True
+    # Частный случай: конец одного отрезка лежит на другом
+    return (
+        (d1 == 0 and on_segment(p3, p4, p1))
+        or (d2 == 0 and on_segment(p3, p4, p2))
+        or (d3 == 0 and on_segment(p1, p2, p3))
+        or (d4 == 0 and on_segment(p1, p2, p4))
+    )
+
+
+if __name__ == "__main__":
+    print("Крест:", segments_intersect((0, 0), (2, 2), (0, 2), (2, 0)))
+    print("Касание концом:", segments_intersect((0, 0), (2, 0), (1, 0), (1, 2)))
+    print("Наложение на прямой:", segments_intersect((0, 0), (3, 0), (2, 0), (5, 0)))
+    print("Параллельные:", segments_intersect((0, 0), (2, 0), (0, 1), (2, 1)))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Пересечение отрезков по векторным произведениям: O(1)
+type Point = (i64, i64);
+
+/// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+/// Точка p, лежащая на прямой ab, принадлежит отрезку ab (проверка по рамке).
+fn on_segment(a: Point, b: Point, p: Point) -&gt; bool {
+    a.0.min(b.0) &lt;= p.0 &amp;&amp; p.0 &lt;= a.0.max(b.0) &amp;&amp; a.1.min(b.1) &lt;= p.1 &amp;&amp; p.1 &lt;= a.1.max(b.1)
+}
+
+/// Пересекаются ли отрезки p1p2 и p3p4, включая касание и наложение.
+pub fn segments_intersect(p1: Point, p2: Point, p3: Point, p4: Point) -&gt; bool {
+    let d1 = cross(p3, p4, p1);
+    let d2 = cross(p3, p4, p2);
+    let d3 = cross(p1, p2, p3);
+    let d4 = cross(p1, p2, p4);
+    // Общий случай: концы каждого отрезка лежат по разные стороны прямой другого
+    if d1.signum() * d2.signum() &lt; 0 &amp;&amp; d3.signum() * d4.signum() &lt; 0 {
+        return true;
+    }
+    // Частный случай: конец одного отрезка лежит на другом
+    (d1 == 0 &amp;&amp; on_segment(p3, p4, p1))
+        || (d2 == 0 &amp;&amp; on_segment(p3, p4, p2))
+        || (d3 == 0 &amp;&amp; on_segment(p1, p2, p3))
+        || (d4 == 0 &amp;&amp; on_segment(p1, p2, p4))
+}
+
+fn main() {
+    println!("Крест: {}", segments_intersect((0, 0), (2, 2), (0, 2), (2, 0)));
+    println!("Касание концом: {}", segments_intersect((0, 0), (2, 0), (1, 0), (1, 2)));
+    println!("Наложение на прямой: {}", segments_intersect((0, 0), (3, 0), (2, 0), (5, 0)));
+    println!("Параллельные: {}", segments_intersect((0, 0), (2, 0), (0, 1), (2, 1)));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пересечение отрезков по векторным произведениям: O(1)
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;utility&gt;
+
+using Point = std::pair&lt;long long, long long&gt;;
+
+// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+long long cross(Point o, Point a, Point b) {
+    return (a.first - o.first) * (b.second - o.second) - (a.second - o.second) * (b.first - o.first);
+}
+
+int sign(long long v) { return (v &gt; 0) - (v &lt; 0); }
+
+// Точка p, лежащая на прямой ab, принадлежит отрезку ab (проверка по рамке).
+bool onSegment(Point a, Point b, Point p) {
+    return std::min(a.first, b.first) &lt;= p.first &amp;&amp; p.first &lt;= std::max(a.first, b.first) &amp;&amp;
+           std::min(a.second, b.second) &lt;= p.second &amp;&amp; p.second &lt;= std::max(a.second, b.second);
+}
+
+// Пересекаются ли отрезки p1p2 и p3p4, включая касание и наложение.
+bool segmentsIntersect(Point p1, Point p2, Point p3, Point p4) {
+    long long d1 = cross(p3, p4, p1);
+    long long d2 = cross(p3, p4, p2);
+    long long d3 = cross(p1, p2, p3);
+    long long d4 = cross(p1, p2, p4);
+    // Общий случай: концы каждого отрезка лежат по разные стороны прямой другого
+    if (sign(d1) * sign(d2) &lt; 0 &amp;&amp; sign(d3) * sign(d4) &lt; 0) return true;
+    // Частный случай: конец одного отрезка лежит на другом
+    return (d1 == 0 &amp;&amp; onSegment(p3, p4, p1)) || (d2 == 0 &amp;&amp; onSegment(p3, p4, p2)) ||
+           (d3 == 0 &amp;&amp; onSegment(p1, p2, p3)) || (d4 == 0 &amp;&amp; onSegment(p1, p2, p4));
+}
+
+int main() {
+    std::printf("Крест: %s\n", segmentsIntersect({0, 0}, {2, 2}, {0, 2}, {2, 0}) ? "да" : "нет");
+    std::printf("Касание концом: %s\n", segmentsIntersect({0, 0}, {2, 0}, {1, 0}, {1, 2}) ? "да" : "нет");
+    std::printf("Наложение на прямой: %s\n", segmentsIntersect({0, 0}, {3, 0}, {2, 0}, {5, 0}) ? "да" : "нет");
+    std::printf("Параллельные: %s\n", segmentsIntersect({0, 0}, {2, 0}, {0, 1}, {2, 1}) ? "да" : "нет");
+    return 0;
+}
+</pre>
+
 
     <h3>4.2.3. Внутри и снаружи</h3>
 
@@ -319,6 +531,109 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         определить количество пересечений луча, выходящего из данной точки в любую
         сторону, со сторонами многоугольника. Точка внутри, если количество пересечений
         нечетно. </p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Принадлежность точки многоугольнику, метод луча (чет-нечет): O(N)
+Point = tuple[float, float]
+
+
+def point_in_polygon(point: Point, polygon: list[Point]) -&gt; bool:
+    """Точка внутри, если горизонтальный луч из нее пересекает границу нечетное число раз."""
+    x, y = point
+    inside = False
+    for (x1, y1), (x2, y2) in zip(polygon, polygon[1:] + polygon[:1]):
+        # Ребро учитываем, только если его концы лежат по разные стороны от прямой y
+        if (y1 &gt; y) == (y2 &gt; y):
+            continue
+        # Абсцисса точки пересечения ребра с лучом
+        x_cross = x1 + (x2 - x1) * (y - y1) / (y2 - y1)
+        if x &lt; x_cross:
+            inside = not inside
+    return inside
+
+
+if __name__ == "__main__":
+    # Невыпуклый многоугольник в форме буквы "L"
+    shape = [(0, 0), (4, 0), (4, 1), (1, 1), (1, 4), (0, 4)]
+    for point in [(0.5, 0.5), (2, 2), (0.5, 3), (3, 0.5)]:
+        print(point, "внутри" if point_in_polygon(point, shape) else "снаружи")
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Принадлежность точки многоугольнику, метод луча (чет-нечет): O(N)
+type Point = (f64, f64);
+
+/// Точка внутри, если горизонтальный луч из нее пересекает границу нечетное число раз.
+pub fn point_in_polygon(point: Point, polygon: &amp;[Point]) -&gt; bool {
+    let (px, py) = point;
+    let n = polygon.len();
+    let mut inside = false;
+    for i in 0..n {
+        let (ax, ay) = polygon[i];
+        let (bx, by) = polygon[(i + n - 1) % n];
+        // Ребро учитываем, только если его концы лежат по разные стороны от прямой y
+        if (ay &gt; py) == (by &gt; py) {
+            continue;
+        }
+        // Абсцисса точки пересечения ребра с лучом
+        let x_cross = ax + (bx - ax) * (py - ay) / (by - ay);
+        if px &lt; x_cross {
+            inside = !inside;
+        }
+    }
+    inside
+}
+
+fn main() {
+    // Невыпуклый многоугольник в форме буквы "L"
+    let shape = [(0.0, 0.0), (4.0, 0.0), (4.0, 1.0), (1.0, 1.0), (1.0, 4.0), (0.0, 4.0)];
+    for point in [(0.5, 0.5), (2.0, 2.0), (0.5, 3.0), (3.0, 0.5)] {
+        let place = if point_in_polygon(point, &amp;shape) { "внутри" } else { "снаружи" };
+        println!("({:.1}, {:.1}) {}", point.0, point.1, place);
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Принадлежность точки многоугольнику, метод луча (чет-нечет): O(N)
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    double x, y;
+};
+
+// Точка внутри, если горизонтальный луч из нее пересекает границу нечетное число раз.
+bool pointInPolygon(Point p, const std::vector&lt;Point&gt;&amp; polygon) {
+    bool inside = false;
+    const std::size_t n = polygon.size();
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        const Point&amp; a = polygon[i];
+        const Point&amp; b = polygon[(i + n - 1) % n];
+        // Ребро учитываем, только если его концы лежат по разные стороны от прямой y
+        if ((a.y &gt; p.y) == (b.y &gt; p.y)) continue;
+        // Абсцисса точки пересечения ребра с лучом
+        double xCross = a.x + (b.x - a.x) * (p.y - a.y) / (b.y - a.y);
+        if (p.x &lt; xCross) inside = !inside;
+    }
+    return inside;
+}
+
+int main() {
+    // Невыпуклый многоугольник в форме буквы "L"
+    const std::vector&lt;Point&gt; shape = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
+    const std::vector&lt;Point&gt; tests = {{0.5, 0.5}, {2, 2}, {0.5, 3}, {3, 0.5}};
+    for (const Point&amp; t : tests) {
+        std::printf("(%.1f, %.1f) %s\n", t.x, t.y, pointInPolygon(t, shape) ? "внутри" : "снаружи");
+    }
+    return 0;
+}
+</pre>
+
 
     <h2>Площадь многоугольника</h2>
 

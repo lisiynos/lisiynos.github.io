@@ -14,6 +14,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -268,6 +269,161 @@ begin
  end;
 </pre>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Дейкстры, кратчайшие пути из одной вершины: O((V + E) log V) с кучей heapq
+import heapq
+
+INF = float("inf")
+
+
+def dijkstra(adjacency, source):
+    """Возвращает список кратчайших расстояний от source до всех вершин.
+
+    adjacency[v] — список пар (сосед, вес), веса не должны быть отрицательными.
+    Недостижимые вершины получают значение INF.
+    """
+    if not adjacency:
+        return []
+    distance = [INF] * len(adjacency)
+    distance[source] = 0
+    heap = [(0, source)]  # Куча пар (расстояние, вершина)
+    while heap:
+        dist_v, v = heapq.heappop(heap)
+        # Устаревшая запись: вершина уже обработана с меньшим расстоянием
+        if dist_v &gt; distance[v]:
+            continue
+        for u, weight in adjacency[v]:
+            # Релаксация ребра v -&gt; u: пробуем улучшить путь до u через v
+            if dist_v + weight &lt; distance[u]:
+                distance[u] = dist_v + weight
+                heapq.heappush(heap, (distance[u], u))
+    return distance
+
+
+if __name__ == "__main__":
+    # Демонстрация: ориентированный взвешенный граф из 6 вершин
+    edges = [
+        (0, 1, 7), (0, 2, 9), (0, 5, 14), (1, 2, 10), (1, 3, 15),
+        (2, 3, 11), (2, 5, 2), (3, 4, 6), (5, 4, 9),
+    ]
+    adjacency = [[] for _ in range(6)]
+    for v, u, weight in edges:
+        adjacency[v].append((u, weight))
+    # Ожидаемый результат: [0, 7, 9, 20, 20, 11]
+    print(dijkstra(adjacency, 0))
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Дейкстры, кратчайшие пути из одной вершины: O((V + E) log V) с BinaryHeap
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
+pub const INF: i64 = i64::MAX;
+
+/// Возвращает кратчайшие расстояния от source до всех вершин; недостижимые получают INF.
+/// adjacency[v] содержит пары (сосед, вес); веса не должны быть отрицательными.
+pub fn dijkstra(adjacency: &amp;[Vec&lt;(usize, i64)&gt;], source: usize) -&gt; Vec&lt;i64&gt; {
+    let mut distance = vec![INF; adjacency.len()];
+    if adjacency.is_empty() {
+        return distance;
+    }
+    distance[source] = 0;
+    // Минимальная куча пар (расстояние, вершина): Reverse превращает максимальную кучу в минимальную
+    let mut heap = BinaryHeap::new();
+    heap.push(Reverse((0, source)));
+    while let Some(Reverse((dist_v, v))) = heap.pop() {
+        // Устаревшая запись: вершина уже обработана с меньшим расстоянием
+        if dist_v &gt; distance[v] {
+            continue;
+        }
+        for &amp;(u, weight) in &amp;adjacency[v] {
+            // Релаксация ребра v -&gt; u: пробуем улучшить путь до u через v
+            if dist_v + weight &lt; distance[u] {
+                distance[u] = dist_v + weight;
+                heap.push(Reverse((distance[u], u)));
+            }
+        }
+    }
+    distance
+}
+
+fn main() {
+    // Демонстрация: тот же ориентированный граф из 6 вершин, что и в Python-версии
+    let edges: [(usize, usize, i64); 9] = [
+        (0, 1, 7), (0, 2, 9), (0, 5, 14), (1, 2, 10), (1, 3, 15),
+        (2, 3, 11), (2, 5, 2), (3, 4, 6), (5, 4, 9),
+    ];
+    let mut adjacency: Vec&lt;Vec&lt;(usize, i64)&gt;&gt; = vec![Vec::new(); 6];
+    for (v, u, weight) in edges {
+        adjacency[v].push((u, weight));
+    }
+    // Ожидаемый результат: 0 7 9 20 20 11
+    let distance = dijkstra(&amp;adjacency, 0);
+    let line: Vec&lt;String&gt; = distance.iter().map(|d| d.to_string()).collect();
+    println!("{}", line.join(" "));
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Дейкстры, кратчайшие пути из одной вершины: O((V + E) log V) с приоритетной очередью
+#include &lt;cstddef&gt;
+#include &lt;functional&gt;
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;queue&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Edge = std::pair&lt;int, long long&gt;;  // (вершина, вес ребра)
+const long long INF = std::numeric_limits&lt;long long&gt;::max();
+
+std::vector&lt;long long&gt; dijkstra(const std::vector&lt;std::vector&lt;Edge&gt;&gt;&amp; adjacency, int source) {
+    std::vector&lt;long long&gt; distance(adjacency.size(), INF);
+    if (adjacency.empty()) return distance;
+    distance[source] = 0;
+    // Минимальная куча пар (расстояние, вершина)
+    using Entry = std::pair&lt;long long, int&gt;;
+    std::priority_queue&lt;Entry, std::vector&lt;Entry&gt;, std::greater&lt;Entry&gt;&gt; heap;
+    heap.push({0, source});
+    while (!heap.empty()) {
+        auto [dist_v, v] = heap.top();
+        heap.pop();
+        // Устаревшая запись: вершина уже обработана с меньшим расстоянием
+        if (dist_v &gt; distance[v]) continue;
+        for (const auto&amp; [u, weight] : adjacency[v]) {
+            // Релаксация ребра v -&gt; u: пробуем улучшить путь до u через v
+            if (dist_v + weight &lt; distance[u]) {
+                distance[u] = dist_v + weight;
+                heap.push({distance[u], u});
+            }
+        }
+    }
+    return distance;
+}
+
+int main() {
+    // Демонстрация: тот же ориентированный граф из 6 вершин, что и в Python-версии
+    const int vertex_count = 6;
+    const int edges[][3] = {
+        {0, 1, 7}, {0, 2, 9}, {0, 5, 14}, {1, 2, 10}, {1, 3, 15},
+        {2, 3, 11}, {2, 5, 2}, {3, 4, 6}, {5, 4, 9},
+    };
+    std::vector&lt;std::vector&lt;Edge&gt;&gt; adjacency(vertex_count);
+    for (const auto&amp; edge : edges) {
+        adjacency[edge[0]].push_back({edge[1], edge[2]});
+    }
+    // Ожидаемый результат: 0 7 9 20 20 11
+    const std::vector&lt;long long&gt; distance = dijkstra(adjacency, 0);
+    for (std::size_t v = 0; v &lt; distance.size(); ++v) {
+        std::cout &lt;&lt; (v ? " " : "") &lt;&lt; distance[v];
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <h3>Алгоритм Флойда</h3>
 
     <p>
@@ -309,6 +465,126 @@ for k := 1 to n do { k - промежуточная вершина }
   for i := 1 to n do { из i-ой вершины } 
     for j := 1 to n do { в j-ую вершину } 
       W[i][j] = min(W[i][j], W[i][k] + W[k][j]);
+</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
+INF = float("inf")
+
+
+def floyd_warshall(matrix):
+    """Возвращает матрицу кратчайших расстояний по матрице весов (INF — ребра нет).
+
+    Исходная матрица не меняется. На диагонали матрицы весов должны стоять нули.
+    """
+    size = len(matrix)
+    dist = [row[:] for row in matrix]
+    for k in range(size):  # k — промежуточная вершина
+        for i in range(size):
+            for j in range(size):
+                # Путь i -&gt; k -&gt; j короче известного пути i -&gt; j?
+                through_k = dist[i][k] + dist[k][j]
+                if through_k &lt; dist[i][j]:
+                    dist[i][j] = through_k
+    return dist
+
+
+if __name__ == "__main__":
+    # Демонстрация: ориентированный граф из 4 вершин, веса заданы матрицей
+    matrix = [
+        [0, 3, INF, 5],
+        [2, 0, INF, 4],
+        [INF, 1, 0, INF],
+        [INF, INF, 2, 0],
+    ]
+    # Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
+    for row in floyd_warshall(matrix):
+        print(" ".join(map(str, row)))
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
+pub const INF: i64 = i64::MAX / 4; // «нет ребра»; запас против переполнения при сложении
+
+/// Принимает матрицу весов (INF — ребра нет, на диагонали нули), возвращает кратчайшие расстояния.
+pub fn floyd_warshall(weights: &amp;[Vec&lt;i64&gt;]) -&gt; Vec&lt;Vec&lt;i64&gt;&gt; {
+    let size = weights.len();
+    let mut dist = weights.to_vec();
+    for k in 0..size {
+        // k — промежуточная вершина
+        for i in 0..size {
+            for j in 0..size {
+                // Путь i -&gt; k -&gt; j короче известного пути i -&gt; j?
+                if dist[i][k] == INF || dist[k][j] == INF {
+                    continue;
+                }
+                if dist[i][k] + dist[k][j] &lt; dist[i][j] {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+    dist
+}
+
+fn main() {
+    // Демонстрация: ориентированный граф из 4 вершин, веса заданы матрицей
+    let weights = vec![
+        vec![0, 3, INF, 5],
+        vec![2, 0, INF, 4],
+        vec![INF, 1, 0, INF],
+        vec![INF, INF, 2, 0],
+    ];
+    // Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
+    for row in floyd_warshall(&amp;weights) {
+        let line: Vec&lt;String&gt; = row.iter().map(|d| d.to_string()).collect();
+        println!("{}", line.join(" "));
+    }
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;vector&gt;
+
+const long long INF = std::numeric_limits&lt;long long&gt;::max() / 4;  // «нет ребра»; запас против переполнения
+using Matrix = std::vector&lt;std::vector&lt;long long&gt;&gt;;
+
+// Принимает матрицу весов (INF — ребра нет, на диагонали нули) и возвращает кратчайшие расстояния
+Matrix floyd_warshall(Matrix dist) {
+    const std::size_t size = dist.size();
+    for (std::size_t k = 0; k &lt; size; ++k) {  // k — промежуточная вершина
+        for (std::size_t i = 0; i &lt; size; ++i) {
+            for (std::size_t j = 0; j &lt; size; ++j) {
+                // Путь i -&gt; k -&gt; j короче известного пути i -&gt; j?
+                if (dist[i][k] == INF || dist[k][j] == INF) continue;
+                if (dist[i][k] + dist[k][j] &lt; dist[i][j]) dist[i][j] = dist[i][k] + dist[k][j];
+            }
+        }
+    }
+    return dist;
+}
+
+int main() {
+    // Демонстрация: ориентированный граф из 4 вершин, веса заданы матрицей
+    const Matrix matrix = {
+        {0, 3, INF, 5},
+        {2, 0, INF, 4},
+        {INF, 1, 0, INF},
+        {INF, INF, 2, 0},
+    };
+    // Ожидаемый результат: строки 0 3 7 5 / 2 0 6 4 / 3 1 0 5 / 5 3 2 0
+    for (const auto&amp; row : floyd_warshall(matrix)) {
+        for (std::size_t j = 0; j &lt; row.size(); ++j) std::cout &lt;&lt; (j ? " " : "") &lt;&lt; row[j];
+        std::cout &lt;&lt; '\n';
+    }
+    return 0;
+}
 </pre>
 
     <h3>Алгоритм Прима</h3>
@@ -364,6 +640,172 @@ for k := 1 to n do { k - промежуточная вершина }
             <p>$ T \gets T+(p[v],v)$</p>
         </div>
     </div>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Прима, минимальное остовное дерево: O(E log V) с кучей heapq
+import heapq
+
+
+def prim(adjacency, start=0):
+    """Возвращает рёбра минимального остовного дерева связного неориентированного графа.
+
+    adjacency[v] — список пар (сосед, вес); каждое ребро задано в обе стороны.
+    Результат — список троек (вершина дерева, новая вершина, вес ребра).
+    """
+    if not adjacency:
+        return []
+    in_tree = [False] * len(adjacency)
+    tree_edges = []
+    # Куча кандидатов: (вес, новая вершина, вершина дерева); -1 — у стартовой вершины нет родителя
+    heap = [(0, start, -1)]
+    while heap:
+        weight, v, parent = heapq.heappop(heap)
+        # Вершина уже в дереве: более лёгкое ребро до неё было выбрано раньше
+        if in_tree[v]:
+            continue
+        in_tree[v] = True
+        if parent != -1:
+            tree_edges.append((parent, v, weight))
+        for u, edge_weight in adjacency[v]:
+            if not in_tree[u]:
+                heapq.heappush(heap, (edge_weight, u, v))
+    return tree_edges
+
+
+if __name__ == "__main__":
+    # Демонстрация: неориентированный граф из 5 вершин
+    edges = [(0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4, 9)]
+    adjacency = [[] for _ in range(5)]
+    for v, u, weight in edges:
+        adjacency[v].append((u, weight))
+        adjacency[u].append((v, weight))
+    tree = prim(adjacency)
+    for v, u, weight in tree:
+        print(v, u, weight)
+    # Ожидаемый суммарный вес дерева: 16
+    print("вес:", sum(weight for _, _, weight in tree))
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Прима, минимальное остовное дерево: O(E log V) с BinaryHeap
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
+/// Ребро дерева: parent уже в дереве, child присоединяется по ребру веса weight.
+pub struct TreeEdge {
+    pub parent: usize,
+    pub child: usize,
+    pub weight: i64,
+}
+
+/// adjacency[v] содержит пары (сосед, вес); каждое ребро задано в обе стороны.
+pub fn prim(adjacency: &amp;[Vec&lt;(usize, i64)&gt;], start: usize) -&gt; Vec&lt;TreeEdge&gt; {
+    let mut tree = Vec::new();
+    if adjacency.is_empty() {
+        return tree;
+    }
+    let mut in_tree = vec![false; adjacency.len()];
+    // Минимальная куча кандидатов: (вес, новая вершина, вершина дерева); None — у стартовой вершины нет родителя
+    let mut heap = BinaryHeap::new();
+    heap.push(Reverse((0, start, None)));
+    while let Some(Reverse((weight, v, parent))) = heap.pop() {
+        // Вершина уже в дереве: более лёгкое ребро до неё выбрано раньше
+        if in_tree[v] {
+            continue;
+        }
+        in_tree[v] = true;
+        if let Some(p) = parent {
+            tree.push(TreeEdge { parent: p, child: v, weight });
+        }
+        for &amp;(u, edge_weight) in &amp;adjacency[v] {
+            if !in_tree[u] {
+                heap.push(Reverse((edge_weight, u, Some(v))));
+            }
+        }
+    }
+    tree
+}
+
+fn main() {
+    // Демонстрация: неориентированный граф из 5 вершин
+    let roads: [(usize, usize, i64); 7] = [
+        (0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4, 9),
+    ];
+    let mut adjacency: Vec&lt;Vec&lt;(usize, i64)&gt;&gt; = vec![Vec::new(); 5];
+    for (v, u, weight) in roads {
+        adjacency[v].push((u, weight));
+        adjacency[u].push((v, weight));
+    }
+    let tree = prim(&amp;adjacency, 0);
+    for edge in &amp;tree {
+        println!("{} {} {}", edge.parent, edge.child, edge.weight);
+    }
+    let total: i64 = tree.iter().map(|edge| edge.weight).sum();
+    // Ожидаемый суммарный вес дерева: 16
+    println!("вес: {total}");
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Прима, минимальное остовное дерево: O(E log V) с приоритетной очередью
+#include &lt;cstddef&gt;
+#include &lt;functional&gt;
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;tuple&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct TreeEdge {
+    int parent;  // вершина, уже находящаяся в дереве
+    int child;   // новая вершина дерева
+    long long weight;
+};
+
+// adjacency[v] — пары (сосед, вес); каждое ребро задано в обе стороны
+std::vector&lt;TreeEdge&gt; prim(const std::vector&lt;std::vector&lt;std::pair&lt;int, long long&gt;&gt;&gt;&amp; adjacency, int start) {
+    std::vector&lt;TreeEdge&gt; tree;
+    if (adjacency.empty()) return tree;
+    std::vector&lt;bool&gt; in_tree(adjacency.size(), false);
+    // Минимальная куча кандидатов: (вес, новая вершина, вершина дерева); -1 — у стартовой вершины нет родителя
+    using Candidate = std::tuple&lt;long long, int, int&gt;;
+    std::priority_queue&lt;Candidate, std::vector&lt;Candidate&gt;, std::greater&lt;Candidate&gt;&gt; heap;
+    heap.push({0, start, -1});
+    while (!heap.empty()) {
+        const auto [weight, v, parent] = heap.top();
+        heap.pop();
+        // Вершина уже в дереве: более лёгкое ребро до неё выбрано раньше
+        if (in_tree[v]) continue;
+        in_tree[v] = true;
+        if (parent != -1) tree.push_back({parent, v, weight});
+        for (const auto&amp; [u, edge_weight] : adjacency[v]) {
+            if (!in_tree[u]) heap.push({edge_weight, u, v});
+        }
+    }
+    return tree;
+}
+
+int main() {
+    // Демонстрация: неориентированный граф из 5 вершин
+    const int vertex_count = 5;
+    const int roads[][3] = {{0, 1, 2}, {0, 3, 6}, {1, 2, 3}, {1, 3, 8}, {1, 4, 5}, {2, 4, 7}, {3, 4, 9}};
+    std::vector&lt;std::vector&lt;std::pair&lt;int, long long&gt;&gt;&gt; adjacency(vertex_count);
+    for (const auto&amp; road : roads) {
+        adjacency[road[0]].push_back({road[1], road[2]});
+        adjacency[road[1]].push_back({road[0], road[2]});
+    }
+    long long total = 0;
+    for (const TreeEdge&amp; edge : prim(adjacency, 0)) {
+        std::cout &lt;&lt; edge.parent &lt;&lt; ' ' &lt;&lt; edge.child &lt;&lt; ' ' &lt;&lt; edge.weight &lt;&lt; '\n';
+        total += edge.weight;
+    }
+    // Ожидаемый суммарный вес дерева: 16
+    std::cout &lt;&lt; "вес: " &lt;&lt; total &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <h2>Поиск особых путей в графах</h2>
 

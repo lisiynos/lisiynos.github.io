@@ -34,6 +34,157 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <a href="diamant.pdf">Алгоритм вычисления количества замощений доминошками прямоугольника</a>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Замощение доминошками прямоугольника N x M, ДП по прямому профилю: O(N * M * 4^M) по времени, O(2^M) по памяти.
+def next_profiles(profile: int, width: int) -&gt; list[int]:
+    # Маски следующей строки: клетки, куда уходят вертикальные доминошки, при заполнении строки.
+    result: list[int] = []
+
+    def fill(col: int, next_profile: int) -&gt; None:
+        if col == width:
+            result.append(next_profile)
+            return
+        if (profile &gt;&gt; col) &amp; 1:  # клетка уже закрыта доминошкой из предыдущей строки
+            fill(col + 1, next_profile)
+            return
+        fill(col + 1, next_profile | (1 &lt;&lt; col))  # вертикальная доминошка уходит вниз
+        if col + 1 &lt; width and not ((profile &gt;&gt; (col + 1)) &amp; 1):  # горизонтальная доминошка вправо
+            fill(col + 2, next_profile)
+
+    fill(0, 0)
+    return result
+
+
+def count_tilings(n: int, width: int) -&gt; int:
+    # ways[p] - число способов заполнить строки сверху так, что в следующей строке закрыты клетки маски p.
+    ways = {0: 1}
+    for _ in range(n):
+        next_ways: dict[int, int] = {}
+        for profile, count in ways.items():
+            for next_profile in next_profiles(profile, width):
+                next_ways[next_profile] = next_ways.get(next_profile, 0) + count
+        ways = next_ways
+    return ways.get(0, 0)
+
+
+def main() -&gt; None:
+    for n, width in [(2, 3), (4, 4), (8, 8)]:
+        print(f"{n} x {width}: {count_tilings(n, width)} замощений")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Замощение доминошками прямоугольника N x M, ДП по прямому профилю: O(N * M * 4^M) по времени, O(2^M) по памяти.
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Добавляет в out маски вертикальных доминошек следующей строки при заполнении строки с маской profile.
+void collect_next_profiles(unsigned profile, std::size_t width, std::size_t col, unsigned next_profile,
+                           std::vector&lt;unsigned&gt;&amp; out) {
+    if (col == width) {
+        out.push_back(next_profile);
+        return;
+    }
+    if (((profile &gt;&gt; col) &amp; 1u) != 0) {  // клетка уже закрыта доминошкой из предыдущей строки
+        collect_next_profiles(profile, width, col + 1, next_profile, out);
+        return;
+    }
+    // вертикальная доминошка уходит вниз
+    collect_next_profiles(profile, width, col + 1, next_profile | (1u &lt;&lt; col), out);
+    // горизонтальная доминошка уходит вправо
+    if (col + 1 &lt; width &amp;&amp; ((profile &gt;&gt; (col + 1)) &amp; 1u) == 0) {
+        collect_next_profiles(profile, width, col + 2, next_profile, out);
+    }
+}
+
+// Число замощений прямоугольника n x width доминошками 1 x 2.
+unsigned long long count_tilings(std::size_t n, std::size_t width) {
+    // ways[p] - число способов заполнить строки сверху так, что в следующей строке закрыты клетки маски p.
+    std::vector&lt;unsigned long long&gt; ways(std::size_t{1} &lt;&lt; width, 0);
+    ways[0] = 1;
+    for (std::size_t row = 0; row &lt; n; ++row) {
+        std::vector&lt;unsigned long long&gt; next_ways(ways.size(), 0);
+        for (unsigned profile = 0; profile &lt; ways.size(); ++profile) {
+            if (ways[profile] == 0) continue;
+            std::vector&lt;unsigned&gt; next_profiles;
+            collect_next_profiles(profile, width, 0, 0, next_profiles);
+            for (unsigned next_profile : next_profiles) {
+                next_ways[next_profile] += ways[profile];
+            }
+        }
+        ways = next_ways;
+    }
+    return ways[0];
+}
+
+int main() {
+    // Проверка: 2 x 3 - 3 замощения, 4 x 4 - 36, 8 x 8 - 12988816.
+    const std::size_t sizes[][2] = {{2, 3}, {4, 4}, {8, 8}};
+    for (const auto&amp; size : sizes) {
+        std::printf("%zu x %zu: %llu замощений\n", size[0], size[1], count_tilings(size[0], size[1]));
+    }
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Замощение доминошками прямоугольника N x M, ДП по прямому профилю: O(N * M * 4^M) по времени, O(2^M) по памяти.
+
+/// Добавляет в next маски вертикальных доминошек следующей строки при заполнении строки с маской profile.
+fn collect_next_profiles(profile: usize, width: usize, col: usize, next_profile: usize, next: &amp;mut Vec&lt;usize&gt;) {
+    if col == width {
+        next.push(next_profile);
+        return;
+    }
+    if ((profile &gt;&gt; col) &amp; 1) == 1 {
+        // клетка уже закрыта доминошкой из предыдущей строки
+        collect_next_profiles(profile, width, col + 1, next_profile, next);
+        return;
+    }
+    // вертикальная доминошка уходит вниз
+    collect_next_profiles(profile, width, col + 1, next_profile | (1usize &lt;&lt; col), next);
+    // горизонтальная доминошка уходит вправо
+    if col + 1 &lt; width &amp;&amp; ((profile &gt;&gt; (col + 1)) &amp; 1) == 0 {
+        collect_next_profiles(profile, width, col + 2, next_profile, next);
+    }
+}
+
+/// Число замощений прямоугольника n x width доминошками 1 x 2.
+pub fn count_tilings(n: usize, width: usize) -&gt; u64 {
+    // ways[p] - число способов заполнить строки сверху так, что в следующей строке закрыты клетки маски p.
+    let mut ways = vec![0u64; 1usize &lt;&lt; width];
+    ways[0] = 1;
+    for _ in 0..n {
+        let mut next_ways = vec![0u64; 1usize &lt;&lt; width];
+        for (profile, &amp;count) in ways.iter().enumerate() {
+            if count == 0 {
+                continue;
+            }
+            let mut next_profiles = Vec::new();
+            collect_next_profiles(profile, width, 0, 0, &amp;mut next_profiles);
+            for next_profile in next_profiles {
+                next_ways[next_profile] += count;
+            }
+        }
+        ways = next_ways;
+    }
+    ways[0]
+}
+
+fn main() {
+    // Проверка: 2 x 3 - 3 замощения, 4 x 4 - 36, 8 x 8 - 12988816.
+    for (n, width) in [(2usize, 3usize), (4, 4), (8, 8)] {
+        println!("{} x {}: {} замощений", n, width, count_tilings(n, width));
+    }
+}
+</code></pre>
+
 </div>
 </body>
 

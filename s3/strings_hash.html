@@ -68,6 +68,64 @@ primes = [x for x in range(10 ** 9, 10 ** 9 + 1000) if is_prime(x)]
 print(*primes)
     </pre>
 
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
+
+// Простое ли число n: перебираем делители d, пока d * d &lt;= n
+pub fn is_prime(n: u64) -&gt; bool {
+    if n &lt; 2 {
+        return false;
+    }
+    let mut d = 2;
+    while d * d &lt;= n {
+        if n % d == 0 {
+            return false;
+        }
+        d += 1;
+    }
+    true
+}
+
+fn main() {
+    // Простые числа меньше 100
+    let small: Vec&lt;u64&gt; = (0..100).filter(|&amp;n| is_prime(n)).collect();
+    println!("{:?}", small);
+    // Количество простых чисел в промежутке [10^9, 10^9 + 1000)
+    let count = (1_000_000_000..1_000_001_000).filter(|&amp;n| is_prime(n)).count();
+    println!("{}", count);
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
+#include &lt;iostream&gt;
+
+// Простое ли число n: перебираем делители d, пока d * d &lt;= n
+bool is_prime(long long n) {
+  if (n &lt; 2) return false;
+  for (long long d = 2; d * d &lt;= n; ++d) {
+    if (n % d == 0) return false;
+  }
+  return true;
+}
+
+int main() {
+  // Простые числа меньше 100
+  for (long long n = 0; n &lt; 100; ++n) {
+    if (is_prime(n)) std::cout &lt;&lt; n &lt;&lt; ' ';
+  }
+  std::cout &lt;&lt; '\n';
+  // Количество простых чисел в промежутке [10^9, 10^9 + 1000)
+  int count = 0;
+  for (long long n = 1000000000LL; n &lt; 1000001000LL; ++n) {
+    if (is_prime(n)) ++count;
+  }
+  std::cout &lt;&lt; count &lt;&lt; '\n';
+  return 0;
+}
+</pre>
+
+
 
     <p>Пример вычисления хеша на C++</p>
     <pre class="sh_cpp">
@@ -81,6 +139,53 @@ for (size_t i=0; i<s.length(); ++i)
 	p_pow *= p;
 }
     </pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
+B = 31  # основание b, как в примере на C++
+P = 10 ** 9 + 7  # большое простое число
+
+
+def poly_hash(s):
+    """Хеш строки: буква 'a' дает 1, 'b' - 2 и т.д., чтобы у строки 'aaa' хеш был ненулевым."""
+    result = 0
+    power = 1  # b^i mod P
+    for ch in s:
+        result = (result + (ord(ch) - ord("a") + 1) * power) % P
+        power = power * B % P
+    return result
+
+
+if __name__ == "__main__":
+    print(poly_hash("abc"))  # 1 + 2*31 + 3*31^2 = 2946
+    print(poly_hash("ab"))  # 1 + 2*31 = 63
+    print(poly_hash("ba"))  # 2 + 1*31 = 33
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
+pub const B: u64 = 31; // основание b, как в примере на C++
+pub const P: u64 = 1_000_000_007; // большое простое число
+
+// Хеш строки: буква 'a' дает 1, 'b' - 2 и т.д., чтобы у строки "aaa" хеш был ненулевым
+pub fn poly_hash(s: &amp;str) -&gt; u64 {
+    let mut result = 0;
+    let mut power = 1; // b^i mod P
+    for ch in s.bytes() {
+        let value = ch as u64 - b'a' as u64 + 1;
+        result = (result + value * power) % P;
+        power = power * B % P;
+    }
+    result
+}
+
+fn main() {
+    println!("{}", poly_hash("abc")); // 1 + 2*31 + 3*31^2 = 2946
+    println!("{}", poly_hash("ab")); // 1 + 2*31 = 63
+    println!("{}", poly_hash("ba")); // 2 + 1*31 = 33
+}</code></pre>
+
 </div>
 
 </body>

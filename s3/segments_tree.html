@@ -13,6 +13,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 <div id="content">
@@ -80,6 +81,157 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     увеличился расход по памяти, но всего лищь на $\sqrt{n}$ - число дополнительных
     ящиков для хранения сумм элементов в группах.
 </p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+import math
+
+
+def make_structure(n):
+    """Ящики с номерами 0..n-1, суммы групп и размер группы около sqrt(n)."""
+    group_size = max(1, math.isqrt(n))
+    return [0] * n, [0] * (n // group_size + 1), group_size
+
+
+def add(structure, c, w):
+    """Добавляет w шариков в ящик c и в сумму его группы."""
+    boxes, group_sums, group_size = structure
+    boxes[c] += w
+    group_sums[c // group_size] += w
+
+
+def box_sum(structure, a, b):
+    """Сумма шариков в ящиках от a до b включительно."""
+    boxes, group_sums, group_size = structure
+    first, last = a // group_size, b // group_size
+    if first == last:
+        return sum(boxes[a:b + 1])
+    head = sum(boxes[a:(first + 1) * group_size])  # хвост первой группы
+    middle = sum(group_sums[first + 1:last])  # целые группы между ними
+    tail = sum(boxes[last * group_size:b + 1])  # начало последней группы
+    return head + middle + tail
+
+
+if __name__ == "__main__":
+    structure = make_structure(10)
+    for c, w in [(0, 5), (3, 2), (9, 7), (4, -1)]:
+        add(structure, c, w)
+    print(box_sum(structure, 0, 9))  # 13
+    print(box_sum(structure, 2, 4))  # 1
+    print(box_sum(structure, 4, 4))  # -1
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+// Ящики нумеруются с нуля; суммы групп из group_size соседних ящиков хранятся отдельно.
+
+pub struct Boxes {
+    counts: Vec&lt;i64&gt;,     // шарики в каждом ящике
+    group_sums: Vec&lt;i64&gt;, // сумма шариков в каждой группе
+    group_size: usize,    // размер группы, около sqrt(n)
+}
+
+impl Boxes {
+    pub fn new(n: usize) -&gt; Self {
+        let group_size = ((n as f64).sqrt() as usize).max(1);
+        Boxes {
+            counts: vec![0; n],
+            group_sums: vec![0; n / group_size + 1],
+            group_size,
+        }
+    }
+
+    // Добавляет w шариков в ящик c и в сумму его группы: O(1)
+    pub fn add(&amp;mut self, c: usize, w: i64) {
+        self.counts[c] += w;
+        self.group_sums[c / self.group_size] += w;
+    }
+
+    // Сумма шариков в ящиках от a до b включительно: O(sqrt(n))
+    pub fn sum(&amp;self, a: usize, b: usize) -&gt; i64 {
+        let first = a / self.group_size;
+        let last = b / self.group_size;
+        if first == last {
+            return self.counts[a..=b].iter().sum();
+        }
+        let head: i64 = self.counts[a..(first + 1) * self.group_size].iter().sum();
+        let middle: i64 = self.group_sums[first + 1..last].iter().sum();
+        let tail: i64 = self.counts[last * self.group_size..=b].iter().sum();
+        head + middle + tail
+    }
+}
+
+fn main() {
+    let mut boxes = Boxes::new(10);
+    for (c, w) in [(0, 5), (3, 2), (9, 7), (4, -1)] {
+        boxes.add(c, w);
+    }
+    println!("{}", boxes.sum(0, 9)); // 13
+    println!("{}", boxes.sum(2, 4)); // 1
+    println!("{}", boxes.sum(4, 4)); // -1
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+// Ящики нумеруются с нуля; суммы групп из group_size соседних ящиков хранятся отдельно.
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Сумма элементов v на полуинтервале [from, to): O(to - from)
+long long range_sum(const std::vector&lt;long long&gt;&amp; v, std::size_t from, std::size_t to) {
+  long long total = 0;
+  for (std::size_t i = from; i &lt; to; ++i) total += v[i];
+  return total;
+}
+
+struct Boxes {
+  std::vector&lt;long long&gt; counts;      // шарики в каждом ящике
+  std::vector&lt;long long&gt; group_sums;  // сумма шариков в каждой группе
+  std::size_t group_size = 1;         // размер группы, около sqrt(n)
+
+  explicit Boxes(std::size_t n) {
+    double root = std::sqrt(static_cast&lt;double&gt;(n));
+    group_size = std::max&lt;std::size_t&gt;(1, static_cast&lt;std::size_t&gt;(root));
+    counts.assign(n, 0);
+    group_sums.assign(n / group_size + 1, 0);
+  }
+
+  // Добавляет w шариков в ящик c и в сумму его группы: O(1)
+  void add(std::size_t c, long long w) {
+    counts[c] += w;
+    group_sums[c / group_size] += w;
+  }
+
+  // Сумма шариков в ящиках от a до b включительно: O(sqrt(n))
+  long long sum(std::size_t a, std::size_t b) const {
+    std::size_t first = a / group_size;
+    std::size_t last = b / group_size;
+    if (first == last) return range_sum(counts, a, b + 1);
+    long long head = range_sum(counts, a, (first + 1) * group_size);
+    long long middle = range_sum(group_sums, first + 1, last);
+    long long tail = range_sum(counts, last * group_size, b + 1);
+    return head + middle + tail;
+  }
+};
+
+int main() {
+  Boxes boxes(10);
+  boxes.add(0, 5);
+  boxes.add(3, 2);
+  boxes.add(9, 7);
+  boxes.add(4, -1);
+  std::cout &lt;&lt; boxes.sum(0, 9) &lt;&lt; '\n';  // 13
+  std::cout &lt;&lt; boxes.sum(2, 4) &lt;&lt; '\n';  // 1
+  std::cout &lt;&lt; boxes.sum(4, 4) &lt;&lt; '\n';  // -1
+  return 0;
+}
+</pre>
+
 
 <h2>3. Дерево отрезков </h2>
 
@@ -228,6 +380,88 @@ int sum(int a, int b)
 </p>
 
 <pre class="sh_cpp">файл 4.cpp - где он?</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
+def add_up(tree, size, c, w):
+    """Прибавляет w к ящику c и ко всем вершинам над ним, поднимаясь от листа к корню."""
+    vertex = size - 1 + c
+    while vertex != 0:
+        tree[vertex] += w
+        vertex &gt;&gt;= 1
+
+
+def sum_range(tree, size, a, b):
+    """Сумма ящиков от a до b включительно."""
+    result = 0
+    left, right = size - 1 + a, size - 1 + b
+    while left &lt;= right:
+        if left % 2 == 1:
+            result += tree[left]
+            left += 1
+        if right % 2 == 0:
+            result += tree[right]
+            right -= 1
+        left &gt;&gt;= 1
+        right &gt;&gt;= 1
+    return result
+
+
+if __name__ == "__main__":
+    size = 8  # степень двойки, не меньше числа ящиков
+    tree = [0] * (2 * size)
+    add_up(tree, size, 1, 5)
+    add_up(tree, size, 3, 2)
+    add_up(tree, size, 8, 4)
+    add_up(tree, size, 3, -1)
+    print(sum_range(tree, size, 1, 8))  # 10
+    print(sum_range(tree, size, 2, 3))  # 1
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
+
+// Прибавляет w к ящику c и ко всем вершинам над ним: O(log n)
+pub fn add_up(tree: &amp;mut [i64], size: usize, c: usize, w: i64) {
+    let mut vertex = size - 1 + c;
+    while vertex != 0 {
+        tree[vertex] += w;
+        vertex &gt;&gt;= 1;
+    }
+}
+
+// Сумма ящиков от a до b включительно: O(log n)
+pub fn sum_range(tree: &amp;[i64], size: usize, a: usize, b: usize) -&gt; i64 {
+    let mut result = 0;
+    let mut left = size - 1 + a;
+    let mut right = size - 1 + b;
+    while left &lt;= right {
+        if left % 2 == 1 {
+            result += tree[left];
+            left += 1;
+        }
+        if right % 2 == 0 {
+            result += tree[right];
+            right -= 1;
+        }
+        left &gt;&gt;= 1;
+        right &gt;&gt;= 1;
+    }
+    result
+}
+
+fn main() {
+    let size = 8; // степень двойки, не меньше числа ящиков
+    let mut tree = vec![0i64; 2 * size];
+    add_up(&amp;mut tree, size, 1, 5);
+    add_up(&amp;mut tree, size, 3, 2);
+    add_up(&amp;mut tree, size, 8, 4);
+    add_up(&amp;mut tree, size, 3, -1);
+    println!("{}", sum_range(&amp;tree, size, 1, 8)); // 10
+    println!("{}", sum_range(&amp;tree, size, 2, 3)); // 1
+}</code></pre>
+
 
 <h3>3.4. ?? Заголовок ??</h3>
 

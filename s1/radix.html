@@ -142,12 +142,201 @@ begin
 end.
 </pre>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def to_base(number, base):
+    """Возвращает запись неотрицательного числа number цифрами системы с основанием от 2 до 36."""
+    if number &lt; 0 or not 2 &lt;= base &lt;= 36:
+        raise ValueError("число должно быть неотрицательным, основание от 2 до 36")
+    if number == 0:
+        return "0"
+    digits = []
+    while number &gt; 0:
+        # Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        number, remainder = divmod(number, base)
+        digits.append(DIGITS[remainder])
+    return "".join(reversed(digits))
+
+
+def main():
+    print(to_base(2024, 2))
+    print(to_base(255, 16))
+    print(to_base(12345, 8))
+    print(to_base(0, 10))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+const DIGITS: &amp;str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Возвращает запись числа number цифрами системы с основанием от 2 до 36
+pub fn to_base(mut number: u64, base: u32) -&gt; Option&lt;String&gt; {
+    if !(2..=36).contains(&amp;base) {
+        return None;
+    }
+    if number == 0 {
+        return Some("0".to_string());
+    }
+    let radix = u64::from(base);
+    let mut digits = Vec::new();
+    while number &gt; 0 {
+        // Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        digits.push(DIGITS.as_bytes()[(number % radix) as usize] as char);
+        number /= radix;
+    }
+    Some(digits.into_iter().rev().collect())
+}
+
+fn main() {
+    println!("{}", to_base(2024, 2).unwrap());
+    println!("{}", to_base(255, 16).unwrap());
+    println!("{}", to_base(12345, 8).unwrap());
+    println!("{}", to_base(0, 10).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+#include &lt;algorithm&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+// Возвращает запись числа number цифрами системы с основанием от 2 до 36
+std::optional&lt;std::string&gt; to_base(std::uint64_t number, std::uint64_t base) {
+    const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (base &lt; 2 || base &gt; 36) {
+        return std::nullopt;
+    }
+    if (number == 0) {
+        return std::string("0");
+    }
+    std::string result;
+    while (number &gt; 0) {
+        // Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        result += digits[number % base];
+        number /= base;
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+int main() {
+    std::cout &lt;&lt; to_base(2024, 2).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(255, 16).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(12345, 8).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(0, 10).value() &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
 
     <h2>Перевод целых чисел из 2-й, 8-й, 16-й в 10 сс</h2>
 
     <p>Для перевода умножаем каждую последующую цифру на соответствующую степень 2-ки, 8-рки, 16-ти</p>
 
     Для двоичного числа: $x = a_n{\cdot}2^n + ... + a_1{\cdot}2^1 + a_0{\cdot}2^0$
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def from_base(text, base):
+    """Возвращает десятичное значение записи text в системе с основанием base."""
+    value = 0
+    weight = 1  # base в степени k для разряда k (справа налево)
+    for symbol in reversed(text):
+        digit = DIGITS.find(symbol)
+        if not 0 &lt;= digit &lt; base:
+            raise ValueError(f"цифра {symbol!r} не входит в систему с основанием {base}")
+        value += digit * weight
+        weight *= base
+    return value
+
+
+def main():
+    print(from_base("11111101000", 2))
+    print(from_base("FF", 16))
+    print(from_base("30071", 8))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+
+// Возвращает десятичное значение записи text в системе с основанием base (от 2 до 36)
+pub fn from_base(text: &amp;str, base: u32) -&gt; Option&lt;u64&gt; {
+    if !(2..=36).contains(&amp;base) {
+        return None;
+    }
+    let mut value: u64 = 0;
+    let mut weight: u64 = 1; // base в степени k для разряда k (справа налево)
+    for symbol in text.chars().rev() {
+        value += u64::from(symbol.to_digit(base)?) * weight;
+        weight *= u64::from(base);
+    }
+    Some(value)
+}
+
+fn main() {
+    println!("{}", from_base("11111101000", 2).unwrap());
+    println!("{}", from_base("FF", 16).unwrap());
+    println!("{}", from_base("30071", 8).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+// Возвращает десятичное значение записи text в системе с основанием base (от 2 до 36)
+std::optional&lt;std::uint64_t&gt; from_base(const std::string&amp; text, std::uint64_t base) {
+    const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (base &lt; 2 || base &gt; 36) {
+        return std::nullopt;
+    }
+    std::uint64_t value = 0;
+    std::uint64_t weight = 1;  // base в степени k для разряда k (справа налево)
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        std::size_t digit = digits.find(*it);
+        if (digit == std::string::npos || digit &gt;= base) {
+            return std::nullopt;
+        }
+        value += digit * weight;
+        weight *= base;
+    }
+    return value;
+}
+
+int main() {
+    std::cout &lt;&lt; from_base("11111101000", 2).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; from_base("FF", 16).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; from_base("30071", 8).value() &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <h2>Перевод дробных чисел из 2-й в 10 сс и обратно</h2>
 
@@ -250,6 +439,106 @@ begin
       result := result + T[i].S;
     end;
 end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+ROMAN_TABLE = (
+    (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+    (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+    (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"),
+)
+
+
+def to_roman(number):
+    """Возвращает римскую запись числа от 1 до 3999."""
+    if not 1 &lt;= number &lt;= 3999:
+        raise ValueError("римская запись возможна для чисел от 1 до 3999")
+    result = ""
+    for value, symbol in ROMAN_TABLE:
+        # Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while number &gt;= value:
+            number -= value
+            result += symbol
+    return result
+
+
+def main():
+    for number in (4, 1994, 2024, 3999):
+        print(number, to_roman(number))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+
+const ROMAN_TABLE: [(u32, &amp;str); 13] = [
+    (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"),
+    (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"),
+];
+
+// Возвращает римскую запись числа от 1 до 3999
+pub fn to_roman(mut number: u32) -&gt; Option&lt;String&gt; {
+    if !(1..=3999).contains(&amp;number) {
+        return None;
+    }
+    let mut result = String::new();
+    for &amp;(value, symbol) in &amp;ROMAN_TABLE {
+        // Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while number &gt;= value {
+            number -= value;
+            result.push_str(symbol);
+        }
+    }
+    Some(result)
+}
+
+fn main() {
+    for number in [4, 1994, 2024, 3999] {
+        println!("{number} {}", to_roman(number).unwrap());
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Возвращает римскую запись числа от 1 до 3999
+std::string to_roman(int number) {
+    const std::vector&lt;std::pair&lt;int, std::string&gt;&gt; table = {
+        {1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"},
+        {40, "XL"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}};
+    if (number &lt; 1 || number &gt; 3999) {
+        throw std::invalid_argument("римская запись возможна для чисел от 1 до 3999");
+    }
+    std::string result;
+    for (const auto&amp; [value, symbol] : table) {
+        // Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while (number &gt;= value) {
+            number -= value;
+            result += symbol;
+        }
+    }
+    return result;
+}
+
+int main() {
+    for (int number : {4, 1994, 2024, 3999}) {
+        std::cout &lt;&lt; number &lt;&lt; ' ' &lt;&lt; to_roman(number) &lt;&lt; '\n';
+    }
+    return 0;
+}
 </pre>
 
 

@@ -16,6 +16,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -48,6 +49,73 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <pre class="sh_python">
     
 </pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Числа Фибоначчи, динамика снизу вверх: O(N) по времени, O(N) по памяти.
+# F(1) = F(2) = 1, F(i) = F(i-1) + F(i-2).
+
+
+def fibonacci(n: int) -&gt; int:
+    # f[i] - i-е число Фибоначчи; f[0] в задаче не нужно, f[1] и f[2] - база динамики.
+    f = [0, 1, 1]
+    for i in range(3, n + 1):
+        f.append(f[i - 1] + f[i - 2])
+    return f[n]
+
+
+def main() -&gt; None:
+    print(f"F(10) = {fibonacci(10)}")
+    print(f"F(70) = {fibonacci(70)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Числа Фибоначчи, динамика снизу вверх: O(N) по времени, O(N) по памяти.
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// N-е число Фибоначчи: F(1) = F(2) = 1, F(i) = F(i-1) + F(i-2).
+unsigned long long fibonacci(std::size_t n) {
+    // f[i] - i-е число; f[0] в задаче не нужно, f[1] и f[2] - база динамики.
+    std::vector&lt;unsigned long long&gt; f = {0, 1, 1};
+    for (std::size_t i = 3; i &lt;= n; ++i) {
+        f.push_back(f[i - 1] + f[i - 2]);
+    }
+    return f[n];
+}
+
+int main() {
+    std::printf("F(10) = %llu\n", fibonacci(10));
+    std::printf("F(70) = %llu\n", fibonacci(70));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Числа Фибоначчи, динамика снизу вверх: O(N) по времени, O(N) по памяти.
+
+/// N-е число Фибоначчи: F(1) = F(2) = 1, F(i) = F(i-1) + F(i-2).
+pub fn fibonacci(n: usize) -&gt; u64 {
+    // f[i] - i-е число; f[0] в задаче не нужно, f[1] и f[2] - база динамики.
+    let mut f: Vec&lt;u64&gt; = vec![0, 1, 1];
+    for i in 3..=n {
+        let next = f[i - 1] + f[i - 2];
+        f.push(next);
+    }
+    f[n]
+}
+
+fn main() {
+    println!("F(10) = {}", fibonacci(10));
+    println!("F(70) = {}", fibonacci(70));
+}
+</code></pre>
 
     <p>Идея метода динамического программирования состоит в сведении (с помощью рекуррентных соотношений) исходной
         задачи к
@@ -492,6 +560,81 @@ begin
   writeln(D[N])
 end.</pre>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Мячик на лесенке, динамика: D[i] = D[i-1] + D[i-2] + D[i-3], O(N) по времени и по памяти.
+def ball_routes(n: int) -&gt; int:
+    # ways[i] - число способов попасть на ступеньку i (нумерация снизу вверх), ways[0] не используется.
+    ways = [0, 1, 2, 4]  # базовые значения для первых трёх ступенек
+    if n &lt; len(ways):
+        return ways[n]
+    for i in range(4, n + 1):
+        ways.append(ways[i - 1] + ways[i - 2] + ways[i - 3])
+    return ways[n]
+
+
+def main() -&gt; None:
+    for n in (4, 13, 39):
+        print(f"N = {n}: маршрутов {ball_routes(n)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Мячик на лесенке, динамика: D[i] = D[i-1] + D[i-2] + D[i-3], O(N) по времени и по памяти.
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Число маршрутов мячика с вершины лесенки из n ступенек на землю.
+unsigned long long ball_routes(std::size_t n) {
+    // ways[i] - число способов попасть на ступеньку i (нумерация снизу вверх), ways[0] не используется.
+    std::vector&lt;unsigned long long&gt; ways = {0, 1, 2, 4};  // базовые значения для первых трёх ступенек
+    if (n &lt; ways.size()) {
+        return ways[n];
+    }
+    for (std::size_t i = 4; i &lt;= n; ++i) {
+        ways.push_back(ways[i - 1] + ways[i - 2] + ways[i - 3]);
+    }
+    return ways[n];
+}
+
+int main() {
+    const std::size_t tests[] = {4, 13, 39};
+    for (std::size_t n : tests) {
+        std::printf("N = %zu: маршрутов %llu\n", n, ball_routes(n));
+    }
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Мячик на лесенке, динамика: D[i] = D[i-1] + D[i-2] + D[i-3], O(N) по времени и по памяти.
+
+/// Число маршрутов мячика с вершины лесенки из n ступенек на землю.
+pub fn ball_routes(n: usize) -&gt; u64 {
+    // ways[i] - число способов попасть на ступеньку i (нумерация снизу вверх), ways[0] не используется.
+    let mut ways: Vec&lt;u64&gt; = vec![0, 1, 2, 4]; // базовые значения для первых трёх ступенек
+    if n &lt; ways.len() {
+        return ways[n];
+    }
+    for i in 4..=n {
+        let next = ways[i - 1] + ways[i - 2] + ways[i - 3];
+        ways.push(next);
+    }
+    ways[n]
+}
+
+fn main() {
+    for n in [4, 13, 39] {
+        println!("N = {}: маршрутов {}", n, ball_routes(n));
+    }
+}
+</code></pre>
+
 <h3>Черепашка</h3>
 
 <p>На квадратной доске расставлены целые неотрицательные числа. Черепашка, находящаяся в левом верхнем углу, мечтает
@@ -519,6 +662,89 @@ end.</pre>
     Динамический переход: $S_{ij}=max(S_{i-1,j},S_{i,j-1})+A_{i,j}$<br>
     Инициализация: $S_{i,0} = 0$ $S_{0,j} = 0$<br>
     Ответ: $S_{N,N}$
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Черепашка, динамика по клеткам (ходы вправо и вниз): O(N^2) по времени и по памяти.
+def max_path_sum(board: list[list[int]]) -&gt; int:
+    n = len(board)
+    # best[i][j] - максимум суммы пути из (0, 0) в клетку (i, j), нумерация с 1.
+    # Нулевые строка и столбец - граница; она не портит ответ, так как все числа неотрицательны.
+    best = [[0] * (n + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            best[i][j] = max(best[i - 1][j], best[i][j - 1]) + board[i - 1][j - 1]
+    return best[n][n]
+
+
+def main() -&gt; None:
+    board = [
+        [2, 6, 0],
+        [5, 0, 6],
+        [4, 1, 2],
+    ]
+    print(f"Максимальная сумма: {max_path_sum(board)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Черепашка, динамика по клеткам (ходы вправо и вниз): O(N^2) по времени и по памяти.
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Максимальная сумма чисел на пути из левого верхнего угла в правый нижний.
+long long max_path_sum(const std::vector&lt;std::vector&lt;long long&gt;&gt;&amp; board) {
+    const std::size_t n = board.size();
+    // best[i][j] - максимум суммы пути в клетку (i, j), нумерация с 1.
+    // Нулевые строка и столбец - граница; она не портит ответ, так как все числа неотрицательны.
+    std::vector&lt;std::vector&lt;long long&gt;&gt; best(n + 1, std::vector&lt;long long&gt;(n + 1, 0));
+    for (std::size_t i = 1; i &lt;= n; ++i) {
+        for (std::size_t j = 1; j &lt;= n; ++j) {
+            best[i][j] = std::max(best[i - 1][j], best[i][j - 1]) + board[i - 1][j - 1];
+        }
+    }
+    return best[n][n];
+}
+
+int main() {
+    const std::vector&lt;std::vector&lt;long long&gt;&gt; board = {
+        {2, 6, 0},
+        {5, 0, 6},
+        {4, 1, 2},
+    };
+    std::printf("Максимальная сумма: %lld\n", max_path_sum(board));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Черепашка, динамика по клеткам (ходы вправо и вниз): O(N^2) по времени и по памяти.
+
+/// Максимальная сумма чисел на пути из левого верхнего угла в правый нижний.
+pub fn max_path_sum(board: &amp;[Vec&lt;u64&gt;]) -&gt; u64 {
+    let n = board.len();
+    // best[i][j] - максимум суммы пути в клетку (i, j), нумерация с 1.
+    // Нулевые строка и столбец - граница; она не портит ответ, так как все числа неотрицательны.
+    let mut best = vec![vec![0u64; n + 1]; n + 1];
+    for i in 1..=n {
+        for j in 1..=n {
+            best[i][j] = best[i - 1][j].max(best[i][j - 1]) + board[i - 1][j - 1];
+        }
+    }
+    best[n][n]
+}
+
+fn main() {
+    let board: Vec&lt;Vec&lt;u64&gt;&gt; = vec![vec![2, 6, 0], vec![5, 0, 6], vec![4, 1, 2]];
+    println!("Максимальная сумма: {}", max_path_sum(&amp;board));
+}
+</code></pre>
 
 <h3>Робот</h3>
 

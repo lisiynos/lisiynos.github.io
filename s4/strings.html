@@ -13,6 +13,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -50,6 +51,154 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         (амортизационно) за $\Theta( m )$ сравнений перед началом поиска. А поскольку строка $T$ будет пройдена ровно
         один раз, суммарное время работы алгоритма будет равно $\Theta(m + n)$, где
         $n$ — длина текста $T$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+
+
+def prefix_function(pattern: str) -&gt; list[int]:
+    """Для каждого i: длина наибольшего собственного префикса pattern[0..i], совпадающего с суффиксом."""
+    pi = [0] * len(pattern)
+    matched = 0  # длина совпавшего префикса образца
+    for i in range(1, len(pattern)):
+        while matched &gt; 0 and pattern[i] != pattern[matched]:
+            matched = pi[matched - 1]
+        if pattern[i] == pattern[matched]:
+            matched += 1
+        pi[i] = matched
+    return pi
+
+
+def kmp_search(text: str, pattern: str) -&gt; int:
+    """Индекс первого вхождения pattern в text или -1, если вхождения нет."""
+    if not pattern:
+        return 0
+    pi = prefix_function(pattern)
+    matched = 0  # длина совпавшего префикса образца
+    for i, symbol in enumerate(text):
+        while matched &gt; 0 and symbol != pattern[matched]:
+            matched = pi[matched - 1]
+        if symbol == pattern[matched]:
+            matched += 1
+        if matched == len(pattern):
+            return i - len(pattern) + 1
+    return -1
+
+
+if __name__ == "__main__":
+    print("pi для abacaba:", prefix_function("abacaba"))
+    print("abra в abracadabra:", kmp_search("abracadabra", "abra"))
+    print("cad в abracadabra:", kmp_search("abracadabra", "cad"))
+    print("xyz в abracadabra:", kmp_search("abracadabra", "xyz"))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+
+// Префикс-функция: pi[i] - длина наибольшего собственного префикса pattern[0..=i],
+// который одновременно является суффиксом этого отрезка.
+pub fn prefix_function(pattern: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let mut pi = vec![0; pattern.len()];
+    let mut matched = 0; // длина совпавшего префикса образца
+    for i in 1..pattern.len() {
+        while matched &gt; 0 &amp;&amp; pattern[i] != pattern[matched] {
+            matched = pi[matched - 1];
+        }
+        if pattern[i] == pattern[matched] {
+            matched += 1;
+        }
+        pi[i] = matched;
+    }
+    pi
+}
+
+// Индекс первого вхождения pattern в text или None, если вхождения нет.
+pub fn kmp_search(text: &amp;[u8], pattern: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+    if pattern.is_empty() {
+        return Some(0);
+    }
+    let pi = prefix_function(pattern);
+    let mut matched = 0; // длина совпавшего префикса образца
+    for (i, &amp;symbol) in text.iter().enumerate() {
+        while matched &gt; 0 &amp;&amp; symbol != pattern[matched] {
+            matched = pi[matched - 1];
+        }
+        if symbol == pattern[matched] {
+            matched += 1;
+        }
+        if matched == pattern.len() {
+            return Some(i + 1 - matched);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("pi для abacaba: {:?}", prefix_function(b"abacaba"));
+    println!("abra в abracadabra: {:?}", kmp_search(b"abracadabra", b"abra"));
+    println!("cad в abracadabra: {:?}", kmp_search(b"abracadabra", b"cad"));
+    println!("xyz в abracadabra: {:?}", kmp_search(b"abracadabra", b"xyz"));
+}</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// Префикс-функция: pi[i] - длина наибольшего собственного префикса pattern[0..i],
+// который одновременно является суффиксом этого отрезка.
+std::vector&lt;std::size_t&gt; prefix_function(const std::string&amp; pattern) {
+    std::vector&lt;std::size_t&gt; pi(pattern.size(), 0);
+    std::size_t matched = 0;  // длина совпавшего префикса образца
+    for (std::size_t i = 1; i &lt; pattern.size(); ++i) {
+        while (matched &gt; 0 &amp;&amp; pattern[i] != pattern[matched]) {
+            matched = pi[matched - 1];
+        }
+        if (pattern[i] == pattern[matched]) {
+            ++matched;
+        }
+        pi[i] = matched;
+    }
+    return pi;
+}
+
+// Индекс первого вхождения pattern в text или -1, если вхождения нет.
+std::ptrdiff_t kmp_search(const std::string&amp; text, const std::string&amp; pattern) {
+    if (pattern.empty()) {
+        return 0;
+    }
+    const std::vector&lt;std::size_t&gt; pi = prefix_function(pattern);
+    std::size_t matched = 0;  // длина совпавшего префикса образца
+    for (std::size_t i = 0; i &lt; text.size(); ++i) {
+        while (matched &gt; 0 &amp;&amp; text[i] != pattern[matched]) {
+            matched = pi[matched - 1];
+        }
+        if (text[i] == pattern[matched]) {
+            ++matched;
+        }
+        if (matched == pattern.size()) {
+            return static_cast&lt;std::ptrdiff_t&gt;(i + 1 - matched);
+        }
+    }
+    return -1;
+}
+
+int main() {
+    std::cout &lt;&lt; "pi для abacaba:";
+    for (std::size_t value : prefix_function("abacaba")) {
+        std::cout &lt;&lt; ' ' &lt;&lt; value;
+    }
+    std::cout &lt;&lt; '\n';
+    std::cout &lt;&lt; "abra в abracadabra: " &lt;&lt; kmp_search("abracadabra", "abra") &lt;&lt; '\n';
+    std::cout &lt;&lt; "cad в abracadabra: " &lt;&lt; kmp_search("abracadabra", "cad") &lt;&lt; '\n';
+    std::cout &lt;&lt; "xyz в abracadabra: " &lt;&lt; kmp_search("abracadabra", "xyz") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
 
 </div>

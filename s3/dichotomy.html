@@ -13,6 +13,8 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
 </head>
 <body onLoad="sh_highlightDocument();">
 
@@ -24,6 +26,120 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
         <li><a href="#">Двоичный поиск</a></li>
         <li><a href="#">Корни уравнения</a></li>
     </ul>
+
+    <p>Метод дихотомии: отрезок делится пополам, и дальше остаётся та половина, на концах которой функция меняет знак.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Метод дихотомии (деление отрезка пополам) для корня f(x) = 0: O(log((b - a) / eps)) вычислений f
+def bisect_root(f, left, right, eps=1e-9):
+    """Возвращает x на отрезке [left, right], где f(x) близко к 0.
+
+    На концах отрезка значения f должны иметь разные знаки.
+    """
+    f_left, f_right = f(left), f(right)
+    if f_left * f_right &gt; 0:
+        raise ValueError("на концах отрезка функция должна менять знак")
+    if f_left == 0:
+        return left
+    if f_right == 0:
+        return right
+    while right - left &gt; eps:
+        middle = (left + right) / 2
+        f_middle = f(middle)
+        if f_middle == 0:
+            return middle
+        # Если f(middle) и f(left) разных знаков, корень левее середины
+        if f_left * f_middle &lt; 0:
+            right = middle
+        else:
+            left, f_left = middle, f_middle
+    return (left + right) / 2
+
+
+def main():
+    root = bisect_root(lambda x: x * x - 2, 0.0, 2.0)
+    print(f"корень x^2 - 2 на [0, 2]: {root:.6f}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Метод дихотомии (деление отрезка пополам) для корня f(x) = 0: O(log((b - a) / eps)) вычислений f
+// На концах отрезка значения f должны иметь разные знаки, иначе возвращается пустой optional
+#include &lt;cstdio&gt;
+#include &lt;functional&gt;
+#include &lt;optional&gt;
+
+std::optional&lt;double&gt; bisect_root(const std::function&lt;double(double)&gt;&amp; f, double left, double right, double eps) {
+  double f_left = f(left);
+  double f_right = f(right);
+  if (f_left * f_right &gt; 0) return std::nullopt;
+  if (f_left == 0) return left;
+  if (f_right == 0) return right;
+  while (right - left &gt; eps) {
+    double middle = (left + right) / 2;
+    double f_middle = f(middle);
+    if (f_middle == 0) return middle;
+    // Если f(middle) и f(left) разных знаков, корень левее середины
+    if (f_left * f_middle &lt; 0) {
+      right = middle;
+    } else {
+      left = middle;
+      f_left = f_middle;
+    }
+  }
+  return (left + right) / 2;
+}
+
+int main() {
+  std::optional&lt;double&gt; root = bisect_root([](double x) { return x * x - 2; }, 0.0, 2.0, 1e-9);
+  if (root) std::printf("корень x^2 - 2 на [0, 2]: %.6f\n", *root);
+  return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Метод дихотомии (деление отрезка пополам) для корня f(x) = 0: O(log((b - a) / eps)) вычислений f
+// На концах отрезка значения f должны иметь разные знаки, иначе возвращается None
+pub fn bisect_root(f: impl Fn(f64) -&gt; f64, mut left: f64, mut right: f64, eps: f64) -&gt; Option&lt;f64&gt; {
+    let mut f_left = f(left);
+    let f_right = f(right);
+    if f_left * f_right &gt; 0.0 {
+        return None;
+    }
+    if f_left == 0.0 {
+        return Some(left);
+    }
+    if f_right == 0.0 {
+        return Some(right);
+    }
+    while right - left &gt; eps {
+        let middle = (left + right) / 2.0;
+        let f_middle = f(middle);
+        if f_middle == 0.0 {
+            return Some(middle);
+        }
+        // Если f(middle) и f(left) разных знаков, корень левее середины
+        if f_left * f_middle &lt; 0.0 {
+            right = middle;
+        } else {
+            left = middle;
+            f_left = f_middle;
+        }
+    }
+    Some((left + right) / 2.0)
+}
+
+fn main() {
+    match bisect_root(|x| x * x - 2.0, 0.0, 2.0, 1e-9) {
+        Some(root) =&gt; println!("корень x^2 - 2 на [0, 2]: {root:.6}"),
+        None =&gt; println!("на концах отрезка нет смены знака"),
+    }
+}</code></pre>
 
 </div>
 </body>
