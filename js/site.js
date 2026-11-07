@@ -32,8 +32,9 @@
       .trim();
   }
 
+  // Code blocks are looked up on the whole page: some old pages close #content early.
   function addCopyButtons() {
-    content.querySelectorAll('pre').forEach((pre) => {
+    document.querySelectorAll('pre').forEach((pre) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'code-block';
       pre.replaceWith(wrapper);
@@ -226,7 +227,7 @@
   }
 
   function highlightRust() {
-    const blocks = content.querySelectorAll('code.language-rust');
+    const blocks = document.querySelectorAll('code.language-rust');
     if (!blocks.length) return;
     const base = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/';
     const style = document.createElement('link');

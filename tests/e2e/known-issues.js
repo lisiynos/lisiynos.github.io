@@ -20,4 +20,8 @@ const KNOWN_FORMULA_ISSUES = {
   '/s3/dynamic/dynamic_comb.htm': ['$_i  $'],
 };
 
-module.exports = { KNOWN_PAGE_ISSUES, KNOWN_FORMULA_ISSUES };
+// Problems of external third-party widgets that do not start reliably in headless Chrome (the VK comments
+// script on uts/ pages). They are ignored, so their timing never makes a test flaky.
+const TRANSIENT_PROBLEMS = ['VK is not defined'];
+
+module.exports = { KNOWN_PAGE_ISSUES, KNOWN_FORMULA_ISSUES, TRANSIENT_PROBLEMS };

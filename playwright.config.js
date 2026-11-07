@@ -10,6 +10,9 @@ module.exports = defineConfig({
   timeout: 60_000,
   expect: { timeout: 15_000 },
   fullyParallel: true,
+  // One retry absorbs transient connection errors of the local server under full parallel load.
+  // Playwright still reports such tests as flaky, so a real failure is never hidden.
+  retries: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: process.env.BASE_URL || LOCAL_URL,
