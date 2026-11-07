@@ -445,6 +445,7 @@ h4:hover .anchor,
 
 /* Navigation: the trail, the neighbouring lessons and the algorithms of a page (js/site.js) */
 .site-trail {
+  margin-top: 32px; /* below the .tags bar, which is absolutely positioned in the top right corner */
   margin-bottom: 8px;
   font-size: 14px;
   color: #556;
@@ -492,6 +493,13 @@ h4:hover .anchor,
 
 .catalog li {
   margin-bottom: 10px;
+}
+
+/* A long display formula scrolls inside its own block instead of widening the page on a phone */
+mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.2em 0;
 }
 
 /* Back to top */

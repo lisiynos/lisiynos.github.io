@@ -37,60 +37,29 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <p>При сравнении различных алгоритмов важно знать, как их сложность зависит от объёма входных данных.</p>
 
-    <p>$T(n): N -> Q^+ (>0)$</p>
+    <p>$T(n) \colon \mathbb{N} \to \mathbb{Q}^{+}$, причём $T(n) > 0$.</p>
 
-    <p>$T(n)=O(f(n))$ <=> сущ. C,N_0>0: T(n) \leq C*f(n), \all n \geq n_0 </p>
+    <p>$T(n) = O(f(n))$ $\Leftrightarrow$ существуют $C, n_0 > 0$: $T(n) \le C \cdot f(n)$ для всех $n \ge n_0$.</p>
 
+    <p><strong>Лемма 1.</strong> Если многочлен имеет вид</p>
+    <p>$$T(n) = a_0 n^b + a_1 n^{b-1} + \dots + a_{b-1} n + a_b,$$</p>
+    <p>то $T(n) = O(n^b)$.</p>
+    <p>Доказательство. Возьмём $n_0 = 1$ и $c = |a_0| + |a_1| + \dots + |a_b|$. Для $n \ge 1$ каждая степень $n^j \le n^b$,
+        поэтому $T(n) \le c \cdot n^b$.</p>
 
-    <p><b>Лемма</b>
-    <p>
+    <p><strong>Лемма 2.</strong> Для любого $k \ge 1$ верно $n^k \ne O(n^{k-1})$.</p>
+    <p>Доказательство от противного. Пусть $n^k = O(n^{k-1})$: существуют $C, n_0$, что $n^k \le C \cdot n^{k-1}$ при
+        $n \ge n_0$. Тогда $n \le C$ при всех $n \ge n_0$, а это неверно.</p>
 
-        $T(n) = a_0 * x^b + a_1 * x^{b-1} + ... + a_{n-1}*x^{1} + a_n*x^{0}$
-        $T(n) \leq c*x^b$
-
-        $n_0 = 1$
-        $c = |a_0| + |a_1| + ... $
-
-
-    <p><b>Лемма 2</b>
-    <p>
-
-        $\all k \geq 1, n^k \neq O(n^{k-1})$
-
-
-        \let (пусть)
-        n^k = O(n^{k-1}) => \exist )C,
-
-        $n^k \leq C * n^{k-1}$
-        $n \leq C, \forall n \geq n_0$
-
-
-    <p><b> Худший случай.. </b>
-    <p>
-        $T(n) = \omega (f(n)) <=>
-        \exist c,n_0 > 0: T(n) \geq c*f(n), \forall n \geq n.
-
-
-    <p>
-        $T(n) = \theta(f(n))$ \Leftrightarrow $T(n) = O(f(n))$ и $T(n) = \omega(f(n))$
-    </p>
-
-    <p>
-        $\exists c_1, c_2, n_0: C_1*f(n) \leq T(n) \leq C_2 * f(n), \forall n > n_0$
-    </p>
-
-    <p></p>
-
-    <p>$\forall k > 0$ ...
-
+    <p><strong>Нижняя оценка и Θ.</strong></p>
+    <p>$T(n) = \Omega(f(n))$ $\Leftrightarrow$ существуют $c, n_0 > 0$: $T(n) \ge c \cdot f(n)$ для всех $n \ge n_0$.</p>
+    <p>$T(n) = \Theta(f(n))$ $\Leftrightarrow$ $T(n) = O(f(n))$ и $T(n) = \Omega(f(n))$, то есть существуют
+        $c_1, c_2, n_0 > 0$: $c_1 \cdot f(n) \le T(n) \le c_2 \cdot f(n)$ для всех $n > n_0$.</p>
 
     <p>Маленькая $o$</p>
-
-    <p>$T(n) = o(f(n))$ <=> $\forall c>0 \exists n_0:$ $T(n) \leq C*f(n)$ $\forall n \geq n_0$</p>
-
-
-    <p>Пример: $\forall k \geq 1$, $n^{k-1} = o(n^k)$
-
+    <p>$T(n) = o(f(n))$ $\Leftrightarrow$ для любого $c > 0$ существует $n_0$: $T(n) \le c \cdot f(n)$ для всех
+        $n \ge n_0$.</p>
+    <p>Пример: $\forall k \ge 1$: $n^{k-1} = o(n^k)$.</p>
 
     <p>$O(1)$ - время выполнения алгоритма константа (не зависит от количества элементов во входном множестве).</p>
 
