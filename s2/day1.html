@@ -146,6 +146,8 @@ from math import sqrt
 
 # Вычисляем тривиальность N
 def trivial(N):
+    if N == 1:  # У единицы нет собственных делителей
+        return 0
     sum = 1   # Сумма делителей
     for i in range(2, int(sqrt(N)) + 1):  # Пробегаем числа i от 2 до корня из N
         if N % i == 0:  # Если N делится на i
@@ -153,7 +155,7 @@ def trivial(N):
             ii = N // i  # Парный делитель N = i * ii
             if ii != i:  # Если он не равен i, то добавляем и его
                 sum += ii
-    return sum / n
+    return sum / N
 </pre>
 
 <p><strong>Реализация на C++</strong></p>

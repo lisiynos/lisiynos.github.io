@@ -98,6 +98,78 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <p>Пример: поиск минимального элемента в массиве (цикл по всем элементам массива).</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Поиск минимума в списке: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+def find_min(items):
+    """Возвращает наименьший элемент списка или None, если список пуст."""
+    if not items:
+        return None
+    minimum = items[0]  # сначала считаем минимумом первый элемент
+    for item in items:
+        if item &lt; minimum:
+            minimum = item
+    return minimum
+
+
+def main():
+    print(find_min([5, 3, 8, 1, 9, 2, 7]))
+    print(find_min([]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Поиск минимума в срезе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+pub fn find_min(items: &amp;[i32]) -&gt; Option&lt;i32&gt; {
+    // Первый элемент - текущий минимум; у пустого среза минимума нет
+    let (&amp;first, rest) = items.split_first()?;
+    let mut minimum = first;
+    for &amp;item in rest {
+        if item &lt; minimum {
+            minimum = item;
+        }
+    }
+    Some(minimum)
+}
+
+fn main() {
+    println!("{:?}", find_min(&amp;[5, 3, 8, 1, 9, 2, 7]));
+    println!("{:?}", find_min(&amp;[]));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Поиск минимума в векторе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;vector&gt;
+
+// Возвращает наименьший элемент или пустой optional, если вектор пуст
+std::optional&lt;int&gt; find_min(const std::vector&lt;int&gt;&amp; items) {
+    if (items.empty()) {
+        return std::nullopt;
+    }
+    int minimum = items[0];  // сначала считаем минимумом первый элемент
+    for (int item : items) {
+        if (item &lt; minimum) {
+            minimum = item;
+        }
+    }
+    return minimum;
+}
+
+int main() {
+    const std::optional&lt;int&gt; minimum = find_min({5, 3, 8, 1, 9, 2, 7});
+    std::cout &lt;&lt; *minimum &lt;&lt; '\n';
+    std::cout &lt;&lt; (find_min({}) ? "есть" : "нет") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <p>$O(n^2)$ - квадратичная сложность. Например, сортировки &quot;пузырьком&quot;, вставками и т.д.</p>
 
     <p><strong>Реализация на Python</strong></p>
@@ -174,10 +246,219 @@ int main() {
 
     <p>Пример: поиск двух точек на плоскости с максимальным расстоянием между ними.</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+def farthest_pair(points):
+    """Возвращает пару точек с наибольшим расстоянием или None, если точек меньше двух."""
+    best_pair = None
+    best_dist = -1  # квадрат расстояния: координаты целые, поэтому корень не нужен
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            (x1, y1), (x2, y2) = points[i], points[j]
+            dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
+            if dist &gt; best_dist:
+                best_dist = dist
+                best_pair = (points[i], points[j])
+    return best_pair
+
+
+def main():
+    points = [(0, 0), (3, 4), (-1, 2), (6, -2), (1, 1)]
+    print(farthest_pair(points))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+pub type Point = (i64, i64);
+
+pub fn farthest_pair(points: &amp;[Point]) -&gt; Option&lt;(Point, Point)&gt; {
+    let mut best_pair = None;
+    // Квадрат расстояния: координаты целые, поэтому корень не нужен
+    let mut best_dist = -1;
+    for (i, &amp;(x1, y1)) in points.iter().enumerate() {
+        for &amp;(x2, y2) in &amp;points[i + 1..] {
+            let dist = (x1 - x2).pow(2) + (y1 - y2).pow(2);
+            if dist &gt; best_dist {
+                best_dist = dist;
+                best_pair = Some(((x1, y1), (x2, y2)));
+            }
+        }
+    }
+    best_pair
+}
+
+fn main() {
+    let points: [Point; 5] = [(0, 0), (3, 4), (-1, 2), (6, -2), (1, 1)];
+    println!("{:?}", farthest_pair(&amp;points));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Point&amp; p) {
+    return out &lt;&lt; '(' &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; ')';
+}
+
+// Возвращает пару точек с наибольшим расстоянием или пустой optional, если точек меньше двух
+std::optional&lt;std::pair&lt;Point, Point&gt;&gt; farthest_pair(const std::vector&lt;Point&gt;&amp; points) {
+    std::optional&lt;std::pair&lt;Point, Point&gt;&gt; best;
+    long long best_dist = -1;  // квадрат расстояния: координаты целые, поэтому корень не нужен
+    for (std::size_t i = 0; i &lt; points.size(); ++i) {
+        for (std::size_t j = i + 1; j &lt; points.size(); ++j) {
+            long long dx = points[i].x - points[j].x;
+            long long dy = points[i].y - points[j].y;
+            long long dist = dx * dx + dy * dy;
+            if (dist &gt; best_dist) {
+                best_dist = dist;
+                best = std::make_pair(points[i], points[j]);
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {3, 4}, {-1, 2}, {6, -2}, {1, 1}};
+    const auto best = farthest_pair(points);
+    std::cout &lt;&lt; best-&gt;first &lt;&lt; ' ' &lt;&lt; best-&gt;second &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <p>$O(n^3)$ - кубическая сложность.</p>
 
     <p>Пример: поиск треугольника максимальной площади с вершинами в точках на плоскости (перебор вершин тройным
         циклом). </p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+def twice_area(triangle):
+    """Удвоенная площадь треугольника по векторному произведению (целое число, без дробей)."""
+    (x1, y1), (x2, y2), (x3, y3) = triangle
+    return abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1))
+
+
+def all_triangles(points):
+    """Перебирает все тройки точек с индексами i &lt; j &lt; k тройным циклом."""
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            for k in range(j + 1, len(points)):
+                yield points[i], points[j], points[k]
+
+
+def largest_triangle(points):
+    """Возвращает тройку вершин треугольника максимальной площади или None, если точек меньше трёх."""
+    return max(all_triangles(points), key=twice_area, default=None)
+
+
+def main():
+    points = [(0, 0), (4, 0), (0, 3), (2, 1), (1, 1)]
+    print(largest_triangle(points))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+pub type Point = (i64, i64);
+
+// Удвоенная площадь треугольника abc: целое число, поэтому без дробей
+pub fn twice_area(a: Point, b: Point, c: Point) -&gt; i64 {
+    ((b.0 - a.0) * (c.1 - a.1) - (c.0 - a.0) * (b.1 - a.1)).abs()
+}
+
+pub fn largest_triangle(points: &amp;[Point]) -&gt; Option&lt;(Point, Point, Point)&gt; {
+    let mut best = None;
+    let mut best_area = -1;
+    for i in 0..points.len() {
+        for j in i + 1..points.len() {
+            for k in j + 1..points.len() {
+                let area = twice_area(points[i], points[j], points[k]);
+                if area &gt; best_area {
+                    best_area = area;
+                    best = Some((points[i], points[j], points[k]));
+                }
+            }
+        }
+    }
+    best
+}
+
+fn main() {
+    let points: [Point; 5] = [(0, 0), (4, 0), (0, 3), (2, 1), (1, 1)];
+    println!("{:?}", largest_triangle(&amp;points));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+#include &lt;cstddef&gt;
+#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;tuple&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Point&amp; p) {
+    return out &lt;&lt; '(' &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; ')';
+}
+
+// Удвоенная площадь треугольника abc: целое число, поэтому без дробей
+long long twice_area(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return std::llabs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y));
+}
+
+// Возвращает тройку вершин треугольника максимальной площади или пустой optional, если точек меньше трёх
+std::optional&lt;std::tuple&lt;Point, Point, Point&gt;&gt; largest_triangle(const std::vector&lt;Point&gt;&amp; points) {
+    std::optional&lt;std::tuple&lt;Point, Point, Point&gt;&gt; best;
+    long long best_area = -1;
+    for (std::size_t i = 0; i &lt; points.size(); ++i) {
+        for (std::size_t j = i + 1; j &lt; points.size(); ++j) {
+            for (std::size_t k = j + 1; k &lt; points.size(); ++k) {
+                long long area = twice_area(points[i], points[j], points[k]);
+                if (area &gt; best_area) {
+                    best_area = area;
+                    best = std::make_tuple(points[i], points[j], points[k]);
+                }
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {4, 0}, {0, 3}, {2, 1}, {1, 1}};
+    const auto [a, b, c] = *largest_triangle(points);
+    std::cout &lt;&lt; a &lt;&lt; ' ' &lt;&lt; b &lt;&lt; ' ' &lt;&lt; c &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
     <p>Оценка $O(n)$ ассимптотическая (при $n$ стремящемся к бесконечности).</p>
 

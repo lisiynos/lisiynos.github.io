@@ -766,6 +766,108 @@ fn main() {
 
 <p>$Answer = W_{KXY}$</p>
 
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Робот: число программ из k команд, приводящих в точку (x, y). Динамика по числу команд: O(k^3) по времени, O(k^2) по памяти.
+
+# Команды робота: шаг на восток, на запад, на север и на юг.
+STEPS = ((1, 0), (-1, 0), (0, 1), (0, -1))
+
+
+def robot_programs(k: int, x: int, y: int) -&gt; int:
+    # ways[(a, b)] - число программ длины i, после которых робот стоит в точке (a, b).
+    # При i = 0 робот стоит в начале координат, и есть одна пустая программа.
+    ways = {(0, 0): 1}
+    for _ in range(k):
+        # Каждая программа длины i продолжается одной командой и даёт программу длины i + 1.
+        next_ways: dict[tuple[int, int], int] = {}
+        for (a, b), count in ways.items():
+            for dx, dy in STEPS:
+                cell = (a + dx, b + dy)
+                next_ways[cell] = next_ways.get(cell, 0) + count
+        ways = next_ways
+    return ways.get((x, y), 0)
+
+
+def main() -&gt; None:
+    print(f"K = 5, X = -2, Y = -3: {robot_programs(5, -2, -3)}")
+    print(f"K = 16, X = 16, Y = 15: {robot_programs(16, 16, 15)}")
+    print(f"K = 16, X = 3, Y = 3: {robot_programs(16, 3, 3)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Робот: число программ из k команд, приводящих в клетку (x, y). Динамика по числу команд: O(k^3 log k) по времени, O(k^2) по памяти.
+#include &lt;cstdio&gt;
+#include &lt;map&gt;
+#include &lt;utility&gt;
+
+// Сдвиги команд: восток, запад, север, юг.
+const int kDx[4] = {1, -1, 0, 0};
+const int kDy[4] = {0, 0, 1, -1};
+
+// Число программ длины k, после которых робот стоит в клетке (x, y).
+unsigned long long robot_programs(int k, int x, int y) {
+    // ways[{a, b}] - число программ длины i, после которых робот стоит в клетке (a, b).
+    std::map&lt;std::pair&lt;int, int&gt;, unsigned long long&gt; ways = {{{0, 0}, 1}};
+    for (int step = 0; step &lt; k; ++step) {
+        // Каждая программа длины step продолжается одной командой и даёт программу длины step + 1.
+        std::map&lt;std::pair&lt;int, int&gt;, unsigned long long&gt; next;
+        for (const auto&amp; [cell, count] : ways) {
+            for (int d = 0; d &lt; 4; ++d) {
+                next[{cell.first + kDx[d], cell.second + kDy[d]}] += count;
+            }
+        }
+        ways = std::move(next);
+    }
+    const auto found = ways.find({x, y});
+    return found == ways.end() ? 0 : found-&gt;second;
+}
+
+int main() {
+    std::printf("K = 5, X = -2, Y = -3: %llu\n", robot_programs(5, -2, -3));
+    std::printf("K = 16, X = 16, Y = 15: %llu\n", robot_programs(16, 16, 15));
+    std::printf("K = 16, X = 3, Y = 3: %llu\n", robot_programs(16, 3, 3));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Робот: число программ из k команд, приводящих в клетку (x, y). Динамика по числу команд: O(k^3) по времени, O(k^2) по памяти.
+use std::collections::HashMap;
+
+/// Сдвиги команд: восток, запад, север, юг.
+const STEPS: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+/// Число программ длины k, после которых робот стоит в клетке (x, y).
+pub fn robot_programs(k: usize, x: i32, y: i32) -&gt; u64 {
+    // ways[(a, b)] - число программ длины i, после которых робот стоит в клетке (a, b).
+    let mut ways: HashMap&lt;(i32, i32), u64&gt; = HashMap::new();
+    ways.insert((0, 0), 1);
+    for _ in 0..k {
+        // Каждая программа длины i продолжается одной командой и даёт программу длины i + 1.
+        let mut next: HashMap&lt;(i32, i32), u64&gt; = HashMap::new();
+        for (&amp;(a, b), &amp;count) in &amp;ways {
+            for (dx, dy) in STEPS {
+                *next.entry((a + dx, b + dy)).or_insert(0) += count;
+            }
+        }
+        ways = next;
+    }
+    ways.get(&amp;(x, y)).copied().unwrap_or(0)
+}
+
+fn main() {
+    println!("K = 5, X = -2, Y = -3: {}", robot_programs(5, -2, -3));
+    println!("K = 16, X = 16, Y = 15: {}", robot_programs(16, 16, 15));
+    println!("K = 16, X = 3, Y = 3: {}", robot_programs(16, 3, 3));
+}
+</code></pre>
+
 <p><strong><cite>Взрывоопасность </cite></strong><br>
     При переработке радиоактивных материалов образуются отходы двух видов — особо опасные (тип A) и неопасные (тип B).
     Для
@@ -800,6 +902,84 @@ fn main() {
         </td>
     </tr>
 </table>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Взрывоопасность: число безопасных стопок из n контейнеров (без трёх контейнеров A подряд). Динамика: O(n) по времени, O(1) по памяти.
+
+
+def safe_stacks(n: int) -&gt; int:
+    # Состояние стопки - сколько контейнеров A стоит сверху подряд: 0, 1 или 2 (три подряд - взрывоопасно, не считаем).
+    # no_a - стопки без A сверху (в том числе пустая), one_a - с одной A сверху, two_a - с двумя A сверху.
+    no_a, one_a, two_a = 1, 0, 0
+    for _ in range(n):
+        # Контейнер B сводит счётчик A к нулю, контейнер A увеличивает его на единицу.
+        no_a, one_a, two_a = no_a + one_a + two_a, no_a, one_a
+    return no_a + one_a + two_a
+
+
+def main() -&gt; None:
+    for n in range(1, 6):
+        print(f"N = {n}: безопасных стопок {safe_stacks(n)}")
+    print(f"N = 30: безопасных стопок {safe_stacks(30)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Взрывоопасность: число безопасных стопок из n контейнеров (без трёх контейнеров A подряд). Динамика: O(n) по времени, O(1) по памяти.
+#include &lt;cstdio&gt;
+
+// Число безопасных стопок из n контейнеров.
+unsigned long long safe_stacks(int n) {
+    // no_a - стопки без A сверху (в том числе пустая), one_a - с одной A сверху, two_a - с двумя A сверху.
+    unsigned long long no_a = 1;
+    unsigned long long one_a = 0;
+    unsigned long long two_a = 0;
+    for (int i = 0; i &lt; n; ++i) {
+        // Контейнер B сводит счётчик A к нулю, контейнер A увеличивает его на единицу.
+        const unsigned long long after_b = no_a + one_a + two_a;
+        two_a = one_a;
+        one_a = no_a;
+        no_a = after_b;
+    }
+    return no_a + one_a + two_a;
+}
+
+int main() {
+    for (int n = 1; n &lt;= 5; ++n) {
+        std::printf("N = %d: безопасных стопок %llu\n", n, safe_stacks(n));
+    }
+    std::printf("N = 30: безопасных стопок %llu\n", safe_stacks(30));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Взрывоопасность: число безопасных стопок из n контейнеров (без трёх контейнеров A подряд). Динамика: O(n) по времени, O(1) по памяти.
+
+/// Число безопасных стопок из n контейнеров.
+pub fn safe_stacks(n: usize) -&gt; u64 {
+    // no_a - стопки без A сверху (в том числе пустая), one_a - с одной A сверху, two_a - с двумя A сверху.
+    let (mut no_a, mut one_a, mut two_a) = (1u64, 0u64, 0u64);
+    for _ in 0..n {
+        // Контейнер B сводит счётчик A к нулю, контейнер A увеличивает его на единицу.
+        (no_a, one_a, two_a) = (no_a + one_a + two_a, no_a, one_a);
+    }
+    no_a + one_a + two_a
+}
+
+fn main() {
+    for n in 1..=5 {
+        println!("N = {}: безопасных стопок {}", n, safe_stacks(n));
+    }
+    println!("N = 30: безопасных стопок {}", safe_stacks(30));
+}
+</code></pre>
+
 <p><strong style="text-decoration: underline;">К-ичные числа </strong><br>
     Требуется вычислить количество N-значных чисел в системе счисления с основанием K, таких, что их запись не содержит
     двух подряд идущих нулей. (2 \le K \le 10, N + K \le 18).<br>
@@ -828,6 +1008,89 @@ fn main() {
     <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image018.gif" alt="" width="78" height="64"> <br>
     Динамический переход:<br>
     <img loading="lazy" decoding="async" src="dynamic1/Info3.4.0_clip_image020.gif" alt="" width="181" height="92"></p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# К-ичные числа: число n-значных записей в основании k без двух нулей подряд. Динамика по последней цифре: O(n) по времени, O(1) по памяти.
+
+
+def k_ary_numbers(n: int, k: int) -&gt; int:
+    if n == 0:
+        return 0
+    # zero_end - записи длины i, оканчивающиеся нулём; digit_end - оканчивающиеся ненулевой цифрой.
+    # Первая цифра не может быть нулём: для длины 1 есть k - 1 записей, все оканчиваются ненулевой цифрой.
+    zero_end, digit_end = 0, k - 1
+    for _ in range(n - 1):
+        # Ноль можно дописать только после ненулевой цифры, ненулевую (k - 1 вариант) - после любой записи.
+        zero_end, digit_end = digit_end, (k - 1) * (zero_end + digit_end)
+    return zero_end + digit_end
+
+
+def main() -&gt; None:
+    print(f"N = 4, K = 3: {k_ary_numbers(4, 3)}")
+    print(f"N = 5, K = 2: {k_ary_numbers(5, 2)}")
+    print(f"N = 8, K = 10: {k_ary_numbers(8, 10)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// К-ичные числа: число n-значных записей в основании k без двух нулей подряд. Динамика по последней цифре: O(n) по времени, O(1) по памяти.
+#include &lt;cstdio&gt;
+
+// Число n-значных записей в основании k без двух нулей подряд (первая цифра не ноль).
+unsigned long long k_ary_numbers(int n, int k) {
+    if (n == 0) {
+        return 0;
+    }
+    const auto nonzero = static_cast&lt;unsigned long long&gt;(k - 1);  // ненулевых цифр в основании k
+    // zero_end - записи длины i, оканчивающиеся нулём; digit_end - оканчивающиеся ненулевой цифрой.
+    unsigned long long zero_end = 0;
+    unsigned long long digit_end = nonzero;  // длина 1: первая цифра ненулевая
+    for (int i = 1; i &lt; n; ++i) {
+        // Ноль ставим только после ненулевой цифры, ненулевую - после любой записи.
+        const unsigned long long next_zero_end = digit_end;
+        digit_end = nonzero * (zero_end + digit_end);
+        zero_end = next_zero_end;
+    }
+    return zero_end + digit_end;
+}
+
+int main() {
+    std::printf("N = 4, K = 3: %llu\n", k_ary_numbers(4, 3));
+    std::printf("N = 5, K = 2: %llu\n", k_ary_numbers(5, 2));
+    std::printf("N = 8, K = 10: %llu\n", k_ary_numbers(8, 10));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// К-ичные числа: число n-значных записей в основании k без двух нулей подряд. Динамика по последней цифре: O(n) по времени, O(1) по памяти.
+
+/// Число n-значных записей в основании k без двух нулей подряд (первая цифра не ноль).
+pub fn k_ary_numbers(n: usize, k: u64) -&gt; u64 {
+    if n == 0 {
+        return 0;
+    }
+    let nonzero = k - 1; // ненулевых цифр в основании k
+    // zero_end - записи длины i, оканчивающиеся нулём; digit_end - оканчивающиеся ненулевой цифрой.
+    let (mut zero_end, mut digit_end) = (0u64, nonzero); // длина 1: первая цифра ненулевая
+    for _ in 1..n {
+        // Ноль ставим только после ненулевой цифры, ненулевую - после любой записи.
+        (zero_end, digit_end) = (digit_end, nonzero * (zero_end + digit_end));
+    }
+    zero_end + digit_end
+}
+
+fn main() {
+    println!("N = 4, K = 3: {}", k_ary_numbers(4, 3));
+    println!("N = 5, K = 2: {}", k_ary_numbers(5, 2));
+    println!("N = 8, K = 10: {}", k_ary_numbers(8, 10));
+}
+</code></pre>
 
 <p><strong><cite>Паровозики </cite></strong><br>
     N локомотивов, имеющих номера от 1 до N и установленных на железнодорожную колею, начинают двигаться в одну сторону,
@@ -931,6 +1194,97 @@ begin
   writeln(s);
 end.
 </pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Паровозики: число расстановок n локомотивов, дающих groups групп (числа Стирлинга первого рода). Динамика: O(n^2) по времени и по памяти.
+# c(i, k) = c(i - 1, k - 1) + (i - 1) * c(i - 1, k): самый быстрый локомотив либо первый и образует новую группу,
+# либо стоит за одним из i - 1 локомотивов и не меняет число групп.
+
+
+def locomotive_arrangements(n: int, groups: int) -&gt; int:
+    if not 0 &lt;= groups &lt;= n:
+        return 0
+    # stirling[i][k] - число расстановок i локомотивов по k группам.
+    stirling = [[0] * (n + 1) for _ in range(n + 1)]
+    stirling[0][0] = 1
+    for i in range(1, n + 1):
+        for k in range(1, i + 1):
+            stirling[i][k] = stirling[i - 1][k - 1] + (i - 1) * stirling[i - 1][k]
+    return stirling[n][groups]
+
+
+def main() -&gt; None:
+    print(f"N = 4, p = 2: {locomotive_arrangements(4, 2)}")
+    print(f"N = 5, p = 4: {locomotive_arrangements(5, 4)}")
+    print(f"N = 6, p = 6: {locomotive_arrangements(6, 6)}")
+    print(f"N = 16, p = 1: {locomotive_arrangements(16, 1)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Паровозики: число расстановок n локомотивов, дающих groups групп (числа Стирлинга первого рода). Динамика: O(n^2) по времени и по памяти.
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// stirling[i][k] = c(i, k): число расстановок i локомотивов по k группам.
+// c(i, k) = c(i - 1, k - 1) + (i - 1) * c(i - 1, k): самый быстрый локомотив либо первый и образует группу,
+// либо стоит за одним из i - 1 локомотивов и не меняет число групп.
+unsigned long long locomotive_arrangements(std::size_t n, std::size_t groups) {
+    if (groups &gt; n) {
+        return 0;
+    }
+    std::vector&lt;std::vector&lt;unsigned long long&gt;&gt; stirling(n + 1, std::vector&lt;unsigned long long&gt;(n + 1, 0));
+    stirling[0][0] = 1;
+    for (std::size_t i = 1; i &lt;= n; ++i) {
+        for (std::size_t k = 1; k &lt;= i; ++k) {
+            stirling[i][k] = stirling[i - 1][k - 1] + static_cast&lt;unsigned long long&gt;(i - 1) * stirling[i - 1][k];
+        }
+    }
+    return stirling[n][groups];
+}
+
+int main() {
+    std::printf("N = 4, p = 2: %llu\n", locomotive_arrangements(4, 2));
+    std::printf("N = 5, p = 4: %llu\n", locomotive_arrangements(5, 4));
+    std::printf("N = 6, p = 6: %llu\n", locomotive_arrangements(6, 6));
+    std::printf("N = 16, p = 1: %llu\n", locomotive_arrangements(16, 1));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Паровозики: число расстановок n локомотивов, дающих groups групп (числа Стирлинга первого рода). Динамика: O(n^2) по времени и по памяти.
+
+/// c(i, k) = c(i - 1, k - 1) + (i - 1) * c(i - 1, k): самый быстрый локомотив либо первый и образует группу,
+/// либо стоит за одним из i - 1 локомотивов и не меняет число групп.
+pub fn locomotive_arrangements(n: usize, groups: usize) -&gt; u64 {
+    if groups &gt; n {
+        return 0;
+    }
+    // stirling[i][k] - число расстановок i локомотивов по k группам.
+    let mut stirling = vec![vec![0u64; n + 1]; n + 1];
+    stirling[0][0] = 1;
+    for i in 1..=n {
+        for k in 1..=i {
+            stirling[i][k] = stirling[i - 1][k - 1] + ((i - 1) as u64) * stirling[i - 1][k];
+        }
+    }
+    stirling[n][groups]
+}
+
+fn main() {
+    println!("N = 4, p = 2: {}", locomotive_arrangements(4, 2));
+    println!("N = 5, p = 4: {}", locomotive_arrangements(5, 4));
+    println!("N = 6, p = 6: {}", locomotive_arrangements(6, 6));
+    println!("N = 16, p = 1: {}", locomotive_arrangements(16, 1));
+}
+</code></pre>
 
 </body>
 </html>

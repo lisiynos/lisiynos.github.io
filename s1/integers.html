@@ -108,6 +108,7 @@ end.</pre>
 #include &lt;stdio.h&gt;
 
 int GCD( int a, int b ){ // определение НОД двух чисел
+  if (a == 0 || b == 0) return a + b; // при нуле цикл вычитаний не кончается; НОД(0, b) = b
   while(a != b)
     if (a > b) a-=b; else b-=a;
   return b;
@@ -213,7 +214,7 @@ def GCD(a,b): # Функция для вычисления НОД при пом�
   return a if b == 0 else GCD(b,a%b) # Вычисляем остаток от деления a на b, а заменяем на b, b заменяем на r=a mod b
   # НОД = a если b = 0 иначе НОД=НОД(b,r), r - остаток от деления a на b
 
-print GCD(264, 192) # Выведет: 24 </pre>
+print(GCD(264, 192)) # Выведет: 24 </pre>
 <p><strong>Реализация на Rust</strong></p>
 <pre><code class="language-rust">// Алгоритм Евклида с делением для НОД: O(log(min(a, b))) делений
 pub fn gcd(a: u64, b: u64) -&gt; u64 {
@@ -1009,6 +1010,106 @@ begin
     end;
   if N<>1 then write(' ',N); { Оставшийся множитель }
 end.
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Разложение на простые множители пробным делением: O(sqrt(n)) делений
+def factorize(n):
+    """Возвращает простые множители натурального числа n с повторами, по возрастанию."""
+    factors = []
+    divisor = 2
+    # Найденный делитель всегда простой: все меньшие простые уже убраны из n
+    while divisor * divisor &lt;= n:
+        while n % divisor == 0:
+            factors.append(divisor)
+            n //= divisor
+        divisor += 1
+    # Если после перебора осталось число больше 1, оно и есть последний простой множитель
+    if n &gt; 1:
+        factors.append(n)
+    return factors
+
+
+def main():
+    for number in (360, 600851475143):
+        print(number, "=", " * ".join(str(factor) for factor in factorize(number)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Разложение на простые множители пробным делением: O(sqrt(n)) делений
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет u64
+
+pub fn factorize(mut n: u64) -&gt; Vec&lt;u64&gt; {
+    let mut factors = Vec::new();
+    let mut divisor = 2;
+    // Найденный делитель всегда простой: все меньшие простые уже убраны из n
+    while divisor &lt;= n / divisor {
+        while n % divisor == 0 {
+            factors.push(divisor);
+            n /= divisor;
+        }
+        divisor += 1;
+    }
+    // Если после перебора осталось число больше 1, оно и есть последний простой множитель
+    if n &gt; 1 {
+        factors.push(n);
+    }
+    factors
+}
+
+fn main() {
+    for number in [360, 600_851_475_143] {
+        let text: Vec&lt;String&gt; = factorize(number).iter().map(|factor| factor.to_string()).collect();
+        println!("{number} = {}", text.join(" * "));
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Разложение на простые множители пробным делением: O(sqrt(n)) делений
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет 64 бита
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;initializer_list&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using u64 = std::uint64_t;
+
+std::vector&lt;u64&gt; factorize(u64 n) {
+    std::vector&lt;u64&gt; factors;
+    for (u64 divisor = 2; divisor &lt;= n / divisor; ++divisor) {
+        // Найденный делитель всегда простой: все меньшие простые уже убраны из n
+        while (n % divisor == 0) {
+            factors.push_back(divisor);
+            n /= divisor;
+        }
+    }
+    // Если после перебора осталось число больше 1, оно и есть последний простой множитель
+    if (n &gt; 1) {
+        factors.push_back(n);
+    }
+    return factors;
+}
+
+int main() {
+    for (u64 number : {360ULL, 600851475143ULL}) {
+        const std::vector&lt;u64&gt; factors = factorize(number);
+        std::cout &lt;&lt; number &lt;&lt; " =";
+        for (std::size_t i = 0; i &lt; factors.size(); ++i) {
+            std::cout &lt;&lt; (i == 0 ? " " : " * ") &lt;&lt; factors[i];
+        }
+        std::cout &lt;&lt; '\n';
+    }
+    return 0;
+}
 </pre>
 
 

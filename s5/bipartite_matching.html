@@ -217,7 +217,7 @@ int match(int v1){  // v1 - вершина из первой доли
     return 0;
   u[v1] = 1; // Отмечаем, что в вершине v мы были  
   for(int i2 = 1; i2 &lt;= n2; i2++) //i2 - вершина второй доли
-    if (g[v1][i2] && (to[i2] == -1 || match(to[i2]))
+    if (g[v1][i2] && (to[i2] == -1 || match(to[i2])))
     {
       to[i2] = v1;    
       return 1;

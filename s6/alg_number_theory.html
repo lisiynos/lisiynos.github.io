@@ -75,6 +75,92 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <p><strong>Реализация на Python</strong></p>
     <pre class="sh_python">
+# Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+def mul_mod(a, b, modulus):
+    """Возвращает a * b mod modulus для b &gt;= 0 и modulus &gt;= 1 через сложения и удвоения."""
+    result = 0
+    a %= modulus
+    while b &gt; 0:
+        # Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if b % 2 == 1:
+            result = (result + a) % modulus
+        # a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus
+        b //= 2
+    return result
+
+
+def main():
+    # 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    print(mul_mod(123456, 654321, 1000))
+    print(mul_mod(10**18, 10**18, 10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+// Модуль должен быть не больше 2^63, чтобы сумма двух остатков помещалась в u64
+
+pub fn mul_mod(mut a: u64, mut b: u64, modulus: u64) -&gt; u64 {
+    let mut result = 0;
+    a %= modulus;
+    while b &gt; 0 {
+        // Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if b % 2 == 1 {
+            result = (result + a) % modulus;
+        }
+        // a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus;
+        b /= 2;
+    }
+    result
+}
+
+fn main() {
+    // 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    println!("{}", mul_mod(123456, 654321, 1000));
+    println!("{}", mul_mod(1_000_000_000_000_000_000, 1_000_000_000_000_000_000, 1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+// Модуль должен быть не больше 2^63, чтобы сумма двух остатков помещалась в 64 бита
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 mul_mod(u64 a, u64 b, u64 modulus) {
+    u64 result = 0;
+    a %= modulus;
+    while (b &gt; 0) {
+        // Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if (b % 2 == 1) {
+            result = (result + a) % modulus;
+        }
+        // a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus;
+        b /= 2;
+    }
+    return result;
+}
+
+int main() {
+    // 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    std::cout &lt;&lt; mul_mod(123456, 654321, 1000) &lt;&lt; '\n';
+    std::cout &lt;&lt; mul_mod(1000000000000000000ULL, 1000000000000000000ULL, 1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
 # Быстрое возведение в степень по модулю a^b mod m: O(log b) умножений
 def power_mod(base, exp, modulus):
     """Возвращает base^exp mod modulus для exp &gt;= 0 и modulus &gt;= 1."""
@@ -155,6 +241,106 @@ int main() {
     // 3^200 mod 1000 и 2^100 mod (10^9 + 7)
     std::cout &lt;&lt; power_mod(3, 200, 1000) &lt;&lt; '\n';
     std::cout &lt;&lt; power_mod(2, 100, 1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+def euler_phi(n):
+    """Возвращает количество чисел от 1 до n, взаимно простых с n (n &gt;= 1)."""
+    result = n
+    divisor = 2
+    while divisor * divisor &lt;= n:
+        if n % divisor == 0:
+            # Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result // divisor
+            while n % divisor == 0:
+                n //= divisor
+        divisor += 1
+    if n &gt; 1:
+        # Оставшийся простой множитель n тоже уменьшает phi
+        result -= result // n
+    return result
+
+
+def main():
+    # phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    print(euler_phi(36))
+    print(euler_phi(97))
+    print(euler_phi(10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет u64
+
+pub fn euler_phi(mut n: u64) -&gt; u64 {
+    let mut result = n;
+    let mut divisor = 2;
+    while divisor &lt;= n / divisor {
+        if n % divisor == 0 {
+            // Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result / divisor;
+            while n % divisor == 0 {
+                n /= divisor;
+            }
+        }
+        divisor += 1;
+    }
+    if n &gt; 1 {
+        // Оставшийся простой множитель n тоже уменьшает phi
+        result -= result / n;
+    }
+    result
+}
+
+fn main() {
+    // phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    println!("{}", euler_phi(36));
+    println!("{}", euler_phi(97));
+    println!("{}", euler_phi(1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет 64 бита
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 euler_phi(u64 n) {
+    u64 result = n;
+    for (u64 divisor = 2; divisor &lt;= n / divisor; ++divisor) {
+        if (n % divisor == 0) {
+            // Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result / divisor;
+            while (n % divisor == 0) {
+                n /= divisor;
+            }
+        }
+    }
+    if (n &gt; 1) {
+        // Оставшийся простой множитель n тоже уменьшает phi
+        result -= result / n;
+    }
+    return result;
+}
+
+int main() {
+    // phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    std::cout &lt;&lt; euler_phi(36) &lt;&lt; '\n';
+    std::cout &lt;&lt; euler_phi(97) &lt;&lt; '\n';
+    std::cout &lt;&lt; euler_phi(1000000007ULL) &lt;&lt; '\n';
     return 0;
 }
 </pre>

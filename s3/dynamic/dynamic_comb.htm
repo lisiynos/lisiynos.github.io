@@ -60,6 +60,98 @@ num - { номер }
           used[i] := 1;
 </pre>
 
+    <p>Номера перестановок отсчитываются с нуля: от 0 до $N!-1$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перестановка длины n по номеру k (0 &lt;= k &lt; n!) в лексикографическом порядке: O(n^2) по времени
+import math
+
+
+def permutation_by_number(n: int, k: int) -&gt; list[int]:
+    """Номер k раскладываем по факториальной системе: первый элемент - available[k // (n-1)!], далее аналогично."""
+    available = list(range(1, n + 1))
+    result = []
+    for position in range(n, 0, -1):
+        block = math.factorial(position - 1)
+        index, k = divmod(k, block)
+        result.append(available.pop(index))
+    return result
+
+
+if __name__ == "__main__":
+    # Все перестановки длины 3 по номерам от 0 до 5
+    for number in range(6):
+        print(number, permutation_by_number(3, number))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Перестановка длины n по номеру k (0 &lt;= k &lt; n!) в лексикографическом порядке: O(n^2) по времени
+
+/// Номер раскладываем по факториальной системе: первый элемент - available[k / (n-1)!], далее аналогично.
+pub fn permutation_by_number(n: usize, mut k: u64) -&gt; Vec&lt;u64&gt; {
+    // fact[i] = i!; для n до 20 значения помещаются в 64 бита
+    let mut fact = vec![1u64; n + 1];
+    for i in 1..=n {
+        fact[i] = fact[i - 1] * i as u64;
+    }
+    let mut available: Vec&lt;u64&gt; = (1..=n as u64).collect();
+    let mut result = Vec::with_capacity(n);
+    for position in 0..n {
+        let block = fact[n - 1 - position];
+        let index = (k / block) as usize;
+        k %= block;
+        result.push(available.remove(index));
+    }
+    result
+}
+
+fn main() {
+    // Все перестановки длины 3 по номерам от 0 до 5
+    for number in 0..6 {
+        println!("{} {:?}", number, permutation_by_number(3, number));
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перестановка длины n по номеру k (0 &lt;= k &lt; n!) в лексикографическом порядке: O(n^2) по времени
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Номер раскладываем по факториальной системе: первый элемент - available[k / (n-1)!], далее аналогично
+std::vector&lt;int&gt; permutationByNumber(int n, std::uint64_t k) {
+    // fact[i] = i!; для n до 20 значения помещаются в 64 бита
+    std::vector&lt;std::uint64_t&gt; fact(static_cast&lt;std::size_t&gt;(n) + 1, 1);
+    for (int i = 1; i &lt;= n; ++i) fact[static_cast&lt;std::size_t&gt;(i)] = fact[static_cast&lt;std::size_t&gt;(i) - 1] * i;
+    std::vector&lt;int&gt; available;
+    for (int v = 1; v &lt;= n; ++v) available.push_back(v);
+    std::vector&lt;int&gt; result;
+    for (int position = 0; position &lt; n; ++position) {
+        const std::uint64_t block = fact[static_cast&lt;std::size_t&gt;(n - 1 - position)];
+        const std::size_t index = static_cast&lt;std::size_t&gt;(k / block);
+        k %= block;
+        result.push_back(available[index]);
+        available.erase(available.begin() + static_cast&lt;std::ptrdiff_t&gt;(index));
+    }
+    return result;
+}
+
+int main() {
+    // Все перестановки длины 3 по номерам от 0 до 5
+    for (std::uint64_t number = 0; number &lt; 6; ++number) {
+        std::printf("%llu:", static_cast&lt;unsigned long long&gt;(number));
+        for (int v : permutationByNumber(3, number)) std::printf(" %d", v);
+        std::printf("\n");
+    }
+    return 0;
+}
+</pre>
+
     <p>Свой алгоритм Евклид (древнегреческий математик, живший примерно в 300 г. до
         н.э.) придумал для решения задачи о соизмеримости двух отрезков. Общей мерой
         (единицей измерения) отрезков с длинами $L_1$ и $L_2$ является отрезок
@@ -142,6 +234,53 @@ int main(){ // Пример использования
   return 0;
 }
 </pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Алгоритм Евклида с вычитаниями, НОД(a, b): O(a + b) по времени, O(1) по памяти
+def gcd_by_subtraction(a: int, b: int) -&gt; int:
+    """Пока числа не равны, из большего вычитаем меньшее; при равенстве получаем НОД."""
+    if a == 0 or b == 0:
+        return a + b  # НОД(0, b) = b для неотрицательных чисел
+    while a != b:
+        if a &gt; b:
+            a -= b
+        else:
+            b -= a
+    return a
+
+
+if __name__ == "__main__":
+    # Пример из текста: НОД(264, 192) = 24
+    print("НОД(264, 192) =", gcd_by_subtraction(264, 192))
+    print("НОД(10, 15) =", gcd_by_subtraction(10, 15))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Алгоритм Евклида с вычитаниями, НОД(a, b): O(a + b) по времени, O(1) по памяти
+
+/// Пока числа не равны, из большего вычитаем меньшее; при равенстве получаем НОД.
+pub fn gcd_by_subtraction(mut a: u64, mut b: u64) -&gt; u64 {
+    if a == 0 || b == 0 {
+        return a + b; // НОД(0, b) = b для неотрицательных чисел
+    }
+    while a != b {
+        if a &gt; b {
+            a -= b;
+        } else {
+            b -= a;
+        }
+    }
+    a
+}
+
+fn main() {
+    // Пример из текста: НОД(264, 192) = 24
+    println!("НОД(264, 192) = {}", gcd_by_subtraction(264, 192));
+    println!("НОД(10, 15) = {}", gcd_by_subtraction(10, 15));
+}
+</code></pre>
 
     <h3>Алгоритм Евклида с делением</h3>
 
@@ -237,7 +376,7 @@ def GCD(a,b): # Функция для вычисления НОД при пом�
   return a if b == 0 else GCD(b,a%b) # Вычисляем остаток от деления a на b, а заменяем на b, b заменяем на r=a mod b
   # НОД = a если b = 0 иначе НОД=НОД(b,r), r - остаток от деления a на b
 
-print GCD(264, 192) # Выведет: 24 </pre>
+print(GCD(264, 192)) # Выведет: 24 </pre>
 
 <p><strong>Реализация на C++</strong></p>
 <pre class="sh_cpp">
@@ -1154,6 +1293,91 @@ begin
 end.
 </pre>
 
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Разложение на простые делители пробным делением: O(sqrt(n)) по времени, O(log n) по памяти
+def prime_factors(n: int) -&gt; list[int]:
+    """Простые делители n с повторениями в порядке возрастания; делители перебираем до корня из n."""
+    factors = []
+    d = 2
+    while d * d &lt;= n:
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+        d += 1
+    if n &gt; 1:
+        factors.append(n)
+    return factors
+
+
+if __name__ == "__main__":
+    # Пример: 360 = 2 * 2 * 2 * 3 * 3 * 5
+    n = 360
+    print(n, "=", " * ".join(str(p) for p in prime_factors(n)))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Разложение на простые делители пробным делением: O(sqrt(n)) по времени, O(log n) по памяти
+
+/// Простые делители n с повторениями в порядке возрастания; делители перебираем до корня из n.
+pub fn prime_factors(mut n: u64) -&gt; Vec&lt;u64&gt; {
+    let mut factors = Vec::new();
+    let mut d = 2;
+    while d * d &lt;= n {
+        while n % d == 0 {
+            factors.push(d);
+            n /= d;
+        }
+        d += 1;
+    }
+    if n &gt; 1 {
+        factors.push(n);
+    }
+    factors
+}
+
+fn main() {
+    // Пример: 360 = 2 * 2 * 2 * 3 * 3 * 5
+    let n = 360;
+    let parts: Vec&lt;String&gt; = prime_factors(n).iter().map(|p| p.to_string()).collect();
+    println!("{} = {}", n, parts.join(" * "));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Разложение на простые делители пробным делением: O(sqrt(n)) по времени, O(log n) по памяти
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Простые делители n с повторениями в порядке возрастания; делители перебираем до корня из n
+std::vector&lt;std::uint64_t&gt; primeFactors(std::uint64_t n) {
+    std::vector&lt;std::uint64_t&gt; factors;
+    for (std::uint64_t d = 2; d * d &lt;= n; ++d) {
+        while (n % d == 0) {
+            factors.push_back(d);
+            n /= d;
+        }
+    }
+    if (n &gt; 1) factors.push_back(n);
+    return factors;
+}
+
+int main() {
+    // Пример: 360 = 2 * 2 * 2 * 3 * 3 * 5
+    const std::vector&lt;std::uint64_t&gt; parts = primeFactors(360);
+    std::printf("360 =");
+    for (std::size_t i = 0; i &lt; parts.size(); ++i) {
+        std::printf("%s%llu", i == 0 ? " " : " * ", static_cast&lt;unsigned long long&gt;(parts[i]));
+    }
+    std::printf("\n");
+    return 0;
+}
+</pre>
 
 <h2>Решето Эратосфена для нахождения простых чисел</h2>
 

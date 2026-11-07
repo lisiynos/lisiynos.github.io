@@ -166,6 +166,81 @@ end;</pre>
 
     <p>Вызов этой процедуры в основной программе будет выглядеть так: Negr(10).</p>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Рекурсивный обратный отсчёт (стихотворение про негритят): O(n) по времени, O(n) памяти на стек вызовов
+def negr(k, lines):
+    """Добавляет в список lines строки стихотворения для k негритят (при k &lt;= 0 - финальная строка)."""
+    if k &lt;= 0:
+        lines.append("Нет больше негритят!")
+        return
+    lines.append(f"{k} негритят пошли купаться в море,")
+    lines.append(f"{k} негритят резвились на просторе,")
+    lines.append("Один из них пропал - и вот вам результат:")
+    negr(k - 1, lines)  # вызов с уменьшенным на 1 числом негритят
+
+
+def main():
+    lines = []
+    negr(2, lines)
+    print("\n".join(lines))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Рекурсивный обратный отсчёт (стихотворение про негритят): O(n) по времени, O(n) памяти на стек вызовов
+pub fn negr(k: u32, lines: &amp;mut Vec&lt;String&gt;) {
+    if k == 0 {
+        lines.push("Нет больше негритят!".to_string());
+        return;
+    }
+    lines.push(format!("{k} негритят пошли купаться в море,"));
+    lines.push(format!("{k} негритят резвились на просторе,"));
+    lines.push("Один из них пропал - и вот вам результат:".to_string());
+    negr(k - 1, lines); // вызов с уменьшенным на 1 числом негритят
+}
+
+fn main() {
+    let mut lines = Vec::new();
+    negr(2, &amp;mut lines);
+    for line in &amp;lines {
+        println!("{line}");
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Рекурсивный обратный отсчёт (стихотворение про негритят): O(n) по времени, O(n) памяти на стек вызовов
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// Добавляет в lines строки стихотворения для k негритят (при k &lt;= 0 - финальная строка)
+void negr(int k, std::vector&lt;std::string&gt;&amp; lines) {
+    if (k &lt;= 0) {
+        lines.push_back("Нет больше негритят!");
+        return;
+    }
+    lines.push_back(std::to_string(k) + " негритят пошли купаться в море,");
+    lines.push_back(std::to_string(k) + " негритят резвились на просторе,");
+    lines.push_back("Один из них пропал - и вот вам результат:");
+    negr(k - 1, lines);  // вызов с уменьшенным на 1 числом негритят
+}
+
+int main() {
+    std::vector&lt;std::string&gt; lines;
+    negr(2, lines);
+    for (const std::string&amp; line : lines) {
+        std::cout &lt;&lt; line &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+
     <p><BR>
     </p>
 

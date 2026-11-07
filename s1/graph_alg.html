@@ -80,6 +80,7 @@ const MaxN = 100; { Максимальное количество верщин }
 var
   A : array [1..MaxN, 1..MaxN] of boolean; { Матрица смежности (есть ли ребро из i в j) }
   visited: array [1..MaxN] of boolean; { Посещена ли вершина? }
+  start: integer; { Начальная вершина обхода }
  
 { Поиск в глубину - ПВГ (Depth First Search - DFS) }
 procedure dfs(v: integer);
@@ -92,8 +93,88 @@ begin
 end;
 
 begin
+  start := 1;
   dfs(start); { start - начальная вершина обхода }
 end.</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E)
+
+/// Возвращает вершины в порядке обхода, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется.
+pub fn dfs(adjacency: &amp;[Vec&lt;usize&gt;], source: usize) -&gt; Vec&lt;usize&gt; {
+    let mut order = Vec::new();
+    if source == 0 || source &gt;= adjacency.len() {
+        return order;
+    }
+    let mut visited = vec![false; adjacency.len()];
+    visit(adjacency, source, &amp;mut visited, &amp;mut order);
+    order
+}
+
+/// Посещает вершину v и рекурсивно обходит все смежные с ней непосещённые вершины.
+fn visit(adjacency: &amp;[Vec&lt;usize&gt;], v: usize, visited: &amp;mut [bool], order: &amp;mut Vec&lt;usize&gt;) {
+    if visited[v] {
+        return; // Если вершина уже посещена, выходим
+    }
+    visited[v] = true; // Посетили вершину v
+    order.push(v);
+    for &amp;u in &amp;adjacency[v] {
+        // Все смежные с v вершины
+        visit(adjacency, u, visited, order);
+    }
+}
+
+fn main() {
+    // Демонстрация: граф из 9 вершин, тот же, что на странице про DFS
+    let adjacency: Vec&lt;Vec&lt;usize&gt;&gt; = vec![
+        vec![], vec![2, 8], vec![1, 3, 8], vec![2, 4, 8], vec![3, 7, 9],
+        vec![6, 7], vec![5], vec![4, 5, 8], vec![1, 2, 3, 7], vec![4],
+    ];
+    // Ожидаемый порядок обхода: 1 2 3 4 7 5 6 8 9
+    let line: Vec&lt;String&gt; = dfs(&amp;adjacency, 1).iter().map(|v| v.to_string()).collect();
+    println!("{}", line.join(" "));
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Посещает вершину v и рекурсивно обходит все смежные с ней непосещённые вершины
+void visit(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int v, std::vector&lt;bool&gt;&amp; visited,
+           std::vector&lt;int&gt;&amp; order) {
+    if (visited[v]) return;  // Если вершина уже посещена, выходим
+    visited[v] = true;       // Посетили вершину v
+    order.push_back(v);      // Запоминаем порядок обхода
+    for (const int u : adjacency[v]) {  // Все смежные с v вершины
+        visit(adjacency, u, visited, order);
+    }
+}
+
+// Возвращает вершины в порядке обхода, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется
+std::vector&lt;int&gt; dfs(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int source) {
+    std::vector&lt;int&gt; order;
+    if (source &lt;= 0 || source &gt;= static_cast&lt;int&gt;(adjacency.size())) return order;
+    std::vector&lt;bool&gt; visited(adjacency.size(), false);
+    visit(adjacency, source, visited, order);
+    return order;
+}
+
+int main() {
+    // Демонстрация: граф из 9 вершин, тот же, что на странице про DFS
+    const std::vector&lt;std::vector&lt;int&gt;&gt; adjacency = {
+        {}, {2, 8}, {1, 3, 8}, {2, 4, 8}, {3, 7, 9}, {6, 7}, {5}, {4, 5, 8}, {1, 2, 3, 7}, {4},
+    };
+    // Ожидаемый порядок обхода: 1 2 3 4 7 5 6 8 9
+    const std::vector&lt;int&gt; order = dfs(adjacency, 1);
+    for (std::size_t i = 0; i &lt; order.size(); ++i) std::cout &lt;&lt; (i ? " " : "") &lt;&lt; order[i];
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
 <h3>Поиск в ширину - ПВШ (Breadth First Search - BFS)</h3>
 
@@ -743,6 +824,172 @@ int main() {
         <p>$T \gets T+(p[v],v)$</p>
     </div>
 </div>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Прима, минимальное остовное дерево: O(E log V) с кучей heapq
+import heapq
+
+
+def prim(adjacency, start=0):
+    """Возвращает рёбра минимального остовного дерева связного неориентированного графа.
+
+    adjacency[v] — список пар (сосед, вес); каждое ребро задано в обе стороны.
+    Результат — список троек (вершина дерева, новая вершина, вес ребра).
+    """
+    if not adjacency:
+        return []
+    in_tree = [False] * len(adjacency)
+    tree_edges = []
+    # Куча кандидатов: (вес, новая вершина, вершина дерева); -1 — у стартовой вершины нет родителя
+    heap = [(0, start, -1)]
+    while heap:
+        weight, v, parent = heapq.heappop(heap)
+        # Вершина уже в дереве: более лёгкое ребро до неё было выбрано раньше
+        if in_tree[v]:
+            continue
+        in_tree[v] = True
+        if parent != -1:
+            tree_edges.append((parent, v, weight))
+        for u, edge_weight in adjacency[v]:
+            if not in_tree[u]:
+                heapq.heappush(heap, (edge_weight, u, v))
+    return tree_edges
+
+
+if __name__ == "__main__":
+    # Демонстрация: неориентированный граф из 5 вершин
+    edges = [(0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4, 9)]
+    adjacency = [[] for _ in range(5)]
+    for v, u, weight in edges:
+        adjacency[v].append((u, weight))
+        adjacency[u].append((v, weight))
+    tree = prim(adjacency)
+    for v, u, weight in tree:
+        print(v, u, weight)
+    # Ожидаемый суммарный вес дерева: 16
+    print("вес:", sum(weight for _, _, weight in tree))
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм Прима, минимальное остовное дерево: O(E log V) с BinaryHeap
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
+/// Ребро дерева: parent уже в дереве, child присоединяется по ребру веса weight.
+pub struct TreeEdge {
+    pub parent: usize,
+    pub child: usize,
+    pub weight: i64,
+}
+
+/// adjacency[v] содержит пары (сосед, вес); каждое ребро задано в обе стороны.
+pub fn prim(adjacency: &amp;[Vec&lt;(usize, i64)&gt;], start: usize) -&gt; Vec&lt;TreeEdge&gt; {
+    let mut tree = Vec::new();
+    if adjacency.is_empty() {
+        return tree;
+    }
+    let mut in_tree = vec![false; adjacency.len()];
+    // Минимальная куча кандидатов: (вес, новая вершина, вершина дерева); None — у стартовой вершины нет родителя
+    let mut heap = BinaryHeap::new();
+    heap.push(Reverse((0, start, None)));
+    while let Some(Reverse((weight, v, parent))) = heap.pop() {
+        // Вершина уже в дереве: более лёгкое ребро до неё выбрано раньше
+        if in_tree[v] {
+            continue;
+        }
+        in_tree[v] = true;
+        if let Some(p) = parent {
+            tree.push(TreeEdge { parent: p, child: v, weight });
+        }
+        for &amp;(u, edge_weight) in &amp;adjacency[v] {
+            if !in_tree[u] {
+                heap.push(Reverse((edge_weight, u, Some(v))));
+            }
+        }
+    }
+    tree
+}
+
+fn main() {
+    // Демонстрация: неориентированный граф из 5 вершин
+    let roads: [(usize, usize, i64); 7] = [
+        (0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4, 9),
+    ];
+    let mut adjacency: Vec&lt;Vec&lt;(usize, i64)&gt;&gt; = vec![Vec::new(); 5];
+    for (v, u, weight) in roads {
+        adjacency[v].push((u, weight));
+        adjacency[u].push((v, weight));
+    }
+    let tree = prim(&amp;adjacency, 0);
+    for edge in &amp;tree {
+        println!("{} {} {}", edge.parent, edge.child, edge.weight);
+    }
+    let total: i64 = tree.iter().map(|edge| edge.weight).sum();
+    // Ожидаемый суммарный вес дерева: 16
+    println!("вес: {total}");
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Прима, минимальное остовное дерево: O(E log V) с приоритетной очередью
+#include &lt;cstddef&gt;
+#include &lt;functional&gt;
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;tuple&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct TreeEdge {
+    int parent;  // вершина, уже находящаяся в дереве
+    int child;   // новая вершина дерева
+    long long weight;
+};
+
+// adjacency[v] — пары (сосед, вес); каждое ребро задано в обе стороны
+std::vector&lt;TreeEdge&gt; prim(const std::vector&lt;std::vector&lt;std::pair&lt;int, long long&gt;&gt;&gt;&amp; adjacency, int start) {
+    std::vector&lt;TreeEdge&gt; tree;
+    if (adjacency.empty()) return tree;
+    std::vector&lt;bool&gt; in_tree(adjacency.size(), false);
+    // Минимальная куча кандидатов: (вес, новая вершина, вершина дерева); -1 — у стартовой вершины нет родителя
+    using Candidate = std::tuple&lt;long long, int, int&gt;;
+    std::priority_queue&lt;Candidate, std::vector&lt;Candidate&gt;, std::greater&lt;Candidate&gt;&gt; heap;
+    heap.push({0, start, -1});
+    while (!heap.empty()) {
+        const auto [weight, v, parent] = heap.top();
+        heap.pop();
+        // Вершина уже в дереве: более лёгкое ребро до неё выбрано раньше
+        if (in_tree[v]) continue;
+        in_tree[v] = true;
+        if (parent != -1) tree.push_back({parent, v, weight});
+        for (const auto&amp; [u, edge_weight] : adjacency[v]) {
+            if (!in_tree[u]) heap.push({edge_weight, u, v});
+        }
+    }
+    return tree;
+}
+
+int main() {
+    // Демонстрация: неориентированный граф из 5 вершин
+    const int vertex_count = 5;
+    const int roads[][3] = {{0, 1, 2}, {0, 3, 6}, {1, 2, 3}, {1, 3, 8}, {1, 4, 5}, {2, 4, 7}, {3, 4, 9}};
+    std::vector&lt;std::vector&lt;std::pair&lt;int, long long&gt;&gt;&gt; adjacency(vertex_count);
+    for (const auto&amp; road : roads) {
+        adjacency[road[0]].push_back({road[1], road[2]});
+        adjacency[road[1]].push_back({road[0], road[2]});
+    }
+    long long total = 0;
+    for (const TreeEdge&amp; edge : prim(adjacency, 0)) {
+        std::cout &lt;&lt; edge.parent &lt;&lt; ' ' &lt;&lt; edge.child &lt;&lt; ' ' &lt;&lt; edge.weight &lt;&lt; '\n';
+        total += edge.weight;
+    }
+    // Ожидаемый суммарный вес дерева: 16
+    std::cout &lt;&lt; "вес: " &lt;&lt; total &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
 <h2>Поиск особых путей в графах</h2>
 

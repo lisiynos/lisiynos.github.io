@@ -613,6 +613,150 @@ begin
   Result[-1] := 1;
 end;</pre>
 
+    <p>Деление длинного числа на короткое делитель выполняется в столбик от старшей цифры к младшей: за один проход получаются частное (LDiv) и остаток (LMod).</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Деление длинного числа на короткое (LDiv - частное, LMod - остаток) в столбик: O(n) операций
+def divmod_short(digits, divisor):
+    """Делит число (список цифр, младшая первая) на короткое divisor &gt;= 1; возвращает (частное, остаток)."""
+    quotient = []
+    remainder = 0
+    # Идём от старшей цифры к младшей: остаток приписываем справа к текущей цифре
+    for digit in reversed(digits):
+        current = remainder * 10 + digit
+        quotient.append(current // divisor)
+        remainder = current % divisor
+    quotient.reverse()
+    # Убираем ведущие нули частного, оставляя хотя бы одну цифру
+    while len(quotient) &gt; 1 and quotient[-1] == 0:
+        quotient.pop()
+    return quotient, remainder
+
+
+def parse_long(text):
+    """Строка десятичных цифр -&gt; список цифр, младшая цифра первая."""
+    return [int(symbol) for symbol in reversed(text)]
+
+
+def format_long(digits):
+    """Список цифр -&gt; строка без ведущих нулей."""
+    text = "".join(str(digit) for digit in reversed(digits)).lstrip("0")
+    return text or "0"
+
+
+def main():
+    quotient, remainder = divmod_short(parse_long("12345678901234567890"), 97)
+    print(format_long(quotient), remainder)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Деление длинного числа на короткое (LDiv - частное, LMod - остаток) в столбик: O(n) операций
+// Делитель должен быть не больше 2^32: промежуточное значение remainder * 10 + цифра помещается в u64
+
+pub fn divmod_short(digits: &amp;[u8], divisor: u64) -&gt; (Vec&lt;u8&gt;, u64) {
+    let mut quotient = Vec::with_capacity(digits.len());
+    let mut remainder = 0;
+    // Идём от старшей цифры к младшей: остаток приписываем справа к текущей цифре
+    for &amp;digit in digits.iter().rev() {
+        let current = remainder * 10 + u64::from(digit);
+        quotient.push((current / divisor) as u8);
+        remainder = current % divisor;
+    }
+    quotient.reverse();
+    // Убираем ведущие нули частного, оставляя хотя бы одну цифру
+    while quotient.len() &gt; 1 &amp;&amp; quotient.last() == Some(&amp;0) {
+        quotient.pop();
+    }
+    (quotient, remainder)
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+pub fn parse_long(text: &amp;str) -&gt; Vec&lt;u8&gt; {
+    text.bytes().rev().map(|byte| byte - b'0').collect()
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+pub fn format_long(digits: &amp;[u8]) -&gt; String {
+    let text: String = digits.iter().rev().map(|&amp;digit| char::from(digit + b'0')).collect();
+    let trimmed = text.trim_start_matches('0');
+    if trimmed.is_empty() {
+        "0".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn main() {
+    let (quotient, remainder) = divmod_short(&amp;parse_long("12345678901234567890"), 97);
+    println!("{} {}", format_long(&amp;quotient), remainder);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Деление длинного числа на короткое (LDiv - частное, LMod - остаток) в столбик: O(n) операций
+// Делитель должен быть не больше 2^32: промежуточное значение remainder * 10 + цифра помещается в 64 бита
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Digits = std::vector&lt;int&gt;;
+using u64 = std::uint64_t;
+
+// Делит число (вектор цифр, младшая первая) на короткое divisor; возвращает (частное, остаток)
+std::pair&lt;Digits, u64&gt; divmod_short(const Digits&amp; digits, u64 divisor) {
+    Digits quotient;
+    u64 remainder = 0;
+    // Идём от старшей цифры к младшей: остаток приписываем справа к текущей цифре
+    for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+        const u64 current = remainder * 10 + static_cast&lt;u64&gt;(*it);
+        quotient.push_back(static_cast&lt;int&gt;(current / divisor));
+        remainder = current % divisor;
+    }
+    std::reverse(quotient.begin(), quotient.end());
+    // Убираем ведущие нули частного, оставляя хотя бы одну цифру
+    while (quotient.size() &gt; 1 &amp;&amp; quotient.back() == 0) {
+        quotient.pop_back();
+    }
+    return {quotient, remainder};
+}
+
+// Строка десятичных цифр -&gt; вектор цифр, младшая цифра первая
+Digits parse_long(const std::string&amp; text) {
+    Digits digits;
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        digits.push_back(*it - '0');
+    }
+    return digits;
+}
+
+// Вектор цифр -&gt; строка без ведущих нулей
+std::string format_long(const Digits&amp; digits) {
+    std::string text;
+    for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+        text += static_cast&lt;char&gt;('0' + *it);
+    }
+    const std::size_t first = text.find_first_not_of('0');
+    return first == std::string::npos ? "0" : text.substr(first);
+}
+
+int main() {
+    const auto [quotient, remainder] = divmod_short(parse_long("12345678901234567890"), 97);
+    std::cout &lt;&lt; format_long(quotient) &lt;&lt; ' ' &lt;&lt; remainder &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <p><strong>Реализация на Python</strong></p>
     <pre class="sh_python">
 # Вычитание длинных чисел в столбик с заёмом: O(n) операций; требуется a &gt;= b

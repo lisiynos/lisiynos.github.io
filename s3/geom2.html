@@ -258,6 +258,103 @@ int main() {
         </li>
     </ul>
 
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пересечение прямых A1x + B1y + C1 = 0 и A2x + B2y + C2 = 0 по формулам Крамера: O(1)
+Line = tuple[float, float, float]  # коэффициенты (A, B, C)
+
+
+def intersect_lines(first: Line, second: Line) -&gt; tuple[float, float] | None:
+    """Точка пересечения или None, если определитель равен нулю (прямые параллельны или совпадают)."""
+    a1, b1, c1 = first
+    a2, b2, c2 = second
+    det = a1 * b2 - a2 * b1
+    if det == 0:
+        return None
+    x = -(c1 * b2 - c2 * b1) / det
+    y = -(a1 * c2 - a2 * c1) / det
+    return x, y
+
+
+if __name__ == "__main__":
+    # Прямые x + y - 3 = 0 и x - y - 1 = 0 пересекаются в точке (2, 1)
+    print("Пересечение:", intersect_lines((1, 1, -3), (1, -1, -1)))
+    # Прямые x + y = 0 и x + y - 5 = 0 параллельны
+    print("Параллельные:", intersect_lines((1, 1, 0), (1, 1, -5)))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Пересечение прямых A1x + B1y + C1 = 0 и A2x + B2y + C2 = 0 по формулам Крамера: O(1)
+
+/// Прямая задана коэффициентами (A, B, C) уравнения Ax + By + C = 0.
+#[derive(Clone, Copy)]
+pub struct Line {
+    pub a: f64,
+    pub b: f64,
+    pub c: f64,
+}
+
+/// Точка пересечения или None, если определитель равен нулю (прямые параллельны или совпадают).
+pub fn intersect_lines(first: Line, second: Line) -&gt; Option&lt;(f64, f64)&gt; {
+    let det = first.a * second.b - second.a * first.b;
+    if det == 0.0 {
+        return None;
+    }
+    let dx = first.c * second.b - second.c * first.b;
+    let dy = first.a * second.c - second.a * first.c;
+    Some((-dx / det, -dy / det))
+}
+
+fn main() {
+    // Прямые x + y - 3 = 0 и x - y - 1 = 0 пересекаются в точке (2, 1)
+    let first = Line { a: 1.0, b: 1.0, c: -3.0 };
+    let second = Line { a: 1.0, b: -1.0, c: -1.0 };
+    if let Some((x, y)) = intersect_lines(first, second) {
+        println!("Пересечение: ({:.1}, {:.1})", x, y);
+    }
+    // Прямые x + y = 0 и x + y - 5 = 0 параллельны
+    let zero = Line { a: 1.0, b: 1.0, c: 0.0 };
+    let shifted = Line { a: 1.0, b: 1.0, c: -5.0 };
+    let answer = if intersect_lines(zero, shifted).is_some() { "есть точка" } else { "нет точки" };
+    println!("Параллельные: {}", answer);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пересечение прямых A1x + B1y + C1 = 0 и A2x + B2y + C2 = 0 по формулам Крамера: O(1)
+#include &lt;cstdio&gt;
+#include &lt;optional&gt;
+
+struct Line {
+    double a, b, c;  // коэффициенты уравнения Ax + By + C = 0
+};
+
+struct Point {
+    double x, y;
+};
+
+// Точка пересечения или пустой результат, если определитель равен нулю (прямые параллельны или совпадают)
+std::optional&lt;Point&gt; intersectLines(const Line&amp; first, const Line&amp; second) {
+    const double det = first.a * second.b - second.a * first.b;
+    if (det == 0) return std::nullopt;
+    const double dx = first.c * second.b - second.c * first.b;
+    const double dy = first.a * second.c - second.a * first.c;
+    return Point{-dx / det, -dy / det};
+}
+
+int main() {
+    // Прямые x + y - 3 = 0 и x - y - 1 = 0 пересекаются в точке (2, 1)
+    const std::optional&lt;Point&gt; p = intersectLines({1, 1, -3}, {1, -1, -1});
+    if (p) std::printf("Пересечение: (%.1f, %.1f)\n", p-&gt;x, p-&gt;y);
+    // Прямые x + y = 0 и x + y - 5 = 0 параллельны
+    const std::optional&lt;Point&gt; q = intersectLines({1, 1, 0}, {1, 1, -5});
+    std::printf("Параллельные: %s\n", q ? "есть точка" : "нет точки");
+    return 0;
+}
+</pre>
+
     <div style="float:left;margin:20px 10px 0 0;"><img loading="lazy" decoding="async" src="geom2/16.png">
 
         <p class="title">Рис. 6</p>
@@ -524,6 +621,103 @@ Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         суммарного угла с
         <span style='font-family:Symbol'>p</span> (больше либо меньше
         &#960;).</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Принадлежность точки многоугольнику, метод суммы углов: O(N) по времени, O(1) по памяти
+import math
+
+Point = tuple[float, float]
+
+
+def angle_sum_inside(point: Point, polygon: list[Point]) -&gt; bool:
+    """Точка внутри, если сумма ориентированных углов, под которыми видны стороны, по модулю больше pi."""
+    px, py = point
+    total = 0.0
+    for (x1, y1), (x2, y2) in zip(polygon, polygon[1:] + polygon[:1]):
+        ax, ay = x1 - px, y1 - py
+        bx, by = x2 - px, y2 - py
+        # Угол от вектора a к вектору b: знак дает векторное произведение, величина - скалярное
+        total += math.atan2(ax * by - ay * bx, ax * bx + ay * by)
+    return abs(total) &gt; math.pi
+
+
+if __name__ == "__main__":
+    # Невыпуклый многоугольник в форме буквы "L"
+    shape = [(0, 0), (4, 0), (4, 1), (1, 1), (1, 4), (0, 4)]
+    for point in [(0.5, 0.5), (2, 2), (0.5, 3), (3, 0.5)]:
+        print(point, "внутри" if angle_sum_inside(point, shape) else "снаружи")
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Принадлежность точки многоугольнику, метод суммы углов: O(N) по времени, O(1) по памяти
+type Point = (f64, f64);
+
+/// Точка внутри, если сумма ориентированных углов, под которыми видны стороны, по модулю больше pi.
+pub fn angle_sum_inside(point: Point, polygon: &amp;[Point]) -&gt; bool {
+    let (px, py) = point;
+    let n = polygon.len();
+    let mut total: f64 = 0.0;
+    for i in 0..n {
+        let (x1, y1) = polygon[i];
+        let (x2, y2) = polygon[(i + 1) % n];
+        let (ax, ay) = (x1 - px, y1 - py);
+        let (bx, by) = (x2 - px, y2 - py);
+        // Угол от вектора a к вектору b: знак дает векторное произведение, величина - скалярное
+        total += (ax * by - ay * bx).atan2(ax * bx + ay * by);
+    }
+    total.abs() &gt; std::f64::consts::PI
+}
+
+fn main() {
+    // Невыпуклый многоугольник в форме буквы "L"
+    let shape = [(0.0, 0.0), (4.0, 0.0), (4.0, 1.0), (1.0, 1.0), (1.0, 4.0), (0.0, 4.0)];
+    for point in [(0.5, 0.5), (2.0, 2.0), (0.5, 3.0), (3.0, 0.5)] {
+        let place = if angle_sum_inside(point, &amp;shape) { "внутри" } else { "снаружи" };
+        println!("({:.1}, {:.1}) {}", point.0, point.1, place);
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Принадлежность точки многоугольнику, метод суммы углов: O(N) по времени, O(1) по памяти
+#include &lt;cmath&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    double x, y;
+};
+
+// Точка внутри, если сумма ориентированных углов, под которыми видны стороны, по модулю больше pi
+bool angleSumInside(Point p, const std::vector&lt;Point&gt;&amp; polygon) {
+    const double pi = std::acos(-1.0);
+    double total = 0.0;
+    const std::size_t n = polygon.size();
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        const Point&amp; a = polygon[i];
+        const Point&amp; b = polygon[(i + 1) % n];
+        const double ax = a.x - p.x, ay = a.y - p.y;
+        const double bx = b.x - p.x, by = b.y - p.y;
+        // Угол от вектора a к вектору b: знак дает векторное произведение, величина - скалярное
+        total += std::atan2(ax * by - ay * bx, ax * bx + ay * by);
+    }
+    return std::fabs(total) &gt; pi;
+}
+
+int main() {
+    // Невыпуклый многоугольник в форме буквы "L"
+    const std::vector&lt;Point&gt; shape = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
+    const std::vector&lt;Point&gt; tests = {{0.5, 0.5}, {2, 2}, {0.5, 3}, {3, 0.5}};
+    for (const Point&amp; t : tests) {
+        std::printf("(%.1f, %.1f) %s\n", t.x, t.y, angleSumInside(t, shape) ? "внутри" : "снаружи");
+    }
+    return 0;
+}
+</pre>
 
     <p style='margin: 0cm -.25pt 0cm 36.0pt; text-indent:-18.0pt'>5)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         Провести через точку произвольную прямую. Если она не пересекает ни одну

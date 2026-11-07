@@ -216,6 +216,92 @@ begin
   else 
     nnode := 1 + nnode(t^.left) + nnode(t^.right)
 end;</pre>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Число узлов бинарного дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+class Node:
+    def __init__(self, value, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+def count_nodes(node) -&gt; int:
+    """Пустое дерево содержит 0 узлов, иначе 1 + число узлов левого и правого поддеревьев."""
+    if node is None:
+        return 0
+    return 1 + count_nodes(node.left) + count_nodes(node.right)
+
+
+if __name__ == "__main__":
+    # Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    root = Node(1, Node(2, Node(4)), Node(3))
+    print("Число узлов:", count_nodes(root))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Число узлов бинарного дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub value: i32,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(value: i32, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { value, left, right }))
+}
+
+/// Пустое дерево содержит 0 узлов, иначе 1 + число узлов левого и правого поддеревьев.
+pub fn count_nodes(link: &amp;Link) -&gt; usize {
+    match link {
+        None =&gt; 0,
+        Some(n) =&gt; 1 + count_nodes(&amp;n.left) + count_nodes(&amp;n.right),
+    }
+}
+
+fn main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    let root = node(1, node(2, node(4, None, None), None), node(3, None, None));
+    let top = root.as_ref().map_or(0, |n| n.value);
+    println!("Корень {}, число узлов {}", top, count_nodes(&amp;root));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Число узлов бинарного дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int value, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{value, std::move(left), std::move(right)});
+}
+
+// Пустое дерево содержит 0 узлов, иначе 1 + число узлов левого и правого поддеревьев
+std::size_t countNodes(const Node* node) {
+    if (node == nullptr) return 0;
+    return 1 + countNodes(node-&gt;left.get()) + countNodes(node-&gt;right.get());
+}
+
+int main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    auto root = makeNode(1, makeNode(2, makeNode(4)), makeNode(3));
+    std::printf("Число узлов: %zu\n", countNodes(root.get()));
+    return 0;
+}
+</pre>
+
     <p><strong>Задача 1.</strong></p>
 
     <p>1) Опишите рекурсивный алгоритм вычисления количества листьев бинарного дерева.
@@ -378,6 +464,95 @@ int main() {
         решена. В противном случае поиск элементов следует производить
         в поддеревьях A и B (рисунок 7). Порядок просмотра
         поддеревьев произволен.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Общий поиск элемента в бинарном дереве (без порядка): O(n) по времени, O(h) по памяти стека
+class Node:
+    def __init__(self, value, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+def tree_search(node, value) -&gt; bool:
+    """Если значение в корне - нашли; иначе ищем сначала в левом поддереве, затем в правом."""
+    if node is None:
+        return False
+    if node.value == value:
+        return True
+    return tree_search(node.left, value) or tree_search(node.right, value)
+
+
+if __name__ == "__main__":
+    # Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    root = Node(1, Node(2, Node(4)), Node(3))
+    print("Есть 4:", tree_search(root, 4), "Есть 5:", tree_search(root, 5))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Общий поиск элемента в бинарном дереве (без порядка): O(n) по времени, O(h) по памяти стека
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub value: i32,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(value: i32, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { value, left, right }))
+}
+
+/// Если значение в корне - нашли; иначе ищем сначала в левом поддереве, затем в правом.
+pub fn tree_search(link: &amp;Link, value: i32) -&gt; bool {
+    match link {
+        None =&gt; false,
+        Some(n) =&gt; n.value == value || tree_search(&amp;n.left, value) || tree_search(&amp;n.right, value),
+    }
+}
+
+fn main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    let root = node(1, node(2, node(4, None, None), None), node(3, None, None));
+    println!("Есть 4: {}", tree_search(&amp;root, 4));
+    println!("Есть 5: {}", tree_search(&amp;root, 5));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Общий поиск элемента в бинарном дереве (без порядка): O(n) по времени, O(h) по памяти стека
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int value, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{value, std::move(left), std::move(right)});
+}
+
+// Если значение в корне - нашли; иначе ищем сначала в левом поддереве, затем в правом
+bool treeSearch(const Node* node, int value) {
+    if (node == nullptr) return false;
+    if (node-&gt;value == value) return true;
+    return treeSearch(node-&gt;left.get(), value) || treeSearch(node-&gt;right.get(), value);
+}
+
+int main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4
+    auto root = makeNode(1, makeNode(2, makeNode(4)), makeNode(3));
+    std::printf("Есть 4: %s\n", treeSearch(root.get(), 4) ? "да" : "нет");
+    std::printf("Есть 5: %s\n", treeSearch(root.get(), 5) ? "да" : "нет");
+    return 0;
+}
+</pre>
 
     <p>Уровень 1. Опишите рекурсивный алгоритм, определяющий число элементов в
         бинарном дереве, равных заданному. </p>
@@ -557,6 +732,115 @@ int main() {
         третьего уровня для дерева на рисунке 6 и узлами второго уровня для левого и правого поддеревьев, изображенных
         на
         рисунке 9.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Число узлов на каждом уровне бинарного дерева: O(n) по времени, O(h) по памяти стека
+class Node:
+    def __init__(self, value, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+def count_per_level(node, level: int, counts: list[int]) -&gt; None:
+    """Узел уровня level (корень - уровень 1) добавляем в counts; сыновья попадают на уровень + 1."""
+    if node is None:
+        return
+    if len(counts) &lt; level:
+        counts.append(0)
+    counts[level - 1] += 1
+    count_per_level(node.left, level + 1, counts)
+    count_per_level(node.right, level + 1, counts)
+
+
+if __name__ == "__main__":
+    # Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4, у 3 есть сын 5
+    root = Node(1, Node(2, Node(4)), Node(3, None, Node(5)))
+    counts: list[int] = []
+    count_per_level(root, 1, counts)
+    for level, count in enumerate(counts, start=1):
+        print("Уровень", level, ":", count)
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Число узлов на каждом уровне бинарного дерева: O(n) по времени, O(h) по памяти стека
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub value: i32,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(value: i32, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { value, left, right }))
+}
+
+/// Узел уровня level (корень - уровень 1) добавляем в counts; сыновья попадают на уровень + 1.
+pub fn count_per_level(link: &amp;Link, level: usize, counts: &amp;mut Vec&lt;usize&gt;) {
+    if let Some(n) = link {
+        if counts.len() &lt; level {
+            counts.push(0);
+        }
+        counts[level - 1] += 1;
+        count_per_level(&amp;n.left, level + 1, counts);
+        count_per_level(&amp;n.right, level + 1, counts);
+    }
+}
+
+fn main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4, у 3 есть сын 5
+    let root = node(1, node(2, node(4, None, None), None), node(3, None, node(5, None, None)));
+    println!("Корень: {}", root.as_ref().map_or(0, |n| n.value));
+    let mut counts = Vec::new();
+    count_per_level(&amp;root, 1, &amp;mut counts);
+    for (level, count) in counts.iter().enumerate() {
+        println!("Уровень {}: {}", level + 1, count);
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Число узлов на каждом уровне бинарного дерева: O(n) по времени, O(h) по памяти стека
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Node {
+    int value;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int value, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{value, std::move(left), std::move(right)});
+}
+
+// Узел уровня level (корень - уровень 1) добавляем в counts; сыновья попадают на уровень + 1
+void countPerLevel(const Node* node, std::size_t level, std::vector&lt;std::size_t&gt;&amp; counts) {
+    if (node == nullptr) return;
+    if (counts.size() &lt; level) counts.push_back(0);
+    counts[level - 1] += 1;
+    countPerLevel(node-&gt;left.get(), level + 1, counts);
+    countPerLevel(node-&gt;right.get(), level + 1, counts);
+}
+
+int main() {
+    // Дерево: корень 1, сыновья 2 и 3, у 2 есть сын 4, у 3 есть сын 5
+    auto root = makeNode(1, makeNode(2, makeNode(4)), makeNode(3, nullptr, makeNode(5)));
+    std::vector&lt;std::size_t&gt; counts;
+    countPerLevel(root.get(), 1, counts);
+    for (std::size_t i = 0; i &lt; counts.size(); ++i) {
+        std::printf("Уровень %zu: %zu\n", i + 1, counts[i]);
+    }
+    return 0;
+}
+</pre>
 
     <p align="left">Уровень 2. После многих часов, проведенных в библиотеке, Виви составила свою родословную. Она
         получилась

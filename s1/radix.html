@@ -114,6 +114,143 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     2541<sub>8</sub> = [ 2<sub>8</sub> | 5<sub>8</sub> | 4<sub>8</sub> | 1<sub>8</sub> ] = [ 010<sub>2</sub> |
     101<sub>2</sub> | 100<sub>2</sub> | 001<sub>2</sub> ] = 010101100001<sub>2</sub>
 
+    <p>Аналогично, для шестнадцатеричной системы каждая цифра заменяется группой из четырёх двоичных цифр.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def base_to_binary(text, group_size):
+    """Каждая цифра записи (основание 2**group_size) заменяется группой из group_size двоичных цифр."""
+    bits = []
+    for symbol in text:
+        digit = DIGITS.find(symbol)
+        if not 0 &lt;= digit &lt; 2 ** group_size:
+            raise ValueError(f"цифра {symbol!r} не входит в систему с основанием {2 ** group_size}")
+        bits.append(format(digit, f"0{group_size}b"))
+    return "".join(bits)
+
+
+def binary_to_base(bits, group_size):
+    """Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр."""
+    if not set(bits) &lt;= {"0", "1"}:
+        raise ValueError("запись должна состоять из цифр 0 и 1")
+    width = (len(bits) + group_size - 1) // group_size * group_size
+    padded = bits.zfill(width)
+    return "".join(DIGITS[int(padded[i:i + group_size], 2)] for i in range(0, width, group_size))
+
+
+def main():
+    # 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    print(base_to_binary("2541", 3))         # 010101100001
+    print(binary_to_base("11111101000", 3))  # 3750
+    print(base_to_binary("7E8", 4))          # 011111101000
+    print(binary_to_base("11111101000", 4))  # 7E8
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">
+// Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+// group_size - число двоичных цифр в одной цифре: 3 для восьмеричной, 4 для шестнадцатеричной
+const DIGITS: &amp;[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Каждая цифра записи (основание 2^group_size) заменяется группой из group_size двоичных цифр
+pub fn base_to_binary(text: &amp;str, group_size: usize) -&gt; Option&lt;String&gt; {
+    let mut bits = String::new();
+    for symbol in text.bytes() {
+        let digit = DIGITS.iter().position(|&amp;known| known == symbol)?;
+        if digit &gt;= 1 &lt;&lt; group_size {
+            return None;
+        }
+        bits.push_str(&amp;format!("{digit:0group_size$b}"));
+    }
+    Some(bits)
+}
+
+// Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр
+pub fn binary_to_base(bits: &amp;str, group_size: usize) -&gt; Option&lt;String&gt; {
+    if !bits.bytes().all(|bit| bit == b'0' || bit == b'1') {
+        return None;
+    }
+    let width = (bits.len() + group_size - 1) / group_size * group_size;
+    let padded = format!("{}{bits}", "0".repeat(width - bits.len()));
+    let symbols = padded.as_bytes().chunks(group_size).map(|group| {
+        let value = group.iter().fold(0, |acc, &amp;bit| acc * 2 + usize::from(bit - b'0'));
+        char::from(DIGITS[value])
+    });
+    Some(symbols.collect())
+}
+
+fn main() {
+    // 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    println!("{}", base_to_binary("2541", 3).unwrap()); // 010101100001
+    println!("{}", binary_to_base("11111101000", 3).unwrap()); // 3750
+    println!("{}", base_to_binary("7E8", 4).unwrap()); // 011111101000
+    println!("{}", binary_to_base("11111101000", 4).unwrap()); // 7E8
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+// group_size - число двоичных цифр в одной цифре: 3 для восьмеричной, 4 для шестнадцатеричной
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+const std::string DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Каждая цифра записи (основание 2^group_size) заменяется группой из group_size двоичных цифр
+std::optional&lt;std::string&gt; base_to_binary(const std::string&amp; text, std::size_t group_size) {
+    std::string bits;
+    for (char symbol : text) {
+        const std::size_t digit = DIGITS.find(symbol);
+        if (digit == std::string::npos || digit &gt;= (std::size_t{1} &lt;&lt; group_size)) {
+            return std::nullopt;
+        }
+        // Старшие двоичные цифры группы выводим первыми
+        for (std::size_t shift = group_size; shift &gt; 0; --shift) {
+            bits += ((digit &gt;&gt; (shift - 1)) &amp; 1U) ? '1' : '0';
+        }
+    }
+    return bits;
+}
+
+// Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр
+std::optional&lt;std::string&gt; binary_to_base(const std::string&amp; bits, std::size_t group_size) {
+    if (bits.find_first_not_of("01") != std::string::npos) {
+        return std::nullopt;
+    }
+    const std::size_t width = (bits.size() + group_size - 1) / group_size * group_size;
+    const std::string padded = std::string(width - bits.size(), '0') + bits;
+    std::string result;
+    for (std::size_t start = 0; start &lt; width; start += group_size) {
+        std::size_t value = 0;
+        for (std::size_t i = start; i &lt; start + group_size; ++i) {
+            value = value * 2 + static_cast&lt;std::size_t&gt;(padded[i] - '0');
+        }
+        result += DIGITS[value];
+    }
+    return result;
+}
+
+int main() {
+    // 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    std::cout &lt;&lt; base_to_binary("2541", 3).value() &lt;&lt; '\n';         // 010101100001
+    std::cout &lt;&lt; binary_to_base("11111101000", 3).value() &lt;&lt; '\n';  // 3750
+    std::cout &lt;&lt; base_to_binary("7E8", 4).value() &lt;&lt; '\n';          // 011111101000
+    std::cout &lt;&lt; binary_to_base("11111101000", 4).value() &lt;&lt; '\n';  // 7E8
+    return 0;
+}
+</pre>
+
     <h2>Перевод целых чисел из 10 системы счисления в любую</h2>
 
     <p>Для перевода надо делить "в столбик" число на основание системы счисления. Каждый очередной остаток будет цифрой

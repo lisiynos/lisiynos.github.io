@@ -72,6 +72,85 @@ dfs(start)  # start - начальная вершина обхода
 print(visited)
 </pre>
 
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E)
+
+/// Возвращает вершины в порядке обхода, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется.
+pub fn dfs(adjacency: &amp;[Vec&lt;usize&gt;], source: usize) -&gt; Vec&lt;usize&gt; {
+    let mut order = Vec::new();
+    if source == 0 || source &gt;= adjacency.len() {
+        return order;
+    }
+    let mut visited = vec![false; adjacency.len()];
+    visit(adjacency, source, &amp;mut visited, &amp;mut order);
+    order
+}
+
+/// Посещает вершину v и рекурсивно обходит все смежные с ней непосещённые вершины.
+fn visit(adjacency: &amp;[Vec&lt;usize&gt;], v: usize, visited: &amp;mut [bool], order: &amp;mut Vec&lt;usize&gt;) {
+    if visited[v] {
+        return; // Если вершина уже посещена, выходим
+    }
+    visited[v] = true; // Посетили вершину v
+    order.push(v);
+    for &amp;u in &amp;adjacency[v] {
+        // Все смежные с v вершины
+        visit(adjacency, u, visited, order);
+    }
+}
+
+fn main() {
+    // Демонстрация: граф из 9 вершин, тот же, что на странице про DFS
+    let adjacency: Vec&lt;Vec&lt;usize&gt;&gt; = vec![
+        vec![], vec![2, 8], vec![1, 3, 8], vec![2, 4, 8], vec![3, 7, 9],
+        vec![6, 7], vec![5], vec![4, 5, 8], vec![1, 2, 3, 7], vec![4],
+    ];
+    // Ожидаемый порядок обхода: 1 2 3 4 7 5 6 8 9
+    let line: Vec&lt;String&gt; = dfs(&amp;adjacency, 1).iter().map(|v| v.to_string()).collect();
+    println!("{}", line.join(" "));
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск в глубину (DFS), рекурсивный обход графа: O(V + E)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Посещает вершину v и рекурсивно обходит все смежные с ней непосещённые вершины
+void visit(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int v, std::vector&lt;bool&gt;&amp; visited,
+           std::vector&lt;int&gt;&amp; order) {
+    if (visited[v]) return;  // Если вершина уже посещена, выходим
+    visited[v] = true;       // Посетили вершину v
+    order.push_back(v);      // Запоминаем порядок обхода
+    for (const int u : adjacency[v]) {  // Все смежные с v вершины
+        visit(adjacency, u, visited, order);
+    }
+}
+
+// Возвращает вершины в порядке обхода, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется
+std::vector&lt;int&gt; dfs(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int source) {
+    std::vector&lt;int&gt; order;
+    if (source &lt;= 0 || source &gt;= static_cast&lt;int&gt;(adjacency.size())) return order;
+    std::vector&lt;bool&gt; visited(adjacency.size(), false);
+    visit(adjacency, source, visited, order);
+    return order;
+}
+
+int main() {
+    // Демонстрация: граф из 9 вершин, тот же, что на странице про DFS
+    const std::vector&lt;std::vector&lt;int&gt;&gt; adjacency = {
+        {}, {2, 8}, {1, 3, 8}, {2, 4, 8}, {3, 7, 9}, {6, 7}, {5}, {4, 5, 8}, {1, 2, 3, 7}, {4},
+    };
+    // Ожидаемый порядок обхода: 1 2 3 4 7 5 6 8 9
+    const std::vector&lt;int&gt; order = dfs(adjacency, 1);
+    for (std::size_t i = 0; i &lt; order.size(); ++i) std::cout &lt;&lt; (i ? " " : "") &lt;&lt; order[i];
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
     <h3>Поиск в ширину - ПВШ (Breadth First Search - BFS)</h3>
 
     <p>Метод обхода графа при котором в первую очередь переход делается из первой вершины, из которой мы ещё не ходили
@@ -120,6 +199,88 @@ def bfs(v):
 start = 1
 bfs(start)  # start - начальная вершина обхода
 print(BFS)  # Выводится: [1, 2, 8, 3, 7, 4, 5, 9, 6]
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">// Алгоритм поиска в ширину (BFS), порядок обхода вершин: O(V + E)
+use std::collections::VecDeque;
+
+/// Возвращает порядок обхода вершин, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется.
+pub fn bfs(adjacency: &amp;[Vec&lt;usize&gt;], source: usize) -&gt; Vec&lt;usize&gt; {
+    let mut order = Vec::new();
+    if source == 0 || source &gt;= adjacency.len() {
+        return order;
+    }
+    let mut visited = vec![false; adjacency.len()];
+    visited[source] = true;
+    let mut pending = VecDeque::from([source]); // Очередь вершин, которые ещё предстоит обработать
+    while let Some(v) = pending.pop_front() {
+        order.push(v);
+        for &amp;u in &amp;adjacency[v] {
+            // Вершина u ещё не посещена: помечаем её и ставим в очередь
+            if !visited[u] {
+                visited[u] = true;
+                pending.push_back(u);
+            }
+        }
+    }
+    order
+}
+
+fn main() {
+    // Демонстрация: граф из 9 вершин, тот же, что в Python-версии
+    let adjacency: Vec&lt;Vec&lt;usize&gt;&gt; = vec![
+        vec![], vec![2, 8], vec![1, 3, 8], vec![2, 4, 8], vec![3, 7, 9],
+        vec![6, 7], vec![5], vec![4, 5, 8], vec![1, 2, 3, 7], vec![4],
+    ];
+    // Ожидаемый порядок обхода: 1 2 8 3 7 4 5 9 6
+    let line: Vec&lt;String&gt; = bfs(&amp;adjacency, 1).iter().map(|v| v.to_string()).collect();
+    println!("{}", line.join(" "));
+}
+</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм поиска в ширину (BFS), порядок обхода вершин: O(V + E)
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+
+// Возвращает порядок обхода вершин, начиная с source. Вершины нумеруются с 1, adjacency[0] не используется
+std::vector&lt;int&gt; bfs(const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adjacency, int source) {
+    std::vector&lt;int&gt; order;
+    if (source &lt;= 0 || source &gt;= static_cast&lt;int&gt;(adjacency.size())) return order;
+    std::vector&lt;bool&gt; visited(adjacency.size(), false);
+    std::queue&lt;int&gt; pending;  // Очередь вершин, которые ещё предстоит обработать
+    visited[source] = true;
+    pending.push(source);
+    while (!pending.empty()) {
+        const int v = pending.front();
+        pending.pop();
+        order.push_back(v);
+        for (const int u : adjacency[v]) {
+            // Вершина u ещё не посещена: помечаем её и ставим в очередь
+            if (!visited[u]) {
+                visited[u] = true;
+                pending.push(u);
+            }
+        }
+    }
+    return order;
+}
+
+int main() {
+    // Демонстрация: граф из 9 вершин, тот же, что в Python-версии
+    const std::vector&lt;std::vector&lt;int&gt;&gt; adjacency = {
+        {}, {2, 8}, {1, 3, 8}, {2, 4, 8}, {3, 7, 9}, {6, 7}, {5}, {4, 5, 8}, {1, 2, 3, 7}, {4},
+    };
+    // Ожидаемый порядок обхода: 1 2 8 3 7 4 5 9 6
+    const std::vector&lt;int&gt; order = bfs(adjacency, 1);
+    for (std::size_t i = 0; i &lt; order.size(); ++i) std::cout &lt;&lt; (i ? " " : "") &lt;&lt; order[i];
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
 </pre>
 
     <h2>Поиск кратчайших путей в графах (объединение разделов по Дейкстре и Флойду)</h2>

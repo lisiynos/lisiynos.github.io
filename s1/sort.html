@@ -154,6 +154,87 @@ for i := 1 to N-1 do
    A[j] := A[i] xor A[j];
    A[i] := A[i] xor A[j];
 </pre>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пузырьковая сортировка: O(n^2) по времени в среднем и в худшем случае, O(1) дополнительной памяти
+def bubble_sort(items):
+    """Сортирует список по возрастанию на месте и возвращает его."""
+    changed = True
+    while changed:  # пока в последнем проходе были перестановки, делаем ещё один проход
+        changed = False
+        for i in range(len(items) - 1):
+            # Соседние элементы меняем местами, если левый больше правого
+            if items[i] &gt; items[i + 1]:
+                items[i], items[i + 1] = items[i + 1], items[i]
+                changed = True
+    return items
+
+
+def main():
+    print(bubble_sort([5, 3, 8, 1, 9, 2, 7]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Пузырьковая сортировка: O(n^2) по времени в среднем и в худшем случае, O(1) дополнительной памяти
+pub fn bubble_sort(items: &amp;mut [i64]) {
+    let mut changed = true;
+    // Пока в последнем проходе были перестановки, делаем ещё один проход
+    while changed {
+        changed = false;
+        for i in 0..items.len().saturating_sub(1) {
+            // Соседние элементы меняем местами, если левый больше правого
+            if items[i] &gt; items[i + 1] {
+                items.swap(i, i + 1);
+                changed = true;
+            }
+        }
+    }
+}
+
+fn main() {
+    let mut items: Vec&lt;i64&gt; = vec![5, 3, 8, 1, 9, 2, 7];
+    bubble_sort(&amp;mut items);
+    println!("{:?}", items);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пузырьковая сортировка: O(n^2) по времени в среднем и в худшем случае, O(1) дополнительной памяти
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+void bubble_sort(std::vector&lt;int&gt;&amp; items) {
+    bool changed = true;
+    while (changed) {  // пока в последнем проходе были перестановки, делаем ещё один проход
+        changed = false;
+        for (std::size_t i = 0; i + 1 &lt; items.size(); ++i) {
+            // Соседние элементы меняем местами, если левый больше правого
+            if (items[i] &gt; items[i + 1]) {
+                std::swap(items[i], items[i + 1]);
+                changed = true;
+            }
+        }
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; items = {5, 3, 8, 1, 9, 2, 7};
+    bubble_sort(items);
+    for (int item : items) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
 <h2>Сортировка подсчётом</h2>
 
 <p>Когда диапазон чисел которые нужно отсортировать невелик по сравнению с их количеством, проще (и быстрее всего)
@@ -182,6 +263,82 @@ begin
     for i:=1 to P[Ai] do { Выводим P[Ai] элементов Ai }
       Write(Ai,' ');
 end.</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Сортировка подсчётом: O(n + k) по времени и O(k) дополнительной памяти, где k - наибольшее значение (значения от 0)
+def counting_sort(items):
+    """Возвращает новый отсортированный список целых неотрицательных чисел."""
+    counts = [0] * (max(items, default=0) + 1)  # counts[v] - сколько раз встречается число v
+    for item in items:
+        counts[item] += 1
+    result = []
+    for value, count in enumerate(counts):
+        result.extend([value] * count)  # дописываем число value столько раз, сколько оно встречается
+    return result
+
+
+def main():
+    print(counting_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre><code class="language-rust">// Сортировка подсчётом: O(n + k) по времени и O(k) дополнительной памяти, где k - наибольшее значение (значения от 0)
+pub fn counting_sort(items: &amp;[u32]) -&gt; Vec&lt;u32&gt; {
+    let max_value = items.iter().copied().max().unwrap_or(0);
+    // counts[v] - сколько раз встречается число v
+    let mut counts = vec![0usize; max_value as usize + 1];
+    for &amp;item in items {
+        counts[item as usize] += 1;
+    }
+    let mut result = Vec::with_capacity(items.len());
+    for (value, &amp;count) in counts.iter().enumerate() {
+        // Дописываем число value столько раз, сколько оно встречается
+        result.extend(std::iter::repeat(value as u32).take(count));
+    }
+    result
+}
+
+fn main() {
+    println!("{:?}", counting_sort(&amp;[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Сортировка подсчётом: O(n + k) по времени и O(k) дополнительной памяти, где k - наибольшее значение (значения от 0)
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;int&gt; counting_sort(const std::vector&lt;int&gt;&amp; items) {
+    int max_value = items.empty() ? 0 : *std::max_element(items.begin(), items.end());
+    std::vector&lt;int&gt; counts(max_value + 1, 0);  // counts[v] - сколько раз встречается число v
+    for (int item : items) {
+        ++counts[item];
+    }
+    std::vector&lt;int&gt; result;
+    result.reserve(items.size());
+    for (int value = 0; value &lt;= max_value; ++value) {
+        // Дописываем число value столько раз, сколько оно встречается
+        result.insert(result.end(), counts[value], value);
+    }
+    return result;
+}
+
+int main() {
+    const std::vector&lt;int&gt; items = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
+    for (int item : counting_sort(items)) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
 
 <h2>"Быстрая сортировка" QuickSort</h2>
 
@@ -371,9 +528,9 @@ fn main() {
 </ol>
 
 <pre class="sh_cpp">
-#include &ltassert.h&gt
-#include &ltstdlib.h&gt
-#include &ltiostream&gt
+#include &lt;assert.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;iostream&gt;
 
 using namespace std;
 
@@ -396,7 +553,7 @@ void MergeSort( int left, int right ){
 
   // Объединяем результаты - операция Merge (слияние)
   int l = left, r = m+1;
-  for(int i = left; i&lt = right; i++){
+  for(int i = left; i&lt;= right; i++){
     if(l &gt m) // Если левая половинка кончилась, то берём только из правой
       T[i] = A[r++];
     else if(r &gt right) // Если правая половинка кончилась, то берём только из правой
@@ -412,7 +569,7 @@ void MergeSort( int left, int right ){
     A[i] = T[i];
 
   // Проверка, что всё верно отсортировано
-  for(int i = left; i&lt = right-1; i++)
+  for(int i = left; i&lt;= right-1; i++)
     assert( A[i] &lt= A[i+1] );
 }
 
@@ -433,6 +590,9 @@ int main() {
 <p>Вариант с использованием шаблонов:</p>
 
 <pre class="sh_cpp">
+// Объявление merge заранее: mergeSort вызывает его раньше, чем merge описан ниже
+template&lt;class T&gt; void merge(T a[], long lb, long split, long ub);
+
 // a - сортируемый массив, его левая граница lb, правая граница ub
 template&lt;class T&gt;
 void mergeSort(T a[], long lb, long ub) { 
@@ -443,7 +603,7 @@ void mergeSort(T a[], long lb, long ub) {
     split = (lb + ub)/2; // Центр обрабатываемого куска массива 
 
     mergeSort(a, lb, split);       // сортировать левую половину 
-    mergeSort(a, split+1, last);// сортировать правую половину 
+    mergeSort(a, split+1, ub);// сортировать правую половину 
     merge(a, lb, split, ub);    // слить результаты в общий массив
   }
 }
@@ -483,7 +643,7 @@ void merge(T a[], long lb, long split, long ub) {
   for (pos3 = 0; pos3 < ub-lb+1; pos3++)
     a[lb+pos3] = temp[pos3];
 
-  delete temp[ub-lb+1];
+  delete[] temp;
 }
 </pre>
 
@@ -651,9 +811,9 @@ begin
 end.</pre>
 
 <pre class="sh_cpp">
-#include &ltassert.h&gt
-#include &ltstdlib.h&gt
-#include &ltiostream&gt
+#include &lt;assert.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;iostream&gt;
 
 using namespace std;
 
@@ -813,12 +973,12 @@ sys.stdin = open('bubble.in') # Открываем входной файл на 
 sys.stdout = open('bubble.out', 'w') # Открываем выхолной файл на запись
 # Ввод исходных данных
 N = input() # Считываем из первой строки целое число
-A = map(int,raw_input().split()) # Считываем строку, делим её на элементы и каждый приводим к типу целое
+A = list(map(int,input().split())) # Считываем строку, делим её на элементы и каждый приводим к типу целое
 # Сортировка массива
 A.sort()
 # Вывод массива
 for i in A:
-  print i,
+  print(i, end=' ')
 </pre>
 
 </div>
