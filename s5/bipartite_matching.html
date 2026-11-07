@@ -52,12 +52,21 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     </p>
 
     <pre class="sh_cpp">
+// Проверка двудольности: раскраска в два цвета обходом DFS, O(V + E)
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MaxN = 1000;
+vector&lt;int&gt; g[MaxN];  // g[i] — вектор вершин, смежных с i-й
+int u[MaxN];          // цвет вершины: 0 — не окрашена, 1 или 2 — цвет
+
 int dfs(int v, int color)
 {
   int ret = 1;
   u[v] = color;
   // Перебираем соседей
-  for(int i = 0; i &lt; g[v].size(); i++)
+  for (int i = 0; i &lt; (int)g[v].size(); i++)
   {
     int v2 = g[v][i];
     if (u[v2] == 0)
@@ -67,13 +76,31 @@ int dfs(int v, int color)
   }
   return ret;
 }
-...
 
-//вызов:
-ok = 1;
-for (i = 0; i &lt; n; i++)
-  if (u[i] == 0)
-    ok &amp;= dfs (i, 1);</pre>
+// Проверяет, двудольный ли граф с n вершинами
+int bipartite(int n)
+{
+  for (int i = 0; i &lt; n; i++)
+    u[i] = 0;
+  int ok = 1;
+  for (int i = 0; i &lt; n; i++)
+    if (u[i] == 0)
+      ok &amp;= dfs(i, 1);
+  return ok;
+}
+
+int main()
+{
+  // Цикл из четырёх вершин: двудольный граф
+  g[0] = {1, 3}; g[1] = {0, 2}; g[2] = {1, 3}; g[3] = {0, 2};
+  printf("Цикл из 4 вершин: %s\n", bipartite(4) ? "двудольный" : "не двудольный");
+  // Цикл из трёх вершин: не двудольный
+  for (int i = 0; i &lt; 4; i++) g[i].clear();
+  g[0] = {1, 2}; g[1] = {0, 2}; g[2] = {0, 1};
+  printf("Цикл из 3 вершин: %s\n", bipartite(3) ? "двудольный" : "не двудольный");
+  return 0;
+}
+</pre>
 
 <p><strong>Реализация на Python</strong></p>
 <pre class="sh_python">
@@ -204,25 +231,46 @@ fn main() {
     </ul>
     <p>Поиск дополняющей цепи из вершины v1: </p>
     <pre class="sh_cpp">
-// Первая доля, Вторая доля - рёбра только из одно доли в другую 
-g[1..n1][1..n2] // Граф g[i][j]=1, если есть ребро из i в j
-u[1..n1] // Пометки для каждого поиска в глубину (вершина посещена или еще нет) 
-to[1..n2] // Храним паросочетание: для каждой вершины второй доли укажем, с какой вершиной из первой доли она связана
+// Алгоритм Куна: максимальное паросочетание в двудольном графе, O(V * E)
+#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;vector&gt;
+using namespace std;
 
+const int MaxN = 1000;
+vector&lt;int&gt; g[MaxN];  // g[v1] — вершины второй доли, смежные с вершиной v1 первой доли
+int to[MaxN];         // to[v2] — вершина первой доли, паросочетанная с v2, или -1
+int u[MaxN];          // пометки для поиска в глубину (вершина посещена или нет)
 
-// Возвращает 1 если мы нашли дополняющую цепь и 0 - если не нашли
-int match(int v1){  // v1 - вершина из первой доли
-  int i;
-  if(u[v1] == 1)
+// Возвращает 1, если нашли дополняющую цепь из вершины v1, иначе 0
+int match(int v1)
+{
+  if (u[v1] == 1)
     return 0;
-  u[v1] = 1; // Отмечаем, что в вершине v мы были  
-  for(int i2 = 1; i2 &lt;= n2; i2++) //i2 - вершина второй доли
-    if (g[v1][i2] && (to[i2] == -1 || match(to[i2])))
+  u[v1] = 1;  // отмечаем, что в вершине v1 уже были
+  for (int v2 : g[v1])
+    if (to[v2] == -1 || match(to[v2]))
     {
-      to[i2] = v1;    
+      to[v2] = v1;
       return 1;
-    }  
-  return 0;    
+    }
+  return 0;
+}
+
+int main()
+{
+  int n1 = 3;  // размер первой доли (вершины 0..2); вторая доля тоже из трёх вершин
+  // Рёбра из первой доли во вторую
+  g[0] = {0, 1}; g[1] = {0}; g[2] = {1, 2};
+  memset(to, -1, sizeof(to));
+  int res = 0;
+  for (int v1 = 0; v1 &lt; n1; v1++)
+  {
+    memset(u, 0, sizeof(u));
+    res += match(v1);
+  }
+  printf("Размер максимального паросочетания: %d\n", res);  // 3
+  return 0;
 }
 </pre>
 

@@ -59,7 +59,7 @@ points = [(randrange(MIN_X, MAX_X), randrange(MIN_Y, MAX_Y)) for i in range(N)]
 
 
 def area(p1, p2, p3):
-    """ Площадь треугольника (через векторое произведение) """
+    """ Удвоенная площадь треугольника (модуль векторного произведения) """
     x1, y1 = p1
     x2, y2 = p2
     x3, y3 = p3
@@ -68,13 +68,13 @@ def area(p1, p2, p3):
     bx, by = x3 - x1, y3 - y1
     # Векторное произведение
     cross_product = ax * by - ay * bx
-    # Возвращаем площадь
-    return abs(cross_product / 2.0)
+    # Возвращаем удвоенную площадь (целое число)
+    return abs(cross_product)
 
 
 # Проверяем работу функции
-assert area((0, 0), (0, 1), (1, 0)) == 0.5
-assert area((1, 1), (1, 2), (3, 1)) == 1.0
+assert area((0, 0), (0, 1), (1, 0)) == 1
+assert area((1, 1), (1, 2), (3, 1)) == 2
 
 S_max = 0
 triangle = []  # Номера вершин треугольника с максимальной площадью
@@ -89,7 +89,7 @@ for i in range(N):
                 # Запоминаем номера точек
                 triangle = [i + 1, j + 1, k + 1]
 
-print("Площадь =", S_max)
+print("Удвоенная площадь =", S_max)
 if S_max > 0:
     print("Номера точек:", *triangle)
 </pre>

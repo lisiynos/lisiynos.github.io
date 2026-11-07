@@ -202,7 +202,134 @@ begin
   end
 end;</pre>
 
-    <p><strong>Задачи на длинную арифметику</strong></p>
+    <p><strong>Чтение длинного числа</strong></p>
+<p>Число хранится в основании 10000: в элементах массива лежат четырёхзначные части числа, младшие первыми; в нулевом элементе записано количество занятых разрядов. Цифры читаются по одной: очередная цифра добавляется в младший разряд, а всё число предварительно умножается на 10 с переносом. Так же работает процедура ReadLong выше.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Чтение длинного числа из строки цифр в основании 10000: a[0] — число занятых разрядов,
+# a[1], a[2], ... — младшие разряды. Сложность: O(n * len) по времени для n цифр.
+BASE = 10000
+
+
+def read_long(digits):
+    a = [0]  # a[0] хранит число занятых разрядов
+    for ch in digits:
+        if not ch.isdigit():  # пропускаем всё, кроме цифр
+            continue
+        carry = int(ch)
+        for i in range(1, a[0] + 1):  # число умножаем на 10 и прибавляем цифру
+            cur = a[i] * 10 + carry
+            a[i] = cur % BASE
+            carry = cur // BASE
+        if carry:
+            a.append(carry)
+            a[0] += 1
+    return a
+
+
+def to_string(a):
+    """Переводит представление обратно в десятичную строку."""
+    if a[0] == 0:
+        return "0"
+    parts = [str(a[a[0]])] + [f"{a[i]:04d}" for i in range(a[0] - 1, 0, -1)]
+    return "".join(parts)
+
+
+if __name__ == "__main__":
+    number = read_long("0012345678901234567890123456789")
+    print(to_string(number))  # 12345678901234567890123456789
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Чтение длинного числа из строки цифр в основании 10000: a[0] — число занятых разрядов,
+// a[1], a[2], ... — младшие разряды. Сложность: O(n * len) по времени для n цифр.
+#include &lt;cstdio&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int BASE = 10000;
+
+// a[0] хранит число занятых разрядов, a[1..] — младшие разряды числа
+vector&lt;int&gt; readLong(const string&amp; digits) {
+    vector&lt;int&gt; a(1, 0);
+    for (char ch : digits) {
+        if (ch &lt; '0' || ch &gt; '9') continue;  // пропускаем всё, кроме цифр
+        int carry = ch - '0';
+        for (int i = 1; i &lt;= a[0]; i++) {  // число умножаем на 10 и прибавляем цифру
+            int cur = a[i] * 10 + carry;
+            a[i] = cur % BASE;
+            carry = cur / BASE;
+        }
+        if (carry &gt; 0) {
+            a.push_back(carry);
+            a[0]++;
+        }
+    }
+    return a;
+}
+
+string toString(const vector&lt;int&gt;&amp; a) {
+    if (a[0] == 0) return "0";
+    string s = to_string(a[a[0]]);
+    for (int i = a[0] - 1; i &gt;= 1; i--) {
+        char buf[8];
+        snprintf(buf, sizeof buf, "%04d", a[i]);
+        s += buf;
+    }
+    return s;
+}
+
+int main() {
+    vector&lt;int&gt; number = readLong("0012345678901234567890123456789");
+    cout &lt;&lt; toString(number) &lt;&lt; "\n";  // 12345678901234567890123456789
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">
+// Чтение длинного числа из строки цифр в основании 10000: a[0] — число занятых разрядов,
+// a[1], a[2], ... — младшие разряды. Сложность: O(n * len) по времени для n цифр.
+const BASE: u32 = 10000;
+
+fn read_long(digits: &amp;str) -&gt; Vec&lt;u32&gt; {
+    let mut a = vec![0u32]; // a[0] хранит число занятых разрядов
+    for ch in digits.chars().filter(|c| c.is_ascii_digit()) {
+        let mut carry = ch.to_digit(10).unwrap(); // очередная цифра
+        for i in 1..=a[0] as usize {
+            let cur = a[i] * 10 + carry;
+            a[i] = cur % BASE;
+            carry = cur / BASE;
+        }
+        if carry &gt; 0 {
+            a.push(carry);
+            a[0] += 1;
+        }
+    }
+    a
+}
+
+fn to_string(a: &amp;[u32]) -&gt; String {
+    if a[0] == 0 {
+        return "0".to_string();
+    }
+    let mut s = a[a[0] as usize].to_string();
+    for i in (1..a[0] as usize).rev() {
+        s.push_str(&amp;format!("{:04}", a[i]));
+    }
+    s
+}
+
+fn main() {
+    let number = read_long("0012345678901234567890123456789");
+    println!("{}", to_string(&amp;number)); // 12345678901234567890123456789
+}
+</code></pre>
+
+<p><strong>Задачи на длинную арифметику</strong></p>
 
     <p><strong>Задача 1. </strong>(Районная олимпиада 1997).<br>
         Числа Фибоначчи выписываются подряд, начиная с Ф(1). Какая цифра будет на N-ом месте (N &lt; 5000)? </p>

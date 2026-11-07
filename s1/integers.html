@@ -93,9 +93,14 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <pre class="sh_pascal">
 function GCD( a,b:integer ):integer; { определение НОД двух чисел }
 begin
-  while a <> b do
-    if a > b then a:=a-b else b:=b-a;
-  GCD := b;
+  if (a = 0) or (b = 0) then
+    GCD := a + b          { НОД(a, 0) = a, НОД(0, b) = b }
+  else
+  begin
+    while a <> b do
+      if a > b then a:=a-b else b:=b-a;
+    GCD := b;
+  end;
 end;
 
 begin { Пример использования }

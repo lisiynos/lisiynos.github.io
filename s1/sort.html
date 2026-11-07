@@ -235,6 +235,77 @@ int main() {
 }
 </pre>
 
+<h2>Сортировка выбором</h2>
+
+<p>На каждом шаге находим минимальный элемент в неотсортированной части массива и меняем его местами с первым элементом этой части. Для массива из $n$ элементов выполняется около $n^2/2$ сравнений, дополнительная память $O(1)$.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Сортировка выбором: на каждом шаге ставим минимум неотсортированной части на её начало, O(n^2)
+def selection_sort(a):
+    n = len(a)
+    for i in range(n - 1):
+        m = i  # индекс минимума в неотсортированной части
+        for j in range(i + 1, n):
+            if a[j] &lt; a[m]:
+                m = j
+        a[i], a[m] = a[m], a[i]
+    return a
+
+
+if __name__ == "__main__":
+    print(*selection_sort([5, 2, 9, 1, 5, 6]))  # 1 2 5 5 6 9
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Сортировка выбором: на каждом шаге ставим минимум неотсортированной части на её начало, O(n^2)
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+void selectionSort(std::vector&lt;int&gt;&amp; a) {
+    int n = static_cast&lt;int&gt;(a.size());
+    for (int i = 0; i + 1 &lt; n; i++) {
+        int m = i;  // индекс минимума в неотсортированной части
+        for (int j = i + 1; j &lt; n; j++)
+            if (a[j] &lt; a[m]) m = j;
+        std::swap(a[i], a[m]);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; a = {5, 2, 9, 1, 5, 6};
+    selectionSort(a);
+    for (int x : a) std::cout &lt;&lt; x &lt;&lt; ' ';  // 1 2 5 5 6 9
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">
+// Сортировка выбором: на каждом шаге ставим минимум неотсортированной части на её начало, O(n^2)
+fn selection_sort(a: &amp;mut [i32]) {
+    let n = a.len();
+    for i in 0..n.saturating_sub(1) {
+        let mut m = i; // индекс минимума в неотсортированной части
+        for j in i + 1..n {
+            if a[j] &lt; a[m] {
+                m = j;
+            }
+        }
+        a.swap(i, m);
+    }
+}
+
+fn main() {
+    let mut a = vec![5, 2, 9, 1, 5, 6];
+    selection_sort(&amp;mut a);
+    println!("{:?}", a); // [1, 2, 5, 5, 6, 9]
+}
+</code></pre>
+
 <h2>Сортировка подсчётом</h2>
 
 <p>Когда диапазон чисел которые нужно отсортировать невелик по сравнению с их количеством, проще (и быстрее всего)
@@ -967,7 +1038,6 @@ int main() {
 <p>В Python у списков (list) есть встроенный метод sort</p>
 
 <pre class="sh_python">
-# -*- coding: windows-1251 -*-
 import sys
 sys.stdin = open('bubble.in') # Открываем входной файл на чтение
 sys.stdout = open('bubble.out', 'w') # Открываем выхолной файл на запись
