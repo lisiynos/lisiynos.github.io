@@ -430,6 +430,70 @@ h4:hover .anchor,
   stroke-width: 2;
 }
 
+.viz-match {
+  stroke: #2a9d4b;
+  stroke-width: 4;
+}
+
+.viz-color-0 {
+  fill: #cfe3f7;
+}
+
+.viz-color-1 {
+  fill: #fbd9b5;
+}
+
+/* Navigation: the trail, the neighbouring lessons and the algorithms of a page (js/site.js) */
+.site-trail {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #556;
+}
+
+.site-trail a {
+  color: #1d5fa8;
+}
+
+.page-algorithms {
+  margin: 16px 0;
+  padding: 10px 14px;
+  border: 1px solid #ccd6e0;
+  border-radius: 8px;
+  background: #f7f9fc;
+}
+
+.page-algorithms summary {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.page-algorithms ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.complexity {
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  color: #556;
+}
+
+.site-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 32px 0 16px;
+}
+
+.site-pager a {
+  max-width: 48%;
+}
+
+.catalog li {
+  margin-bottom: 10px;
+}
+
 /* Back to top */
 .to-top {
   position: fixed;

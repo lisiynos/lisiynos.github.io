@@ -759,7 +759,173 @@
     go();
   }
 
+  // ----- bipartite graphs and matchings (s5/bipartite_matching.html) -----
+
+  // The examples of the lesson with positions for the drawing.
+  const COLORING_GRAPHS = {
+    cycle: {
+      name: 'цикл из 4 вершин с хвостом',
+      adjacency: [[1, 3], [0, 2], [1, 3], [0, 2, 4], [3, 5], [4]],
+      positions: [[60, 40], [160, 40], [160, 130], [60, 130], [60, 210], [160, 250]],
+    },
+    triangle: {
+      name: 'треугольник',
+      adjacency: [[1, 2], [0, 2], [0, 1]],
+      positions: [[120, 40], [50, 160], [190, 160]],
+    },
+  };
+
+  // The coloring of the lesson: paint a vertex, then its neighbours in the other colour (DFS).
+  function coloringFrames(adjacency) {
+    const frames = [];
+    const color = adjacency.map(() => -1);
+    const snap = (extra) => Object.assign({ color: color.slice(), current: null, edge: null, final: false }, extra);
+    function paint(v, c) {
+      color[v] = c;
+      frames.push(snap({ current: v, caption: `Красим вершину ${v} в цвет ${c}` }));
+      for (const u of adjacency[v]) {
+        if (color[u] === -1) {
+          frames.push(snap({ current: v, edge: [v, u], caption: `Вершина ${u} ещё не покрашена: идём по ребру ${v}–${u} и красим её в цвет ${1 - c}` }));
+          if (!paint(u, 1 - c)) return false;
+        } else if (color[u] === c) {
+          frames.push(snap({ current: v, edge: [v, u], caption: `Вершины ${v} и ${u} соединены ребром и покрашены в один цвет ${c}: граф не двудольный` }));
+          return false;
+        }
+      }
+      return true;
+    }
+    for (let v = 0; v < adjacency.length; v++) {
+      if (color[v] === -1 && !paint(v, 0)) {
+        frames.push(snap({ final: true, caption: 'Раскраски в два цвета нет: граф не двудольный' }));
+        return frames;
+      }
+    }
+    const [first, second] = [0, 1].map((c) => color.flatMap((x, i) => (x === c ? [i] : [])));
+    frames.push(snap({ final: true, caption: `Граф двудольный: доли {${first.join(', ')}} и {${second.join(', ')}}` }));
+    return frames;
+  }
+
+  function drawColoring(stage, f, graph) {
+    const svg = svgNode('svg', { viewBox: '0 0 240 280', class: 'viz-graph' });
+    graph.adjacency.forEach((neighbours, v) => {
+      for (const u of neighbours.filter((x) => x > v)) {
+        const [x1, y1] = graph.positions[v];
+        const [x2, y2] = graph.positions[u];
+        const hit = f.edge !== null && f.edge.includes(v) && f.edge.includes(u);
+        svg.append(svgNode('line', { x1, y1, x2, y2, class: hit ? 'viz-edge viz-edge-hit' : 'viz-edge' }));
+      }
+    });
+    graph.positions.forEach(([x, y], v) => {
+      let cls = 'viz-node';
+      if (v === f.current) cls += ' viz-node-current';
+      else if (f.color[v] === 0) cls += ' viz-color-0';
+      else if (f.color[v] === 1) cls += ' viz-color-1';
+      const text = svgNode('text', { x, y: y + 5, 'text-anchor': 'middle' });
+      text.textContent = String(v);
+      svg.append(svgNode('circle', { cx: x, cy: y, r: 18, class: cls }), text);
+    });
+    stage.append(svg);
+  }
+
+  function mountBipartite(root) {
+    const kind = select('Граф', Object.entries(COLORING_GRAPHS).map(([key, graph]) => [key, graph.name]));
+    const output = mountTool(root, [kind.wrap]);
+
+    function go() {
+      const graph = COLORING_GRAPHS[kind.input.value];
+      replacePlayer(output, coloringFrames(graph.adjacency), (stage, f) => drawColoring(stage, f, graph));
+    }
+
+    kind.input.addEventListener('input', go);
+    go();
+  }
+
+  // The example of the lesson: the left part has 4 vertices, the right part 4; adjacency[v] are the right neighbours of v.
+  const MATCHING_EXAMPLE = { adjacency: [[0, 1], [0], [1, 2], [2]], rightSize: 4 };
+
+  // Kuhn's algorithm: for every left vertex an augmenting path is searched by DFS; every step is a frame.
+  function kuhnFrames(adjacency, rightSize) {
+    const frames = [];
+    const matchRight = new Array(rightSize).fill(-1);
+    let visited = new Set();
+    const snap = (extra) => Object.assign({ matchRight: matchRight.slice(), visited: [...visited], left: null, edge: null, path: false, final: false }, extra);
+    function augment(v) {
+      if (visited.has(v)) return false;
+      visited.add(v);
+      frames.push(snap({ left: v, caption: `Ищем дополняющую цепь из левой вершины ${v}` }));
+      for (const u of adjacency[v]) {
+        if (matchRight[u] === -1) {
+          frames.push(snap({ left: v, edge: [v, u], caption: `Правая вершина ${u} свободна: ${v}–${u}` }));
+          matchRight[u] = v;
+          frames.push(snap({ left: v, edge: [v, u], path: true, caption: `Цепь найдена: ребро ${v}–${u} добавлено в паросочетание` }));
+          return true;
+        }
+        frames.push(snap({ left: v, edge: [v, u], caption: `Правая вершина ${u} занята левой вершиной ${matchRight[u]}: пробуем переназначить её` }));
+        if (augment(matchRight[u])) {
+          matchRight[u] = v;
+          frames.push(snap({ left: v, edge: [v, u], path: true, caption: `Вершина ${u} переходит к ${v}: паросочетание увеличено вдоль цепи` }));
+          return true;
+        }
+      }
+      return false;
+    }
+    for (let v = 0; v < adjacency.length; v++) {
+      visited = new Set();
+      if (!augment(v)) frames.push(snap({ left: v, caption: `Из вершины ${v} дополняющей цепи нет` }));
+    }
+    const size = matchRight.filter((v) => v !== -1).length;
+    frames.push(snap({ final: true, caption: `Размер максимального паросочетания: ${size}` }));
+    return frames;
+  }
+
+  function drawMatching(stage, f, { adjacency, rightSize }) {
+    const rowY = (i) => 45 + 55 * i;
+    const left = (v) => [50, rowY(v)];
+    const right = (u) => [190, rowY(u)];
+    const svg = svgNode('svg', { viewBox: '0 0 240 240', class: 'viz-graph' });
+    for (const [x, label] of [[50, 'левая доля'], [190, 'правая доля']]) {
+      const title = svgNode('text', { x, y: 16, 'text-anchor': 'middle' });
+      title.textContent = label;
+      svg.append(title);
+    }
+    adjacency.forEach((neighbours, v) => {
+      for (const u of neighbours) {
+        const [x1, y1] = left(v);
+        const [x2, y2] = right(u);
+        const matched = f.matchRight[u] === v;
+        const hit = f.edge !== null && f.edge[0] === v && f.edge[1] === u;
+        let cls = matched ? 'viz-match' : 'viz-edge';
+        if (hit && !matched) cls = 'viz-edge viz-edge-hit';
+        svg.append(svgNode('line', { x1, y1, x2, y2, class: cls }));
+      }
+    });
+    const node = (x, y, label, cls) => {
+      const text = svgNode('text', { x, y: y + 5, 'text-anchor': 'middle' });
+      text.textContent = String(label);
+      return [svgNode('circle', { cx: x, cy: y, r: 16, class: cls }), text];
+    };
+    for (let v = 0; v < adjacency.length; v++) {
+      const cls = v === f.left ? 'viz-node viz-node-current' : f.visited.includes(v) ? 'viz-node viz-node-seen' : 'viz-node';
+      svg.append(...node(...left(v), v, cls));
+    }
+    for (let u = 0; u < rightSize; u++) {
+      const cls = f.edge !== null && f.edge[1] === u ? 'viz-node viz-node-current' : f.matchRight[u] !== -1 ? 'viz-node viz-color-1' : 'viz-node';
+      svg.append(...node(...right(u), u, cls));
+    }
+    const pairs = f.matchRight.flatMap((v, u) => (v === -1 ? [] : [`${v}–${u}`]));
+    stage.append(svg, el('p', 'viz-note', `Паросочетание: ${pairs.join(', ') || 'пусто'}. Зелёные рёбра — входят в паросочетание, красное — рассматриваемое ребро.`));
+  }
+
+  function mountMatching(root) {
+    const output = el('div', 'viz-output');
+    root.append(output);
+    const { adjacency, rightSize } = MATCHING_EXAMPLE;
+    replacePlayer(output, kuhnFrames(adjacency, rightSize), (stage, f) => drawMatching(stage, f, MATCHING_EXAMPLE));
+  }
+
   const MOUNTS = {
+    bipartite: mountBipartite,
+    matching: mountMatching,
     longarith: mountLong,
     sort: mountSort,
     binsearch: mountSearch,

@@ -1,0 +1,1150 @@
+{
+ "sessions": {
+  "s1": {
+   "title": "Сессия 1 - весна (март): учебно-тематический план",
+   "pages": [
+    "s1/python.html",
+    "s1/testsys.html",
+    "s1/terminology.html",
+    "s1/alg.html",
+    "s1/radix.html",
+    "s1/sort.html",
+    "s1/binsearch.html",
+    "s1/recurs.html",
+    "s1/calc.html",
+    "s1/long_ar.html",
+    "s1/data_structures.html",
+    "s1/graph_alg.html",
+    "s1/dynamic1.html",
+    "s1/dynamic_problems.html",
+    "s3/geom0.htm",
+    "s1/integers.html",
+    "s1/work1.html",
+    "s1/work2.html",
+    "s1/cryptography.html",
+    "s6/olymp.html"
+   ]
+  },
+  "s2": {
+   "title": "Сессия 2 - лето: учебно-тематический план",
+   "pages": [
+    "s2/python.html",
+    "s2/logic1.html",
+    "s2/logic2.html",
+    "s1/integers.html",
+    "s2/fp_lisp.html",
+    "s2/comb.html",
+    "s2/backtracking.html",
+    "s2/monte_carlo.html",
+    "s2/dynamic2.html",
+    "s1/sort.html",
+    "s2/graphs.html",
+    "s6/olymp.html"
+   ]
+  },
+  "s3": {
+   "title": "Сессия 3 - осень (ноябрь): учебно-тематический план",
+   "pages": [
+    "s3/dichotomy.html",
+    "s3/geom1.html",
+    "s3/geom2.html",
+    "s3/geom3.html",
+    "s3/cpp.html",
+    "s3/functions.html",
+    "s3/recursion.html",
+    "s2/graphs.html",
+    "s1/graph_alg.html",
+    "s3/segments_tree.html",
+    "s3/olymp.html"
+   ]
+  },
+  "s4": {
+   "title": "Сессия 4 - весна (март): учебно-тематический план",
+   "pages": [
+    "s4/bits.html",
+    "s4/dsu.html",
+    "s6/strings.html",
+    "s4/geom.html",
+    "s6/olymp.html"
+   ]
+  },
+  "s5": {
+   "title": "Сессия 5 - лето: учебно-тематический план",
+   "pages": [
+    "s5/Info6.1.0.htm",
+    "s5/segments_tree.html",
+    "s5/treap.html",
+    "s5/bipartite_matching.html",
+    "s5/dynamic.html",
+    "s5/domino.html",
+    "s6/olymp.html"
+   ]
+  },
+  "s6": {
+   "title": "Сессия 6 - осень: учебно-тематический план",
+   "pages": [
+    "s6/strings.html",
+    "s6/segment_tree_modification.html",
+    "s6/trees.html",
+    "s6/alg_number_theory.html",
+    "s6/olymp.html"
+   ]
+  }
+ },
+ "pages": {
+  "s1/python.html": {
+   "session": "s1",
+   "index": 0,
+   "title": "Язык программирования Python 3",
+   "prev": null,
+   "next": "s1/testsys.html"
+  },
+  "s1/testsys.html": {
+   "session": "s1",
+   "index": 1,
+   "title": "Работа с тестирующей системой, расшифровка сообщений. \"Задача A+B\" на разных языках",
+   "prev": "s1/python.html",
+   "next": "s1/terminology.html"
+  },
+  "s1/terminology.html": {
+   "session": "s1",
+   "index": 2,
+   "title": "Математическая терминология (основы математической терминологии)",
+   "prev": "s1/testsys.html",
+   "next": "s1/alg.html"
+  },
+  "s1/alg.html": {
+   "session": "s1",
+   "index": 3,
+   "title": "Оценка сложности алгоритмов: линейная сложность, квадратичная, логарифмическая...",
+   "prev": "s1/terminology.html",
+   "next": "s1/radix.html"
+  },
+  "s1/radix.html": {
+   "session": "s1",
+   "index": 4,
+   "title": "Системы счисления. Позиционные и непозиционные. Перевод из одной системы счисления в другую. Римская система счисления",
+   "prev": "s1/alg.html",
+   "next": "s1/sort.html"
+  },
+  "s1/sort.html": {
+   "session": "s1",
+   "index": 5,
+   "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+   "prev": "s1/radix.html",
+   "next": "s1/binsearch.html"
+  },
+  "s1/binsearch.html": {
+   "session": "s1",
+   "index": 6,
+   "title": "Двоичный (бинарный) поиск, BinSearch, БинПоиск",
+   "prev": "s1/sort.html",
+   "next": "s1/recurs.html"
+  },
+  "s1/recurs.html": {
+   "session": "s1",
+   "index": 7,
+   "title": "Понятие рекурсии и простейшие рекурсивные алгоритмы. Примеры задач. Рекурсивные алгоритмы и их построение",
+   "prev": "s1/binsearch.html",
+   "next": "s1/calc.html"
+  },
+  "s1/calc.html": {
+   "session": "s1",
+   "index": 8,
+   "title": "Представление чисел в памяти и точность вычислений",
+   "prev": "s1/recurs.html",
+   "next": "s1/long_ar.html"
+  },
+  "s1/long_ar.html": {
+   "session": "s1",
+   "index": 9,
+   "title": "Длинная арифметика. Сложение, вычитание, умножение на короткое/длинное число",
+   "prev": "s1/calc.html",
+   "next": "s1/data_structures.html"
+  },
+  "s1/data_structures.html": {
+   "session": "s1",
+   "index": 10,
+   "title": "Структуры данных: стеки и очереди",
+   "prev": "s1/long_ar.html",
+   "next": "s1/graph_alg.html"
+  },
+  "s1/graph_alg.html": {
+   "session": "s1",
+   "index": 11,
+   "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+   "prev": "s1/data_structures.html",
+   "next": "s1/dynamic1.html"
+  },
+  "s1/dynamic1.html": {
+   "session": "s1",
+   "index": 12,
+   "title": "Динамическое программирование: теория",
+   "prev": "s1/graph_alg.html",
+   "next": "s1/dynamic_problems.html"
+  },
+  "s1/dynamic_problems.html": {
+   "session": "s1",
+   "index": 13,
+   "title": "Динамическое программирование: простейшие задачи",
+   "prev": "s1/dynamic1.html",
+   "next": "s3/geom0.htm"
+  },
+  "s3/geom0.htm": {
+   "session": "s1",
+   "index": 14,
+   "title": "Вычислительная геометрия",
+   "prev": "s1/dynamic_problems.html",
+   "next": "s1/integers.html"
+  },
+  "s1/integers.html": {
+   "session": "s1",
+   "index": 15,
+   "title": "Алгоритмы над целыми числами. Проверка на простоту, разложение на множители. Наибольший общий делитель и наименьшее общее кратное: алгоритм Евклида. Признак Паскаля. Расширенный алгоритм Евклида",
+   "prev": "s3/geom0.htm",
+   "next": "s1/work1.html"
+  },
+  "s1/work1.html": {
+   "session": "s1",
+   "index": 16,
+   "title": "С1. Задания для самостоятельной работы",
+   "prev": "s1/integers.html",
+   "next": "s1/work2.html"
+  },
+  "s1/work2.html": {
+   "session": "s1",
+   "index": 17,
+   "title": "С2. Задания для самостоятельной работы",
+   "prev": "s1/work1.html",
+   "next": "s1/cryptography.html"
+  },
+  "s1/cryptography.html": {
+   "session": "s1",
+   "index": 18,
+   "title": "Криптография и помехоустойчивое кодирование",
+   "prev": "s1/work2.html",
+   "next": "s6/olymp.html"
+  },
+  "s6/olymp.html": {
+   "session": "s1",
+   "index": 19,
+   "title": "Командная работа (решение олимпиад прошлых лет)",
+   "prev": "s1/cryptography.html",
+   "next": null
+  },
+  "s2/python.html": {
+   "session": "s2",
+   "index": 0,
+   "title": "Язык программирования Python",
+   "prev": null,
+   "next": "s2/logic1.html"
+  },
+  "s2/logic1.html": {
+   "session": "s2",
+   "index": 1,
+   "title": "Булева алгебра и построение логических схем. Логические и битовые операции: AND, OR, NOT, XOR - таблицы значений",
+   "prev": "s2/python.html",
+   "next": "s2/logic2.html"
+  },
+  "s2/logic2.html": {
+   "session": "s2",
+   "index": 2,
+   "title": "Алгебра логики",
+   "prev": "s2/logic1.html",
+   "next": "s1/integers.html"
+  },
+  "s2/fp_lisp.html": {
+   "session": "s2",
+   "index": 4,
+   "title": "Функциональные языки программирования: LISP (Scheme/Racket) + Haskell. Использование рекурсии для решения задач",
+   "prev": "s1/integers.html",
+   "next": "s2/comb.html"
+  },
+  "s2/comb.html": {
+   "session": "s2",
+   "index": 5,
+   "title": "Базовые идеи комбинаторики",
+   "prev": "s2/fp_lisp.html",
+   "next": "s2/backtracking.html"
+  },
+  "s2/backtracking.html": {
+   "session": "s2",
+   "index": 6,
+   "title": "Переборные алгоритмы. Перебор вариантов, Backtracking",
+   "prev": "s2/comb.html",
+   "next": "s2/monte_carlo.html"
+  },
+  "s2/monte_carlo.html": {
+   "session": "s2",
+   "index": 7,
+   "title": "Статистическое моделирование (метод Монте-Карло)",
+   "prev": "s2/backtracking.html",
+   "next": "s2/dynamic2.html"
+  },
+  "s2/dynamic2.html": {
+   "session": "s2",
+   "index": 8,
+   "title": "Динамическое программирование 2",
+   "prev": "s2/monte_carlo.html",
+   "next": "s1/sort.html"
+  },
+  "s2/graphs.html": {
+   "session": "s2",
+   "index": 10,
+   "title": "Простейшие понятие о графах. Представления графов в памяти, классические алгоритмы.",
+   "prev": "s1/sort.html",
+   "next": "s6/olymp.html"
+  },
+  "s3/dichotomy.html": {
+   "session": "s3",
+   "index": 0,
+   "title": "Двоичный поиск, метод дихотомии. Поиск корня функции методом деления отрезка пополам",
+   "prev": null,
+   "next": "s3/geom1.html"
+  },
+  "s3/geom1.html": {
+   "session": "s3",
+   "index": 1,
+   "title": "Геометрия: основные понятия",
+   "prev": "s3/dichotomy.html",
+   "next": "s3/geom2.html"
+  },
+  "s3/geom2.html": {
+   "session": "s3",
+   "index": 2,
+   "title": "Геометрия: отношения между объектами",
+   "prev": "s3/geom1.html",
+   "next": "s3/geom3.html"
+  },
+  "s3/geom3.html": {
+   "session": "s3",
+   "index": 3,
+   "title": "Геометрия: построение выпуклой оболочки",
+   "prev": "s3/geom2.html",
+   "next": "s3/cpp.html"
+  },
+  "s3/cpp.html": {
+   "session": "s3",
+   "index": 4,
+   "title": "Язык программирования С/C++",
+   "prev": "s3/geom3.html",
+   "next": "s3/functions.html"
+  },
+  "s3/functions.html": {
+   "session": "s3",
+   "index": 5,
+   "title": "C/C++. Функции. Виды параметров. Передача массивов",
+   "prev": "s3/cpp.html",
+   "next": "s3/recursion.html"
+  },
+  "s3/recursion.html": {
+   "session": "s3",
+   "index": 6,
+   "title": "Рекурсия: НОД, Ханойские башни, перебор с возвратом. Стек. Стек функций",
+   "prev": "s3/functions.html",
+   "next": "s2/graphs.html"
+  },
+  "s3/segments_tree.html": {
+   "session": "s3",
+   "index": 9,
+   "title": "Дерево отрезков",
+   "prev": "s1/graph_alg.html",
+   "next": "s3/olymp.html"
+  },
+  "s3/olymp.html": {
+   "session": "s3",
+   "index": 10,
+   "title": "Командная работа (решение олимпиад прошлых лет)",
+   "prev": "s3/segments_tree.html",
+   "next": null
+  },
+  "s4/bits.html": {
+   "session": "s4",
+   "index": 0,
+   "title": "Битовые операции",
+   "prev": null,
+   "next": "s4/dsu.html"
+  },
+  "s4/dsu.html": {
+   "session": "s4",
+   "index": 1,
+   "title": "Деревья и графы. Система непересекающихся множеств. Поиск наименьшего общего предка.",
+   "prev": "s4/bits.html",
+   "next": "s6/strings.html"
+  },
+  "s6/strings.html": {
+   "session": "s4",
+   "index": 2,
+   "title": "Алгоритмы на строках (Хеширование и строки). Поиск подстроки в строке: наивный алгоритм, алгоритм Рабина-Карпа, алгоритм Кнута-Морриса-Пратта, Z-функция. Бор",
+   "prev": "s4/dsu.html",
+   "next": "s4/geom.html"
+  },
+  "s4/geom.html": {
+   "session": "s4",
+   "index": 3,
+   "title": "Вычислительная геометрия",
+   "prev": "s6/strings.html",
+   "next": "s6/olymp.html"
+  },
+  "s5/Info6.1.0.htm": {
+   "session": "s5",
+   "index": 0,
+   "title": "Компьютерное представление и обработка формул",
+   "prev": null,
+   "next": "s5/segments_tree.html"
+  },
+  "s5/segments_tree.html": {
+   "session": "s5",
+   "index": 1,
+   "title": "Дерево отрезков (интервалов)",
+   "prev": "s5/Info6.1.0.htm",
+   "next": "s5/treap.html"
+  },
+  "s5/treap.html": {
+   "session": "s5",
+   "index": 2,
+   "title": "Двоичные деревья поиска. Декартово дерево",
+   "prev": "s5/segments_tree.html",
+   "next": "s5/bipartite_matching.html"
+  },
+  "s5/bipartite_matching.html": {
+   "session": "s5",
+   "index": 3,
+   "title": "Двудольный граф. Максимальное паросочетание в двудольном графе",
+   "prev": "s5/treap.html",
+   "next": "s5/dynamic.html"
+  },
+  "s5/dynamic.html": {
+   "session": "s5",
+   "index": 4,
+   "title": "Динамическое программирование: Лесенки, наибольшая возрастающая последовательность за O(nlog(n)), по подотрезкам, по подмножествам, ДП по поддереву. ДП по профилю, ДП по изломанному профилю",
+   "prev": "s5/bipartite_matching.html",
+   "next": "s5/domino.html"
+  },
+  "s5/domino.html": {
+   "session": "s5",
+   "index": 5,
+   "title": "Задача о замощении домино. Экспоненциальные алгоритмы (динамика по прямому и изломанному профилю). Полиномиальные алгоритмы (методы теории графов и комбинаторики). Решение задач о замощении разными методами: динамика по профилю, графическая конденсация и динамика, построенная по комбинаторной формуле.",
+   "prev": "s5/dynamic.html",
+   "next": "s6/olymp.html"
+  },
+  "s6/segment_tree_modification.html": {
+   "session": "s6",
+   "index": 1,
+   "title": "Модификация на отрезке в дереве отрезков. Декартово дерево. Декартово дерево по неявному ключу. Задача о диаметре дерева",
+   "prev": "s6/strings.html",
+   "next": "s6/trees.html"
+  },
+  "s6/trees.html": {
+   "session": "s6",
+   "index": 2,
+   "title": "Структуры данных: деревья",
+   "prev": "s6/segment_tree_modification.html",
+   "next": "s6/alg_number_theory.html"
+  },
+  "s6/alg_number_theory.html": {
+   "session": "s6",
+   "index": 3,
+   "title": "Алгебра и теория чисел: целочисленная арифметика, простые числа",
+   "prev": "s6/trees.html",
+   "next": "s6/olymp.html"
+  }
+ },
+ "algorithms": [
+  {
+   "id": "bubble",
+   "name": "Сортировка пузырьком",
+   "category": "Сортировки",
+   "complexity": "O(n²)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "квадратичные-сортировки-сортировка-пузырьком",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "Квадратичные сортировки, сортировка \"Пузырьком\""
+    }
+   ]
+  },
+  {
+   "id": "selection",
+   "name": "Сортировка выбором",
+   "category": "Сортировки",
+   "complexity": "O(n²)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "сортировка-выбором",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "Сортировка выбором"
+    }
+   ]
+  },
+  {
+   "id": "counting",
+   "name": "Сортировка подсчётом",
+   "category": "Сортировки",
+   "complexity": "O(n + k)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "сортировка-подсчётом",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "Сортировка подсчётом"
+    }
+   ]
+  },
+  {
+   "id": "quick",
+   "name": "Быстрая сортировка (QuickSort)",
+   "category": "Сортировки",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "быстрая-сортировка-quicksort",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "\"Быстрая сортировка\" QuickSort"
+    }
+   ]
+  },
+  {
+   "id": "merge",
+   "name": "Сортировка слиянием (MergeSort)",
+   "category": "Сортировки",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "сортировка-слиянием-mergesort",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "Сортировка слиянием - MergeSort"
+    }
+   ]
+  },
+  {
+   "id": "heap",
+   "name": "Пирамидальная сортировка (HeapSort)",
+   "category": "Сортировки",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s1/sort.html",
+     "anchor": "heapsort-сортировка-при-помощи-кучи",
+     "title": "Сортировки. Квадратичные сортировки (сортировка выбором, «пузырьковая сортировка»). Сортировка подсчётом. Быстрая сортировка QuickSort.",
+     "section": "HeapSort - сортировка при помощи кучи"
+    }
+   ]
+  },
+  {
+   "id": "binsearch",
+   "name": "Двоичный поиск",
+   "category": "Поиск",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s1/binsearch.html",
+     "anchor": "двоичный-бинарный-поиск-binsearch-бинпоиск",
+     "title": "Двоичный (бинарный) поиск, BinSearch, БинПоиск",
+     "section": "Двоичный (бинарный) поиск, BinSearch, БинПоиск"
+    }
+   ]
+  },
+  {
+   "id": "stack-queue",
+   "name": "Стек и очередь на массиве",
+   "category": "Структуры данных",
+   "complexity": "O(1) на операцию",
+   "pages": [
+    {
+     "path": "s1/data_structures.html",
+     "anchor": "реализация-стека-и-очереди-на-базе-массива",
+     "title": "Структуры данных: стеки и очереди",
+     "section": "Реализация Стека и Очереди на базе массива"
+    }
+   ]
+  },
+  {
+   "id": "kmp",
+   "name": "Поиск подстроки: алгоритм КМП",
+   "category": "Строки",
+   "complexity": "O(n + m)",
+   "pages": [
+    {
+     "path": "s4/strings.html",
+     "anchor": "алгоритм-кнута-морриса-пратта-кмп-алгоритм",
+     "title": "Алгоритмы на строках",
+     "section": "Алгоритм Кнута-Морриса-Пратта (КМП-алгоритм)"
+    },
+    {
+     "path": "s6/strings.html",
+     "anchor": "алгоритм-кнута-морриса-пратта-кмп-алгоритм",
+     "title": "Алгоритмы на строках (Хеширование и строки). Поиск подстроки в строке: наивный алгоритм, алгоритм Рабина-Карпа, алгоритм Кнута-Морриса-Пратта, Z-функция. Бор",
+     "section": "Алгоритм Кнута-Морриса-Пратта (КМП-алгоритм)"
+    }
+   ]
+  },
+  {
+   "id": "hash",
+   "name": "Полиномиальный хеш строки",
+   "category": "Строки",
+   "complexity": "O(n)",
+   "pages": [
+    {
+     "path": "s3/strings_hash.html",
+     "anchor": "полиномиальные-хеши-на-строках",
+     "title": "Полиномиальные хеши на строках",
+     "section": "Полиномиальные хеши на строках"
+    }
+   ]
+  },
+  {
+   "id": "dfs",
+   "name": "Поиск в глубину (DFS)",
+   "category": "Графы",
+   "complexity": "O(V + E)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "поиск-в-глубину-пвг-depth-first-search-dfs",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Поиск в глубину - ПВГ (Depth First Search - DFS)"
+    },
+    {
+     "path": "s1/graph_alg.html",
+     "anchor": "поиск-в-глубину-пвг-depth-first-search-dfs",
+     "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+     "section": "Поиск в глубину - ПВГ (Depth First Search - DFS)"
+    }
+   ]
+  },
+  {
+   "id": "bfs",
+   "name": "Поиск в ширину (BFS)",
+   "category": "Графы",
+   "complexity": "O(V + E)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "поиск-в-ширину-пвш-breadth-first-search-bfs",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Поиск в ширину - ПВШ (Breadth First Search - BFS)"
+    },
+    {
+     "path": "s1/graph_alg.html",
+     "anchor": "поиск-в-ширину-пвш-breadth-first-search-bfs",
+     "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+     "section": "Поиск в ширину - ПВШ (Breadth First Search - BFS)"
+    }
+   ]
+  },
+  {
+   "id": "topo",
+   "name": "Топологическая сортировка",
+   "category": "Графы",
+   "complexity": "O(V + E)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "топологическая-сортировка",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Топологическая сортировка"
+    },
+    {
+     "path": "s1/graph_alg.html",
+     "anchor": "топологическая-сортировка",
+     "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+     "section": "Топологическая сортировка"
+    }
+   ]
+  },
+  {
+   "id": "euler",
+   "name": "Эйлеров цикл",
+   "category": "Графы",
+   "complexity": "O(E)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "поиск-эйлерова-цикла-в-графе",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Поиск эйлерова цикла в графе"
+    },
+    {
+     "path": "s1/graph_alg.html",
+     "anchor": "поиск-эйлерова-цикла-в-графе",
+     "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+     "section": "Поиск эйлерова цикла в графе"
+    }
+   ]
+  },
+  {
+   "id": "dijkstra",
+   "name": "Алгоритм Дейкстры",
+   "category": "Графы",
+   "complexity": "O((V + E) log V)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "алгоритм-дейкстры",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Алгоритм Дейкстры"
+    },
+    {
+     "path": "s1/graph_alg.html",
+     "anchor": "алгоритм-дейкстры",
+     "title": "Графы. Разные виды представления графов. Пути в лабиринте. Выход из лабиринта (поиск в глубину). Кратчайший путь (поиск в ширину). Алгоритмы на графах. Алгоритмы Дейкстры и Флойда. Примеры задач. Алгоритмы на графах: Флойда, Дейкстры, Краскала",
+     "section": "Алгоритм Дейкстры"
+    }
+   ]
+  },
+  {
+   "id": "floyd",
+   "name": "Алгоритм Флойда–Уоршелла",
+   "category": "Графы",
+   "complexity": "O(V³)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "алгоритм-флойда",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Алгоритм Флойда"
+    }
+   ]
+  },
+  {
+   "id": "prim",
+   "name": "Алгоритм Прима (минимальное остовное дерево)",
+   "category": "Графы",
+   "complexity": "O(E log V)",
+   "pages": [
+    {
+     "path": "s1/graph_alg_py.html",
+     "anchor": "алгоритм-прима",
+     "title": "Графы: разные виды представления графов. Алгоритмы Дейкстры и Флойда: реализация на Python. Минимальное остовное дерево",
+     "section": "Алгоритм Прима"
+    }
+   ]
+  },
+  {
+   "id": "kuhn",
+   "name": "Максимальное паросочетание (алгоритм Куна)",
+   "category": "Графы",
+   "complexity": "O(V·E)",
+   "pages": [
+    {
+     "path": "s5/bipartite_matching.html",
+     "anchor": "максимальное-паросочетание",
+     "title": "Двудольный граф. Максимальное паросочетание в двудольном графе",
+     "section": "Максимальное паросочетание"
+    }
+   ]
+  },
+  {
+   "id": "dsu",
+   "name": "Система непересекающихся множеств (DSU)",
+   "category": "Графы",
+   "complexity": "почти O(1)",
+   "pages": [
+    {
+     "path": "s4/dsu.html",
+     "anchor": "система-непересекающихся-множеств",
+     "title": "Деревья и графы. Система непересекающихся множеств. Поиск наименьшего общего предка.",
+     "section": "Система непересекающихся множеств"
+    }
+   ]
+  },
+  {
+   "id": "tree-walks",
+   "name": "Обходы бинарного дерева",
+   "category": "Структуры данных",
+   "complexity": "O(n)",
+   "pages": [
+    {
+     "path": "s6/trees.html",
+     "anchor": "обходы-бинарного-дерева",
+     "title": "Структуры данных: деревья",
+     "section": "Обходы бинарного дерева"
+    }
+   ]
+  },
+  {
+   "id": "lca",
+   "name": "Наименьший общий предок",
+   "category": "Структуры данных",
+   "complexity": "O(h)",
+   "pages": [
+    {
+     "path": "s6/trees.html",
+     "anchor": "наименьший-общий-предок",
+     "title": "Структуры данных: деревья",
+     "section": "Наименьший общий предок"
+    }
+   ]
+  },
+  {
+   "id": "treap",
+   "name": "Декартово дерево (treap)",
+   "category": "Структуры данных",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s5/treap.html",
+     "anchor": "двоичные-деревья-поиска-декартово-дерево",
+     "title": "Двоичные деревья поиска. Декартово дерево",
+     "section": "Двоичные деревья поиска. Декартово дерево"
+    }
+   ]
+  },
+  {
+   "id": "segtree",
+   "name": "Дерево отрезков",
+   "category": "Структуры данных",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s5/segments_tree.html",
+     "anchor": "дерево-отрезков",
+     "title": "Дерево отрезков (интервалов)",
+     "section": "Дерево отрезков"
+    },
+    {
+     "path": "s6/segment_tree_modification.html",
+     "anchor": "дерево-отрезков-с-отложенной-операцией",
+     "title": "Модификация на отрезке в дереве отрезков. Декартово дерево. Декартово дерево по неявному ключу. Задача о диаметре дерева",
+     "section": "Дерево отрезков с отложенной операцией"
+    }
+   ]
+  },
+  {
+   "id": "sqrt",
+   "name": "Корневая оптимизация (sqrt-декомпозиция)",
+   "category": "Структуры данных",
+   "complexity": "O(√n)",
+   "pages": [
+    {
+     "path": "s3/segments_tree.html",
+     "anchor": "2-корневая-оптимизация",
+     "title": "Дерево отрезков",
+     "section": "2. Корневая оптимизация"
+    }
+   ]
+  },
+  {
+   "id": "fenwick",
+   "name": "Дерево Фенвика",
+   "category": "Структуры данных",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s6/fenwick_tree.html",
+     "anchor": "дерево-фенвика",
+     "title": "Дерево Фенвика",
+     "section": "Дерево Фенвика"
+    }
+   ]
+  },
+  {
+   "id": "rand-heap",
+   "name": "Рандомизированная куча",
+   "category": "Структуры данных",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s6/rand_heap.html",
+     "anchor": "рандомизированная-куча-минимума",
+     "title": "Структуры данных: рандомизированная куча, дерево двоичного поиска, декартово дерево по явному и неявному ключу",
+     "section": "Рандомизированная куча минимума"
+    }
+   ]
+  },
+  {
+   "id": "bst",
+   "name": "Дерево двоичного поиска",
+   "category": "Структуры данных",
+   "complexity": "O(h)",
+   "pages": [
+    {
+     "path": "s6/rand_heap.html",
+     "anchor": "дерево-двоичного-поиска",
+     "title": "Структуры данных: рандомизированная куча, дерево двоичного поиска, декартово дерево по явному и неявному ключу",
+     "section": "Дерево двоичного поиска"
+    }
+   ]
+  },
+  {
+   "id": "dp-basics",
+   "name": "Простейшие задачи динамического программирования",
+   "category": "Динамическое программирование",
+   "complexity": "O(n)",
+   "pages": [
+    {
+     "path": "s1/dynamic_problems.html",
+     "anchor": "задача-числа-фибоначчи",
+     "title": "Динамическое программирование: простейшие задачи",
+     "section": "Задача: Числа Фибоначчи"
+    }
+   ]
+  },
+  {
+   "id": "recursion",
+   "name": "Рекурсия",
+   "category": "Рекурсия и перебор",
+   "complexity": "—",
+   "pages": [
+    {
+     "path": "s1/recurs.html",
+     "anchor": "простейшая-рекурсия-замена-цикла",
+     "title": "Понятие рекурсии и простейшие рекурсивные алгоритмы. Примеры задач. Рекурсивные алгоритмы и их построение",
+     "section": "Простейшая рекурсия (замена цикла)"
+    }
+   ]
+  },
+  {
+   "id": "euclid",
+   "name": "Алгоритм Евклида (НОД)",
+   "category": "Числа",
+   "complexity": "O(log n)",
+   "pages": [
+    {
+     "path": "s1/integers.html",
+     "anchor": "алгоритм-евклида-для-нахождения-нод",
+     "title": "Алгоритмы над целыми числами. Проверка на простоту, разложение на множители. Наибольший общий делитель и наименьшее общее кратное: алгоритм Евклида. Признак Паскаля. Расширенный алгоритм Евклида",
+     "section": "Алгоритм Евклида для нахождения НОД"
+    },
+    {
+     "path": "s3/recursion.html",
+     "anchor": "наибольший-общий-делитель-алгоритм-евклида",
+     "title": "Рекурсия: НОД, Ханойские башни, перебор с возвратом. Стек. Стек функций",
+     "section": "Наибольший общий делитель: алгоритм Евклида"
+    }
+   ]
+  },
+  {
+   "id": "sieve",
+   "name": "Решето Эратосфена",
+   "category": "Числа",
+   "complexity": "O(n log log n)",
+   "pages": [
+    {
+     "path": "s1/integers.html",
+     "anchor": "решето-эратосфена-для-нахождения-простых-чисел",
+     "title": "Алгоритмы над целыми числами. Проверка на простоту, разложение на множители. Наибольший общий делитель и наименьшее общее кратное: алгоритм Евклида. Признак Паскаля. Расширенный алгоритм Евклида",
+     "section": "Решето Эратосфена для нахождения простых чисел"
+    }
+   ]
+  },
+  {
+   "id": "fft",
+   "name": "Быстрое умножение длинных чисел (FFT)",
+   "category": "Числа",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s1/long_ar.html",
+     "anchor": "быстрое-умножение-длинных-чисел-fft",
+     "title": "Длинная арифметика. Сложение, вычитание, умножение на короткое/длинное число",
+     "section": "Быстрое умножение длинных чисел: FFT"
+    }
+   ]
+  },
+  {
+   "id": "combinatorics",
+   "name": "Комбинаторика: перестановки, размещения, сочетания",
+   "category": "Комбинаторика",
+   "complexity": "—",
+   "pages": [
+    {
+     "path": "s2/comb.html",
+     "anchor": "число-сочетаний-c_n-k",
+     "title": "Базовые идеи комбинаторики",
+     "section": "Число сочетаний $C_N^K$"
+    }
+   ]
+  },
+  {
+   "id": "hanoi",
+   "name": "Ханойские башни",
+   "category": "Рекурсия и перебор",
+   "complexity": "O(2ⁿ)",
+   "pages": [
+    {
+     "path": "s3/recursion.html",
+     "anchor": "ханойские-башни-рекурсивное-перемещение",
+     "title": "Рекурсия: НОД, Ханойские башни, перебор с возвратом. Стек. Стек функций",
+     "section": "Ханойские башни: рекурсивное перемещение"
+    }
+   ]
+  },
+  {
+   "id": "backtracking",
+   "name": "Перебор с возвратом (backtracking)",
+   "category": "Рекурсия и перебор",
+   "complexity": "зависит от задачи",
+   "pages": [
+    {
+     "path": "s2/backtracking.html",
+     "anchor": "2-3-2-перебор-с-возвратом-backtracking",
+     "title": "Переборные алгоритмы. Перебор вариантов, Backtracking",
+     "section": "2.3.2. Перебор с возвратом (backtracking)"
+    }
+   ]
+  },
+  {
+   "id": "monte-carlo",
+   "name": "Метод Монте-Карло",
+   "category": "Рандомизированные алгоритмы",
+   "complexity": "—",
+   "pages": [
+    {
+     "path": "s2/monte_carlo.html",
+     "anchor": "статистическое-моделирование-метод-монте-карло",
+     "title": "Статистическое моделирование (метод Монте-Карло)",
+     "section": "Статистическое моделирование (метод Монте-Карло)"
+    }
+   ]
+  },
+  {
+   "id": "graham",
+   "name": "Выпуклая оболочка: алгоритм Грэхема",
+   "category": "Геометрия",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s6/geom.html",
+     "anchor": "алгоритм-грэхема",
+     "title": "Вычислительная геометрия: Алгоритм Грэхема, Алгоритм Джарвиса, Проверка принадлежности точки многоугольнику",
+     "section": "Алгоритм Грэхема"
+    }
+   ]
+  },
+  {
+   "id": "jarvis",
+   "name": "Выпуклая оболочка: алгоритм Джарвиса",
+   "category": "Геометрия",
+   "complexity": "O(n·h)",
+   "pages": [
+    {
+     "path": "s6/geom.html",
+     "anchor": "алгоритм-джарвиса-заворачивание-подарка",
+     "title": "Вычислительная геометрия: Алгоритм Грэхема, Алгоритм Джарвиса, Проверка принадлежности точки многоугольнику",
+     "section": "Алгоритм Джарвиса («заворачивание подарка»)"
+    }
+   ]
+  },
+  {
+   "id": "point-in-polygon",
+   "name": "Принадлежность точки многоугольнику",
+   "category": "Геометрия",
+   "complexity": "O(n)",
+   "pages": [
+    {
+     "path": "s6/geom.html",
+     "anchor": "принадлежность-точки-многоугольнику-правило-луча",
+     "title": "Вычислительная геометрия: Алгоритм Грэхема, Алгоритм Джарвиса, Проверка принадлежности точки многоугольнику",
+     "section": "Принадлежность точки многоугольнику (правило луча)"
+    }
+   ]
+  }
+ ],
+ "byPage": {
+  "s1/sort.html": [
+   "bubble",
+   "selection",
+   "counting",
+   "quick",
+   "merge",
+   "heap"
+  ],
+  "s1/binsearch.html": [
+   "binsearch"
+  ],
+  "s1/data_structures.html": [
+   "stack-queue"
+  ],
+  "s4/strings.html": [
+   "kmp"
+  ],
+  "s6/strings.html": [
+   "kmp"
+  ],
+  "s3/strings_hash.html": [
+   "hash"
+  ],
+  "s1/graph_alg_py.html": [
+   "dfs",
+   "bfs",
+   "topo",
+   "euler",
+   "dijkstra",
+   "floyd",
+   "prim"
+  ],
+  "s1/graph_alg.html": [
+   "dfs",
+   "bfs",
+   "topo",
+   "euler",
+   "dijkstra"
+  ],
+  "s5/bipartite_matching.html": [
+   "kuhn"
+  ],
+  "s4/dsu.html": [
+   "dsu"
+  ],
+  "s6/trees.html": [
+   "tree-walks",
+   "lca"
+  ],
+  "s5/treap.html": [
+   "treap"
+  ],
+  "s5/segments_tree.html": [
+   "segtree"
+  ],
+  "s6/segment_tree_modification.html": [
+   "segtree"
+  ],
+  "s3/segments_tree.html": [
+   "sqrt"
+  ],
+  "s6/fenwick_tree.html": [
+   "fenwick"
+  ],
+  "s6/rand_heap.html": [
+   "rand-heap",
+   "bst"
+  ],
+  "s1/dynamic_problems.html": [
+   "dp-basics"
+  ],
+  "s1/recurs.html": [
+   "recursion"
+  ],
+  "s1/integers.html": [
+   "euclid",
+   "sieve"
+  ],
+  "s3/recursion.html": [
+   "euclid",
+   "hanoi"
+  ],
+  "s1/long_ar.html": [
+   "fft"
+  ],
+  "s2/comb.html": [
+   "combinatorics"
+  ],
+  "s2/backtracking.html": [
+   "backtracking"
+  ],
+  "s2/monte_carlo.html": [
+   "monte-carlo"
+  ],
+  "s6/geom.html": [
+   "graham",
+   "jarvis",
+   "point-in-polygon"
+  ]
+ }
+}

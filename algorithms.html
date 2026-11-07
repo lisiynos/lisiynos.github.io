@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Каталог алгоритмов</title>
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+    <link rel="stylesheet" type="text/css" href="style/site.css">
+    <script src="js/site.js" defer></script>
+</head>
+<body>
+<div id="content">
+<h1>Каталог алгоритмов</h1>
+<p>Все алгоритмы курса и разделы, где они разобраны. Ссылка открывает нужный раздел страницы. Файл создан скриптом common/build_navigation.py, не редактируйте его вручную.</p>
+<h2>Сортировки</h2>
+<ul class="catalog">
+<li id="bubble"><strong>Сортировка пузырьком</strong> <span class="complexity">O(n²)</span>
+<br>Где разобран: <a href="s1/sort.html#квадратичные-сортировки-сортировка-пузырьком">Квадратичные сортировки, сортировка &quot;Пузырьком&quot;</a></li>
+<li id="selection"><strong>Сортировка выбором</strong> <span class="complexity">O(n²)</span>
+<br>Где разобран: <a href="s1/sort.html#сортировка-выбором">Сортировка выбором</a></li>
+<li id="counting"><strong>Сортировка подсчётом</strong> <span class="complexity">O(n + k)</span>
+<br>Где разобран: <a href="s1/sort.html#сортировка-подсчётом">Сортировка подсчётом</a></li>
+<li id="quick"><strong>Быстрая сортировка (QuickSort)</strong> <span class="complexity">O(n log n)</span>
+<br>Где разобран: <a href="s1/sort.html#быстрая-сортировка-quicksort">&quot;Быстрая сортировка&quot; QuickSort</a></li>
+<li id="merge"><strong>Сортировка слиянием (MergeSort)</strong> <span class="complexity">O(n log n)</span>
+<br>Где разобран: <a href="s1/sort.html#сортировка-слиянием-mergesort">Сортировка слиянием - MergeSort</a></li>
+<li id="heap"><strong>Пирамидальная сортировка (HeapSort)</strong> <span class="complexity">O(n log n)</span>
+<br>Где разобран: <a href="s1/sort.html#heapsort-сортировка-при-помощи-кучи">HeapSort - сортировка при помощи кучи</a></li>
+</ul>
+<h2>Поиск</h2>
+<ul class="catalog">
+<li id="binsearch"><strong>Двоичный поиск</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s1/binsearch.html#двоичный-бинарный-поиск-binsearch-бинпоиск">Двоичный (бинарный) поиск, BinSearch, БинПоиск</a></li>
+</ul>
+<h2>Структуры данных</h2>
+<ul class="catalog">
+<li id="stack-queue"><strong>Стек и очередь на массиве</strong> <span class="complexity">O(1) на операцию</span>
+<br>Где разобран: <a href="s1/data_structures.html#реализация-стека-и-очереди-на-базе-массива">Реализация Стека и Очереди на базе массива</a></li>
+<li id="tree-walks"><strong>Обходы бинарного дерева</strong> <span class="complexity">O(n)</span>
+<br>Где разобран: <a href="s6/trees.html#обходы-бинарного-дерева">Обходы бинарного дерева</a></li>
+<li id="lca"><strong>Наименьший общий предок</strong> <span class="complexity">O(h)</span>
+<br>Где разобран: <a href="s6/trees.html#наименьший-общий-предок">Наименьший общий предок</a></li>
+<li id="treap"><strong>Декартово дерево (treap)</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s5/treap.html#двоичные-деревья-поиска-декартово-дерево">Двоичные деревья поиска. Декартово дерево</a></li>
+<li id="segtree"><strong>Дерево отрезков</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s5/segments_tree.html#дерево-отрезков">Дерево отрезков</a>; <a href="s6/segment_tree_modification.html#дерево-отрезков-с-отложенной-операцией">Дерево отрезков с отложенной операцией</a></li>
+<li id="sqrt"><strong>Корневая оптимизация (sqrt-декомпозиция)</strong> <span class="complexity">O(√n)</span>
+<br>Где разобран: <a href="s3/segments_tree.html#2-корневая-оптимизация">2. Корневая оптимизация</a></li>
+<li id="fenwick"><strong>Дерево Фенвика</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s6/fenwick_tree.html#дерево-фенвика">Дерево Фенвика</a></li>
+<li id="rand-heap"><strong>Рандомизированная куча</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s6/rand_heap.html#рандомизированная-куча-минимума">Рандомизированная куча минимума</a></li>
+<li id="bst"><strong>Дерево двоичного поиска</strong> <span class="complexity">O(h)</span>
+<br>Где разобран: <a href="s6/rand_heap.html#дерево-двоичного-поиска">Дерево двоичного поиска</a></li>
+</ul>
+<h2>Графы</h2>
+<ul class="catalog">
+<li id="dfs"><strong>Поиск в глубину (DFS)</strong> <span class="complexity">O(V + E)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#поиск-в-глубину-пвг-depth-first-search-dfs">Поиск в глубину - ПВГ (Depth First Search - DFS)</a>; <a href="s1/graph_alg.html#поиск-в-глубину-пвг-depth-first-search-dfs">Поиск в глубину - ПВГ (Depth First Search - DFS)</a></li>
+<li id="bfs"><strong>Поиск в ширину (BFS)</strong> <span class="complexity">O(V + E)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#поиск-в-ширину-пвш-breadth-first-search-bfs">Поиск в ширину - ПВШ (Breadth First Search - BFS)</a>; <a href="s1/graph_alg.html#поиск-в-ширину-пвш-breadth-first-search-bfs">Поиск в ширину - ПВШ (Breadth First Search - BFS)</a></li>
+<li id="topo"><strong>Топологическая сортировка</strong> <span class="complexity">O(V + E)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#топологическая-сортировка">Топологическая сортировка</a>; <a href="s1/graph_alg.html#топологическая-сортировка">Топологическая сортировка</a></li>
+<li id="euler"><strong>Эйлеров цикл</strong> <span class="complexity">O(E)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#поиск-эйлерова-цикла-в-графе">Поиск эйлерова цикла в графе</a>; <a href="s1/graph_alg.html#поиск-эйлерова-цикла-в-графе">Поиск эйлерова цикла в графе</a></li>
+<li id="dijkstra"><strong>Алгоритм Дейкстры</strong> <span class="complexity">O((V + E) log V)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#алгоритм-дейкстры">Алгоритм Дейкстры</a>; <a href="s1/graph_alg.html#алгоритм-дейкстры">Алгоритм Дейкстры</a></li>
+<li id="floyd"><strong>Алгоритм Флойда–Уоршелла</strong> <span class="complexity">O(V³)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#алгоритм-флойда">Алгоритм Флойда</a></li>
+<li id="prim"><strong>Алгоритм Прима (минимальное остовное дерево)</strong> <span class="complexity">O(E log V)</span>
+<br>Где разобран: <a href="s1/graph_alg_py.html#алгоритм-прима">Алгоритм Прима</a></li>
+<li id="kuhn"><strong>Максимальное паросочетание (алгоритм Куна)</strong> <span class="complexity">O(V·E)</span>
+<br>Где разобран: <a href="s5/bipartite_matching.html#максимальное-паросочетание">Максимальное паросочетание</a></li>
+<li id="dsu"><strong>Система непересекающихся множеств (DSU)</strong> <span class="complexity">почти O(1)</span>
+<br>Где разобран: <a href="s4/dsu.html#система-непересекающихся-множеств">Система непересекающихся множеств</a></li>
+</ul>
+<h2>Строки</h2>
+<ul class="catalog">
+<li id="kmp"><strong>Поиск подстроки: алгоритм КМП</strong> <span class="complexity">O(n + m)</span>
+<br>Где разобран: <a href="s4/strings.html#алгоритм-кнута-морриса-пратта-кмп-алгоритм">Алгоритм Кнута-Морриса-Пратта (КМП-алгоритм)</a>; <a href="s6/strings.html#алгоритм-кнута-морриса-пратта-кмп-алгоритм">Алгоритм Кнута-Морриса-Пратта (КМП-алгоритм)</a></li>
+<li id="hash"><strong>Полиномиальный хеш строки</strong> <span class="complexity">O(n)</span>
+<br>Где разобран: <a href="s3/strings_hash.html#полиномиальные-хеши-на-строках">Полиномиальные хеши на строках</a></li>
+</ul>
+<h2>Динамическое программирование</h2>
+<ul class="catalog">
+<li id="dp-basics"><strong>Простейшие задачи динамического программирования</strong> <span class="complexity">O(n)</span>
+<br>Где разобран: <a href="s1/dynamic_problems.html#задача-числа-фибоначчи">Задача: Числа Фибоначчи</a></li>
+</ul>
+<h2>Числа</h2>
+<ul class="catalog">
+<li id="euclid"><strong>Алгоритм Евклида (НОД)</strong> <span class="complexity">O(log n)</span>
+<br>Где разобран: <a href="s1/integers.html#алгоритм-евклида-для-нахождения-нод">Алгоритм Евклида для нахождения НОД</a>; <a href="s3/recursion.html#наибольший-общий-делитель-алгоритм-евклида">Наибольший общий делитель: алгоритм Евклида</a></li>
+<li id="sieve"><strong>Решето Эратосфена</strong> <span class="complexity">O(n log log n)</span>
+<br>Где разобран: <a href="s1/integers.html#решето-эратосфена-для-нахождения-простых-чисел">Решето Эратосфена для нахождения простых чисел</a></li>
+<li id="fft"><strong>Быстрое умножение длинных чисел (FFT)</strong> <span class="complexity">O(n log n)</span>
+<br>Где разобран: <a href="s1/long_ar.html#быстрое-умножение-длинных-чисел-fft">Быстрое умножение длинных чисел: FFT</a></li>
+</ul>
+<h2>Комбинаторика</h2>
+<ul class="catalog">
+<li id="combinatorics"><strong>Комбинаторика: перестановки, размещения, сочетания</strong> <span class="complexity">—</span>
+<br>Где разобран: <a href="s2/comb.html#число-сочетаний-c_n-k">Число сочетаний $C_N^K$</a></li>
+</ul>
+<h2>Рекурсия и перебор</h2>
+<ul class="catalog">
+<li id="recursion"><strong>Рекурсия</strong> <span class="complexity">—</span>
+<br>Где разобран: <a href="s1/recurs.html#простейшая-рекурсия-замена-цикла">Простейшая рекурсия (замена цикла)</a></li>
+<li id="hanoi"><strong>Ханойские башни</strong> <span class="complexity">O(2ⁿ)</span>
+<br>Где разобран: <a href="s3/recursion.html#ханойские-башни-рекурсивное-перемещение">Ханойские башни: рекурсивное перемещение</a></li>
+<li id="backtracking"><strong>Перебор с возвратом (backtracking)</strong> <span class="complexity">зависит от задачи</span>
+<br>Где разобран: <a href="s2/backtracking.html#2-3-2-перебор-с-возвратом-backtracking">2.3.2. Перебор с возвратом (backtracking)</a></li>
+</ul>
+<h2>Геометрия</h2>
+<ul class="catalog">
+<li id="graham"><strong>Выпуклая оболочка: алгоритм Грэхема</strong> <span class="complexity">O(n log n)</span>
+<br>Где разобран: <a href="s6/geom.html#алгоритм-грэхема">Алгоритм Грэхема</a></li>
+<li id="jarvis"><strong>Выпуклая оболочка: алгоритм Джарвиса</strong> <span class="complexity">O(n·h)</span>
+<br>Где разобран: <a href="s6/geom.html#алгоритм-джарвиса-заворачивание-подарка">Алгоритм Джарвиса («заворачивание подарка»)</a></li>
+<li id="point-in-polygon"><strong>Принадлежность точки многоугольнику</strong> <span class="complexity">O(n)</span>
+<br>Где разобран: <a href="s6/geom.html#принадлежность-точки-многоугольнику-правило-луча">Принадлежность точки многоугольнику (правило луча)</a></li>
+</ul>
+<h2>Рандомизированные алгоритмы</h2>
+<ul class="catalog">
+<li id="monte-carlo"><strong>Метод Монте-Карло</strong> <span class="complexity">—</span>
+<br>Где разобран: <a href="s2/monte_carlo.html#статистическое-моделирование-метод-монте-карло">Статистическое моделирование (метод Монте-Карло)</a></li>
+</ul>
+</div>
+</body>
+</html>

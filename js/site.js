@@ -1,5 +1,5 @@
 // Progressive enhancements shared by every page: site search, copy buttons on code blocks,
-// heading anchors, a table of contents for long lessons and a back-to-top button.
+// heading anchors, a table of contents for long lessons, navigation through the course and a back-to-top button.
 // The pages stay readable without this script.
 (function () {
   'use strict';
@@ -117,6 +117,89 @@
     const h1 = content.querySelector('h1');
     if (h1) h1.after(nav);
     else content.prepend(nav);
+  }
+
+  // Navigation from navigation.json (made by common/build_navigation.py): the trail through the session, links
+  // to the previous and the next lesson, and the algorithms that the page explains. Without the file: nothing.
+  async function loadNavigation() {
+    try {
+      const response = await fetch(new URL('navigation.json', SITE_ROOT));
+      return await response.json();
+    } catch {
+      return null;
+    }
+  }
+
+  function linkTo(href, text) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    return link;
+  }
+
+  function addTrail(navigation, lesson) {
+    const session = navigation.sessions[lesson.session];
+    const trail = document.createElement('nav');
+    trail.className = 'site-trail';
+    trail.setAttribute('aria-label', 'Путь к странице');
+    trail.append(
+      linkTo(new URL('index.html', SITE_ROOT).href, 'Курс'), ' › ',
+      linkTo(new URL(`${lesson.session}/index.html`, SITE_ROOT).href, session.title), ' › ',
+      document.createTextNode(lesson.title),
+    );
+    content.prepend(trail);
+  }
+
+  function addPager(navigation, lesson) {
+    const pager = document.createElement('nav');
+    pager.className = 'site-pager';
+    pager.setAttribute('aria-label', 'Соседние уроки');
+    const neighbours = [
+      [lesson.prev, (title) => `← ${title}`, 'pager-prev'],
+      [lesson.next, (title) => `${title} →`, 'pager-next'],
+    ];
+    for (const [path, label, className] of neighbours) {
+      if (!path) continue;
+      const link = linkTo(new URL(path, SITE_ROOT).href, label(navigation.pages[path].title));
+      link.className = className;
+      pager.append(link);
+    }
+    if (pager.children.length) content.append(pager);
+  }
+
+  function addPageAlgorithms(navigation, path) {
+    const ids = navigation.byPage[path];
+    if (!ids) return;
+    const box = document.createElement('details');
+    box.className = 'page-algorithms';
+    box.open = true;
+    box.innerHTML = '<summary>Алгоритмы на этой странице</summary>';
+    const list = document.createElement('ul');
+    for (const algorithm of navigation.algorithms.filter((item) => ids.includes(item.id))) {
+      const place = algorithm.pages.find((item) => item.path === path);
+      const item = document.createElement('li');
+      const complexity = document.createElement('span');
+      complexity.className = 'complexity';
+      complexity.textContent = algorithm.complexity;
+      item.append(linkTo(`#${place.anchor}`, algorithm.name), ' ', complexity);
+      list.append(item);
+    }
+    box.append(list, linkTo(new URL('algorithms.html', SITE_ROOT).href, 'Все алгоритмы курса'));
+    const after = content.querySelector('.toc') || content.querySelector('h1');
+    if (after) after.after(box);
+    else content.prepend(box);
+  }
+
+  async function addNavigation() {
+    const navigation = await loadNavigation();
+    if (!navigation) return;
+    const path = decodeURIComponent(location.pathname.slice(SITE_ROOT.pathname.length));
+    const lesson = navigation.pages[path];
+    if (lesson) {
+      addTrail(navigation, lesson);
+      addPager(navigation, lesson);
+    }
+    addPageAlgorithms(navigation, path);
   }
 
   function addBackToTop() {
@@ -241,6 +324,7 @@
   }
 
   addBackToTop();
+  addNavigation();
   addSearch();
   highlightRust();
 })();
