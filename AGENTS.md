@@ -1,0 +1,130 @@
+# AGENTS.md
+
+Guide for AI coding agents working in this repository. Written for: AI agents editing the site and the maintainer.
+
+## What this is
+
+A static, Russian-language course site, "Математические основы программирования" (summer sessions, olympiad training, algorithms). It is served by GitHub Pages from the repository root at https://lisiynos.github.io/. The default branch is `master` (not `main`). Commit and push to `master`.
+
+There is no build step for the pages: they are hand-written HTML. Two exceptions: the session plan tables (`sN/index.html`) and `search-index.json` are generated (see below).
+
+## Layout
+
+| Path | What it is |
+|------|------------|
+| `s1/` … `s6/` | Course sessions. `index.html` is the generated session plan. Lesson pages are snake_case `.html` files (a few are `.htm`). A page's assets sit in a folder named after the page (`s2/comb/` for `comb.html`). |
+| `dp/` | Design-patterns course pages. Not algorithms. |
+| `uts/` | Olympiad training camps (tasks with solutions). |
+| `java/` | Java pages. |
+| `about/`, `schedule/`, `files/` | Course description, schedule, downloadable files. |
+| `common/` | Generator for session plans (`gen.py` and templates) and `search_index.py`. |
+| `js/site.js` | Shared script on every page: search, copy buttons, heading anchors, table of contents, back-to-top, Rust highlighting. |
+| `js/index.js` | Recalculates the totals row of the session plan table. |
+| `style/style.css`, `style/site.css` | Site styles. `site.css` is the responsive and interactive layer and loads after `style.css`. |
+| `syntax/` | SHJS syntax highlighter (C/C++, Pascal, Python, Basic, Java, and others). No Rust. |
+| `search-index.json` | Generated search index (title, headings and tags of every page). |
+| `tests/e2e/` | Playwright end-to-end tests (see Tests). |
+| `FlashPascal/`, `highlight/`, `plastex/`, `sphinx/` | Vendored third-party code and docs. Do not edit. |
+| `audio/`, `.idea/` | Media files and IDE settings. |
+
+## Page anatomy
+
+A lesson page (see `s1/binsearch.html`):
+
+```html
+<html>
+<head>
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>…</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <link rel="stylesheet" type="text/css" href="../style/site.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>   <!-- one per language used -->
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+    <script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+    <h1>Title</h1>
+    <ul class="tags"><li><a href="#">Tag</a></li></ul>   <!-- read by the generator and the search index -->
+    <p>Text with inline formulas $O(\log n)$.</p>
+    <h3>Section</h3>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">…code…</pre>
+</div>
+</body>
+</html>
+```
+
+Pages under `s*/` use `../`; pages one level deeper (`s2/olymp/`) use `../../`. Keep the include order: stylesheets, then the highlighter, then MathJax, then `site.js`.
+
+Session plan pages (`sN/index.html`) also load jQuery 3.7.1 and `../js/index.js`, and have a `<table id="plan">`.
+
+## Rules
+
+- **HTTPS only.** Browsers block `http://` scripts, stylesheets and frames on the https site, so formulas and scripts silently break. Never write `http://` in a `src` or `href` of a resource (plain `<a href>` links may stay http). Protocol-relative `//host/...` is acceptable only if the host serves https.
+- **Libraries in use:** MathJax 3.2.2 (`tex-chtml.js`, configured in `window.MathJax`), jQuery 3.7.1 (session plan pages only), highlight.js 11.9.0 (loaded by `site.js` on pages with a Rust block). Do not reintroduce MathJax 2, jQuery 1.x, `cdn.mathjax.org` or highlight.js 8.x.
+- **Images:** `<img loading="lazy" decoding="async">`. Keep the `width` and `height` attributes.
+- **Encoding:** UTF-8. Some older pages were Windows-1251; convert a page to UTF-8 before editing it.
+- **Code blocks:**
+  - Python: `<pre class="sh_python">`
+  - C++: `<pre class="sh_cpp">`
+  - Rust: `<pre><code class="language-rust">`
+  - Pascal, Java and others: the matching `sh_*` class.
+  - HTML-escape code: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`. Code must never contain `</pre>`.
+  - Each implementation has a heading paragraph: `<p><strong>Реализация на Python</strong></p>` (or `… на Rust`, `… на C++`).
+- **Algorithm examples:** every example is a complete program, prints a deterministic demo, and is verified before it goes into a page:
+  - C++: `g++ -std=c++17 -Wall -Wextra -Werror -O2`
+  - Rust: `rustc --edition 2021 -D warnings -O` (run with `mise exec -- rustc`)
+  - Python 3: standard library only, following the KISS and DRY rules in the global guidance.
+  - Check against a brute-force reference on random inputs, not only the demo output.
+- **Generated files:** do not hand-edit `sN/index.html` plan tables or `search-index.json`. Change the source (the session script and `common/gen.py`, or the page) and regenerate.
+
+## Search index
+
+`search-index.json` is built from every page by `common/search_index.py`. Run it after adding, renaming or retitling a page:
+
+```
+python common/search_index.py       # needs beautifulsoup4 and lxml
+```
+
+The E2E suite fails if a page is missing from the index or the index lists a page that no longer exists.
+
+## Session plan generator
+
+`common/gen.py` builds `sN/index.html` from the templates in `common/` and per-session data (for example `s1/parse.py`). It uses Windows-only paths (`'..\\common\\'`), so it does not run on Linux as written. Either run it on Windows or fix the paths first.
+
+## Tests
+
+End-to-end tests use Playwright, with Node 22.23.4 pinned in `mise.toml` (`/root/.local/bin/mise` on this machine; `mise` is not on `PATH` by default).
+
+```
+mise exec -- npm install                        # once
+mise exec -- npx playwright install chromium    # or PW_CHANNEL=chrome to use an installed Chrome
+mise exec -- npm test                           # serves the repo on 127.0.0.1:4399 and tests it
+BASE_URL=https://lisiynos.github.io mise exec -- npm test   # tests the deployed site
+```
+
+Specs in `tests/e2e/`:
+
+- `pages.spec.js`: every page loads, with no JavaScript errors, no same-site 4xx responses and no `http://` resources. Hard-coded `http://` in `script`, `link`, `img`, `iframe` tags fails the test in every mode.
+- `formulas.spec.js`: no raw `$…$` text is left after MathJax runs, and MathJax reports no `mjx-merror` boxes.
+- `session-index.spec.js`: plan links resolve and the totals row equals the sum of the lesson rows.
+- `interactive.spec.js`: search, copy buttons, table of contents, heading anchors, search index completeness.
+- `policy.spec.js`: viewport tag, `site.js` and `site.css` included, lazy images, no retired libraries.
+- `known-issues.js`: defects that come from files missing from the repository (absent pictures, a Flash helper script that is not in the repo, Word-export formula markup). The specs fail on any new problem and on any entry that no longer occurs. Remove an entry when its defect is fixed.
+
+`tests/e2e/serve.js` is a small static server for the repository. It needs no Python.
+
+Known repository facts: `s4/tasks.html` is empty; `s1/cpp/assert_demo2.html` is a fragment without `<head>`; `s3/dynamic/dynamic_comb.htm` has broken Word-export formulas.
+
+## Git
+
+- Work on `master`. Commit with a short imperative subject and a body that explains why.
+- Stage only the files of the task. The repository is shared and may contain other people's unrelated changes.
+- Do not commit `node_modules/`, `test-results/` or `playwright-report/` (they are in `.gitignore`).

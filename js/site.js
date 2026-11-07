@@ -213,6 +213,33 @@
   addCopyButtons();
   addHeadingAnchors();
   addTableOfContents();
+  // Rust examples are written as <pre><code class="language-rust">. SHJS has no Rust, so highlight.js is
+  // loaded only on pages that contain such a block.
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    });
+  }
+
+  function highlightRust() {
+    const blocks = content.querySelectorAll('code.language-rust');
+    if (!blocks.length) return;
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/';
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = `${base}styles/github.min.css`;
+    document.head.append(style);
+    loadScript(`${base}highlight.min.js`)
+      .then(() => loadScript(`${base}languages/rust.min.js`))
+      .then(() => blocks.forEach((block) => window.hljs.highlightElement(block)))
+      .catch(() => {});
+  }
+
   addBackToTop();
   addSearch();
+  highlightRust();
 })();

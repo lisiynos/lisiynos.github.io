@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { listPages } = require('./helpers');
+const { listPages, readPage } = require('./helpers');
 
 // A long lesson with several headings, a code block and formulas.
 const LESSON = '/s1/binsearch.html';
@@ -49,3 +49,15 @@ test('the search index lists every site page and nothing else', async ({ request
   expect(pages.filter((urlPath) => !indexed.includes(urlPath)), 'pages missing from search-index.json').toEqual([]);
   expect(indexed.filter((urlPath) => !pages.includes(urlPath)), 'stale entries: run python common/search_index.py').toEqual([]);
 });
+
+// Rust examples are highlighted by js/site.js once highlight.js has loaded.
+const RUST_PAGES = listPages().filter((urlPath) => readPage(urlPath).includes('language-rust'));
+
+for (const urlPath of RUST_PAGES) {
+  test(`Rust examples are highlighted: ${urlPath}`, async ({ page }) => {
+    await page.goto(urlPath);
+    const blocks = await page.locator('code.language-rust').count();
+    expect(blocks).toBeGreaterThan(0);
+    await expect(page.locator('code.language-rust.hljs')).toHaveCount(blocks, { timeout: 15_000 });
+  });
+}
