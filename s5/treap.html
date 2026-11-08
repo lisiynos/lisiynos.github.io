@@ -57,11 +57,11 @@ type
 function Merge( L,R : Treap ):Treap;
 begin
   if L = nil then { Левого поддерева нет }
-    Result := R     { => результат - правое поддерево }
+    Result := R     { =&gt; результат - правое поддерево }
   else if R = nil then { Правого поддерева нет }
-    Result := L     { => результат - левое поддерево }
-  else if L.y > R.y then begin { У левого приоритет выше }
-    { => левое становится корнем }
+    Result := L     { =&gt; результат - левое поддерево }
+  else if L.y &gt; R.y then begin { У левого приоритет выше }
+    { =&gt; левое становится корнем }
     { Левое поддерево у него сохраняется }
     L.Right := Merge(L.Right,R);
     Result := L;
@@ -660,7 +660,7 @@ begin
   Split(T,x-1,L,R);
   Split(R,x,M,Rs);
   { Удаляем одну верхнюю вершину в M }
-  if M <> nil then begin
+  if M &lt;&gt; nil then begin
     if M.Left = nil then
       M := M.Right
     else
@@ -868,7 +868,7 @@ function MinT( T:Treap ):integer;
 begin
   if T = nil then { Если дерево пустое, то минимума нет }
     MinT := High(integer)
-  else if T.Left = nil then { Левого поддерева нет => текущий элемент - минимум }
+  else if T.Left = nil then { Левого поддерева нет =&gt; текущий элемент - минимум }
     MinT := T.x
   else
     MinT := MinT(T.Left); { Минимум в левом поддереве }
@@ -1012,7 +1012,7 @@ begin
     Find := false { Не найдено }
   else if T.x = x then begin
     Find := true; { x найдено в текущей вершине }
-  end else if x < T.x then
+  end else if x &lt; T.x then
     Find := Find(T.Left,x) { Поищем слева }
   else
     Find := Find(T.Right,x); { Поищем справа }

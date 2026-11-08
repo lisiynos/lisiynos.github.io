@@ -237,14 +237,14 @@ public class SegTree {
       Arrays.fill(tree, inf);
       for (int i = 0; i &lt; numberOfValues; i++)
         tree[i + size] = nextLong();
-      for (int i = size - 1; i > 0; i--)
+      for (int i = size - 1; i &gt; 0; i--)
         update(i);
     }
 
     public void set(int pos, long newValue) {
       pos += size;
       this.tree[pos] = newValue;
-      while (pos > 1) {
+      while (pos &gt; 1) {
         pos /= 2;
         update(pos);
       }
@@ -483,16 +483,16 @@ int main() {
       }
       for (int i = numberOfElements; i &lt; size; i++)
         tree[i + size] = new Vertex(i, i, inf);
-      for (int i = size - 1; i > 0; i--) {
+      for (int i = size - 1; i &gt; 0; i--) {
         tree[i] = new Vertex(tree[i * 2].left, tree[i * 2 + 1].right,
             tree[i * 2].value + tree[i * 2 + 1].value);
       }
     }
 
     public long get(int vertex, int left, int right) {
-      if (tree[vertex].left > right || tree[vertex].right < left)
+      if (tree[vertex].left &gt; right || tree[vertex].right &lt; left)
         return inf;
-      if (tree[vertex].left >= left && tree[vertex].right <= right)
+      if (tree[vertex].left &gt;= left &amp;&amp; tree[vertex].right &lt;= right)
         return tree[vertex].value;
       long answer = get(vertex * 2, left, right)
           + get(vertex * 2 + 1, left, right);
@@ -500,9 +500,9 @@ int main() {
     }
 
     public void set(int vertex, int left, int right, long value) {
-      if (tree[vertex].left > right || tree[vertex].right < left)
+      if (tree[vertex].left &gt; right || tree[vertex].right &lt; left)
         return;
-      if (tree[vertex].left >= left && tree[vertex].right <= right) {
+      if (tree[vertex].left &gt;= left &amp;&amp; tree[vertex].right &lt;= right) {
         tree[vertex].value = value;
         return;
       }
@@ -748,7 +748,7 @@ begin
     Sum := 0;
     exit;
   end;
-  if (x <= B[i]) and (y >= E[i]) then begin
+  if (x &lt;= B[i]) and (y &gt;= E[i]) then begin
     Sum := S[i];
     exit;
   end;
@@ -759,7 +759,7 @@ end;
 procedure Put(p: Integer);
 begin
   p := base + p - 1;
-  while p > 0 do
+  while p &gt; 0 do
   begin
     inc(S[p]);
     p := p div 2; { Поднимаемся к отрезку-предку }
@@ -822,7 +822,7 @@ var
 
 function B( i:integer ):Integer;
 begin
-  if i>=base then
+  if i&gt;=base then
     B := i-base+1
   else
     B := B(i*2);
@@ -830,7 +830,7 @@ end;
 
 function E( i:integer ):Integer;
 begin
-  if i>=base then
+  if i&gt;=base then
     E := i-base+1
   else
     E := E(i*2+1);
@@ -839,11 +839,11 @@ end;
 { Количество точек на отрезке от A до B }
 function Sum(x, y, i: Integer): Integer;
 begin
-  if (y<B(i)) or (x>E(i)) then begin
+  if (y&lt;B(i)) or (x&gt;E(i)) then begin
     Sum := 0;
     exit;
   end;
-  if (x<=B(i)) and (y>=E(i)) then begin
+  if (x&lt;=B(i)) and (y&gt;=E(i)) then begin
     Sum := S[i];
     exit;
   end;
@@ -854,7 +854,7 @@ end;
 procedure Put(p: Integer);
 begin
   p := base + p - 1; { Индекс элемента на нижнем уровне дерева }
-  while p > 0 do
+  while p &gt; 0 do
   begin
     inc(S[p]);
     p := p div 2; { Поднимаемся к отрезку-предку }

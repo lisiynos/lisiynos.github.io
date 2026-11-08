@@ -62,9 +62,7 @@ class EggVoice extends Thread {
     } // Слово «яйцо» сказано 5 раз
   }
 }
-</pre>
 
-    <pre class="sh_java">
 public class ChickenVoice //Класс с методом main()<br>
     {<br>
     static EggVoice mAnotherOpinion; //Побочный поток <br>
@@ -75,7 +73,8 @@ public class ChickenVoice //Класс с методом main()<br>
     mAnotherOpinion.start(); //Запуск потока <br>
     for(int i = 0; i &lt; 5; i++) {<br>
     try{<br>
-    Thread.sleep(1000); //Приостанавливает поток на 1 секунду   }catch(InterruptedException e){}<br>
+    Thread.sleep(1000); //Приостанавливает поток на 1 секунду<br>
+    }catch(InterruptedException e){}<br>
     System.out.println(&quot;курица!&quot;);<br>
     } //Слово «курица» сказано 5 раз<br>
     if(mAnotherOpinion.isAlive()) //Если оппонент еще не сказал последнее слово<br>

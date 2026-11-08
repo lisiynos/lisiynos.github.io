@@ -145,10 +145,10 @@
       // QIODevice::Text - к выводу применяются правила
       //   для текстового файла
 
-    QTextStream out(&file); // Поток вывода (работать как с cout)
+    QTextStream out(&amp;file); // Поток вывода (работать как с cout)
     out.setCodec("UTF-8"); // Текст будет в кодировке UTF-8
-    out << QString("Любой текст!") << endl;
-    out << QString("2 * 3 = ") << (2*3) << endl;
+    out &lt;&lt; QString("Любой текст!") &lt;&lt; endl;
+    out &lt;&lt; QString("2 * 3 = ") &lt;&lt; (2*3) &lt;&lt; endl;
 
     file.close(); // Закрываем файл
     </pre>

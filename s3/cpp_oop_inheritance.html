@@ -47,41 +47,42 @@
 <pre class="sh_cpp">
 #include &lt;iostream&gt;
 
-use namespace std;
+using namespace std;
 
 class A {
+public:
   // virtual // Раскомментируйте эту строку
-  void nv(){
-    cout << "nv A" << endl;
+  void show(){
+    cout &lt;&lt; "show A" &lt;&lt; endl;
   };
 };
 
 class B : public A {
   void show(){
-    cout << "show B" << endl;
+    cout &lt;&lt; "show B" &lt;&lt; endl;
   };
 };
 
 class C : public B {
   void show(){
-    cout << "show C" << endl;
+    cout &lt;&lt; "show C" &lt;&lt; endl;
   };
 };
 
 class D : public B, public C {
   void show(){
-    cout << "show D" << endl;
+    cout &lt;&lt; "show D" &lt;&lt; endl;
   };
 };
 
-void main(){
+int main(){
   A* a[3];
   // Заводим всех типов
   a[0] = new A();
   a[1] = new B();
   a[2] = new C();
   for(int i=0; i&lt;3; i++)
-    a[i]->show();
+    a[i]-&gt;show();
   // Отчистка памяти  
     
 }

@@ -46,14 +46,14 @@
 class String {
 public:
   // переопределение оператора &quot;+&quot; для конкатенации
-  friend String operator+(const char*, const String&);
-  String operator+(const String&) const;
+  friend String operator+(const char*, const String&amp;);
+  String operator+(const String&amp;) const;
 
   int length() const; // длина строки
 
   String(); // конструктор по-умолчанию
-  String(const String&); // инициализация по другой строке
-  String& operator=(const String&); // присваивание
+  String(const String&amp;); // инициализация по другой строке
+  String&amp; operator=(const String&amp;); // присваивание
   ~String(); // деструктор
 
   String(const char *); // инициализация по строке char *, пользовательский конструктор
@@ -68,16 +68,16 @@ private:
 // Конструктор по-умолчанию
 String::String() {
   rep = new char[1];
-  rep[0] = ‘\0’;
+  rep[0] = '\0';
 }
 
-String::String(const String& s) {
+String::String(const String&amp; s) {
   rep = new char[s.length() + 1];
   // копирование данных из одной строки в другую
   ::strcpy(rep, s.rep);
 }
 
-String& String::operator=(const String& s) {
+String&amp; String::operator=(const String&amp; s) {
   if (rep != s.rep) {
     delete[] rep;
     int len = s.length() + 1;
@@ -102,7 +102,7 @@ int String::length() const {
   return ::strlen( rep );
 }
 
-String String::operator+(const String& s) const
+String String::operator+(const String&amp; s) const
 {
   char *buf = new char[s.length() + length() + 1];
   ::strcpy(buf, rep);
@@ -149,8 +149,8 @@ private:
 class String {
 public:
   String(); // конструктор по умолчанию
-  String(const String&); // копирующий конструктор
-  String& operator=(const String&); // присваивание
+  String(const String&amp;); // копирующий конструктор
+  String&amp; operator=(const String&amp;); // присваивание
   ~String(); // деструктор
 
   String(const char *); // инициализация по строке char *
@@ -280,14 +280,14 @@ string(const char *p) {
 C&amp; operator=(const C &amp;c) { 
   if (c == *this) return *this;
   ... 
-  return *this;     // возвращается объект, для которого вызван оператор
+  return *this;     // возвращается объект, для которого вызван оператор
 }
 
 C operator+ (const C &amp;c) const {
   ...
   C retval();
   ... 
-  return  retval;    // возвращается новый объект
+  return  retval;    // возвращается новый объект
 } 
 
 C operator* (const C &amp;c) const {
@@ -297,12 +297,12 @@ C operator* (const C &amp;c) const {
   return retval;
 } 
 
-С&amp; operator ++() { // префиксная  форма 
+C&amp; operator ++() { // префиксная  форма 
   ... 
   return  *this;
 }
 
-С&amp; operator ++(int) { // постфиксная форма
+C&amp; operator ++(int) { // постфиксная форма
   ... 
   return  *this;
 }</pre>
@@ -312,7 +312,7 @@ C operator* (const C &amp;c) const {
         объекта:</p>
 
     <pre class="sh_cpp">
-  friend С operator+(const С&amp;, const С&amp;);
+  friend C operator+(const C&amp;, const C&amp;);
 </pre>
     <p>
         Ключевое слово friend - спецификатор функции, который дает функции- не члену класса доступ к скрытым членам
@@ -348,7 +348,7 @@ String operator+(const String&amp; S, const char* s) {
 
     <p>При использовании этих объявлений будут работать обе операции суммирования: </p>
     <pre class="sh_cpp">
-  String s;   
+  String s;   
   "abc"+s;
   s+"123"; 
 </pre>
@@ -520,7 +520,7 @@ public:
     Real *c2 = (Real)&amp;n;
     c1-&gt;rpart += c2-&gt;r;
     ret.redefine(c1);
-    return ret;       
+    return ret;       
   }
   Number  complexAdd(Number &amp;n) {
     ...
@@ -552,10 +552,9 @@ using namespace std;
 class Number {
 public:
   Number() {}
-private:
   virtual ~Number() {} // Виртуальный деструктор
-  virtual double value() const { return 0; }
-  virtual operator double() const { return 0; }
+  virtual double value() const { return 0; }
+  virtual operator double() const { return 0; }
   virtual ostream&amp; out(ostream &amp;s) { return s; }
   virtual Number *copy() const = 0;
   friend ostream&amp; operator&lt;&lt;(ostream &amp;s,  Number &amp;n) {
@@ -565,8 +564,8 @@ private:
 
 class Complex : public Number {
 public:
-  Complex(double r=0, double i=0) : r(r), i(i)   {}
-  Complex(const Complex &amp;c) : r(c.r), i(c.i)     {}
+  Complex(double r=0, double i=0) : r(r), i(i)   {}
+  Complex(const Complex &amp;c) : r(c.r), i(c.i)     {}
   operator double() const { return ::sqrt(r*r+i*i);  }
   Number *copy() const {
     Complex *ret = new Complex;
@@ -581,26 +580,26 @@ private:
 class Imaginary : public Number {
 public:
   Imaginary(double  i=0) : i(i) {}
-  Imaginary(const  Imaginary &amp;i) : i(i.i) {}
-  operator  double() const { return ::abs(i); }
-  double value() const { return i; }
+  Imaginary(const  Imaginary &amp;i) : i(i.i) {}
+  operator  double() const { return ::abs(i); }
+  double value() const { return i; }
   Number *copy() const {
     Imaginary *ret = new Imaginary;
     ret-&gt;i=i;
     return  ret;
   }
-  ostream&amp;  out(ostream &amp;s) { s&lt;&lt;'j'&lt;&lt;i; return s;      }
-&nbsp;
+  ostream&amp;  out(ostream &amp;s) { s&lt;&lt;'j'&lt;&lt;i; return s;      }
+
 private:
   double i;
 };
-&nbsp;
+
 class Real : public Number {
 public:
   Real(double  x=0) : r(x) {}
   Real(const Real &amp;x) : r(x.r) {}
-  operator double() const { return r; }
-  double value() const { return r; }
+  operator double() const { return r; }
+  double value() const { return r; }
   Number *copy() const {
     Real *ret = new Real;
     ret-&gt;r=r;
@@ -616,7 +615,7 @@ public:
   EnvNumber(double=0, double=0);
   EnvNumber(const  EnvNumber&amp; n) { realNumber=n.copy(); }
   ~EnvNumber() { delete realNumber; }
-  Number *copy() const { return  realNumber-&gt;copy(); }
+  Number *copy() const { return  realNumber-&gt;copy(); }
   Number *transform() {
     Number *ret=realNumber;
     realNumber=0;
@@ -624,7 +623,7 @@ public:
   }
 public:
   //объединение сигнатуры всех классов иерархии Number
-  double value() const { return realNumber-&gt;value(); }
+  double value() const { return realNumber-&gt;value(); }
   operator double() const { return realNumber-&gt;operator double(); }
   ostream&amp; out(ostream &amp;s) { return realNumber-&gt;out(s); }
 private:
@@ -648,7 +647,7 @@ Number* ReadNumber(vector&lt;int&gt; *v) {
   vector&lt;int&gt;::iterator i = v-&gt;begin();
   int a=*i; v-&gt;erase(i);
   int b=*i; v-&gt;erase(i);
-  EnvNumber n(a,b);
+  EnvNumber n(a,b);
   return n.transform();
 }
 
@@ -657,12 +656,12 @@ int main(int argc, char **argv) {
   int nums[] = { 0,5, 2,0, 1,1 };
   vector&lt;int&gt; v; 
   v.assign(nums, nums+6);
-  do {
+  do {
     n = ReadNumber(&amp;v);
     cout &lt;&lt; typeid(*n).name() &lt;&lt; '  ' &lt;&lt; *n &lt;&lt; endl;
   } 
   while(!v.empty());
-  return 0;
+  return 0;
 }
 </pre>
 

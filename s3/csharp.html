@@ -46,7 +46,7 @@ class Account {
 
   public void Withdraw(decimal amount) {
     lock (thisLock) {
-      if (amount > balance) {
+      if (amount &gt; balance) {
         throw new Exception("Insufficient funds");
       }
       balance -= amount;

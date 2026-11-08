@@ -78,9 +78,9 @@ Heapify(A, i)
   right ← 2i+1
   heap_size - количество элементов в куче
   largest ← i
-  if left ≤ A.heap_size и A[left] > A[i]
+  if left ≤ A.heap_size и A[left] &gt; A[i]
     then largest ← left
-  if right ≤ A.heap_size и A[right] > A[largest]
+  if right ≤ A.heap_size и A[right] &gt; A[largest]
     then largest ← right
   if largest ≠ i
     then Обменять A[i] ↔ A[largest]
@@ -101,10 +101,10 @@ Heapify(A, i)
 
     <pre>
 HeapIncreaseKey(A, i, key)
-  if key < A[i]
+  if key &lt; A[i]
     then error "Новый ключ меньше предыдущего"
   A[i] ← key
-  while i > 1 и A[⌊i/2⌋] < A[i]
+  while i &gt; 1 и A[⌊i/2⌋] &lt; A[i]
     do Обменять A[i] ↔ A[⌊i/2⌋]
       i ← ⌊i/2⌋
 </pre>

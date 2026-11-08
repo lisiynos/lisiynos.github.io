@@ -59,7 +59,7 @@ def is_prime(a):
     return all(a % i for i in range(2, int(a**0.5 + 0.1) + 1))
     # all возвращает True только если все элементы множества не 0
 
-# Генерируем все простые числа < 100
+# Генерируем все простые числа &lt; 100
 primes = [x for x in range(2, 100) if is_prime(x)]
 print(*primes)
 
@@ -131,7 +131,7 @@ int main() {
     <pre class="sh_cpp">
 const int p = 31;
 long long hash = 0, p_pow = 1;
-for (size_t i=0; i<s.length(); ++i)
+for (size_t i=0; i&lt;s.length(); ++i)
 {
 	// желательно отнимать 'a' от кода буквы
 	// единицу прибавляем, чтобы у строки вида 'aaaaa' хэш был ненулевой

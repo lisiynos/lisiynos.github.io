@@ -67,7 +67,7 @@ void func1() {
     <pre class="sh_cpp">
 #include &lt;stdio.h&gt;
 
-int count;  // глобальная переменная count
+int count;  // глобальная переменная count
 
 void func1(void);
 void func2(void);
@@ -76,6 +76,17 @@ int main(void) {
   count = 100;
   func1();
   return 0;
+}
+
+void func1(void) {
+  func2();
+  printf("count = %d\n", count);  // напечатает 100
+}
+
+void func2(void) {
+  int count;  // локальная переменная count
+  for (count = 1; count &lt; 10; count++)
+    putchar('.');
 }</pre>
     <p>Если локальная и глобальная переменные имеют одно и то же имя, то при обращении к ней внутри блока, в котором
         объявлена локальная переменная, используется локальная переменная, и на глобальную переменную это никак не

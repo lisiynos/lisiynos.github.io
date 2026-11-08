@@ -72,7 +72,7 @@ String s;
 ...
 
 hash[0] = (int)s.charAt(0);
-for(int i = 1; i < s.length(); i++){
+for(int i = 1; i &lt; s.length(); i++){
     hash[i] = (hash[i - 1] * x + (int)s.charAt(i)) % base;
 }
 </pre>

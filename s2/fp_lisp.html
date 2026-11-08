@@ -419,7 +419,7 @@ quickSort ([h : t]) = quickSort ([n | n &isin; t, n &lt;= h) + [h] + quickSort (
           (if (closeBracket (car L))
               (if (null? s)
                   #f ;; Пустой стек
-                  (and (match (car s) (car L)) ;; На вершине стека должна быть нужная скобка => продолжаем
+                  (and (match (car s) (car L)) ;; На вершине стека должна быть нужная скобка =&gt; продолжаем
                       (check (cdr L) (cdr s)) ;; И дальше всё в порядке
                       )
                   )
@@ -430,7 +430,7 @@ quickSort ([h : t]) = quickSort ([n | n &isin; t, n &lt;= h) + [h] + quickSort (
   )
 
 (define (checkStr s)
-  (check (string->list s) '()))
+  (check (string-&gt;list s) '()))
 
 ;; Тесты
 (checkStr "")

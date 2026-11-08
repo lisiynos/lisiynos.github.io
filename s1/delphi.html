@@ -174,25 +174,25 @@ begin
   Writeln(Format('Number = %n', [12345.678])); { Number = 12_345|68 }
 
   { Используя выравнивание в колонке (ширина колонки) и значения точности }
-  { Символы '<>' используются, чтобы выделить форматирование }
-  Writeln(Format('Padded decimal = <%7d>', [1234])); { Padded decimal = <   1234> }
+  { Символы '&lt;&gt;' используются, чтобы выделить форматирование }
+  Writeln(Format('Padded decimal = &lt;%7d&gt;', [1234])); { Padded decimal = &lt;   1234&gt; }
   { С отрицательной шириной выравнивание влево }
-  Writeln(Format('Justified decimal = <%-7d>', [1234])); { Justified decimal = <1234   > }
+  Writeln(Format('Justified decimal = &lt;%-7d&gt;', [1234])); { Justified decimal = &lt;1234   &gt; }
 
   { Если указать '.' то число будет дополнено '0' до заданной длины }
-  Writeln(Format('0 padded decimal  = <%.6d>', [1234])); { 0 padded decimal  = <001234> }
+  Writeln(Format('0 padded decimal  = &lt;%.6d&gt;', [1234])); { 0 padded decimal  = &lt;001234&gt; }
 
   { Комбинация ширины и дополнения. Сначала ширина, потом дополнение }
-  Writeln(Format('Width + precision = <%8.6d>', [1234])); { Width + precision = <  001234> }
+  Writeln(Format('Width + precision = &lt;%8.6d&gt;', [1234])); { Width + precision = &lt;  001234&gt; }
 
   { Индекс позволяет менять порядок вывода (например, несколько раз выводить одну строку) }
   Writeln(Format('Reposition after 3 strings = %s %s %s %1:s %s',['Zero', 'One', 'Two', 'Three']));
   { Reposition after 3 strings = Zero One Two One Two }
 
   { Обратите внимание, испытание показало, что * для параметра ширины может привести к ECONVERTERROR. }
-  Writeln(Format('In line = <%10.4d>', [1234]));  { In line = <      1234> }
-  Writeln(Format('Part data driven  = <%*.4d>', [10, 1234])); { Part data driven = <      1234> }
-  Writeln(Format('Data driven = <%*.*d>', [10, 4, 1234]));  { Data driven = <      1234> }
+  Writeln(Format('In line = &lt;%10.4d&gt;', [1234]));  { In line = &lt;      1234&gt; }
+  Writeln(Format('Part data driven  = &lt;%*.4d&gt;', [10, 1234])); { Part data driven = &lt;      1234&gt; }
+  Writeln(Format('Data driven = &lt;%*.*d&gt;', [10, 4, 1234]));  { Data driven = &lt;      1234&gt; }
 end.</pre>
     <h2>Отличия Object и Class</h2>
 
@@ -389,7 +389,7 @@ end.
     Sun = class(Parent)
       Y : integer;
       { overload - перезагрузка метода }
-      { Описывает новый метод (с новыми параметрами) => используем overload }
+      { Описывает новый метод (с новыми параметрами) =&gt; используем overload }
       constructor Create; overload;
       constructor Create( X,Y : integer ); overload;
       { Перекрытие деструктора }
@@ -727,12 +727,12 @@ begin
   {   3. Запись для поиска }
   if FindFirst('C:\Program Files\*.*', faAnyFile, SR) = 0 then
     repeat
-      if SR.Attr and faDirectory <> 0 then { Если это каталог }
+      if SR.Attr and faDirectory &lt;&gt; 0 then { Если это каталог }
         Write('Directory: ')
       else { Иначе это файл }
         Write('File: ');
       Writeln(SR.Name);
-    until FindNext(SR) <> 0;
+    until FindNext(SR) &lt;&gt; 0;
   FindClose(SR); { После FindFirst, FindNext  вызвать FindClose } 
 end;</pre>
 

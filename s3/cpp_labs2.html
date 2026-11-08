@@ -76,14 +76,21 @@
 #define show(x) #x &lt;&lt; " = " &lt;&lt; x &lt;&lt; "  "
 #define test(x) if(x) cout &lt;&lt; #x &lt;&lt; endl
 
-// Вычисление НОД = Наибольший общий делитель<br>// GCD = Greatest Common Divider (по-английски)<br>long GCD( long a, long b ){ return b==0 ? a : GCD(b,a%b); }<br> <br>// Класс &quot;Рациональная дробь&quot;<br>class Rat {<br>  void init( long n, long d ){ 
+// Вычисление НОД = Наибольший общий делитель
+// GCD = Greatest Common Divider (по-английски)
+long GCD( long a, long b ){ return b==0 ? a : GCD(b,a%b); }
+
+// Класс &quot;Рациональная дробь&quot;
+class Rat {
+  void init( long n, long d ){
     long gcd = GCD(n,d); // вычисляем наибольший общий делитель числителя и знаменателя
     // Сокращаем дробь 
     this-&gt;n = n/gcd; 
     this-&gt;d = d/gcd; 
     curObj++; 
     constCalls++; 
-  };<br>public:   
+  };
+public:
   static int curObj /* текущее кол-во объектов */, constCalls /* кол-во вызовов конструкторов */; 
   long n,d; // Числитель и знаменатель nominator/denominator 
   Rat(long n, long d) { init(n,d); } // &quot;Основной&quot; конструктор
@@ -106,11 +113,25 @@
 
 // Инициализируем статические переменные
 int Rat::curObj = 0, Rat::constCalls = 0;
- <br>using namespace std;
- <br>// Перегрузка операции вывода в поток для класса &quot;Рациональная дробь&quot;<br>ostream&amp; operator &lt;&lt; ( ostream&amp; os, const Rat&amp; x ){ return os &lt;&lt; x.n &lt;&lt; &quot;/&quot; &lt;&lt; x.d; };
- <br>// Основная программа - демонстрация возможностей класса &quot;Рациональная дробь&quot;
+
+using namespace std;
+
+// Перегрузка операции вывода в поток для класса &quot;Рациональная дробь&quot;
+ostream&amp; operator &lt;&lt; ( ostream&amp; os, const Rat&amp; x ){ return os &lt;&lt; x.n &lt;&lt; &quot;/&quot; &lt;&lt; x.d; };
+
+// Основная программа - демонстрация возможностей класса &quot;Рациональная дробь&quot;
 void demoRat(){
-  const Rat a(3,9),b(1,6),c = a*b+b/a;<br>  cout &lt;&lt; show(a) &lt;&lt; show(b) &lt;&lt; endl;<br>  cout &lt;&lt; show(a+b) &lt;&lt; show(a-b) &lt;&lt; show(a*b) &lt;&lt; show(a/b) &lt;&lt; endl;<br>  test(a==b); test(a!=b); test(a&gt;b); test(a&lt;b); test(a&gt;=b); test(a&lt;=b); test( a*b == b*a );<br>}<br> <br>int main() {<br>  demoRat();<br>  cout &lt;&lt; &quot;Объектов в памяти = &quot; &lt;&lt; Rat::curObj &lt;&lt; &quot;   Вызовов конструкторов = &quot; &lt;&lt; Rat::constCalls &lt;&lt; endl;    <br>  return 0;<br>};</pre>
+  const Rat a(3,9),b(1,6),c = a*b+b/a;
+  cout &lt;&lt; show(a) &lt;&lt; show(b) &lt;&lt; endl;
+  cout &lt;&lt; show(a+b) &lt;&lt; show(a-b) &lt;&lt; show(a*b) &lt;&lt; show(a/b) &lt;&lt; endl;
+  test(a==b); test(a!=b); test(a&gt;b); test(a&lt;b); test(a&gt;=b); test(a&lt;=b); test( a*b == b*a );
+}
+
+int main() {
+  demoRat();
+  cout &lt;&lt; &quot;Объектов в памяти = &quot; &lt;&lt; Rat::curObj &lt;&lt; &quot;   Вызовов конструкторов = &quot; &lt;&lt; Rat::constCalls &lt;&lt; endl;
+  return 0;
+};</pre>
 
     <h2>2. Перегрузка операторов</h2>
 
@@ -123,6 +144,7 @@ void demoRat(){
     <pre class="sh_cpp">
 // Пример простейшей реализации
 #include &lt;assert.h&gt;
+#include &lt;cstring&gt;
 #include &lt;iostream&gt;
 
 using namespace std;
@@ -131,30 +153,30 @@ using namespace std;
 class String {
   char *p; // строка = указатель на массив символов
   int len; // длина строки
-  void init(char *s, int _len){ 
+  void init(const char *s, int _len){
     len = _len; 
     p = new char[len+1]; 
     strcpy(p,s); 
   }
 public:
-  String(char *s){ init(s,strlen(s)); };
-  String(const String &x){ init(x.p,x.len); } // Конструктор копирования
+  String(const char *s){ init(s,strlen(s)); };
+  String(const String &amp;x){ init(x.p,x.len); } // Конструктор копирования
   ~String(){ delete []p; }
   operator char*(){ return p; }; // оператор преобразования строки в char*
-  String& operator=(String &x){ 
+  String&amp; operator=(String &amp;x){ 
     delete []p; // Очищаем старую строку
     init(x.p,x.len); 
     return *this; 
   }
   // Конкатенация
-  String& operator+=(String &x){ 
+  String&amp; operator+=(String &amp;x){ 
     char *old=p; 
     init(old,len+x.len); 
     strcat(p,x.p); 
     delete []old; 
     return *this; 
   };
-  String& operator-=(String &x){ // удаление подстроки
+  String&amp; operator-=(String &amp;x){ // удаление подстроки
     char* substr = strstr(p, x.p); // поиск подстроки
     if (substr != NULL) { // если подстрока найдена
       len -= x.len; char* pn = new char[len+1]; // создаём новую строку, которая короче на длину подстроки
@@ -163,10 +185,10 @@ public:
     }
     return *this; // возвращаем "указатель на себя"
   }
-  String& operator+(String &x){ return *(new String(p))+=x; }
-  String& operator-(String &x){ return *(new String(p))-=x; }
+  String&amp; operator+(String &amp;x){ return *(new String(p))+=x; }
+  String&amp; operator-(String &amp;x){ return *(new String(p))-=x; }
   // Перегрузка операции "&lt;&lt;" вывода в поток
-  ostream& operator &lt;&lt; (ostream& os){ return os &lt;&lt; p; }
+  ostream&amp; operator &lt;&lt; (ostream&amp; os){ return os &lt;&lt; p; }
 };
  
 // Основная программа - демонстрация возможностей класса "Строка"
@@ -197,10 +219,11 @@ int main() {
         ostream.</p>
 
     <pre class="sh_cpp">
+#include &lt;cassert&gt;
 #include &lt;iostream&gt;
 
 using namespace std;
- 
+
 // Матрица целых чисел
 class matrix {
   int rows,cols; // rows - количество строк, cols - количество столбцов
@@ -227,7 +250,7 @@ public:
   matrix(){ init(0,0,true); }  // Конструктор без параметров
   matrix( int rows, int cols ){ init(rows,cols,true); }  // Основной конструктор
   // Конструктор копирования
-  matrix(const matrix& m) { 
+  matrix(const matrix&amp; m) { 
     init(m.rows,m.cols,false);
     for(int i=0;i&lt;rows;i++)
       for(int j=0;j&lt;cols;j++)
@@ -237,18 +260,25 @@ public:
   ~matrix(){
     // Удаляем каждую строку
     for(int i=0;i&lt;rows;i++)
-      delete data[i];
+      delete[] data[i];
     // Удаляем массив указателей на double
-    delete data;
+    delete[] data;
+  }
+  // Присваивание: m - копия, обмениваемся с ней данными
+  matrix&amp; operator =(matrix m) {
+    swap(rows, m.rows);
+    swap(cols, m.cols);
+    swap(data, m.data);
+    return *this;
   }
   int Rows() const { return rows; }  // Количество строк
   int Cols() const { return cols; }  // Количество столбцов
   // Операция выделения строки матрицы
   int* operator[] (int index) const { return data[index]; }
   // Сложение
-  matrix& operator +=(const matrix& m) {
+  matrix&amp; operator +=(const matrix&amp; m) {
     // Для сложения матрицы должны быть одинакового размера
-    assert( rows == m.rows && cols == m.cols );
+    assert( rows == m.rows &amp;&amp; cols == m.cols );
     // Сладываем матрицы поэлементно
     for(int i=0; i&lt;rows; i++)
       for(int j=0; j&lt;cols; j++)
@@ -256,42 +286,42 @@ public:
     return *this;   
   }
   // Дружественная функция сложения 
-  friend matrix operator +(const matrix& a,const matrix& b) { 
+  friend matrix operator +(const matrix&amp; a,const matrix&amp; b) { 
     matrix temp = a; 
     return temp += b; 
   }
   // Вычитание
-  matrix& operator -=(const matrix& m) {
-    assert( rows == m.rows && cols == m.cols );
+  matrix&amp; operator -=(const matrix&amp; m) {
+    assert( rows == m.rows &amp;&amp; cols == m.cols );
     for(int i=0;i&lt;rows;i++)
       for(int j=0;j&lt;cols;j++)
         data[i][j] -= m.data[i][j];
     return *this;       
   }
   // Дружественная функция вычитания 
-  friend matrix operator -(const matrix& a,const matrix& b) { 
+  friend matrix operator -(const matrix&amp; a,const matrix&amp; b) { 
     matrix temp = a; 
     return temp -= b; 
   }
   // Умножение - легче сделать бинарный оператор
-  matrix& operator *=(const matrix& m) {
-    assert( rows == m.cols && cols == m.rows );
+  matrix&amp; operator *=(const matrix&amp; m) {
+    assert( rows == m.cols &amp;&amp; cols == m.rows );
     matrix temp(rows,m.cols);
     for(int i=0;i&lt;rows;i++)
-      for(int j=0;j&lt;cols;j++){
-        temp.data[i][j] = 0;       
-        for(int k=0;k&lt;m.cols;k++)
+      for(int j=0;j&lt;m.cols;j++){
+        temp.data[i][j] = 0;
+        for(int k=0;k&lt;cols;k++)
           temp.data[i][j] += data[i][k] * m.data[k][j];
       }
     *this = temp;
     return *this;       
   }
-  friend matrix operator *(const matrix& a,const matrix& b) {
+  friend matrix operator *(const matrix&amp; a,const matrix&amp; b) {
     matrix temp = a;
     return temp *= b;
   }
   // Транспонирование
-  matrix& operator ~() {
+  matrix&amp; operator ~() {
     matrix temp(cols,rows);
     for(int i=0;i&lt;rows;i++)
       for(int j=0;j&lt;cols;j++)
@@ -300,7 +330,7 @@ public:
     return *this;       
   }
   // Вывод в поток
-  ostream& print(ostream &os){
+  ostream&amp; print(ostream &amp;os){
     os &lt;&lt; "(" &lt;&lt; rows &lt;&lt; "," &lt;&lt; cols &lt;&lt; ")" &lt;&lt; endl;
     for(int i=0;i&lt;rows;i++){
       for(int j=0;j&lt;cols;j++)
@@ -310,12 +340,14 @@ public:
     return os;
   }
   // Ввод из потока (в частности - с клавиатуры)
-  istream& scan(istream &is){
-    if(is == cin) cout &lt;&lt; "Введите количество строк и столбцов: ";
-    is &gt;&gt; rows &gt;&gt; cols;
+  istream&amp; scan(istream &amp;is){
+    if(&amp;is == &amp;cin) cout &lt;&lt; "Введите количество строк и столбцов: ";
+    int r = 0, c = 0;
+    is &gt;&gt; r &gt;&gt; c;
+    *this = matrix(r,c); // матрица нужного размера
     for(int i=0;i&lt;rows;i++)
       for(int j=0;j&lt;cols;j++){
-        if(is == cin) cout &lt;&lt; "[" &lt;&lt; i &lt;&lt; "][" &lt;&lt; j &lt;&lt; "] = ";
+        if(&amp;is == &amp;cin) cout &lt;&lt; "[" &lt;&lt; i &lt;&lt; "][" &lt;&lt; j &lt;&lt; "] = ";
         is &gt;&gt; data[i][j];
       }
     return is;
@@ -323,19 +355,19 @@ public:
 };
  
 // Оператор вывода в поток 
-template &lt;class T&gt; ostream& operator &lt;&lt; (ostream& os, T& t){
+template &lt;class T&gt; ostream&amp; operator &lt;&lt; (ostream&amp; os, T&amp; t){
   return t.print(os);
 }
  
 // Оператор ввода из потока
-template &lt;class T&gt; istream& operator &gt;&gt; (istream& is, T& t){
+template &lt;class T&gt; istream&amp; operator &gt;&gt; (istream&amp; is, T&amp; t){
   return t.scan(is);
 }
  
 // Тестирование класса Матрица
 int main(){
   const matrix m(2,1);
-  assert( m.Rows() == 2 && m.Cols() == 1 );
+  assert( m.Rows() == 2 &amp;&amp; m.Cols() == 1 );
   m[0][0] = 1; assert( m[0][0] == 1 );
   m[1][0] = 2; assert( m[1][0] == 2 );
   // Создаём 2 матрицы

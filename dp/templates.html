@@ -30,7 +30,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <pre class="sh_cpp">
 // Описание шаблонной функции
 template &lt;typename T&gt; T max(T x, T y) {
-  if (x < y)
+  if (x &lt; y)
     return y;
   else
     return x;
@@ -44,8 +44,8 @@ double f = max(123.11, 123.12);
 ...
 
 // Функция минимума 
-template &lt;typename T&gt; T min(T x, T y) { // T - параметр шаблона, T - произвольный тип данных для которого определена операция меньше "<"
-  return (x < y) ? x : y;
+template &lt;typename T&gt; T min(T x, T y) { // T - параметр шаблона, T - произвольный тип данных для которого определена операция меньше "&lt;"
+  return (x &lt; y) ? x : y;
 }
 
 // Примеры использования:

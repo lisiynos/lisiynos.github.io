@@ -41,11 +41,11 @@ public class A {
     }
 
     public static int fact(int N) throws Exception {
-        if (N < 0)
+        if (N &lt; 0)
             throw new Exception("Факториал от отрицательного числа не существует");
         if (N == 0)
             return 1;
-        if (N >= 2)
+        if (N &gt;= 2)
             return fact(N - 1) * N;
         return N;
     }
@@ -282,7 +282,7 @@ public class A {
 
     <pre class="sh_java">
     public static int fact(int N) {
-        if (N >= 3)
+        if (N &gt;= 3)
             return fact(N - 1) * N;
         return N;
     }
@@ -342,7 +342,7 @@ public class A {
     public static int fact(int N) {
         if (N == 0)
             return 1;
-        if (N >= 2)
+        if (N &gt;= 2)
             return fact(N - 1) * N;
         return N;
     }
@@ -378,11 +378,11 @@ public class A {
 
     <pre class="sh_java">
     public static int fact(int N) throws Exception {
-        if (N < 0)
+        if (N &lt; 0)
             throw new Exception("Факториал от отрицательного числа не существует!");
         if (N == 0)
             return 1;
-        if (N >= 2)
+        if (N &gt;= 2)
             return fact(N - 1) * N;
         return N;
     }

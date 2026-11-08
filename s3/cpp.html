@@ -153,7 +153,8 @@
 <h2>Ввод / вывод при помощи потоков</h2>
 
 <pre class="sh_cpp">
-#include &lt;stdio.h&gt;<br>#include &lt;iostream&gt;
+#include &lt;stdio.h&gt;
+#include &lt;iostream&gt;
 
 using namespace std;
 
@@ -161,8 +162,8 @@ int main(){
   freopen("sum.in", "r", stdin); // Ввод из файла вместо клавиатуры
   freopen("sum.out", "w", stdout); // Вывод в файл вместо экрана
   long long a,b; // 64-битное целое со знаком
-  cin >> a >> b;
-  cout << (a+b);
+  cin &gt;&gt; a &gt;&gt; b;
+  cout &lt;&lt; (a+b);
   return 0; // Выход с кодом 0
 }</pre>
 
@@ -234,14 +235,15 @@ int main(){
     a.send(null);
 </script>
 
-<pre class="sh_cpp">#include &lt;iostream&gt;<br>#include &lt;iomanip&gt;
+<pre class="sh_cpp">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
 
 using namespace std;
 
 int main(){
   double x = 3.14159265358;
-  cout << x << endl; // Вывод: 3.14159
-  cout << setiosflags(ios::fixed) << setprecision(2) << x << endl; // Вывод: 3.14
+  cout &lt;&lt; x &lt;&lt; endl; // Вывод: 3.14159
+  cout &lt;&lt; setiosflags(ios::fixed) &lt;&lt; setprecision(2) &lt;&lt; x &lt;&lt; endl; // Вывод: 3.14
   return 0;
 }</pre>
 
@@ -321,12 +323,12 @@ public: // Метка доступа. public - всё что будет пере
     x = _x; y = _y;
   }
 
-  friend void print(ostream& os,Pair& pair){
-    os << " (" << pair.x << ", " << pair.y << ") ";
+  friend void print(ostream&amp; os,Pair&amp; pair){
+    os &lt;&lt; " (" &lt;&lt; pair.x &lt;&lt; ", " &lt;&lt; pair.y &lt;&lt; ") ";
   }
 
-  friend ostream& operator<<(ostream& os,Pair& pair){
-    os << " (" << pair.x << ", " << pair.y << ") ";
+  friend ostream&amp; operator&lt;&lt;(ostream&amp; os,Pair&amp; pair){
+    os &lt;&lt; " (" &lt;&lt; pair.x &lt;&lt; ", " &lt;&lt; pair.y &lt;&lt; ") ";
     return os;
   }
 };

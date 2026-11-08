@@ -270,7 +270,7 @@ begin
   Write('Введите число: '); Readln(x);
   Write('Введите основание системы счисления: '); Readln(b);  
   s := '';
-  while x > 0 do begin
+  while x &gt; 0 do begin
     s := IntToStr(x mod b) + s; { Остаток - это очередная цифра. Приписываем её спереди к числу }
     x := x div b; { Делим на основание системы счисления }
   end;
@@ -670,7 +670,7 @@ var i : integer;
 begin
   result := '';
   for i := 1 to 13 do 
-    while T[i].D <= n do begin
+    while T[i].D &lt;= n do begin
       dec(N, T[i].D);                    
       result := result + T[i].S;
     end;

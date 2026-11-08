@@ -67,7 +67,7 @@ public:
   // конструктор, позволяющий инициализировать дробь целым числом 
   CFraction(int whole_part) : n(whole_part), d(1) { }
   // оператор вывода в консоль для дроби f, т.е cout &lt;&lt; f &lt;&lt; endl; 
-  friend ostream& operator&lt;&lt;(ostream& out, const CFraction& f){
+  friend ostream&amp; operator&lt;&lt;(ostream&amp; out, const CFraction&amp; f){
     if(f.d == 1) // Если знаменатель равен 1, т.е. f - целое число
       out &lt;&lt; f.n; // то выводим как целое число
     else 
@@ -75,22 +75,22 @@ public:
     return out;
   }
   // оператор сложения и вычитания дробей, такой что бы a1/b1+a2/b2=(a1*b2+a2*b1)/b1*b2
-  CFraction operator+(const CFraction& f) const {      
+  CFraction operator+(const CFraction&amp; f) const {      
     return CFraction( n*f.d + f.n*d, d*f.d );
   }
-  CFraction operator-(const CFraction& f) const {      
+  CFraction operator-(const CFraction&amp; f) const {      
     return CFraction( n*f.d - f.n*d, d*f.d );
   }
   // оператор перемножения дробей, такой что (a1/b1)*(a2/b2)=(a1*a2)/(b1*b2)
-  CFraction operator*(const CFraction& f) const {      
+  CFraction operator*(const CFraction&amp; f) const {      
     return CFraction( n*f.n, d*f.d );
   }
   // дружественную булеву процедуру сравнения дробей 1/2 &lt; 1/3 -&gt; false
-  friend bool compare(const CFraction& a, const CFraction& b) { 
+  friend bool compare(const CFraction&amp; a, const CFraction&amp; b) { 
     return (a.n*b.d) &lt; (b.n*a.d); 
   }
   // Операция "&lt;" меньше для функции sort
-  friend bool operator&lt;(const CFraction& a, const CFraction& b) {
+  friend bool operator&lt;(const CFraction&amp; a, const CFraction&amp; b) {
     return compare(a,b); 
   }
 };
@@ -144,7 +144,6 @@ int main() {
         компиляции программа создает четыре разные функции для заданного шаблона.</p>
 
     <pre class="sh_cpp">
-#include &lt;conio.h&gt;
 #include &lt;iostream&gt;
 #include &lt;typeinfo&gt;
 
@@ -173,11 +172,11 @@ int main() {
   cout &lt;&lt; greater_or_equal&lt;float&gt;(f1,f2) &lt;&lt; endl;
 
   // Получаем адрес первой функции
-  cout &lt;&lt; "&greater_or_equal&lt;int&gt; = " &lt;&lt; (void *)(&greater_or_equal&lt;int&gt;) &lt;&lt; endl;
+  cout &lt;&lt; "&amp;greater_or_equal&lt;int&gt; = " &lt;&lt; (void *)(&amp;greater_or_equal&lt;int&gt;) &lt;&lt; endl;
   // Получаем адрес второй функции, тоже выводим
-  cout &lt;&lt; "&greater_or_equal&lt;char&gt; = " &lt;&lt; (void *)(&greater_or_equal&lt;char&gt;) &lt;&lt; endl;
-  cout &lt;&lt; "&greater_or_equal&lt;double&gt; = " &lt;&lt; (void *)(&greater_or_equal&lt;double&gt;) &lt;&lt; endl;
-  cout &lt;&lt; "&greater_or_equal&lt;float&gt; = " &lt;&lt; (void *)(&greater_or_equal&lt;float&gt;) &lt;&lt; endl;
+  cout &lt;&lt; "&amp;greater_or_equal&lt;char&gt; = " &lt;&lt; (void *)(&amp;greater_or_equal&lt;char&gt;) &lt;&lt; endl;
+  cout &lt;&lt; "&amp;greater_or_equal&lt;double&gt; = " &lt;&lt; (void *)(&amp;greater_or_equal&lt;double&gt;) &lt;&lt; endl;
+  cout &lt;&lt; "&amp;greater_or_equal&lt;float&gt; = " &lt;&lt; (void *)(&amp;greater_or_equal&lt;float&gt;) &lt;&lt; endl;
   cout &lt;&lt; endl;
   // Получили в итоге 4 разных адреса
 

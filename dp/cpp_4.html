@@ -115,11 +115,11 @@ public:
       for(int i = 0; i &lt; n; i++)
         a_[i] = i+1;
     }
-    T& operator[](int i){
+    T&amp; operator[](int i){
         return a_[i];
     }
     // Метод не модифицирует состояние объекта
-    const T& operator[](int i) const {
+    const T&amp; operator[](int i) const {
        return a_[i];
     }
 };
@@ -127,7 +127,7 @@ public:
 
 int main() {
     const Array&lt;int,3&gt; a;
-    const int &b = a[0];
+    const int &amp;b = a[0];
     return 0;
 }
 </pre>

@@ -49,12 +49,12 @@ def gen(index=0, br_open=0, br_close=0, ans=['_'] * (2 * n)):
     if index == 2 * n:
         print("".join(ans))
         return
-    # Если можем поставить открывающую скобку => ставим её
-    if br_open < n:
+    # Если можем поставить открывающую скобку =&gt; ставим её
+    if br_open &lt; n:
         ans[index] = '('
         gen(index + 1, br_open + 1, br_close, ans)  # Рекурсия
-    # Если можем поставить закрывающую скобку => ставим её
-    if br_close < br_open:
+    # Если можем поставить закрывающую скобку =&gt; ставим её
+    if br_close &lt; br_open:
         ans[index] = ')'
         gen(index + 1, br_open, br_close + 1, ans)  # Рекурсия
 

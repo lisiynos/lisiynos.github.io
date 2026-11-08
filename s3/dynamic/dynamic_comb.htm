@@ -26,7 +26,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
     <h1>Динамическое программирование, "объект по номеру и номер по объекту"</h1>
 
-    <p>Данная лекция опирается на базовую по <A href="../../s2/dynamic1.html">динамическому программированию</A>.</p>
+    <p>Данная лекция опирается на базовую по <A href="../../s1/dynamic1.html">динамическому программированию</A>.</p>
 
 
     <h1>Примеры задач</h1>
@@ -50,11 +50,11 @@ var
 num - { номер }
     for len := 1 to N do
       for i := 1 to N do
-        if num < fact[n-1]*i then begin
+        if num &lt; fact[n-1]*i then begin
           p[len] := i;
           for j:= 1 to N do
             if used[j] then
-              if i >= j then
+              if i &gt;= j then
                 inc(i);
           p[len] := i;
           used[i] := 1;
@@ -213,8 +213,8 @@ begin
     GCD := a + b          { НОД(a, 0) = a, НОД(0, b) = b }
   else
   begin
-    while a <> b do
-      if a > b then a:=a-b else b:=b-a;
+    while a &lt;&gt; b do
+      if a &gt; b then a:=a-b else b:=b-a;
     GCD := b;
   end;
 end;
@@ -231,7 +231,7 @@ end.</pre>
 int GCD( int a, int b ){ // определение НОД двух чисел 
   if (a == 0 || b == 0) return a + b; // НОД(a, 0) = a, иначе цикл не закончится
   while(a != b) 
-    if (a > b) a-=b; else b-=a;
+    if (a &gt; b) a-=b; else b-=a;
   return b;
 }
  
@@ -538,18 +538,18 @@ end.  </pre>
 <p style='margin-bottom:6.0pt;text-align:justify;text-indent:        20pt'>Решение:</p>
 
 <p style='text-align:justify;text-indent:20pt'>258 = 114 &#183; 2
-    + 30;           q</span><sub>1</sub> = 2; </p>
+    + 30;           q<sub>1</sub> = 2; </p>
 
 <p style='text-align:justify;text-indent:20pt'>114 =  30 &#183; 3
-    + 24;            q</span><sub>2  </sub>= 3;  </p>
+    + 24;            q<sub>2  </sub>= 3;  </p>
 
 <p style='text-align:justify;text-indent:20pt'>  30 =  24 &#183; 1
-    + 6;              q</span><sub>3  </sub>= 1; </p>
+    + 6;              q<sub>3  </sub>= 1; </p>
 
 <p style='text-align:justify;text-indent:20pt'>  24 =   6 &#183; 4;           НОД(258,114) = 6</p>
 
 <p style='margin-bottom:6.0pt;text-align:justify;text-indent:
-20pt'> x</span><sub>3 </sub>= <strong>4</strong>; y<sub>3
+20pt'> x<sub>3 </sub>= <strong>4</strong>; y<sub>3
 </sub>= <strong>-9</strong> (таблица вычислений на рис.1.1);</p>
 
 <p>Проверка: ${258}*{4} – {114}*{9} = 6$</p>
@@ -579,7 +579,7 @@ end.  </pre>
     $ax+by=0$ (или эквивалентного ${a_1}x+{b_1}y=0$).</p>
 
 <p>Достоинство данного алгоритма в том, что решение уравнения определяется одновременно с нахождением
-    $GCD(a,b</span>)$ без дополнительных массивов. Алгоритм справедлив также при $a \lt b$.</p>
+    $GCD(a,b)$ без дополнительных массивов. Алгоритм справедлив также при $a \lt b$.</p>
 
 <p>Целочисленное решение уравнения $ax_0+by_0=GCD(a,b)$</p>
 
@@ -589,7 +589,7 @@ var x1,y1,q,r,x,y:int64;
 begin
   x0 := 1; y0 := 0;
   x1 := 0; y1 := 1;
-  while b <> 0 do begin
+  while b &lt;&gt; 0 do begin
     q := a div b; { Частное }
     r := a mod b; { Остаток }
     a := b; 
@@ -1050,7 +1050,7 @@ fn main() {
 <p>  <strong>Цикл</strong> i от 2 до n </p>
 
 <p>       Задать набор N а$_i $     {0,…0,1$_<span lang=EN-
-                                                   US>i  $,0,…,0}</p>
+                                                   US>i  $,0,…,0}</span></p>
 
 <p>        <strong>Пока</strong> a(i ) &#8800; 0</p>
 
@@ -1065,7 +1065,7 @@ fn main() {
 
 <p>          a (1) = t
                          Na _1 = <span lang=EN-
-                                       US>Nt</p>
+                                       US>Nt</span></p>
 
 <p>         <strong>Конец пока</strong></p>
 
@@ -1078,7 +1078,7 @@ fn main() {
     {НОД коэффициентов}</p>
 
 <p>       x () = <span lang=EN-
-                       US>Na _1       </p>
+                       US>Na _1       </span></p>
 
 <p>  {набор Na _1 содержит
     частное решение уравнения}</p>
@@ -1123,7 +1123,7 @@ begin
   for i := 2 to n do begin
     SetUnitVector(xi, i);
     ai := a[i];
-    while ai <> 0 do begin
+    while ai &lt;&gt; 0 do begin
       CalculateVector(x1, xi, a1 div ai);
       tmp := ai;
       ai := a1 mod ai;
@@ -1163,7 +1163,7 @@ end.
 
 <p style='margin-left:60.55pt;text-indent:-18.0pt'>3) Из
     второго сосуда, если он полон, выливаем        (<strong><span style='font-family:
-Symbol'>- 1 </strong>для y<strong>)</strong></p>
+Symbol'>- 1 </span></strong>для y<strong>)</strong></p>
 
 <p>Последующий
     пункт алгоритма выполняется, если невозможно выполнить предыдущий пункт. 
@@ -1235,18 +1235,18 @@ INPUT n
 PRINT n; "="; 
 WHILE (n mod 2 = 0) 
   n = n \ 2 
-  IF n <> 1 THEN 
+  IF n &lt;&gt; 1 THEN 
     PRINT " 2 * "; 
   ELSE 
     PRINT " 2 ": END 
   END IF 
 WEND 
 i = 3 
-WHILE i <= n 
+WHILE i &lt;= n 
   IF n mod i = 0 THEN 
     PRINT i; 
     n = n \ i 
-    IF n<>1 THEN PRINT "*"; 
+    IF n&lt;&gt;1 THEN PRINT "*"; 
   ELSE 
     i = i + 2 
   END IF 
@@ -1293,9 +1293,9 @@ begin
     while N mod i = 0 do begin { Пока N делится на i }
       write(' ',i); { Выводим множитель i }
       N := N div i; { Делим на i }
-      if N <> 1 then write(' *'); { Если ещё будут множители, то выводим знак умножения }
+      if N &lt;&gt; 1 then write(' *'); { Если ещё будут множители, то выводим знак умножения }
     end;
-  if N<>1 then write(' ',N); { Оставшийся множитель }
+  if N&lt;&gt;1 then write(' ',N); { Оставшийся множитель }
 end.
 </pre>
 

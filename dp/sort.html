@@ -64,7 +64,7 @@ begin
   repeat
     Changes := false; { Пока изменений нет :) }
     for i:=1 to N-1 do { Пробегаем по массиву сравнивая соседние элементы }
-      if A[i]>A[i+1] then begin { Если больший элемент слева, а должен быть справа }
+      if A[i]&gt;A[i+1] then begin { Если больший элемент слева, а должен быть справа }
         temp := A[i]; { Меняем элементы местами при помощи временной переменной temp }
         A[i] := A[i+1];
         A[i+1] := temp;
@@ -105,7 +105,7 @@ begin
   { Сортировка }
   for i:=N downto 1 do { A[i] должно быть больше чем все A[j] слева от него }
     for j:=1 to i-1 do { Проверяем все A[j] }
-      if A[j] > A[i] then begin {  Если какое-то A[j] больше чем A[i], то меняем их местами }
+      if A[j] &gt; A[i] then begin {  Если какое-то A[j] больше чем A[i], то меняем их местами }
         temp := A[i]; { Меняем элементы местами при помощи временной переменной temp }
         A[i] := A[j];
         A[j] := temp;
@@ -120,7 +120,7 @@ end.</pre>
   { Сортировка }  
   for i := 1 to N-1 do
     for j := i+1 to N do
-      if A[j] < A[i] then begin
+      if A[j] &lt; A[i] then begin
          temp:=A[i]; { Меняем элементы A[i] и A[j] местами }
          A[i]:=A[j]; 
          A[j]:=temp;
@@ -511,8 +511,8 @@ int T[N]; // Временный массив - буфер
 // left - левая граница сортируемого участка
 // right - правая граница
 void MergeSort( int left, int right ){
-  // Если в массиве один элемент - сортировать нечего =&gt сразу выходим
-  if(left &gt= right) return;
+  // Если в массиве один элемент - сортировать нечего =&gt; сразу выходим
+  if(left &gt;= right) return;
 
   // Делим массив на 2 равные половинки
   int m = (left + right) / 2; // Среднее арифметическое 
@@ -523,23 +523,23 @@ void MergeSort( int left, int right ){
   // Объединяем результаты - операция Merge (слияние)
   int l = left, r = m+1;
   for(int i = left; i&lt;= right; i++){
-    if(l &gt m) // Если левая половинка кончилась, то берём только из правой
+    if(l &gt; m) // Если левая половинка кончилась, то берём только из правой
       T[i] = A[r++];
-    else if(r &gt right) // Если правая половинка кончилась, то берём только из правой
+    else if(r &gt; right) // Если правая половинка кончилась, то берём только из правой
       T[i] = A[l++];
-    else if(A[l] &lt A[r]) // Если обе не кончились, то берём минимальный элемент
+    else if(A[l] &lt; A[r]) // Если обе не кончились, то берём минимальный элемент
       T[i] = A[l++];
 	else 
       T[i] = A[r++];
   }
 
   // Копируем обратно из временно буфера в A
-  for(int i = left; i&lt=right; i++) 
+  for(int i = left; i&lt;=right; i++) 
     A[i] = T[i];
 
   // Проверка, что всё верно отсортировано
   for(int i = left; i&lt;= right-1; i++)
-    assert( A[i] &lt= A[i+1] );
+    assert( A[i] &lt;= A[i+1] );
 }
 
 int main() {
@@ -550,8 +550,8 @@ int main() {
   MergeSort(0,N-1);
 
   // Вывод отсортированного массива
-  for(int i=0;i&ltN;i++) cout &lt&lt A[i] &lt&lt " ";
-  cout &lt&lt endl;
+  for(int i=0;i&ltN;i++) cout &lt;&lt; A[i] &lt;&lt; " ";
+  cout &lt;&lt; endl;
 
   return 0;
 }
@@ -567,7 +567,7 @@ template&lt;class T&gt;
 void mergeSort(T a[], long lb, long ub) { 
   long split;                   // индекс, по которому делим массив
 
-  if (lb < ub) {                // если есть более 1 элемента
+  if (lb &lt; ub) {                // если есть более 1 элемента
 
     split = (lb + ub)/2; // Центр обрабатываемого куска массива 
 
@@ -594,8 +594,8 @@ void merge(T a[], long lb, long split, long ub) {
   T *temp = new T[ub-lb+1];
 
   // идет слияние, пока есть хоть один элемент в каждой последовательности
-  while (pos1 <= split && pos2 <= ub) {
-    if (a[pos1] < a[pos2])
+  while (pos1 &lt;= split &amp;&amp; pos2 &lt;= ub) {
+    if (a[pos1] &lt; a[pos2])
       temp[pos3++] = a[pos1++];
     else
       temp[pos3++] = a[pos2++];
@@ -603,13 +603,13 @@ void merge(T a[], long lb, long split, long ub) {
 
   // одна последовательность закончилась - 
   // копировать остаток другой в конец буфера 
-  while (pos2 <= ub)   // пока вторая последовательность непуста 
+  while (pos2 &lt;= ub)   // пока вторая последовательность непуста 
     temp[pos3++] = a[pos2++];
-  while (pos1 <= split)  // пока первая последовательность непуста
+  while (pos1 &lt;= split)  // пока первая последовательность непуста
     temp[pos3++] = a[pos1++];
 
   // скопировать буфер temp в a[lb]...a[ub]
-  for (pos3 = 0; pos3 < ub-lb+1; pos3++)
+  for (pos3 = 0; pos3 &lt; ub-lb+1; pos3++)
     a[lb+pos3] = temp[pos3];
 
   delete[] temp;
@@ -727,7 +727,7 @@ inline void swap(int i, int j){
 
 // Выполняется ли основное свойство кучи
 bool heap_function(int parent, int child){
-	return A[parent] &gt A[child];
+	return A[parent] &gt; A[child];
 }
 
 // Мы хотим сверху получить самый минимум
@@ -736,7 +736,7 @@ bool heap_function(int parent, int child){
 void heap(int parent){
 	// -= Левый потомок =-
 	int left = 2*parent + 1;  
-	if(left &lt HeapSize) // Левый потомок есть
+	if(left &lt; HeapSize) // Левый потомок есть
 		if(!heap_function(parent,left)){ // Проверка основного свойства кучи
 			// Меняем их местами
 			swap(left,parent);
@@ -744,7 +744,7 @@ void heap(int parent){
 		}
 	// -= Правый потомок =-
 	int right = 2*parent + 2;  
-	if(right &lt HeapSize) // Правый потомок есть
+	if(right &lt; HeapSize) // Правый потомок есть
 		if(!heap_function(parent,right)){ // Проверка основного 
 			// Меняем их местами
 			swap(right,parent);
@@ -755,7 +755,7 @@ void heap(int parent){
 void HeapSort(){
 	HeapSize = N;
 	// Строим кучу
-	for(int i=N-1;i&gt=0;i--)
+	for(int i=N-1;i&gt;=0;i--)
 		heap(i);
 	// Выводим очередной элемент
 	for(int i=0;i&ltN;i++){
@@ -767,8 +767,8 @@ void HeapSort(){
 		heap(0);
 	}
 	// Проверяем, что массив отсортирован
-	for(int i=0;i&ltN-1;i++)
-		assert( A[i] &lt= A[i+1] );
+	for(int i=0;i&lt;N-1;i++)
+		assert( A[i] &lt;= A[i+1] );
 }
 
 int main() {
@@ -779,8 +779,8 @@ int main() {
 	HeapSort();
 
 	// Вывод отсортированного массива
-	for(int i=0;i&ltN;i++) cout &lt&lt A[i] &lt&lt " ";
-	cout &lt&lt endl;
+	for(int i=0;i&ltN;i++) cout &lt;&lt; A[i] &lt;&lt; " ";
+	cout &lt;&lt; endl;
 
 	return 0;
 }</pre>
@@ -878,7 +878,13 @@ fn main() {
     </p>
 
     <pre class="sh_cpp">
-#include &lt;stdio.h&gt;<br>#include &lt;assert.h&gt;<br>#include &lt;math.h&gt;<br>#include &lt;string.h&gt;<br>#include &lt;vector&gt;<br>#include &lt;algorithm&gt;<br>
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;math.h&gt;
+#include &lt;string.h&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
 #define MaxN 5000
 
 using namespace std;
@@ -890,13 +896,13 @@ int main() {
   freopen("bubble.in", "rt", stdin); // Открываем входной файл
   freopen("bubble.out", "wt", stdout); // Открываем выходной файл
   // Чтение исходных данных
-  scanf("%d", &n); // Чтение количества элементов 
+  scanf("%d", &amp;n); // Чтение количества элементов 
   int i;
-  for(i = 0; i < n; i++) scanf ("%d", &a[i]); 
+  for(i = 0; i &lt; n; i++) scanf ("%d", &amp;a[i]); 
   // Вызов процедуры сортировки
   sort(a, a + n);
   // Вывод отсортированного массива в файл
-  for(i = 0; i < n - 1; i++)
+  for(i = 0; i &lt; n - 1; i++)
     printf("%d ", a[i]);
   printf("%d\n", a[n - 1]);
   return 0;
@@ -943,7 +949,7 @@ int main() {
 #include &lt;conio.h&gt; // Функция getch() - ожидание нажатия клавиши в конце программы
 
 // Шаблонная функция
-template &lt;typename T&gt; int binary_search(const T *a, int n, const T &elem){
+template &lt;typename T&gt; int binary_search(const T *a, int n, const T &amp;elem){
   int L = 0, R = n-1; // Левая и правая границы поиска
   while (L &lt; R){ // Пока в рассматриваемом куске массива больше одного элемента
     int m = (L+R)/2; // Вычисляем индекс среднего элемента

@@ -53,7 +53,7 @@ int dist(point p1, point p2) {
 
 // Сравнение точек для сортировки
 bool l(point p1, point p2) {
-	return vp(p1 - p0, p2 - p0) &gt; 0 || (vp(p1 - p0, p2 - p0) == 0 && dist(p0, p2) &lt; dist(p0, p1));
+	return vp(p1 - p0, p2 - p0) &gt; 0 || (vp(p1 - p0, p2 - p0) == 0 &amp;&amp; dist(p0, p2) &lt; dist(p0, p1));
 }
 
 point p[200]; // Точки 
@@ -80,7 +80,7 @@ int main() {
 	sort(p, p + n, l); // Сортируем точки по углу относительно p0
 	vector &lt;point&gt; ob;
 	for (i=0; i&lt;n; i++) {
-		while (ob.size() &gt;= 2 && vp(ob[ob.size() - 1] - ob[ob.size() - 2], p[i] - ob[ob.size() - 1]) &lt;= 0)
+		while (ob.size() &gt;= 2 &amp;&amp; vp(ob[ob.size() - 1] - ob[ob.size() - 2], p[i] - ob[ob.size() - 1]) &lt;= 0)
 			ob.pop_back();
 		ob.push_back(p[i]);
 	}
@@ -157,7 +157,7 @@ int main() {
             x1 = a[i].x;
             v = i;
         } else {
-            if ((a[i].y == y1) && (a[i].x &lt; x1)) {
+            if ((a[i].y == y1) &amp;&amp; (a[i].x &lt; x1)) {
                 y1 = a[i].y;
                 x1 = a[i].x;
                 v = i;
@@ -182,7 +182,7 @@ int main() {
                 v1 = i;
                 d = dist(a[v], a[i]);
             } else {
-                if ((abs(curfi - fi) &lt;= eps) && (dist(a[v], a[i]) &gt; d)) {
+                if ((abs(curfi - fi) &lt;= eps) &amp;&amp; (dist(a[v], a[i]) &gt; d)) {
                     fi = curfi;
                     v1 = i;
                     d = dist(a[v], a[i]);
@@ -215,7 +215,7 @@ int main() {
                     d = dist(ans[ind], a[i]);
                     // cout &lt;&lt; " new min " &lt;&lt; v &lt;&lt; " dist = " &lt;&lt; d &lt;&lt; endl;
                 } else {
-                    if ((abs(fi - curfi) &lt;= eps) && (d &lt; dist(a[i], ans[ind]))) {
+                    if ((abs(fi - curfi) &lt;= eps) &amp;&amp; (d &lt; dist(a[i], ans[ind]))) {
                         // cout &lt;&lt; 11 &lt;&lt; endl;
                         fi = curfi;
                         v = i;
@@ -230,7 +230,7 @@ int main() {
         used[v] = 1;
         ans.push_back(a[v]);
 
-        if ((ans[ans.size() - 1].x == ans[0].x) && (ans[ans.size() - 1].y == ans[0].y)) {
+        if ((ans[ans.size() - 1].x == ans[0].x) &amp;&amp; (ans[ans.size() - 1].y == ans[0].y)) {
             break;
         }
     }

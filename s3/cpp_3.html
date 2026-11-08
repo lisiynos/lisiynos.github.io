@@ -31,7 +31,7 @@
         <li><a href="#">C/C++</a></li>
     </ul>
 
-    <h2><a href="oop.html">Объектно-ориентированное программирование (ООП, OOP): абстракция, инкапсуляция,
+    <h2><a href="../dp/oop.html">Объектно-ориентированное программирование (ООП, OOP): абстракция, инкапсуляция,
         наследование и полиморфизм</a></h3>
 
 
@@ -165,7 +165,7 @@ int main() {
 
         <p>В примере конструкторы и деструктор выводят сообщения о своих вызовах. Объект <em>a</em> создаётся конструктором по умолчанию, объект <em>b</em> — конструктором с параметрами. Объект <em>c</em> создаётся и уничтожается во вложенном блоке. Объекты <em>b</em> и <em>a</em> уничтожаются при выходе из функции main в порядке, обратном порядку создания.</p>
 
-        <h3><a href="cpp_operators.html">Перегрузка операторов в C++. Вывод в поток.</a></h3>
+        <h3><a href="../dp/cpp_operators.html">Перегрузка операторов в C++. Вывод в поток.</a></h3>
 
         <p><strong>Перегрузка операторов</strong> позволяет применять встроенные операторы (<strong>+</strong>, <strong>*</strong>, <strong>==</strong> и другие) к объектам пользовательского класса. Перегруженный оператор можно записать как функцию-член с именем <strong>operator</strong> и знаком оператора, например <strong>operator+</strong>. Левым операндом при этом служит объект, для которого вызывается функция, а правый операнд передаётся параметром.</p>
 
@@ -368,7 +368,8 @@ void show(const Rat&amp; x) {
         <h2>Ввод / вывод при помощи потоков</h2>
 
         <pre class="sh_cpp">
-#include &lt;stdio.h&gt;<br>#include &lt;iostream&gt;
+#include &lt;stdio.h&gt;
+#include &lt;iostream&gt;
 
 using namespace std;
 
@@ -376,8 +377,8 @@ int main(){
   freopen("sum.in", "r", stdin); // Ввод из файла вместо клавиатуры
   freopen("sum.out", "w", stdout); // Вывод в файл вместо экрана
   long long a,b; // 64-битное целое со знаком
-  cin >> a >> b;
-  cout << (a+b);
+  cin &gt;&gt; a &gt;&gt; b;
+  cout &lt;&lt; (a+b);
   return 0; // Выход с кодом 0
 }</pre>
 
@@ -449,14 +450,15 @@ int main(){
             a.send(null);
         </script>
 
-        <pre class="sh_cpp">#include &lt;iostream&gt;<br>#include &lt;iomanip&gt;
+        <pre class="sh_cpp">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
 
 using namespace std;
 
 int main(){
   double x = 3.14159265358;
-  cout << x << endl; // Вывод: 3.14159
-  cout << setiosflags(ios::fixed) << setprecision(2) << x << endl; // Вывод: 3.14
+  cout &lt;&lt; x &lt;&lt; endl; // Вывод: 3.14159
+  cout &lt;&lt; setiosflags(ios::fixed) &lt;&lt; setprecision(2) &lt;&lt; x &lt;&lt; endl; // Вывод: 3.14
   return 0;
 }</pre>
 
@@ -546,12 +548,12 @@ public: // Метка доступа. public - всё что будет пере
     x = _x; y = _y;
   }
 
-  friend void print(ostream& os,Pair& pair){
-    os << " (" << pair.x << ", " << pair.y << ") ";
+  friend void print(ostream&amp; os,Pair&amp; pair){
+    os &lt;&lt; " (" &lt;&lt; pair.x &lt;&lt; ", " &lt;&lt; pair.y &lt;&lt; ") ";
   }
 
-  friend ostream& operator<<(ostream& os,Pair& pair){
-    os << " (" << pair.x << ", " << pair.y << ") ";
+  friend ostream&amp; operator&lt;&lt;(ostream&amp; os,Pair&amp; pair){
+    os &lt;&lt; " (" &lt;&lt; pair.x &lt;&lt; ", " &lt;&lt; pair.y &lt;&lt; ") ";
     return os;
   }
 };
@@ -588,17 +590,16 @@ int main(void) {
         <h3>Перечисления в C/C++</h3>
 
         <pre class="sh_cpp">
-#include <iostream>
-    #include
-    <vector>
+#include &lt;iostream&gt;
+    #include &lt;vector&gt;
 
         using namespace std;
 
         main(){
         vector
-        <int> v;
+        &lt;int&gt; v;
             vector
-            <int> v(количество);
+            &lt;int&gt; v(количество);
 
                 v.push_back([выражение]);
                 v.resize([количество]);

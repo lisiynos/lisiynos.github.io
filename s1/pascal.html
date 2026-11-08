@@ -116,7 +116,7 @@ begin
   Q[Q_End] := Value;
   Dec(Q_End);
   { Поддержка закольцованности очереди }
-  if Q_End < 1 then Q_End := QSize;
+  if Q_End &lt; 1 then Q_End := QSize;
 end;
 
 { Забрать значение с начала очереди }
@@ -126,7 +126,7 @@ begin
   Get := Q[Q_Start];
   Dec(Q_Start);
   { Поддержка закольцованности очереди }
-  if Q_Start < 1 then Q_Start := QSize;
+  if Q_Start &lt; 1 then Q_Start := QSize;
 end;
 
 begin
@@ -187,7 +187,7 @@ begin
   Write('B = '); Readln(B);
   Write('C = '); Readln(C);
   D := B*B - 4*A*C; { Дискриминант }
-  if D < 0 then
+  if D &lt; 0 then
     Writeln('No roots')
   else if D = 0 then begin
     X := (-B / (2*A));

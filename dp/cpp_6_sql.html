@@ -217,14 +217,14 @@ TODO: добавить про остальные
 
     // -- Подключение к Базе Данных --
     // Подключаем драйвер для работы с SQLite
-    cout << "SQLite driver" << endl;
+    cout &lt;&lt; "SQLite driver" &lt;&lt; endl;
     // Названия драйверов для Qt:
     //   http://qt-project.org/doc/qt-5/sql-driver.html
     QSqlDatabase dbase = QSqlDatabase::addDatabase("QSQLITE");
     // Имя базы данных для SQLite = имя файла базой данных
     dbase.setDatabaseName("my_db.sqlite");
     if (!dbase.open()) {
-        qDebug() << "Не получилось открыть/создать файл с базой данных!";
+        qDebug() &lt;&lt; "Не получилось открыть/создать файл с базой данных!";
         return -1;
     }
 </pre>
@@ -256,7 +256,7 @@ void SQL_Execute(QString query){
     QSqlQuery q;
     bool res = q.exec(query);
     if (!res) {
-        qDebug() << "Cannot execute: " << query;
+        qDebug() &lt;&lt; "Cannot execute: " &lt;&lt; query;
     }
 }
 </pre>

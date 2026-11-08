@@ -88,14 +88,14 @@ begin
   for i := sizeof(x) - 1 downto 0 do begin { Цикл по байтам (начиная со старшего) }
     for j := 7 downto 0 do { Цикл по битам (начиная со старшего) }
       write((P[i] shr j) and 1); { Получаем бит j: сдвигаем на j-бит вправо и берём последний бит }
-    if i > 0 then write(' '); { Между байтами выводим пробел }
+    if i &gt; 0 then write(' '); { Между байтами выводим пробел }
   end;
   writeln;
   { Вывод в шестнадцатеричной системе счисления }
   for i := sizeof(x) - 1 downto 0 do begin
     { Вывод 2-х шестнадцатеричных цифр - содержимое i-ого байта }
     write(Hex[P[i] div 16], Hex[P[i] mod 16]);
-    if i > 0 then write(' ');
+    if i &gt; 0 then write(' ');
   end;
   writeln;
 end.</pre>
@@ -105,7 +105,7 @@ end.</pre>
     <pre class="sh_pascal">
 procedure out_hex_digit(b: Byte);
 begin
-  if b < 10 then write(chr(b + ord('0')))
+  if b &lt; 10 then write(chr(b + ord('0')))
             else write(chr(b + ord('A') - 10));
 end;</pre>
 
@@ -139,7 +139,7 @@ begin
   reset(input,'eq.in');
   rewrite(output,'eq.out');
   readln(a,b,c);
-  if (abs(a+b-c) < 0.0000001) then writeln('YES') else writeln('NO');
+  if (abs(a+b-c) &lt; 0.0000001) then writeln('YES') else writeln('NO');
 end.</pre>
 
     <h2>Эксперимент на Delphi на точность сравнения</h2>
@@ -155,7 +155,7 @@ end;
 { С учётом погрешности }
 function eq2(a,b,c:extended):boolean;
 begin
-  result := abs(a+b-c) < 1e-17;
+  result := abs(a+b-c) &lt; 1e-17;
 end;
 
 var a,b,c : extended;

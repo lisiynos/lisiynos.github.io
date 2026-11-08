@@ -203,7 +203,7 @@ begin
     end;
     A[1] := A[l] + Ord(ch) - Ord('0');
     {добавляем младшую цифру к числу из А[1]}
-    If A[A[0]+1] > 0 Then Inc(A[0]);
+    If A[A[0]+1] &gt; 0 Then Inc(A[0]);
     {изменяем длину, число задействованных элементов массива А}
     Read(ch)
   end
@@ -360,7 +360,7 @@ B(0) = 1: B(1) = 0 'B=Ф(0)=0
 L = 1 'L - общая длина строки, состоящей из чисел Фибоначчи
 
 INPUT "N=", N
-WHILE N > L 'Пока N-номер искомой цифры больше длины строки...
+WHILE N &gt; L 'Пока N-номер искомой цифры больше длины строки...
 LongAdd 'найти очередное число Фибоначчи
 L = L + A(0) 'и прибавить его длину к общей длине строки
 WEND
@@ -377,7 +377,7 @@ A(i) = r MOD 10
 r = r \ 10 'r - перенос в следующий разряд
 B(i) = k 'Переносим запомненную i-ую цифру числа A в число B
 NEXT
-IF r <> 0 THEN 'Если в результате сложения старших разрядов оказался
+IF r &lt;&gt; 0 THEN 'Если в результате сложения старших разрядов оказался
 A(0) = A(0) + 1 'ненулевой перенос, то "удлиняем" результат на 1 цифру
 A(A(0)) = r
 END IF
@@ -552,10 +552,10 @@ begin
   fillChar(Result,sizeOf(Result),0);
   { Знак }
   if N=0 then Result[-1]:=0  { Число равно 0 }
-  else if N>0 then Result[-1]:=1 { Число положительное }
+  else if N&gt;0 then Result[-1]:=1 { Число положительное }
   else begin Result[-1] := -1; N := -N ; end; { Число отрицательное, дальше будем }
   i := 0;
-  while N > 0 do begin
+  while N &gt; 0 do begin
     Result[i] := N mod Base;
     N := N div Base;
     inc(i);
@@ -571,7 +571,7 @@ begin
   X := 1; { Base в нужной степени }
   Result := 0;
   for i:=0 to MaxLen do begin
-    assert( L[i] >= 0 );
+    assert( L[i] &gt;= 0 );
     Inc( Result, X*L[i] );
     X := X * Base; { Получаем Base в следующей степени }
   end;
@@ -598,7 +598,7 @@ var
   i : Integer;
 begin
   for i:=0 to MaxLen do
-    if L[i]<>0 then 
+    if L[i]&lt;&gt;0 then 
       exit;
   L[-1]:=0;
 end;
@@ -619,7 +619,7 @@ procedure FixDown( Var L:Long );
 var i : Integer;
 begin
   for i:=0 to MaxLen-1 do
-    while L[i] < 0 do begin
+    while L[i] &lt; 0 do begin
       inc( L[i], Base );
       dec( L[i+1], 1 );
     end;
@@ -631,8 +631,8 @@ function isGreatEq_Abs( A,B:Long; Sdvig_B:Integer=0 ):boolean;
 var i : Integer;
 begin
   for i:=MaxLen-Sdvig_B downto 0 do begin
-    if A[i+Sdvig_B]>B[i] then begin Result := true; exit; end;
-    if A[i+Sdvig_B]< B[i] then begin Result := false; exit; end;
+    if A[i+Sdvig_B]&gt;B[i] then begin Result := true; exit; end;
+    if A[i+Sdvig_B]&lt; B[i] then begin Result := false; exit; end;
   end;
   Result := true; { A и B равны }
 end;

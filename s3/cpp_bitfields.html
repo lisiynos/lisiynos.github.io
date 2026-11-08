@@ -78,11 +78,11 @@ struct BF { // BitField
   int get(int i){ // Получить значение i-ого бита 
     // Обьединяем с битовой маской, в которой установлен только нужный бит 
     // И потом сдвигаем результат на bit разрядов вправо
-    return (data & (1 &lt;&lt; i)) &gt;&gt; i;
+    return (data &amp; (1 &lt;&lt; i)) &gt;&gt; i;
   };
   void set(int i, int value){ // Установить значение value в бит с номером i
     // Очищаем нужный бит и объединяем его по принципу ИЛИ с числом в котором все нули, а i-ый бит - value
-    data = (data & ~(1 &lt;&lt; i)) | (value &lt;&lt; i);
+    data = (data &amp; ~(1 &lt;&lt; i)) | (value &lt;&lt; i);
   };
 };</pre>
 

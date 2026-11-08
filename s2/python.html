@@ -187,40 +187,41 @@ print('a.field = ', a.field, ' b.field = ', b.field) # a.field = 4  b.field = 4
     <pre class="sh_python">
 print('2. Операторы управления потоком вычислений')
 # if - условный оператор
-if (3 > 2) or (1==2) and (3==1+2): # Условие
-  print("3 > 2") # При выполнении условия
+if (3 &gt; 2) or (1==2) and (3==1+2): # Условие
+  print("3 &gt; 2") # При выполнении условия
 else: # Необязательный else
   print("xxx") # Если условие не выполняется
 
 # while - цикл с предусловием
 i = 23  # Задаём значение переменной
-while i > 0: # Пока больше 0
-  print(i), # Печатаем в строку
-  i /= 2  # Деление нацело
+while i &gt; 0: # Пока больше 0
+  print(i, end=' ') # Печатаем в строку
+  i //= 2  # Деление нацело
 print() # Переводим на новую строку. Получилось: 23 11 5 2 1
 
 # for - обработка множества значений
 for str in ['first string', 'second', 'third']:
   print(str)
 for i in range(1999,2010):
-  print(i), # Получилось: 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009
+  print(i, end=' ') # Получилось: 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009
+print()
 
 print('3. Функции, определение и вызов функций, формальные и актуальные параметры, рекурсия')
 # Определение рекурсивной функции вычисления факториала
 def Factorial(n):
   # Барьерное условие. Ограничивает область применимости функции
   # "Мёртвые программы не лгут!"
-  assert n > 0
+  assert n &gt; 0
   if n == 1:
     return 1
   else:
     return n * Factorial(n - 1)
 
-# print Factorial(-1) # При вызове будет ошибка с выводом всей
+# print(Factorial(-1)) # При вызове будет ошибка с выводом всей
 # последовательность
 
 # Факториал при помощи тернарного оператора в Python
-def Factorial2(n): return 1 if n == 1 else n * Factorial(n - 1)
+def Factorial2(n): return 1 if n == 1 else n * Factorial2(n - 1)
 #   (Что-то) если (условие) иначе (что-то другое)
 #  В С/C++: (условие) ? (что-то) : (что-то другое)
 
@@ -239,7 +240,7 @@ for n in fibonacci(100):   # используем генератор fibonacci()
   print(n, end=' ') # печатаем все числа Фибоначчи меньшие 100 через пробел
 print()
 
-# Вычисление наименьшего общего делителя, % - деление по модулю (mod)
+# Вычисление наибольшего общего делителя, % - деление по модулю (mod)
 def GCD(a, b): return a if b == 0 else GCD(b, a % b)
 
 print("GCD(30, 45) = ", GCD(30, 45))  # Результат: GCD(30, 45) = 15
@@ -258,8 +259,8 @@ print(x * 2)
 print("Решим квадратное уравнение x**2 + 1 = 0 с комплексными корнями")
 a, b, c = 1, 0, 1
 D = b*b - 4*a*c
-dd = ((-sqrt(D), sqrt(D)) if D > 0 else (-1j * sqrt(-D), 1j * sqrt(-D)))
-x = [(-b+d)/2*a for d in dd]
+dd = ((-sqrt(D), sqrt(D)) if D &gt; 0 else (-1j * sqrt(-D), 1j * sqrt(-D)))
+x = [(-b+d)/(2*a) for d in dd]
 print(x)
 
 i = 1
@@ -280,14 +281,15 @@ a = [1, 2, "a"]              # список
 b = (1, 2, "a")              # кортеж, тюплы (tuples)
 c = {'a': 1, 'b': 'B'}       # словарь
 l = ['A', 'B', 'C', 'D', 'E'] # Исходный список
-print("срез от нулевого до второго промежутка ", l[1:5]) # ['A', 'B']
+print("срез от нулевого до второго промежутка ", l[0:2]) # ['A', 'B']
 print("срез от второго до второго с конца элемента", l[1:-2]) # ['B', 'C']
 print("каждый второй элемент начиная с первого", l[1::2]) # ['B', 'D']
 print("все элементы в обратном порядке", l[::-1])  # ['E', 'D', 'C', 'B', 'A']
 
 tuple = (1, 3, 2, "a")  # кортеж, тюпл (tuple)
-print(type(tuple), ' ', tuple)  # <type 'tuple'>   (1, 3, 2, 'a')
-for i in tuple: print(i),  # 1 3 2 a
+print(type(tuple), ' ', tuple)  # &lt;class 'tuple'&gt;   (1, 3, 2, 'a')
+for i in tuple: print(i, end=' ')  # 1 3 2 a
+print()
 t = 12345, 54321, 'hello!' # tuple packing
 print(t) # (12345, 54321, 'hello!')</pre>
 
@@ -300,7 +302,7 @@ def GCD(x, y):
 
 # Наименьшее общее кратное (НОК) НОК(x, y) = x*y/НОД(x, y) - Least Common Multiple
 def LCM(x, y):
-  return x*y / GCD(x, y)
+  return x*y // GCD(x, y)
 
 print(GCD(10,15))
 print(LCM(10,15))
@@ -327,7 +329,7 @@ print("Максимум:",max(A))
 def Insert1(b, value): # В функцию передаётся исходный массив b и значение value
   c = list(b) # Делаем копию списка
   for i, x in enumerate(b): # Пробегаем по исходному списку
-    if x > value: # Если нашли элемент больше заданного
+    if x &gt; value: # Если нашли элемент больше заданного
       c.insert(i, value) # Добавляем перед ним заданный
       return c # Возвращаем изменённый список
   c.append(value) # Если мы так и не нашли заданный элемент, добавляем значение в конец
@@ -336,16 +338,16 @@ def Insert1(b, value): # В функцию передаётся исходный
 # 2. Используя срезы
 def Insert2(b, value):
   for i, x in enumerate(b): # i - индекс в массиве, x - значение
-    if x > value:
+    if x &gt; value:
       return b[:i] + [value] + b[i:] # Слияние 3-х массивов
   return b + [value]
 
 # 3. Двоичный поиск (последнего числа меньшего value)
 def Insert3(b, value):
   min, max = 0, len(b)
-  while max - min > 0:
+  while max - min &gt; 0:
     m = (min + max) // 2 # Делим отрезок пополам
-    if b[m] > value:
+    if b[m] &gt; value:
       max = m
     else:
       min = m + 1
@@ -353,7 +355,7 @@ def Insert3(b, value):
 
 # 4. Используя библиотеку bisect - двоичный поиск и вставка
 def Insert4(b, value):
-  from _bisect import insort
+  from bisect import insort
   l = list(b)
   insort(l, value)
   return l
@@ -363,7 +365,7 @@ def Insert5(b, value):
   p = []
   inserted = False
   for x in b:
-    if x > value and not inserted:
+    if x &gt; value and not inserted:
       p.append(value)
       inserted = True
     p.append(x)
@@ -426,9 +428,9 @@ b = [12, 6, -2, 8, -5, 13, -34, 1, -4]
 max = b[0]
 min = b[0]
 for x in b:
-  if x > max:
+  if x &gt; max:
     max = x
-  if x < min:
+  if x &lt; min:
     min = x
 </pre>
 
@@ -456,7 +458,7 @@ print()
     <pre class="sh_python">
 b = 6
 G = [5,6,71,3,1,3]
-print(sum(x for x in G if x < b))
+print(sum(x for x in G if x &lt; b))
 </pre>
 
     <p>Работа со списками (list)</p>
@@ -469,7 +471,7 @@ l.append(56)
 # Вставка элемента в середину списка
 l.insert(3, 999) # Вставить элемент 999 после 3-его элемента списка
 print(l)
-# l[6] = 10  # Шестого элемента нет => Будет ошибка
+# l[6] = 10  # Шестого элемента нет =&gt; Будет ошибка
 </pre>
 
     <p>Работа со словарями (dict)</p>
@@ -480,7 +482,7 @@ d = {}
 d[23] = 67
 print(d)  # {23: 67}
 d[5] = 231
-print(d)  # {5: 231, 23: 67}
+print(d)  # {23: 67, 5: 231}
 # Переписываем 23-ий элемент
 d[23] = 554
 d[23462356] = (2,3)
@@ -517,7 +519,7 @@ N = int(input()) # Вводим количество элементов
 A = [int(x) for x in input().split()] # Вводим сам массив
 # input - ввод строки, split - деление, int - приведение к целым
 A.sort() # Сортировка
-for a in A: print(a), # Вывод отсортированного массива в одну строку разделяя числа пробелами
+for a in A: print(a, end=' ') # Вывод отсортированного массива в одну строку разделяя числа пробелами
 </pre>
 
     <p>Пример входного файла <strong>sort.in</strong>:
@@ -769,10 +771,12 @@ del a[1:5] # Удаление с 1-ого (включительно) до 4-го
 
     <h3>Ссылки и значения в Python</h3>
     <pre class="sh_python">
+a = [1, 2, 3]
 b = a   # В b теперь ссылка на a
 b[0] = 4
 print(a[0], b[0]) # Напечатается "4 4", потому что a и b ссылаются на один и тот же список
 
+n, m = 3, 2  # m строк по n элементов
 M = [[0]*n]*m  # Пытаемся создать 2-х мерный массив
 M[0][0] = 4
 print(M[1][0])  # Выводится тоже 4, а не 0, так как M содержит m одинаковых списков
@@ -789,11 +793,12 @@ def my_function(x): # my_function - имя функции
     return 2*x
 
 # Вызов функции
-y = my_function(x)
+y = my_function(5)
 </pre>
 
     <h3>Тернарный оператор</h3>
     <pre class="sh_python">
+a, b, условие = 1, 2, True  # Значения для примера
 # Тернарный оператор: следующие конструкции дают одинаковый результат:
 if условие:
     x = a
@@ -819,11 +824,11 @@ for a, b in l:
 
 # Часто в теле цикла нужен и элемент и индекс. Программисты на Delphi/C обычно пишут так:
 for i in range(len(l)):
-    ... используем l[i] ...
+    print(i, l[i])  # используем l[i]
 
 # Лучше записать так:
 for i, e in enumerate(l):
-    ... используем и i, и e ...
+    print(i, e)  # используем и i, и e
 </pre>
 
     <h3>Рекомендации по офомлению кода</h3>
@@ -850,6 +855,7 @@ for i, e in enumerate(l):
     <p>Если надо разбить строку на несколько, пишем все в один столбик:</p>
 
     <pre class="sh_python">
+a, b = 1, 2
 print('a =', a,
       'b =', b)
 </pre>
@@ -864,9 +870,9 @@ a.count(5)  # Посчитаем количество 5-ок в списке a
 print([i for i, e in enumerate(a) if e == 5])
 
 # Надо перечислить строки через запятую:
-print(", ".join(a))
+print(", ".join(str(x) for x in a))
 
-# Функция str преобразует строку в число
+# Функция str преобразует число в строку
 s = str(4)
 </pre>
 

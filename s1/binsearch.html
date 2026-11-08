@@ -53,7 +53,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <p><strong>Пример реализации на C++</strong></p>
 
     <p> Шаблонная функция и пример её использования:<br>
-        template &lt;typename  T&gt; int binary_serch (const T *a,int n ,const  T &amp;elem);<br>
+        template &lt;typename  T&gt; int binary_search (const T *a,int n ,const  T &amp;elem);<br>
         Пусть $a$ - отсортированный массив, тогда функция за логарифмическое время возвращает $i$-ый индекс элемента
         массива
         elem=a[i] и -1, если элемент не найден.</p>
@@ -65,7 +65,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 #include &lt;conio.h&gt; // Функция getch() - ожидание нажатия клавиши в конце программы
 
 // Шаблонная функция
-template &lt;typename T&gt; int binary_search(const T *a, int n, const T &elem){
+template &lt;typename T&gt; int binary_search(const T *a, int n, const T &amp;elem){
   int L = 0, R = n-1; // Левая и правая границы поиска
   while (L &lt; R){ // Пока в рассматриваемом куске массива больше одного элемента
     int m = (L+R)/2; // Вычисляем индекс среднего элемента
@@ -224,17 +224,17 @@ begin
   i := l;
   j := r;
   m := a[random(r - l + 1) + l];
-  while i <= j do begin
-    while a[i] < m do inc(i);
-    while a[j] > m do dec(j);
-    if i <= j then begin
+  while i &lt;= j do begin
+    while a[i] &lt; m do inc(i);
+    while a[j] &gt; m do dec(j);
+    if i &lt;= j then begin
       swap(a[i], a[j]);
       inc(i);
       dec(j);
     end;
   end;
-  if i < r then qsort(i, r);
-  if l < j then qsort(l, j);
+  if i &lt; r then qsort(i, r);
+  if l &lt; j then qsort(l, j);
 end;
 
 begin
@@ -251,9 +251,9 @@ begin
     read(k);
     l := 1;
     r := n + 1;
-    While r - l > 1 do begin
+    While r - l &gt; 1 do begin
       m := (r + l) div 2;
-      if k >= a[m] then l := m else r := m;
+      if k &gt;= a[m] then l := m else r := m;
     end;
     if k = a[l] then writeln('YES') else writeln('NO');
   end;

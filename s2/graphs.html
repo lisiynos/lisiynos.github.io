@@ -256,14 +256,14 @@ def load_adjacency_matrix():
     """
 
     # Сначала считываем количества вершин и рёбер
-    vertices, edges = [int(x) for x in input()]
+    vertices, edges = [int(x) for x in input().split()]
 
     # Создаём матрицу смежности (двумерный массив) и инициализируем её нулями
     A = [[0]*vertices for i in range(vertices)]
 
     for i in range(edges):
         # И считываем все рёбра. Вычитаем 1, так как массивы в Python нумеруются с нуля
-        u, v = [int(x) - 1 for x in input()]
+        u, v = [int(x) - 1 for x in input().split()]
         A[u][v] = 1
         # Если граф неориентированный, то надо добавить ребро в обратную сторону:
         # A[v][u] = 1
@@ -286,13 +286,13 @@ def load_adjacency_list():
     Эта функция загружает из входного файла граф и возвращает его списки смежности
     """
 
-    vertices, edges = [int(x) for x in input()]
+    vertices, edges = [int(x) for x in input().split()]
 
     # Создадим N пустых списков
     L = [[] for i in range(vertices)]
 
     for i in range(edges):
-        u, v = [int(x) - 1 for x in input()]
+        u, v = [int(x) - 1 for x in input().split()]
         # Запоминаем, что из вершины u можно попасть в v:
         L[u].append(v)
         # Если граф неориентированный:
@@ -611,7 +611,7 @@ def Floyd():
         for i in range(vertices):
             for j in range(vertices):
                 # Если путь из i в k плюс из k в j, короче, чем известный путь из i в j, запоминаем его
-                if A[i][k] + A[k][j] < A[i][j]:
+                if A[i][k] + A[k][j] &lt; A[i][j]:
                     A[i][j] = A[i][k] + A[k][j]
 </pre>
 

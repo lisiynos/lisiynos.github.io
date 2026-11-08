@@ -34,7 +34,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <pre class="sh_pascal">
 function fact(n : integer) : longint;
 begin
-  if n <= 1 then
+  if n &lt;= 1 then
     fact := 1
   else
     fact := n * fact(n - 1);
@@ -43,7 +43,7 @@ end;
 
     <pre class="sh_cpp">
 long fact(int N) {
-  if(N < 0) // если пользователь ввел отрицательное число
+  if(N &lt; 0) // если пользователь ввел отрицательное число
     return 0; // возвращаем ноль
   if (N == 0) // если пользователь ввел ноль,
     return 1; // возвращаем факториал от нуля - не удивляетесь, но это 1 =)
@@ -386,7 +386,7 @@ uses Graph;
 
 procedure Ris(x,y,r:integer);
 begin
-  If r>=10 then begin
+  If r&gt;=10 then begin
     Circle(x,y,r); { Рисуем окружность }
     { Вызываем 2 раза рекурсивно саму себя }
     Ris(x-r,y,r*2 div 3);
@@ -470,7 +470,7 @@ end;
 { Рекурсивная процедура }
 procedure TDrawForm.Ris(x, y, r: integer);
 begin
-  if r >= 15 then
+  if r &gt;= 15 then
   begin
     Circle(x, y, r);
     Ris(x - r, y, r * 2 div 3);

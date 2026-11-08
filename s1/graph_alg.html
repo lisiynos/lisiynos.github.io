@@ -907,7 +907,7 @@ begin
         { Если есть путь короче чем известный в i-ую вершину через l-тую, то запоминаем его }  
         if a[i] &lt; a[l] + p[l][i] then a[i] := a[l] + p[l][i];
         { Если расстояние в эту вершину минимально, то запоминаем её как следующий кандидат на добавление }   
-        if a[i] < min then begin min := a[i]; j := i; end;
+        if a[i] &lt; min then begin min := a[i]; j := i; end;
       end;
   until min = Inf;
   for i := 1 to n do
@@ -1138,13 +1138,13 @@ for i in range(n):
 for k in range(n): 
    for i in range(n):
       for j in range(n):
-         if a[i][k] + a[k][j] < a[i][j]:
+         if a[i][k] + a[k][j] &lt; a[i][j]:
             a[i][j] = a[i][k] + a[k][j]
             
 max = 0
 for i in range(n):
    for j in range(n):
-      if a[i][j] > max:
+      if a[i][j] &gt; max:
          max = a[i][j]
 print(max)
 </pre>

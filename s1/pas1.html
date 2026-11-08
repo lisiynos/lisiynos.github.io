@@ -255,11 +255,11 @@ end.
 begin
   a := 2;
   b := 3;
-  if (a <> b) then
+  if (a &lt;&gt; b) then
     inc(a);
   if (a = b) then
     c := a
-  else if (a < b) then
+  else if (a &lt; b) then
     c := a + 1
   else
     c := a - 1;
@@ -287,7 +287,7 @@ for i := 1 to 10 do writeln(i);
     <pre class="sh_pascal">
 begin
   a := 1;
-  while (a <= 10) do begin
+  while (a &lt;= 10) do begin
     writeln(a);
     inc(a);
   end;
@@ -317,7 +317,7 @@ var
   a:array[1..105] of integer;
 begin
   a[1] := 2;
-  a := 3 -> Compilition Error
+  a := 3 -&gt; Compilition Error
   for i := 1 to 5 do
     a[i] := 5 - i + 1;
   s := 0;

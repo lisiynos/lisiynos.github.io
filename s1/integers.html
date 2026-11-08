@@ -97,8 +97,8 @@ begin
     GCD := a + b          { НОД(a, 0) = a, НОД(0, b) = b }
   else
   begin
-    while a <> b do
-      if a > b then a:=a-b else b:=b-a;
+    while a &lt;&gt; b do
+      if a &gt; b then a:=a-b else b:=b-a;
     GCD := b;
   end;
 end;
@@ -115,7 +115,7 @@ end.</pre>
 int GCD( int a, int b ){ // определение НОД двух чисел
   if (a == 0 || b == 0) return a + b; // при нуле цикл вычитаний не кончается; НОД(0, b) = b
   while(a != b)
-    if (a > b) a-=b; else b-=a;
+    if (a &gt; b) a-=b; else b-=a;
   return b;
 }
 
@@ -397,7 +397,7 @@ var x1,y1,q,r,x,y:int64;
 begin
   x0 := 1; y0 := 0;
   x1 := 0; y1 := 1;
-  while b <> 0 do begin
+  while b &lt;&gt; 0 do begin
     q := a div b; { Частное }
     r := a mod b; { Остаток }
     a := b;
@@ -847,7 +847,7 @@ begin
   for i := 2 to n do begin
     SetUnitVector(xi, i);
     ai := a[i];
-    while ai <> 0 do begin
+    while ai &lt;&gt; 0 do begin
       CalculateVector(x1, xi, a1 div ai);
       tmp := ai;
       ai := a1 mod ai;
@@ -953,18 +953,18 @@ INPUT n
 PRINT n; "=";
 WHILE (n mod 2 = 0)
   n = n \ 2
-  IF n <> 1 THEN
+  IF n &lt;&gt; 1 THEN
     PRINT " 2 * ";
   ELSE
     PRINT " 2 ": END
   END IF
 WEND
 i = 3
-WHILE i <= n
+WHILE i &lt;= n
   IF n mod i = 0 THEN
     PRINT i;
     n = n \ i
-    IF n<>1 THEN PRINT "*";
+    IF n&lt;&gt;1 THEN PRINT "*";
   ELSE
     i = i + 2
   END IF
@@ -1011,9 +1011,9 @@ begin
     while N mod i = 0 do begin { Пока N делится на i }
       write(' ',i); { Выводим множитель i }
       N := N div i; { Делим на i }
-      if N <> 1 then write(' *'); { Если ещё будут множители, то выводим знак умножения }
+      if N &lt;&gt; 1 then write(' *'); { Если ещё будут множители, то выводим знак умножения }
     end;
-  if N<>1 then write(' ',N); { Оставшийся множитель }
+  if N&lt;&gt;1 then write(' ',N); { Оставшийся множитель }
 end.
 </pre>
 
