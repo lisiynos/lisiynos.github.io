@@ -48,7 +48,7 @@ A lesson page (see `s1/binsearch.html`):
     <script>
 window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 </script>
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js"></script>
     <script src="../js/site.js" defer></script>
 </head>
 <body onLoad="sh_highlightDocument();">
@@ -66,12 +66,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 
 Pages under `s*/` use `../`; pages one level deeper (`s2/olymp/`) use `../../`. Keep the include order: stylesheets, then the highlighter, then MathJax, then `site.js`.
 
-Session plan pages (`sN/index.html`) also load jQuery 3.7.1 and `../js/index.js`, and have a `<table id="plan">`.
+Session plan pages (`sN/index.html`) also load jQuery 4.0.0 and `../js/index.js`, and have a `<table id="plan">`.
 
 ## Rules
 
 - **HTTPS only.** Browsers block `http://` scripts, stylesheets and frames on the https site, so formulas and scripts silently break. Never write `http://` in a `src` or `href` of a resource (plain `<a href>` links may stay http). Protocol-relative `//host/...` is acceptable only if the host serves https.
-- **Libraries in use:** MathJax 3.2.2 (`tex-chtml.js`, configured in `window.MathJax`), jQuery 3.7.1 (session plan pages only), highlight.js 11.9.0 (loaded by `site.js` on pages with a Rust block). Do not reintroduce MathJax 2, jQuery 1.x, `cdn.mathjax.org` or highlight.js 8.x.
+- **Libraries in use**, all from jsDelivr (`cdn.jsdelivr.net`) at one pinned version each: MathJax 4.1.3 (`tex-chtml.js`, configured in `window.MathJax`), jQuery 4.0.0 (session plan pages only), highlight.js 11.12.0 (`@highlightjs/cdn-assets`, loaded by `site.js` on pages with a Rust block and by `s2/fp_lisp.html`). Do not reintroduce MathJax 2 or 3, jQuery 1–3, `cdn.mathjax.org`, highlight.js 8 to 11.9, Yandex.Metrika, VK widgets or Flash.
 - **Images:** `<img loading="lazy" decoding="async">`. Keep the `width` and `height` attributes.
 - **Encoding:** UTF-8. Some older pages were Windows-1251; convert a page to UTF-8 before editing it.
 - **Code blocks:**
@@ -133,14 +133,14 @@ Specs in `tests/e2e/`:
 - `session-index.spec.js`: plan links resolve and the totals row equals the sum of the lesson rows.
 - `interactive.spec.js`: search, copy buttons, table of contents, heading anchors, search index completeness.
 - `tags.spec.js`: a tag link opens its section of `tags.html`, a search for an alias finds the lessons with that tag, and every tag used on a lesson has a section in `tags.html`.
-- `policy.spec.js`: viewport tag, `site.js` and `site.css` included, lazy images, no retired libraries.
-- `known-issues.js`: defects that come from files missing from the repository (absent pictures, a Flash helper script that is not in the repo, Word-export formula markup). The specs fail on any new problem and on any entry that no longer occurs. Remove an entry when its defect is fixed.
+- `policy.spec.js`: viewport tag, `site.js` and `site.css` included, lazy images, no retired libraries, counters or Flash.
+- `known-issues.js`: defects that come from files missing from the repository (absent pictures and downloads, Word-export formula markup). The specs fail on any new problem and on any entry that no longer occurs. Remove an entry when its defect is fixed.
 
 `tests/e2e/serve.js` is a small static server for the repository. It needs no Python.
 
 ## Visualizations
 
-The interactive pictures run in the reader's browser on GitHub Pages. The code is ready-made static JavaScript in `js/viz.js`, loaded with `<script src="../js/viz.js" defer></script>` after `site.js`. Nothing is built or served at run time, and nothing is loaded from a CDN.
+The interactive pictures run in the reader's browser on GitHub Pages. The code is ready-made static JavaScript in `js/viz.js`, loaded with `<script src="../js/viz.js" defer></script>` after `site.js`. Nothing is built or served at run time, and the picture itself loads nothing from a CDN. The rest of the site loads its libraries from jsDelivr, see Rules.
 
 To place a picture, put a placeholder where it belongs in the lesson text:
 

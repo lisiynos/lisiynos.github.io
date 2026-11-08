@@ -9,10 +9,8 @@ const KNOWN_PAGE_ISSUES = {
   '/s3/cpp11.html': ['a.cpp'],
   '/s3/cpp_3.html': ['a.cpp'],
   '/s3/cpp_stl.html': ['a.cpp'],
-  '/s3/olymp.html': ['swfobject_modified.js', 'swfobject is not defined'], // the Flash helper script is not in the repo
-  '/s6/olymp.html': ['swfobject is not defined'], // the page calls swfobject, which it never loads
   '/s3/segments_tree.html': ['segments_tree/1.png', 'segments_tree/6.png'], // missing pictures
-  '/s3/dynamic/dynamic_comb.htm': ['img3.png', 'img.png', 'img2.png', 'swfobject is not defined'], // missing pictures; a Flash embed without its script
+  '/s3/dynamic/dynamic_comb.htm': ['img3.png', 'img.png', 'img2.png'], // missing pictures
 };
 
 const KNOWN_FORMULA_ISSUES = {
@@ -20,8 +18,4 @@ const KNOWN_FORMULA_ISSUES = {
   '/s3/dynamic/dynamic_comb.htm': ['$_i  $'],
 };
 
-// Problems of external third-party widgets that do not start reliably in headless Chrome (the VK comments
-// script on uts/ pages). They are ignored, so their timing never makes a test flaky.
-const TRANSIENT_PROBLEMS = ['VK is not defined'];
-
-module.exports = { KNOWN_PAGE_ISSUES, KNOWN_FORMULA_ISSUES, TRANSIENT_PROBLEMS };
+module.exports = { KNOWN_PAGE_ISSUES, KNOWN_FORMULA_ISSUES };
