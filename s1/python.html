@@ -133,13 +133,7 @@
     <h2>Первая программа на Python</h2>
 
     <p>Решение задачи "A+B" с вводом из файла <strong>sum.in</strong> и выводом в файл <strong>sum.out</strong>.</p>
-    <pre class="sh_python">
-# ~*~ utf-8 ~*~
-import sys
-sys.stdin = open("sum.in") # Закомментируйте эту строку для ввода с клавиатуры
-sys.stdout = open("sum.out", "w") # Закомментрируйте эту строку для вывода на экран
-A, B = int(input()), int(input()) # Вводим 2 целых A и B (они в разных строках)
-print (A + B)</pre>
+    <pre class="sh_python" data-src="../tasks/aplusb_long/sum.py"><a href="../tasks/aplusb_long/sum.py">sum.py</a></pre>
 
     <h2>Типы данных в языке Python</h2>
     <ul>
@@ -532,15 +526,7 @@ print('b =',b.value)</pre>
     <h2>Чтение и запись файлов в Python</h2>
 
     <p><strong>Пример 1.</strong> Читаем размер массива, сам массив, сортируем и выводим.</p>
-    <pre class="sh_python">
-import sys # Подключаем библиотеку для перенаправления потока 
-sys.stdin = open("sort.in") # Закомментируйте эту строку для ввода с клавиатуры
-sys.stdout = open("sort.out", "w") # Закомментрируйте эту строку для вывода на экран
-N = int(input()) # Вводим количество элементов
-A = list(map(int,input().split())) # Вводим сам массив
-# input - ввод строки, split - деление, int - приведение к целым, map - применить ко всему массиву
-A.sort() # Сортировка
-for a in A: print(a, end=' ') # Вывод отсортированного массива в одну строку разделяя числа пробелами</pre>
+    <pre class="sh_python" data-src="../tasks/sort/sort.py"><a href="../tasks/sort/sort.py">sort.py</a></pre>
     <p>Пример входного файла <strong>sort.in</strong>:
     </p>
     <pre>
@@ -555,15 +541,7 @@ for a in A: print(a, end=' ') # Вывод отсортированного ма
 </pre>
 
     <p><strong>Пример 2.</strong> Другой способ чтения:</p>
-    <pre class="sh_python">
-import math, re
-
-with open('gcd.in') as fi: # Открываем входной файл для чтения
-  a, b = [int(i) for i in re.match(r'(\d+)\s(\d+)', fi.read()).groups()]
-
-with open('gcd.out', 'w') as fo: # Открываем выходной файл для записи
-  fo.write(str(math.gcd(a,b)))
-</pre>
+    <pre class="sh_python" data-src="../tasks/gcd/gcd.py"><a href="../tasks/gcd/gcd.py">gcd.py</a></pre>
 
 
     <h3>Стандартные алгоритмы в Python</h3>

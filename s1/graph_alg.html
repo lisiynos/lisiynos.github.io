@@ -1119,35 +1119,7 @@ for k := 1 to n do { k - промежуточная вершина }
       W[i][j] = min(W[i][j], W[i][k] + W[k][j]);
 </pre>
 
-<pre class="sh_python">
-import sys
-sys.stdin = open('floyd.in')
-sys.stdout = open('floyd.out', 'w')
-
-# Считываем входные данные
-n = int(input()) # n - количество вершин
-a = []
-for i in range(n): # пробегаем n строк
-   a.append([int(x) for x in input().split()])
-
-for i in range(n):
-   for j in range(n):
-      if a[i][j] == -1:
-         a[i][j] = float('inf')
-
-for k in range(n): 
-   for i in range(n):
-      for j in range(n):
-         if a[i][k] + a[k][j] &lt; a[i][j]:
-            a[i][j] = a[i][k] + a[k][j]
-            
-max = 0
-for i in range(n):
-   for j in range(n):
-      if a[i][j] &gt; max:
-         max = a[i][j]
-print(max)
-</pre>
+<pre class="sh_python" data-src="../tasks/floyd/floyd.py"><a href="../tasks/floyd/floyd.py">floyd.py</a></pre>
 
 <p><strong>Реализация на Rust</strong></p>
 <pre class="rust-code"><code class="language-rust">// Алгоритм Флойда—Уоршелла, кратчайшие пути между всеми парами вершин: O(V^3)

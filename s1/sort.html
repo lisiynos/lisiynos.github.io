@@ -51,37 +51,7 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     </li>
     <li>Теперь массив отсортирован, выводим его.</li>
 </ol>
-<pre class="sh_pascal">
-{$APPTYPE CONSOLE} 
-
-var
-  N : Integer; { Количество элементов в массиве }
-  A : array [1..5000] of Integer; { Сортируемый массив }
-  i : Integer; { Переменная цикла }
-  temp : Integer; { Переменная для обмена местами двух элементов в массиве }
-  Changes : Boolean; { Есть ли изменения? }
-begin
-  { Ввод исходного массива из файла }
-  Reset(Input,'bubble.in');
-  Read(N); { Читаем количество элементов в массиве } 
-  for i:=1 to N do Read(A[i]); { Читаем сам массив }
-  { Сортировка }
-  repeat
-    Changes := false; { Пока изменений нет :) }
-    for i:=1 to N-1 do { Пробегаем по массиву сравнивая соседние элементы }
-      if A[i]&gt;A[i+1] then begin { Если больший элемент слева, а должен быть справа }
-        temp := A[i]; { Меняем элементы местами при помощи временной переменной temp }
-        A[i] := A[i+1];
-        A[i+1] := temp;
-        Changes := true; { Изменения произошли! }
-      end;
-  until not Changes; { Заканчиваем когда нет изменений (значит, все элементы уже по-порядку) }
-  { Вывод отсортированного массива в файл }
-  Rewrite(Output,'bubble.out');
-  for i:=1 to N-1 do Write(A[i],' ');
-  Writeln(A[N])
-end.
-</pre>
+<pre class="sh_pascal" data-src="../tasks/bubble/sort_bubble.pas"><a href="../tasks/bubble/sort_bubble.pas">sort_bubble.pas</a></pre>
 
 <p><strong>Модификация с максимумами:</strong></p>
 
@@ -316,29 +286,7 @@ fn main() {
 <p>Когда диапазон чисел которые нужно отсортировать невелик по сравнению с их количеством, проще (и быстрее всего)
     посчитать количество элементов каждого вида прямо при чтении входного файла и вывести их &quot;по видам&quot;.</p>
 
-<pre class="sh_pascal">
-{$APPTYPE CONSOLE}
-
-var
-  N : Integer; { Количество элементов в массиве }
-  Ai : Integer; { Элементы сортируемого массива }
-  P : array [1..1000] of Integer; { P[i] - количество элементов со значением i }
-  i : Integer; { Переменная цикла }
-begin
-  { Ввод исходного массива из файла }
-  Reset(Input,'sort.in');
-  Read(N); { Читаем количество элементов в массиве } 
-  for i:=1 to N do begin 
-    Read(Ai); { Читаем элементы массива }
-    { Считаем количество элементов каждого вида прямо при чтении файла }
-    P[Ai] := P[Ai] + 1; { Увеличиваем P[Ai] - количество элементов равных Ai }
-  end;
-  { Вывод отсортированного массива в файл }
-  Rewrite(Output,'sort.out');
-  for Ai:=1 to 1000 do { Пробегаем по всем возможным значениям }
-    for i:=1 to P[Ai] do { Выводим P[Ai] элементов Ai }
-      Write(Ai,' ');
-end.</pre>
+<pre class="sh_pascal" data-src="../tasks/sort/sort_counting.pas"><a href="../tasks/sort/sort_counting.pas">sort_counting.pas</a></pre>
 
     <p><strong>Реализация на Python</strong></p>
     <pre class="sh_python">
@@ -434,102 +382,11 @@ int main() {
 </ul>
 <p><img loading="lazy" decoding="async" src="sort/quicksort.gif" width="280" height="214" alt="Quicksort"></p>
 
-<pre class="sh_pascal">
-var A : array [1..1000000] of Integer; { Сортируемый массив }  
-
-procedure QuickSort( left,right : Integer );
-var i,j : Integer; m,temp: Integer;
-begin
-  i := left;
-  j := right;
-  m := A[(left + right) div 2]; { Медиана }
-  m := A[random(right-left+1) + left]; { Рандомизированный вариант QuickSort }
-  { При выборе разделяющего элемента случайным образом практически невозможно попасть на худший случай }
-  repeat
-    while A[i] &lt; m do inc(i);
-    while m &lt; A[j] do dec(j);
-    if i&lt;=j then begin 
-      { Меняем A[i] и A[j] местами }
-      temp := A[i]; 
-      A[i] := A[j];
-      A[j] := temp;
-      inc(i); dec(j);
-    end;
-  until i&gt;j;
-  if left &lt; j then QuickSort(left,j); { Сортировка левого куска }
-  if i &lt; right then QuickSort(i,right); { Сортировка правого куска }
-end;
-
-var
-  N : Integer; { Количество элементов в массиве }
-  i : Integer; { Переменная цикла }
-begin
-  { Ввод исходного массива из файла }
-  Reset(Input,'bubble.in');
-  Read(N); { Читаем количество элементов в массиве }
-  for i:=1 to N do Read(A[i]); { Читаем сам массив }
-  { Сортировка элементов с 1 по N }
-  QuickSort(1, N);
-  { Вывод отсортированного массива в файл }
-  Rewrite(Output,'bubble.out');
-  for i:=1 to N-1 do Write(A[i],' ');
-  Writeln(A[N]);
-end.</pre>
+<pre class="sh_pascal" data-src="../tasks/bubble/sort_quick.pas"><a href="../tasks/bubble/sort_quick.pas">sort_quick.pas</a></pre>
 
 <p>Реализация на C/C++</p>
 
-<pre class="sh_cpp">
-#include &lt;stdio.h&gt;
-#include &lt;iostream&gt;
-
-using namespace std;
-
-// Сортируемый массив
-int A[1000000];
-
-// Случайное целое число в заданном диапазоне
-int rand(int low, int high){
-  return rand() % (high - low + 1) + low;
-}
-
-// Поменять местами 2 элемента массива i-ый и j-ый
-void swap(int i, int j){
-  int temp = A[i];
-  A[i] = A[j];
-  A[j] = temp;
-}
-
-// Быстрая сортировка от элемента left до элемента right
-void qsort(int left, int right){
-  // Массивы из 1-ого элемента сортировать незачем
-  if(left &gt;= right) return;
-  int l = left, r = right; // Левая и правая границы
-  // Выбираем разделяющий элемент - может быть любым, 
-  // но выбор случайного элемента устойчив к худшим случаям
-  int m = A[rand(left,right)]; 
-  do {
-    while(A[l] &lt; m) l++; // Двигаем левую границу
-    while(A[r] &gt; m) r--; // Двигаем правую границу
-    if(l &lt;= r){ swap(l,r); l++; r--; } // Меняем элементы местами  
-  } while (l &lt;= r);  
-  qsort(left,r); // Сортируем левую половину массива
-  qsort(l,right); // Сортируем правую половину массива
-}
-
-int main(){
-  freopen("qsort.in","r",stdin);
-  freopen("qsort.out","w",stdout);
-  // Ввод исходных данных 
-  int N;
-  cin &gt;&gt; N;
-  for(int i=0;i&lt;N;i++) cin &gt;&gt; A[i];
-  // Сортировка
-  qsort(0,N-1);
-  // Вывод отсортированного массива
-  for(int i=0;i&ltN;i++) cout &lt;&lt; A[i] &lt;&lt; " ";
-  // Код возврата
-  return 0;
-}</pre>
+<pre class="sh_cpp" data-src="../tasks/bubble/sort_quick.cpp"><a href="../tasks/bubble/sort_quick.cpp">sort_quick.cpp</a></pre>
 
 
 <p>Самая короткая рекурсивная реализация QSort на Python</p>
@@ -815,76 +672,7 @@ fn main() {
 
 <h2 id="heapsort-сортировка-при-помощи-кучи">HeapSort - сортировка при помощи кучи</h2>
 
-<pre class="sh_pascal">
-{$APPTYPE CONSOLE}
-
-uses SysUtils;
-
-var
-  N : integer; { Размер кучи }
-  A : array [1..1000000] of int64;
-  size : Integer;
-
-{ Обмен местами элементов с индексами i и j }
-procedure Swap( i,j : integer );
-var T : int64;
-begin
-  T := A[i];
-  A[i] := A[j];
-  A[j] := T;
-end;
-
-procedure Heapify( i:integer );
-var r,l : integer;
-begin
-  l := i*2; { Левый потомок }
-  r := i*2+1; { Правый потомок }
-  if l &lt;= N then
-    if A[l] &gt; A[i] then begin
-      Swap(l,i);
-      Heapify(l);
-    end;
-  if r &lt;= N then
-    if A[r] &gt; A[i] then begin
-      Swap(r,i);
-      Heapify(r);
-    end;
-end;
-
-{ Построение кучи }
-procedure BuildHeap;
-var i: integer;
-begin
-  for i := N downto 1 do
-    Heapify(i);
-end;
-
-{ Сортировка кучей }
-procedure HeapSort;
-begin
-  BuildHeap;
-  size := N;
-  while N &gt; 1 do begin
-    Swap(N,1);  { Меняем местами максимальный элемент и элемент в конце кучи }
-    Dec(N);     { Уменьшаем кучу }
-    Heapify(1); { Восстанавливаем основное свойство кучи }
-  end;
-end;
-
-var i : integer;
-begin
-  Reset(Input,'heapsort.in');
-  Rewrite(Output,'heapsort.out');
-  { Чтение исходных данных }
-  Read(N);
-  for i := 1 to N do
-    Read(A[i]);
-  { Вызов сортировки }
-  HeapSort;
-  { Запись отсортированного массива }
-  for i := 1 to size do
-    Write(A[i],' ');
-end.</pre>
+<pre class="sh_pascal" data-src="../tasks/bubble/sort_heap.pas"><a href="../tasks/bubble/sort_heap.pas">sort_heap.pas</a></pre>
 
 <pre class="sh_cpp">
 #include &lt;assert.h&gt;
@@ -1015,52 +803,11 @@ fn main() {
     <strong>algorithm</strong> в которой в числе прочего есть реализованная процедура сортировки <strong>sort</strong>.
 </p>
 
-<pre class="sh_cpp">
-#include &lt;stdio.h&gt;
-#include &lt;assert.h&gt;
-#include &lt;math.h&gt;
-#include &lt;string.h&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-
-#define MaxN 5000
-
-using namespace std;
-
-int a[MaxN + 3];
-int n;
-
-int main() {
-  freopen("bubble.in", "rt", stdin); // Открываем входной файл
-  freopen("bubble.out", "wt", stdout); // Открываем выходной файл
-  // Чтение исходных данных
-  scanf("%d", &amp;n); // Чтение количества элементов 
-  int i;
-  for(i = 0; i &lt; n; i++) scanf ("%d", &amp;a[i]); 
-  // Вызов процедуры сортировки
-  sort(a, a + n);
-  // Вывод отсортированного массива в файл
-  for(i = 0; i &lt; n - 1; i++)
-    printf("%d ", a[i]);
-  printf("%d\n", a[n - 1]);
-  return 0;
-}</pre>
+<pre class="sh_cpp" data-src="../tasks/bubble/sort_std.cpp"><a href="../tasks/bubble/sort_std.cpp">sort_std.cpp</a></pre>
 
 <p>В Python у списков (list) есть встроенный метод sort</p>
 
-<pre class="sh_python">
-import sys
-sys.stdin = open('bubble.in') # Открываем входной файл на чтение
-sys.stdout = open('bubble.out', 'w') # Открываем выхолной файл на запись
-# Ввод исходных данных
-N = input() # Считываем из первой строки целое число
-A = list(map(int,input().split())) # Считываем строку, делим её на элементы и каждый приводим к типу целое
-# Сортировка массива
-A.sort()
-# Вывод массива
-for i in A:
-  print(i, end=' ')
-</pre>
+<pre class="sh_python" data-src="../tasks/bubble/sort_builtin.py"><a href="../tasks/bubble/sort_builtin.py">sort_builtin.py</a></pre>
 
 </div>
 

@@ -1,0 +1,6 @@
+{
+  "title": "A+B (длинная арифметика)",
+  "input": "sum.in",
+  "output": "sum.out",
+  "compare": "tokens"
+}

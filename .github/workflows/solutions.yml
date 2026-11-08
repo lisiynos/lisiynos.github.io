@@ -1,0 +1,31 @@
+# Runs every solution of tasks/*/ on the tests of its task. See AGENTS.md, section "Solutions and tests".
+name: Solutions
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solutions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  solutions:
+    name: Run the solutions on their tests
+    runs-on: ubuntu-24.04
+    # The course's own image (https://github.com/stden/docker-gems, folder compilers): g++ 14, Free Pascal 3.2.2,
+    # OpenJDK 25 and Python 3.13.
+    container:
+      image: stden/compilers:latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Show the toolchain
+        run: g++ --version | head -1 && fpc -iV && javac -version && python3 --version
+      - name: Run the solutions on the tests
+        # Writes a table of the verdicts to the job summary and an annotation on every failing solution file.
+        run: python3 tests/code/check_solutions.py

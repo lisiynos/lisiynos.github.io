@@ -218,134 +218,23 @@ public class Test {
 </pre>
 <p>Решение задачи "A+B" с консольным вводом/выводом.</p>
 
-<pre class="sh_java">import java.util.Scanner;
-public class Main {
-  public static void main(String[] args) {
-    Scanner cin = new Scanner(System.in);
-    int a = cin.nextInt(), b = cin.nextInt();
-    System.out.println(a + b);
-  }
-}
-</pre>
+<pre class="sh_java" data-src="../tasks/aplusb/Main_stdin.java"><a href="../tasks/aplusb/Main_stdin.java">Main_stdin.java</a></pre>
 
 <p>Решение задачи "A+B" с вводом из файла <strong>sum.in</strong> и выводом в файл <strong>sum.out</strong>.</p>
 
-<pre class="sh_java">
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Scanner;
-
-public class Main {
-  public static void main(String[] args) throws Exception {
-    Scanner in = new Scanner(new File("sum.in")); // Открываем входной файл
-    PrintWriter out = new PrintWriter(new File("sum.out")); // Открываем выходной файл
-    int a = in.nextInt(), b = in.nextInt();
-    out.println(a + b);
-    in.close();
-    out.close();
-  }
-}
-</pre>
+<pre class="sh_java" data-src="../tasks/aplusb/Main.java"><a href="../tasks/aplusb/Main.java">Main.java</a></pre>
 
 
 <p>Решение задачи "A+B" с длинными числами и вводом из файла <strong>sum.in</strong> и выводом в файл
     <strong>sum.out</strong>.
     Используется встроенный класс BigInteger.</p>
 
-<pre class="sh_java">
-import java.io.File;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.util.Scanner;
-
-public class Main {
-  public static void main(String[] args) throws Exception {
-    Scanner in = new Scanner(new File("sum.in")); // Открываем входной файл
-    PrintWriter out = new PrintWriter(new File("sum.out")); // Открываем выходной файл
-    BigInteger a = in.nextBigInteger(), b = in.nextBigInteger(); // Считываем входные данные    
-    out.println(a.add(b)); // Вычисляем и выводим ответ
-    in.close(); // Закрываем входной файл
-    out.close(); // Закрываем выходной файл (ОБЯЗАТЕЛЬНО! Иначе на выходе может быть пустой файл)
-  }
-}
-</pre>
+<pre class="sh_java" data-src="../tasks/aplusb_long/Main.java"><a href="../tasks/aplusb_long/Main.java">Main.java</a></pre>
 
 <p>Организация ввода/вывода при помощи класса BufferedReader </p>
 Использование классов BufferedReader и StringTokenizer позволяет существенно ускорить считывание.  
 
-<pre class="sh_java">
-
-
-import java.io.*;
-import java.util.*;
-
-public class Pattern implements Runnable {
-
-    BufferedReader br;      // экземпляр BufferedReader - хранит буфер
-    StringTokenizer in;     // класс, обеспечивающий быструю и удобную работу со строками -
-    // разбивание строки на кусочки по произвольным символам
-    PrintWriter out;
-
-    // Возвращает следующую подстроку, ограниченную пробелами(переводами строк, табуляциями)
-
-    public String nextToken() throws IOException {
-        //если in еще не существует или в нем нет больше токенов,
-        //то in конструируется от следующей строки входного файла
-        while (in == null || !in.hasMoreTokens()) {
-            in = new StringTokenizer(br.readLine());
-        }
-        return in.nextToken();
-    }
-
-    //Возвращает следующее целое число из входного файла
-    public int nextInt() throws IOException {
-        return Integer.parseInt(nextToken());
-    }
-
-    //Возвращает следующее целое число из входного файла. Предполагается, что оно не помещается в int
-    public long nextLong() throws IOException {
-        return Long.parseLong(nextToken());
-    }
-
-    //Возвращает следующее вещественное число из входного файла
-    public double nextDouble() throws IOException {
-        return Double.parseDouble(nextToken());
-    }
-
-    //метод, в котором пишется решение
-    //пример - задача а+б
-    public void solve() throws IOException {
-        int a = nextInt();
-        int b = nextInt();
-        out.println(a + b);
-    }
-
-    public static void main(String[] args) {
-	new Pattern().run();	
-    }
-
-    public void run() {
-        try {
-            //из консоли:
-            br = new BufferedReader(new InputStreamReader(System.in));
-            out = new PrintWriter(System.out);
-            //из файла:
-            //br = new BufferedReader(new FileReader("input.txt"));
-            //out = new PrintWriter("output.txt");
-
-            solve();
-
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-
-}
-
-</pre>
+<pre class="sh_java" data-src="../tasks/aplusb/Pattern.java"><a href="../tasks/aplusb/Pattern.java">Pattern.java</a></pre>
 
 <p>Конструкции языка Java</p>
 

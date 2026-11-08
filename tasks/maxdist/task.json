@@ -1,0 +1,7 @@
+{
+  "title": "Наибольшее расстояние",
+  "input": "maxdist.in",
+  "output": "maxdist.out",
+  "compare": "numbers",
+  "tolerance": 1e-6
+}

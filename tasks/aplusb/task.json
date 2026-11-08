@@ -1,0 +1,41 @@
+{
+  "title": "A+B",
+  "input": "sum.in",
+  "output": "sum.out",
+  "time_limit": 2,
+  "compare": "tokens",
+  "solutions": {
+    "aplusb.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out"
+    },
+    "Main_stdin.java": {
+      "input": "stdin",
+      "output": "stdout"
+    },
+    "Pattern.java": {
+      "input": "stdin",
+      "output": "stdout"
+    },
+    "aplusb_pe_file.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out",
+      "expect": "PE"
+    },
+    "aplusb_pe_screen.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out",
+      "expect": "PE"
+    },
+    "aplusb_wa.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out",
+      "expect": "WA"
+    },
+    "aplusb_ce.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out",
+      "expect": "CE"
+    }
+  }
+}

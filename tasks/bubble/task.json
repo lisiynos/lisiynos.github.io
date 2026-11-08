@@ -1,0 +1,17 @@
+{
+  "title": "Сортировка небольшой последовательности",
+  "input": "bubble.in",
+  "output": "bubble.out",
+  "time_limit": 3,
+  "compare": "tokens",
+  "solutions": {
+    "sort_quick.cpp": {
+      "input": "qsort.in",
+      "output": "qsort.out"
+    },
+    "sort_heap.pas": {
+      "input": "heapsort.in",
+      "output": "heapsort.out"
+    }
+  }
+}

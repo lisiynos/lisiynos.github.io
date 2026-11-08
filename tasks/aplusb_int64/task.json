@@ -1,0 +1,16 @@
+{
+  "title": "A+B (64 бита)",
+  "input": "sum.in",
+  "output": "sum.out",
+  "compare": "tokens",
+  "solutions": {
+    "aplusb_int64.pas": {
+      "input": "aplusb.in",
+      "output": "aplusb.out"
+    },
+    "aplusb_int64.c": {
+      "input": "aplusb.in",
+      "output": "aplusb.out"
+    }
+  }
+}

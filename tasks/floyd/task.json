@@ -1,0 +1,6 @@
+{
+  "title": "Флойд",
+  "input": "floyd.in",
+  "output": "floyd.out",
+  "compare": "tokens"
+}

@@ -54,35 +54,13 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <h2>Пример решения задачи Z - сумма двух чисел.</h2>
 
     <h3> Pascal </h3>
-    <pre class="sh_pascal">
-var a, b : longint; { ещё лучше int64 }
-begin
-  assign(input,'sum.in'); reset(input);
-  assign(output,'sum.out'); rewrite(output);
-  read(a, b);
-  writeln(a+b)
-end.</pre>
+    <pre class="sh_pascal" data-src="../tasks/aplusb/sum.pas"><a href="../tasks/aplusb/sum.pas">sum.pas</a></pre>
 
     <h3>Delphi</h3>
-    <pre class="sh_pascal">
-{$APPTYPE CONSOLE}
-
-var a, b : int64;
-begin
-  assign(input,'sum.in'); reset(input);
-  assign(output,'sum.out'); rewrite(output);
-  read(a, b);
-  writeln(a+b)
-end.</pre>
+    <pre class="sh_pascal" data-src="../tasks/aplusb_int64/sum_int64.pas"><a href="../tasks/aplusb_int64/sum_int64.pas">sum_int64.pas</a></pre>
 
     <p>Решение задачи "A+B" с вводом из файла <strong>sum.in</strong> и выводом в файл <strong>sum.out</strong>.</p>
-    <pre class="sh_python">
-import sys
-sys.stdin = open("sum.in") # Закомментируйте эту строку для ввода с клавиатуры
-sys.stdout = open("sum.out", "w") # Закомментрируйте эту строку для вывода на экран
-A,B = input(), input() # Вводим 2 целых A и B (они в разных строках)
-print(A+B)
-</pre>
+    <pre class="sh_python" data-src="../tasks/aplusb_long/sum.py"><a href="../tasks/aplusb_long/sum.py">sum.py</a></pre>
 
     <h2>Разбор задач</h2>
 

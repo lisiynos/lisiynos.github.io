@@ -7,22 +7,11 @@
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
-    <script type="text/javascript" src="../syntax/load.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/javascript">
-        function f() {
-            sh_highlightDocument();
-            loadFiles([
-                ['test', 'a.cpp']
-            ], function () {
-                sh_highlightDocument();
-            });
-        }
-    </script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
 </head>
-<body onLoad="f()">
+<body onLoad="sh_highlightDocument();">
 
 <div id="content">
 

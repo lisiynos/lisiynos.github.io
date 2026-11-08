@@ -1,0 +1,6 @@
+{
+  "title": "Скобочные последовательности",
+  "input": "brackets.in",
+  "output": "brackets.out",
+  "compare": "tokens"
+}

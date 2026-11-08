@@ -135,13 +135,7 @@
     <h2>Первая программа на Python</h2>
 
     <p>Решение задачи "A+B" с вводом из файла <strong>sum.in</strong> и выводом в файл <strong>sum.out</strong>.</p>
-    <pre class="sh_python">
-import sys
-sys.stdin = open("sum.in") # Закомментируйте эту строку для ввода с клавиатуры
-sys.stdout = open("sum.out", "w") # Закомментрируйте эту строку для вывода на экран
-A, B = int(input()), int(input()) # Вводим 2 целых A и B (они в разных строках)
-print(A + B)
-</pre>
+    <pre class="sh_python" data-src="../tasks/aplusb_long/sum.py"><a href="../tasks/aplusb_long/sum.py">sum.py</a></pre>
 
     <h2>Типы данных в языке Python</h2>
     <ul>
@@ -511,16 +505,7 @@ print('b = ', b.value)
     <h2>Чтение и запись файлов в Python</h2>
 
     <p><strong>Пример 1.</strong> Читаем размер массива, сам массив, сортируем и выводим.</p>
-    <pre class="sh_python">
-import sys # Подключаем библиотеку для перенаправления потока
-sys.stdin = open("sort.in") # Закомментируйте эту строку для ввода с клавиатуры
-sys.stdout = open("sort.out", "w") # Закомментрируйте эту строку для вывода на экран
-N = int(input()) # Вводим количество элементов
-A = [int(x) for x in input().split()] # Вводим сам массив
-# input - ввод строки, split - деление, int - приведение к целым
-A.sort() # Сортировка
-for a in A: print(a, end=' ') # Вывод отсортированного массива в одну строку разделяя числа пробелами
-</pre>
+    <pre class="sh_python" data-src="../tasks/sort/sort.py"><a href="../tasks/sort/sort.py">sort.py</a></pre>
 
     <p>Пример входного файла <strong>sort.in</strong>:
     </p>

@@ -7,22 +7,11 @@
     <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
     <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
-    <script type="text/javascript" src="../syntax/load.js"></script>
     <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script type="text/javascript">
-        function f() {
-            sh_highlightDocument();
-            loadFiles([
-                ['test', 'a.cpp']
-            ], function () {
-                sh_highlightDocument();
-            });
-        }
-    </script>
 <link rel="stylesheet" type="text/css" href="../style/site.css">
 <script src="../js/site.js" defer></script>
 </head>
-<body onLoad="f()">
+<body onLoad="sh_highlightDocument();">
 
 <div id="content">
 
@@ -130,88 +119,9 @@
 
     <h2>Ввод / вывод при помощи потоков</h2>
 
-    <pre class="sh_cpp">
-#include &lt;stdio.h&gt;
-#include &lt;iostream&gt;
-
-using namespace std;
-
-int main(){
-  freopen("sum.in", "r", stdin); // Ввод из файла вместо клавиатуры
-  freopen("sum.out", "w", stdout); // Вывод в файл вместо экрана
-  long long a,b; // 64-битное целое со знаком
-  cin &gt;&gt; a &gt;&gt; b;
-  cout &lt;&lt; (a+b);
-  return 0; // Выход с кодом 0
-}</pre>
+    <pre class="sh_cpp" data-src="../tasks/aplusb_int64/sum_int64.cpp"><a href="../tasks/aplusb_int64/sum_int64.cpp">sum_int64.cpp</a></pre>
 
     <p>Форматирование до заданного числа знаков:</p>
-
-    <p>&nbsp;</p>
-
-    <pre id="test" class="sh_cpp">
-</pre>
-
-    <script type="application/javascript">
-        function processReqChange() {
-            try { // Важно!
-                // только при состоянии "complete"
-                if (a.readyState == 4) {
-                    // для статуса "OK"
-                    if (a.status == 200) {
-                        // обработка ответа
-                        //alert(a.text);
-                        el = document.createTextNode(a.responseText);
-                        document.getElementById("test").appendChild(el);
-                        sh_highlightDocument();
-                    } else {
-                        alert("Не удалось получить данные:\n" +
-                            a.statusText);
-                    }
-                }
-            }
-            catch (e) {
-                // alert('Ошибка: ' + e.description);
-                // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
-                // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
-            }
-        }
-
-        function createRequestObject() {
-            if (typeof XMLHttpRequest === 'undefined') {
-                XMLHttpRequest = function () {
-                    try {
-                        return new ActiveXObject("Msxml2.XMLHTTP.6.0");
-                    }
-                    catch (e) {
-                    }
-                    try {
-                        return new ActiveXObject("Msxml2.XMLHTTP.3.0");
-                    }
-                    catch (e) {
-                    }
-                    try {
-                        return new ActiveXObject("Msxml2.XMLHTTP");
-                    }
-                    catch (e) {
-                    }
-                    try {
-                        return new ActiveXObject("Microsoft.XMLHTTP");
-                    }
-                    catch (e) {
-                    }
-                    throw new Error("This browser does not support XMLHttpRequest.");
-                };
-            }
-            return new XMLHttpRequest();
-        }
-
-        var a = createRequestObject();
-        a.open("GET", "a.cpp", true);
-        a.onreadystatechange = processReqChange;
-        a.send(null);
-    </script>
 
     <pre class="sh_cpp">#include &lt;iostream&gt;
 #include &lt;iomanip&gt;

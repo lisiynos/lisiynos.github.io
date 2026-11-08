@@ -1,0 +1,6 @@
+{
+  "title": "НОД",
+  "input": "gcd.in",
+  "output": "gcd.out",
+  "compare": "tokens"
+}

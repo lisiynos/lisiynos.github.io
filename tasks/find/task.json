@@ -1,0 +1,7 @@
+{
+  "title": "Поиск",
+  "input": "find.in",
+  "output": "find.out",
+  "time_limit": 3,
+  "compare": "tokens"
+}

@@ -1,0 +1,6 @@
+{
+  "title": "Выпуклая оболочка",
+  "input": "convex.in",
+  "output": "convex.out",
+  "checker": "check.py"
+}

@@ -1,0 +1,7 @@
+{
+    "title": "Сортировка",
+    "input": "sort.in",
+    "output": "sort.out",
+    "time_limit": 3,
+    "compare": "tokens"
+}

@@ -28,39 +28,12 @@ window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
     <p>Правила:</p>
 
     <ol>
-        <li>На каждом шаге открывающих скобок должно быть больше или столько же, сколько открывающих.</li>
+        <li>На каждом шаге открывающих скобок должно быть больше или столько же, сколько закрывающих.</li>
         <li>К концу строки все открывающие скобки должны быть закрыты.</li>
     </ol>
 
 
-<pre class="sh_python">
-# -*- utf-8 -*-
-import sys
-
-sys.stdin = open("brackets.in")
-sys.stdout = open("brackets.out", "w")
-n = int(input())
-
-# Количество пар скобок
-n = 4
-
-
-def gen(index=0, br_open=0, br_close=0, ans=['_'] * (2 * n)):
-    if index == 2 * n:
-        print("".join(ans))
-        return
-    # Если можем поставить открывающую скобку =&gt; ставим её
-    if br_open &lt; n:
-        ans[index] = '('
-        gen(index + 1, br_open + 1, br_close, ans)  # Рекурсия
-    # Если можем поставить закрывающую скобку =&gt; ставим её
-    if br_close &lt; br_open:
-        ans[index] = ')'
-        gen(index + 1, br_open, br_close + 1, ans)  # Рекурсия
-
-
-gen()
-</pre>
+<pre class="sh_python" data-src="../tasks/brackets/brackets.py"><a href="../tasks/brackets/brackets.py">brackets.py</a></pre>
 
     <p>$n = 2$</p>
 
