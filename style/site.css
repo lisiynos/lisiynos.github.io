@@ -1,5 +1,18 @@
 /* Responsive and interactive styles for every page. Loaded after style/style.css. */
 
+/* Wide article covers share the lesson palette and keep the full composition. */
+.lesson-cover {
+  display: block;
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  margin: 16px auto 0;
+}
+
+.lesson-cover + h1 {
+  padding-top: 0;
+}
+
 /* Explanatory figures keep their detail available at the original resolution. */
 .lesson-illustration {
   max-width: 960px;
