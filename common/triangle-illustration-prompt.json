@@ -1,0 +1,40 @@
+{
+  "tool": "Built-in imagegen",
+  "page": "s2/backtracking.html",
+  "path": "s2/backtracking/max-area-triangle.png",
+  "points": {
+    "A": [
+      0,
+      0
+    ],
+    "B": [
+      6,
+      0
+    ],
+    "C": [
+      0,
+      4
+    ],
+    "D": [
+      2,
+      1
+    ],
+    "E": [
+      1,
+      2
+    ]
+  },
+  "candidateAreas": {
+    "ABC": 12,
+    "ABD": 3,
+    "ABE": 6,
+    "ACD": 4,
+    "ACE": 2,
+    "ADE": 1.5,
+    "BCD": 5,
+    "BCE": 4,
+    "BDE": 1.5,
+    "CDE": 0.5
+  },
+  "prompt": "Use case: scientific-educational. Asset type: one explanatory textbook illustration for the maximum-area triangle problem in a Russian algorithms lesson on lisiynos.github.io. Generate ONE landscape 1536x1024 image, pure white background. Match the existing illustrations: large dark olive #202d14 serif title, dark graphite body text, clean large Russian sans-serif labels, pale blue #e8f1fb states, muted blue #4a6fa5 outlines, pale gold candidates and sage green optimum. Crisp precise geometry, roomy layout, safe outer margins, no watermark, logo or decorative scene.\n\nTitle EXACT \"Ищем треугольник наибольшей площади\".\nA compact large readable coordinate legend near the top gives EXACTLY these FIVE points: \"A(0,0)   B(6,0)   C(0,4)   D(2,1)   E(1,2)\".\n\nMain content: THREE equal side-by-side comparison panels. Every panel contains the SAME five points on the SAME coordinate grid, with identical positions and scale. The grid has SIX unit intervals horizontally, FOUR vertically, square units with equal x/y scale. A is bottom-left origin, B is bottom-right on x-axis, C top-left on y-axis. D is two units right and one unit up from A; E is one unit right and two units up from A. Plot all five as clear dots with nonoverlapping letters A,B,C,D,E. D and E are INSIDE triangle ABC. Thin light-gray grid lines; x-axis points right, y-axis up. No extra points or wrong coordinates.\n\nLEFT panel heading \"Тройка A, B, D\". Highlight ONLY triangle A-B-D with pale-gold translucent fill, bold gold outline; other points stay visible. Its base AB is6 and its height is1. Large label below EXACT \"S(ABD) = 3\".\nMIDDLE panel heading \"Тройка A, C, D\". Highlight ONLY triangle A-C-D with pale-blue translucent fill, bold blue outline; other points visible. Its vertical base AC is4, distance D to that base is2. Large label below EXACT \"S(ACD) = 4\".\nRIGHT panel heading \"Лучший: A, B, C\". Highlight ONLY the large right triangle A-B-C with pale-green translucent fill, bold green outline. D and E stay visible as two interior gray points. Large label below EXACT \"S(ABC) = 12\".\n\nBottom explanation in its own readable strip EXACT \"Всего 10 троек: каждую проверяем один раз, i < j < k\".\nA small line EXACT \"На рисунке показаны 3 из 10 проверок\".\nBottom green result EXACT \"Максимальная площадь: 6 × 4 / 2 = 12\".\nIMPORTANT the rightmost triangle is the UNIQUE maximum among these five points. Do not imply that only three triples are tested. Do not move D or E between panels, do not place D/E on an edge, do not use a graph network. Geometry and the areas3,4,12 must agree exactly. No tiny formula text or extra letters."
+}
