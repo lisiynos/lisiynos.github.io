@@ -73,6 +73,72 @@ pre {
   opacity: 1;
 }
 
+/* Python blocks: the run button sits left of the copy button; the panel holds the input and the output. */
+.run-code {
+  position: absolute;
+  top: 6px;
+  right: 98px;
+  padding: 4px 8px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  font: 12px/1 sans-serif;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.run-code:hover,
+.run-code:focus-visible {
+  opacity: 1;
+}
+
+.run-code:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.python-run {
+  margin: 0 0 1em;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+.python-input {
+  box-sizing: border-box;
+  width: 100%;
+  font: 13px/1.4 monospace;
+}
+
+.python-stop {
+  margin: 6px 0;
+  padding: 4px 8px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+  font: 12px/1 sans-serif;
+  cursor: pointer;
+}
+
+/* The output is a <div>, not a <pre> (it is not a code block), so it sets the font and the line breaks itself. */
+.python-output {
+  max-height: 20em;
+  margin: 0;
+  padding: 6px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border: 1px solid #eee;
+  background: #fff;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.python-error {
+  color: #b00020;
+}
+
 /* Heading anchors */
 .anchor {
   margin-left: 0.35em;

@@ -1,6 +1,6 @@
-// Progressive enhancements shared by every page: site search, copy buttons on code blocks,
-// heading anchors, a table of contents for long lessons, navigation through the course and a back-to-top button.
-// The pages stay readable without this script.
+// Progressive enhancements shared by every page: site search, copy buttons on code blocks, run buttons on Python
+// blocks, solution files loaded into code blocks, heading anchors, a table of contents for long lessons, navigation
+// through the course and a back-to-top button. The pages stay readable without this script.
 (function () {
   'use strict';
 
@@ -66,6 +66,53 @@
     setTimeout(() => {
       button.textContent = 'Копировать';
     }, 1500);
+  }
+
+  // A solution block, <pre class="sh_python" data-src="../tasks/aplusb_long/sum.py">, shows the file that the CI job
+  // runs on the tests (tests/code/check_solutions.py), so the page and the tests share one source. The link inside
+  // the block is the fallback: it stays without JavaScript and when the file cannot be fetched, for example from a
+  // page opened as a file. The files of all blocks are fetched at once.
+  function loadSolutions() {
+    const loaded = windowLoaded();
+    document.querySelectorAll('pre[data-src]').forEach((pre) => {
+      const file = fetchText(new URL(pre.dataset.src, location.href));
+      // The text goes in after the load event: the pages highlight their code from <body onLoad>, and that call
+      // must not see the text, or the block would be highlighted twice, by it and by showSolution().
+      Promise.all([file, loaded]).then(
+        ([text]) => showSolution(pre, text),
+        () => pre.classList.add('solution-missing'),
+      );
+    });
+  }
+
+  async function fetchText(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${response.status} ${url}`);
+    return response.text();
+  }
+
+  // Resolves after the load event, at once when it has already fired.
+  function windowLoaded() {
+    return new Promise((resolve) => {
+      if (document.readyState === 'complete') resolve();
+      else window.addEventListener('load', () => resolve(), { once: true });
+    });
+  }
+
+  // The text replaces the link, without the final newline of the file, and is highlighted the way
+  // sh_highlightDocument() does it: by the first class sh_<language> of the block, when the page has loaded that
+  // language. Otherwise the text stays plain.
+  function showSolution(pre, text) {
+    pre.textContent = text.replace(/\n$/, '');
+    const language = shjsLanguage(pre);
+    const languages = window.sh_languages;
+    if (language && languages && language in languages) window.sh_highlightElement(pre, languages[language]);
+  }
+
+  function shjsLanguage(pre) {
+    const classes = [...pre.classList].map((name) => name.toLowerCase());
+    const name = classes.find((cls) => cls.startsWith('sh_') && cls !== 'sh_sourcecode');
+    return name && name.slice('sh_'.length);
   }
 
   function addHeadingAnchors() {
@@ -312,7 +359,158 @@
     section.scrollIntoView();
   }
 
+  // Python blocks get a «Запустить» button. The program runs in a worker with Pyodide (js/python-worker.js);
+  // the worker and the interpreter start with the first run. One program runs at a time.
+  const PYTHON_WORKER_URL = new URL('js/python-worker.js', SITE_ROOT).href;
+  const PYTHON_NO_WORKER =
+    'Не удалось запустить Python: браузер не создаёт воркер. Откройте страницу с сайта, а не как файл.';
+  const PYTHON_START_FAILED =
+    'Не удалось запустить Python. Обычно причина в сети: перезагрузите страницу и попробуйте снова.';
+  const PYTHON_RUN_FAILED = 'Программа завершилась с ошибкой';
+  let pythonWorker = null;
+  let pythonReady = false; // the worker has loaded Pyodide, so a later error of the worker comes from the program
+  let activeRun = null; // the controls of the running program: { run, stop, output }
+  // A program reads input when it calls input(), uses sys.stdin or opens a file: the text of the input box is also
+  // the content of every file the program reads (see the worker).
+  const READS_INPUT = /\b(?:input|open)\s*\(|\bsys\.stdin\b/;
+
+  // The code as the reader sees it: <br> is a line break and &nbsp; is a space.
+  function codeText(pre) {
+    const copy = pre.cloneNode(true);
+    copy.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    return copy.textContent.replace(/ /g, ' ');
+  }
+
+  function addPythonRunners() {
+    document.querySelectorAll('pre.sh_python').forEach((pre) => {
+      const run = document.createElement('button');
+      run.type = 'button';
+      run.className = 'run-code';
+      run.textContent = 'Запустить';
+
+      const input = document.createElement('textarea');
+      input.className = 'python-input';
+      input.rows = 2;
+      input.placeholder = 'Ввод для input(): по одной строке на каждый вызов';
+      input.setAttribute('aria-label', 'Ввод для программы');
+      const stop = document.createElement('button');
+      stop.type = 'button';
+      stop.className = 'python-stop';
+      stop.textContent = 'Остановить';
+      stop.hidden = true;
+      // A <div>, not a <pre>: the copy buttons go on every <pre> of the page, and the output is not a code block.
+      const output = document.createElement('div');
+      output.className = 'python-output';
+      const panel = document.createElement('div');
+      panel.className = 'python-run';
+      panel.hidden = true;
+      panel.append(input, stop, output);
+
+      const controls = { run, stop, output };
+      run.addEventListener('click', () => {
+        const code = codeText(pre);
+        // The first click on a program that reads input only shows the panel, so the reader types the input before
+        // the program asks for it; the next click runs the program. A program that reads nothing runs at once.
+        const askForInput = panel.hidden && READS_INPUT.test(code);
+        panel.hidden = false;
+        if (askForInput) input.focus();
+        else startPython(code, input.value, controls);
+      });
+      stop.addEventListener('click', stopPython);
+      pre.parentElement.append(run, panel);
+    });
+  }
+
+  // The worker is created before anything changes, so a browser that cannot start it leaves the buttons as they were.
+  function startPython(code, input, controls) {
+    if (activeRun) return;
+    if (!pythonWorker) {
+      try {
+        pythonWorker = createPythonWorker();
+      } catch {
+        controls.output.replaceChildren(errorNode(PYTHON_NO_WORKER));
+        return;
+      }
+    }
+    activeRun = controls;
+    controls.output.textContent = '';
+    controls.run.textContent = 'Выполняется…';
+    controls.stop.hidden = false;
+    setRunEnabled(false);
+    pythonWorker.postMessage({ code, input });
+  }
+
+  // Throws when the browser cannot start a module worker, for example when the page is opened as a file.
+  function createPythonWorker() {
+    const worker = new Worker(PYTHON_WORKER_URL, { type: 'module' });
+    worker.onmessage = (event) => showPythonMessage(event.data);
+    // An uncaught error in the worker. Before Pyodide is ready, the worker script itself failed, for example
+    // pyodide.mjs could not be downloaded; after that, the program broke the worker, for example with JavaScript
+    // it called. The state of the worker is unknown either way, so the next run starts a new one.
+    worker.onerror = (event) => {
+      if (worker !== pythonWorker) return; // already discarded, for example by «Остановить»
+      const reason = event.message || 'неизвестная ошибка';
+      const error = pythonReady ? `${PYTHON_RUN_FAILED}: ${reason}` : PYTHON_START_FAILED;
+      discardPythonWorker();
+      if (activeRun) showPythonMessage({ type: 'end', error });
+    };
+    return worker;
+  }
+
+  function showPythonMessage(message) {
+    if (message.type === 'ready') {
+      pythonReady = true;
+      return;
+    }
+    if (!activeRun) return;
+    if (message.type === 'end') {
+      if (message.error) activeRun.output.append(errorNode(message.error));
+      // The worker asks for a new one when Pyodide could not be loaded.
+      if (message.reload) discardPythonWorker();
+      finishPython();
+      return;
+    }
+    activeRun.output.append(message.type === 'err' ? errorNode(message.text) : message.text);
+  }
+
+  // Terminating the worker ends a program that does not finish, such as an endless loop.
+  function stopPython() {
+    if (!activeRun) return;
+    discardPythonWorker();
+    activeRun.output.append('\n[остановлено]');
+    finishPython();
+  }
+
+  // Ends the worker. The next run starts a new one.
+  function discardPythonWorker() {
+    pythonWorker.terminate();
+    pythonWorker = null;
+    pythonReady = false;
+  }
+
+  function finishPython() {
+    activeRun.run.textContent = 'Запустить';
+    activeRun.stop.hidden = true;
+    activeRun = null;
+    setRunEnabled(true);
+  }
+
+  function setRunEnabled(enabled) {
+    document.querySelectorAll('.run-code').forEach((button) => {
+      button.disabled = !enabled;
+    });
+  }
+
+  function errorNode(text) {
+    const span = document.createElement('span');
+    span.className = 'python-error';
+    span.textContent = text;
+    return span;
+  }
+
   addCopyButtons();
+  addPythonRunners();
+  loadSolutions();
   addHeadingAnchors();
   addTableOfContents();
   // Rust examples are written as <pre><code class="language-rust">. SHJS has no Rust, so highlight.js is
@@ -330,7 +528,7 @@
   function highlightRust() {
     const blocks = document.querySelectorAll('code.language-rust');
     if (!blocks.length) return;
-    const base = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/';
+    const base = 'https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/';
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = `${base}styles/github.min.css`;

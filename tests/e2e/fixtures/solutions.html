@@ -1,0 +1,36 @@
+<html>
+<head>
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Решения задач: проверочная страница</title>
+    <link rel="stylesheet" type="text/css" href="../../../style/style.css">
+    <link rel="stylesheet" type="text/css" href="../../../style/site.css">
+    <script type="text/javascript" src="../../../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../../../syntax/sh_python.min.js"></script>
+    <script type="text/javascript" src="../../../syntax/sh_pascal.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../../../style/sh_nedit.css">
+    <script src="../../../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+    <h1>Решения задач: проверочная страница</h1>
+
+    <p>Страница для tests/e2e/solutions.spec.js: блоки с data-src загружают файл решения, как на уроках.</p>
+    <!-- A test delays this picture, which holds the load event back, so the solution files arrive before it. -->
+    <img src="slow.png" width="1" height="1" loading="eager" alt="">
+
+    <h3>Задача A+B</h3>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python" data-src="solutions/sum.py"><a href="solutions/sum.py">sum.py</a></pre>
+
+    <p><strong>Реализация на Pascal</strong></p>
+    <pre class="sh_pascal" data-src="solutions/sum.pas"><a href="solutions/sum.pas">sum.pas</a></pre>
+
+    <h3>Файл, которого нет</h3>
+    <pre class="sh_python" data-src="solutions/missing.py"><a href="solutions/missing.py">missing.py</a></pre>
+
+    <h3>Обычный блок</h3>
+    <pre class="sh_python">print(open('data.in').read())</pre>
+</div>
+</body>
+</html>
