@@ -86,7 +86,12 @@ end;
         <strong>LIFO</strong> (англ. Last In — First Out, «последним пришёл — первым вышел»). Чаще всего принцип работы
         стека сравнивают со стопкой тарелок: чтобы взять вторую сверху, нужно снять верхнюю. </p>
 
-    <img loading="lazy" decoding="async" src="img/stack.png">
+    <figure class="lesson-illustration">
+        <img loading="lazy" decoding="async" src="data_structures/stack-queue.png" width="1536" height="1024"
+             alt="При добавлении 1, 2, 3 стек первым извлекает 3 с вершины, а очередь — 1 из начала. В стек добавляют и извлекают с одной стороны, в очередь добавляют с конца и извлекают из начала.">
+        <figcaption>Одинаковый порядок добавления даёт разный порядок извлечения: стек — LIFO, очередь — FIFO.
+            <a href="data_structures/stack-queue.png">Открыть схему в полном размере</a>.</figcaption>
+    </figure>
 
     <pre class="sh_pascal">
 const StackSize = 10000; { Размер стека (сколько в него можно положить элементов) }

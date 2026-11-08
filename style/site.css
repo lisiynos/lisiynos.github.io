@@ -1,5 +1,29 @@
 /* Responsive and interactive styles for every page. Loaded after style/style.css. */
 
+/* Explanatory figures keep their detail available at the original resolution. */
+.lesson-illustration {
+  max-width: 960px;
+  margin: 24px auto;
+}
+
+.lesson-illustration img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.lesson-illustration figcaption {
+  margin-top: 10px;
+  color: #445;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.lesson-illustration a:focus-visible {
+  outline: 2px solid #4a6fa5;
+  outline-offset: 3px;
+}
+
 img,
 video,
 iframe {
