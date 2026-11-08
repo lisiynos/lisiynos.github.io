@@ -2,8 +2,9 @@ const { test, expect } = require('@playwright/test');
 const { listPages, readPage } = require('./helpers');
 
 // Rules every page follows. They are checked on the source, so they hold on any server.
-// Libraries that were retired or are out of date, Flash, and the third-party counters that were removed.
-const OUTDATED = /mathjax[\/@][23]\.|MathJax\.Hub|jquery[\/@][123]\.|jquery-migrate|highlight(?:\.js)?[\/@](?:8|9|10|11\.(?:[0-9]|1[01])\.)|highlight\/highlight\.pack|mc\.yandex\.ru|vk\.com|swfobject|shockwave-flash/;
+// Libraries that were retired or are out of date, Flash, the Yandex.Metrika counter and the VK widget script that
+// were removed. A plain link to a VK page is allowed.
+const OUTDATED = /mathjax[\/@][23]\.|MathJax\.Hub|jquery[\/@][123]\.|jquery-migrate|(?:highlight(?:\.js)?|cdn-assets)[\/@](?:8|9|10|11\.(?:[0-9]|1[01])\.)|highlight\/highlight\.pack|mc\.yandex\.ru|vk\.com\/js\/api|swfobject|shockwave-flash/;
 
 for (const urlPath of listPages()) {
   test(`page follows the site rules: ${urlPath}`, () => {
