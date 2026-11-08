@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+  <title id="title">Четыре случая пересечения двух отрезков</title>
+  <desc id="desc">Синим и зелёным показаны два отрезка. Пересекаются отрезки (0,0)—(4,4) и (0,4)—(4,0). Касаются в общей конечной точке (4,0) отрезки (0,0)—(4,0) и (4,0)—(4,3). Коллинеарные отрезки (0,0)—(4,0) и (2,0)—(6,0) имеют общий отрезок от (2,0) до (4,0). Параллельные отрезки (0,0)—(4,0) и (0,1)—(4,1) не пересекаются. Касание и наложение считаются пересечением.</desc>
+  <rect width="960" height="640" fill="#fff"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#333" font-size="26">
+    <text x="40" y="54" fill="#202d14" font-size="38" font-weight="700">Когда отрезки пересекаются</text>
+    <text x="40" y="96">Есть хотя бы одна общая точка — ответ «ДА».</text>
+    <g fill="#f8faf7" stroke="#d9dfd4" stroke-width="1.5">
+      <rect x="40" y="120" width="425" height="220" rx="12"/>
+      <rect x="495" y="120" width="425" height="220" rx="12"/>
+      <rect x="40" y="360" width="425" height="220" rx="12"/>
+      <rect x="495" y="360" width="425" height="220" rx="12"/>
+    </g>
+    <g font-size="28" font-weight="700" fill="#202d14">
+      <text x="60" y="158">Пересечение: ДА</text><text x="515" y="158">Касание: ДА</text>
+      <text x="60" y="398">Наложение: ДА</text><text x="515" y="398">Параллельные: НЕТ</text>
+    </g>
+
+    <path d="M170 300 260 210" fill="none" stroke="#4a6fa5" stroke-width="6"/>
+    <path d="M170 210 260 300" fill="none" stroke="#69865b" stroke-width="6"/>
+    <g fill="#4a6fa5"><circle cx="170" cy="300" r="5"/><circle cx="260" cy="210" r="5"/></g>
+    <g fill="#69865b"><circle cx="170" cy="210" r="5"/><circle cx="260" cy="300" r="5"/></g>
+    <circle cx="215" cy="255" r="8" fill="#fff3c4" stroke="#333" stroke-width="2"/>
+    <text x="67" y="218">(0,4)</text><text x="285" y="218">(4,4)</text>
+    <text x="67" y="313">(0,0)</text><text x="285" y="313">(4,0)</text>
+
+    <path d="M620 290H760" fill="none" stroke="#4a6fa5" stroke-width="6"/>
+    <path d="M760 290V185" fill="none" stroke="#69865b" stroke-width="6"/>
+    <circle cx="620" cy="290" r="5" fill="#4a6fa5"/><circle cx="760" cy="185" r="5" fill="#69865b"/>
+    <circle cx="760" cy="290" r="8" fill="#fff3c4" stroke="#333" stroke-width="2"/>
+    <text x="548" y="323">(0,0)</text><text x="743" y="323">(4,0)</text><text x="784" y="197">(4,3)</text>
+
+    <path d="M200 480H300" stroke="#f0d276" stroke-width="21"/>
+    <path d="M100 480H300" stroke="#4a6fa5" stroke-width="8"/>
+    <path d="M200 480H400" stroke="#69865b" stroke-width="8" stroke-dasharray="12 9"/>
+    <circle cx="100" cy="480" r="5" fill="#4a6fa5"/><circle cx="300" cy="480" r="5" fill="#4a6fa5"/>
+    <circle cx="200" cy="480" r="5" fill="#69865b"/><circle cx="400" cy="480" r="5" fill="#69865b"/>
+    <text x="62" y="519">(0,0)</text><text x="162" y="455">(2,0)</text>
+    <text x="262" y="519">(4,0)</text><text x="362" y="455">(6,0)</text>
+    <text x="60" y="559">Общий отрезок: [2; 4]</text>
+
+    <path d="M610 510H810" stroke="#4a6fa5" stroke-width="6"/>
+    <path d="M610 460H810" stroke="#69865b" stroke-width="6"/>
+    <g fill="#4a6fa5"><circle cx="610" cy="510" r="5"/><circle cx="810" cy="510" r="5"/></g>
+    <g fill="#69865b"><circle cx="610" cy="460" r="5"/><circle cx="810" cy="460" r="5"/></g>
+    <text x="518" y="469">(0,1)</text><text x="834" y="469">(4,1)</text>
+    <text x="518" y="519">(0,0)</text><text x="834" y="519">(4,0)</text>
+    <text x="40" y="621">Касание концом и наложение считаются пересечением.</text>
+  </g>
+</svg>

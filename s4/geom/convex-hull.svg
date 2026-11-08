@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="610" viewBox="0 0 960 610" role="img" aria-labelledby="title desc">
+  <title id="title">Выпуклая оболочка Эндрю из четырёх крайних вершин</title>
+  <desc id="desc">Исходные точки: углы прямоугольника (0,0), (4,0), (4,3), (0,3), внутренние точки (2,1), (2,2), точка на ребре (1,0) и повтор точки (0,0), изображённый одним маркером. Оболочка состоит ровно из четырёх углов в порядке против часовой стрелки. Синяя нижняя цепь идёт (0,0), (4,0), (4,3); зелёная верхняя цепь идёт (4,3), (0,3), (0,0). Внутренние и промежуточные точки на рёбрах исключены, повтор удалён. Сортировка занимает O(n log n), построение цепей после неё — линейное время.</desc>
+  <defs>
+    <marker id="lower-arrow" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 11 5.5 0 11Z" fill="#4a6fa5"/></marker>
+    <marker id="upper-arrow" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 11 5.5 0 11Z" fill="#69865b"/></marker>
+  </defs>
+  <rect width="960" height="610" fill="#fff"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#333" font-size="26">
+    <text x="40" y="54" fill="#202d14" font-size="38" font-weight="700">Выпуклая оболочка: алгоритм Эндрю</text>
+    <text x="40" y="98">Крайние вершины перечислены против часовой стрелки.</text>
+
+    <path d="M110 420H430V180H110Z" fill="#e8f1fb" stroke="#c1c9ba" stroke-width="13" stroke-linejoin="round"/>
+    <path d="M110 420H430V180" fill="none" stroke="#4a6fa5" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M430 180H110V420" fill="none" stroke="#69865b" stroke-width="6" stroke-linejoin="round"/>
+    <g fill="none" stroke-width="6">
+      <path d="M255 420H315" stroke="#4a6fa5" marker-end="url(#lower-arrow)"/>
+      <path d="M430 335V275" stroke="#4a6fa5" marker-end="url(#lower-arrow)"/>
+      <path d="M315 180H255" stroke="#69865b" marker-end="url(#upper-arrow)"/>
+      <path d="M110 275V335" stroke="#69865b" marker-end="url(#upper-arrow)"/>
+    </g>
+    <g fill="#202d14" stroke="#fff" stroke-width="2">
+      <circle cx="110" cy="420" r="8"/><circle cx="430" cy="420" r="8"/>
+      <circle cx="430" cy="180" r="8"/><circle cx="110" cy="180" r="8"/>
+    </g>
+    <g fill="#8b9186" stroke="#fff" stroke-width="2">
+      <circle cx="270" cy="340" r="7"/><circle cx="270" cy="260" r="7"/><circle cx="190" cy="420" r="7"/>
+    </g>
+    <text x="62" y="463">(0,0)</text><text x="382" y="463">(4,0)</text>
+    <text x="62" y="155">(0,3)</text><text x="382" y="155">(4,3)</text>
+    <text x="286" y="269" fill="#66705e">(2,2)</text><text x="286" y="349" fill="#66705e">(2,1)</text>
+    <text x="159" y="399" fill="#66705e">(1,0)</text>
+
+    <path d="M525 166H565" stroke="#4a6fa5" stroke-width="6"/>
+    <text x="584" y="176" font-size="28">Нижняя цепь</text>
+    <path d="M525 222H565" stroke="#69865b" stroke-width="6"/>
+    <text x="584" y="232" font-size="28">Верхняя цепь</text>
+    <circle cx="545" cy="278" r="7" fill="#8b9186"/>
+    <text x="584" y="288">Не входят в ответ</text>
+    <text x="520" y="351" font-size="28" font-weight="700" fill="#202d14">Ответ: 4 угловые точки</text>
+    <rect x="510" y="382" width="410" height="120" rx="12" fill="#fff3c4"/>
+    <text x="530" y="417" font-weight="700">Повторы удалены.</text>
+    <text x="530" y="453">Промежуточные точки</text>
+    <text x="530" y="488">на рёбрах исключены.</text>
+
+    <text x="40" y="550" font-size="28" font-weight="700">Сортировка → нижняя цепь → верхняя цепь</text>
+    <text x="40" y="591">O(n log n); после сортировки — линейный проход.</text>
+  </g>
+</svg>

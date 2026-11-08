@@ -86,6 +86,7 @@
     "s6/strings.html",
     "s6/segment_tree_modification.html",
     "s6/trees.html",
+    "s3/segments_tree.html",
     "s6/alg_number_theory.html",
     "s6/olymp.html"
    ]
@@ -440,13 +441,13 @@
    "index": 2,
    "title": "Структуры данных: деревья",
    "prev": "s6/segment_tree_modification.html",
-   "next": "s6/alg_number_theory.html"
+   "next": "s3/segments_tree.html"
   },
   "s6/alg_number_theory.html": {
    "session": "s6",
-   "index": 3,
+   "index": 4,
    "title": "Алгебра и теория чисел: целочисленная арифметика, простые числа",
-   "prev": "s6/trees.html",
+   "prev": "s3/segments_tree.html",
    "next": "s6/olymp.html"
   }
  },
@@ -1038,6 +1039,76 @@
    ]
   },
   {
+   "id": "orientation",
+   "name": "Ориентация тройки точек",
+   "category": "Геометрия",
+   "complexity": "O(1)",
+   "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "ориентация-тройки-точек",
+     "title": "Вычислительная геометрия",
+     "section": "Ориентация тройки точек"
+    }
+   ]
+  },
+  {
+   "id": "point-on-segment",
+   "name": "Точка на отрезке",
+   "category": "Геометрия",
+   "complexity": "O(1)",
+   "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "точка-на-отрезке",
+     "title": "Вычислительная геометрия",
+     "section": "Точка на отрезке"
+    }
+   ]
+  },
+  {
+   "id": "polygon-area",
+   "name": "Площадь многоугольника: формула шнурка",
+   "category": "Геометрия",
+   "complexity": "O(n)",
+   "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "площадь-простого-многоугольника-формула-шнурка",
+     "title": "Вычислительная геометрия",
+     "section": "Площадь простого многоугольника (формула шнурка)"
+    }
+   ]
+  },
+  {
+   "id": "segment-intersection",
+   "name": "Пересечение двух отрезков",
+   "category": "Геометрия",
+   "complexity": "O(1)",
+   "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "пересечение-двух-отрезков",
+     "title": "Вычислительная геометрия",
+     "section": "Пересечение двух отрезков"
+    }
+   ]
+  },
+  {
+   "id": "monotone-chain",
+   "name": "Выпуклая оболочка: алгоритм Эндрю",
+   "category": "Геометрия",
+   "complexity": "O(n log n)",
+   "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "выпуклая-оболочка-алгоритм-эндрю",
+     "title": "Вычислительная геометрия",
+     "section": "Выпуклая оболочка: алгоритм Эндрю"
+    }
+   ]
+  },
+  {
    "id": "graham",
    "name": "Выпуклая оболочка: алгоритм Грэхема",
    "category": "Геометрия",
@@ -1071,6 +1142,12 @@
    "category": "Геометрия",
    "complexity": "O(n)",
    "pages": [
+    {
+     "path": "s4/geom.html",
+     "anchor": "принадлежность-точки-многоугольнику",
+     "title": "Вычислительная геометрия",
+     "section": "Принадлежность точки многоугольнику"
+    },
     {
      "path": "s6/geom.html",
      "anchor": "принадлежность-точки-многоугольнику-правило-луча",
@@ -1320,6 +1397,14 @@
   ],
   "s2/monte_carlo.html": [
    "monte-carlo"
+  ],
+  "s4/geom.html": [
+   "orientation",
+   "point-on-segment",
+   "polygon-area",
+   "segment-intersection",
+   "monotone-chain",
+   "point-in-polygon"
   ],
   "s6/geom.html": [
    "graham",

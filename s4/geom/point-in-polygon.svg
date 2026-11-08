@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="660" viewBox="0 0 960 660" role="img" aria-labelledby="title desc">
+  <title id="title">Точка внутри, снаружи и на границе вогнутого многоугольника</title>
+  <desc id="desc">В декартовых координатах с осью y вверх показан L-образный многоугольник с вершинами (0,0), (5,0), (5,2), (2,2), (2,5), (0,5). Точка P(1,3) внутри: её правый луч один раз пересекает границу при x=2. Точка Q(3,3) снаружи, в выемке: её правый луч не пересекает границу. Синий луч P и зелёный пунктирный луч Q лежат на одной горизонтали и совпадают правее Q. Точка R(2,3) лежит на вертикальном ребре x=2 и получает отдельный ответ ГРАНИЦА. Границу проверяем до подсчёта пересечений.</desc>
+  <defs>
+    <marker id="axis-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 10 5 0 10Z" fill="#333"/></marker>
+    <marker id="ray-arrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 11 5.5 0 11Z" fill="#4a6fa5"/></marker>
+  </defs>
+  <rect width="960" height="660" fill="#fff"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#333" font-size="26">
+    <text x="40" y="54" fill="#202d14" font-size="36" font-weight="700">Положение точки относительно многоугольника</text>
+    <text x="40" y="98">Сначала проверяем границу, затем считаем пересечения луча.</text>
+
+    <g stroke="#e0e4dc" stroke-width="1">
+      <path d="M100 190H450M100 260H450M100 330H450M100 400H450M100 470H450M100 540H450"/>
+      <path d="M100 190V540M170 190V540M240 190V540M310 190V540M380 190V540M450 190V540"/>
+    </g>
+    <path d="M100 540H450V400H240V190H100Z" fill="#e8f1fb" fill-opacity="0.8" stroke="#4a6fa5" stroke-width="4"/>
+    <g stroke="#333" stroke-width="2.5" marker-end="url(#axis-arrow)">
+      <path d="M75 540H575"/><path d="M100 560V145"/>
+    </g>
+    <g text-anchor="middle">
+      <text x="100" y="580">0</text><text x="170" y="580">1</text><text x="240" y="580">2</text>
+      <text x="310" y="580">3</text><text x="380" y="580">4</text><text x="450" y="580">5</text>
+    </g>
+    <g text-anchor="end">
+      <text x="78" y="479">1</text><text x="78" y="409">2</text><text x="78" y="339">3</text>
+      <text x="78" y="269">4</text><text x="78" y="199">5</text>
+    </g>
+    <text x="579" y="550">x</text><text x="85" y="135">y</text>
+
+    <path d="M170 330H561" fill="none" stroke="#4a6fa5" stroke-width="5" marker-end="url(#ray-arrow)"/>
+    <path d="M310 330H548" fill="none" stroke="#69865b" stroke-width="5" stroke-dasharray="11 9"/>
+    <circle cx="170" cy="330" r="8" fill="#4a6fa5" stroke="#fff" stroke-width="2"/>
+    <circle cx="310" cy="330" r="8" fill="#69865b" stroke="#fff" stroke-width="2"/>
+    <circle cx="240" cy="330" r="9" fill="#fff3c4" stroke="#333" stroke-width="2.5"/>
+    <text x="122" y="305" fill="#365b90">P(1,3)</text>
+    <text x="317" y="305" fill="#4e6b40">Q(3,3)</text>
+    <path d="M248 338 274 364" stroke="#333" stroke-width="1.5"/>
+    <text x="280" y="380">R(2,3)</text>
+    <text x="468" y="309" fill="#365b90">луч P</text>
+    <text x="468" y="371" fill="#4e6b40">луч Q</text>
+
+    <rect x="620" y="155" width="300" height="135" rx="12" fill="#e8f1fb"/>
+    <text x="642" y="194" fill="#365b90" font-size="30" font-weight="700">P(1,3)</text>
+    <text x="642" y="233">1 пересечение</text>
+    <text x="642" y="272" font-weight="700">ВНУТРИ</text>
+
+    <rect x="620" y="310" width="300" height="135" rx="12" fill="#eef3e9"/>
+    <text x="642" y="349" fill="#4e6b40" font-size="30" font-weight="700">Q(3,3)</text>
+    <text x="642" y="388">0 пересечений</text>
+    <text x="642" y="427" font-weight="700">СНАРУЖИ</text>
+
+    <rect x="620" y="465" width="300" height="135" rx="12" fill="#fff3c4"/>
+    <text x="642" y="504" font-size="30" font-weight="700">R(2,3)</text>
+    <text x="642" y="543">Точка на ребре</text>
+    <text x="642" y="582" font-weight="700">ГРАНИЦА</text>
+
+    <text x="40" y="640">Граница — отдельный ответ; чётность для неё не считаем.</text>
+  </g>
+</svg>

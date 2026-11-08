@@ -1,39 +1,61 @@
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
-    <title>Вычислительная геометрия</title>
-    <link rel="stylesheet" type="text/css" href="../style/style.css">
-    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
-    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
-    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
-    <script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вычислительная геометрия</title>
+<link rel="stylesheet" href="../style/style.css">
+<link rel="stylesheet" href="../style/site.css">
+<link rel="stylesheet" href="geom/lecture.css">
+<link rel="stylesheet" href="../style/sh_nedit.css">
+<script src="../syntax/sh_main.min.js"></script>
+<script src="../syntax/sh_cpp.min.js"></script>
+<script src="../syntax/sh_python.min.js"></script>
+<script>
 window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
 </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js"></script>
-<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js"></script>
 <script src="../js/site.js" defer></script>
-<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<script src="../js/viz.js" defer></script>
 </head>
-<body onLoad="sh_highlightDocument();">
-
+<body onload="sh_highlightDocument();">
 <div id="content">
+<h1>Вычислительная геометрия</h1>
+<ul class="tags"><li><a href="#">Геометрия</a></li></ul>
 
-    <h1>Вычислительная геометрия</h1>
+<p>Вычислительная геометрия превращает рисунок в точные проверки над координатами. В этой лекции работаем на плоскости: определяем повороты, считаем площади, проверяем пересечения и строим выпуклую оболочку.</p>
+<p>В примерах координаты целые. Сначала сформулируем, что означает ответ и как обрабатывать границу, затем запишем алгоритм. Точку на границе многоугольника будем отличать от точки внутри.</p>
 
-    <ul class="tags">
-        <li><a href="#">Геометрия</a></li>
-    </ul>
+<h2 id="точки-векторы-и-расстояния">Точки, векторы и расстояния</h2>
+<p>Точка $A=(x_A,y_A)$ задаёт положение, а вектор $\overrightarrow{AB}=(x_B-x_A,y_B-y_A)$ — перемещение. На рисунках ось $Ox$ направлена вправо, ось $Oy$ — вверх.</p>
+<div class="geometry-table">
+<table>
+<thead><tr><th>Величина</th><th>Формула</th><th>Пример</th></tr></thead>
+<tbody>
+<tr><td>Вектор $\overrightarrow{AB}$</td><td>$(x_B-x_A,\ y_B-y_A)$</td><td>$A=(1,1)$, $B=(4,5)$: $(3,4)$</td></tr>
+<tr><td>Квадрат расстояния</td><td>$|AB|^2=(x_B-x_A)^2+(y_B-y_A)^2$</td><td>$3^2+4^2=25$, расстояние $5$</td></tr>
+<tr><td>Скалярное произведение</td><td>$u\cdot v=u_xv_x+u_yv_y$</td><td>$(3,0)\cdot(0,2)=0$: векторы перпендикулярны</td></tr>
+<tr><td>Косое произведение на плоскости</td><td>$u\times v=u_xv_y-u_yv_x$</td><td>$(4,0)\times(2,3)=12$</td></tr>
+</tbody>
+</table>
+</div>
+<p>Когда нужно только сравнить расстояния, сравнивайте их квадраты: извлечение корня не меняет порядок неотрицательных чисел и для сравнения не требуется.</p>
+<p>Расстояние от точки $P$ до прямой $AB$ при $A\ne B$ равно $|\overrightarrow{AB}\times\overrightarrow{AP}|/|AB|$. Для расстояния до <em>отрезка</em> сначала проверяют проекцию: если она выходит за конец, ближайшей будет одна из вершин. Например, для $A=(0,0)$, $B=(4,0)$ расстояние от $(2,3)$ равно $3$, а от $(6,1)$ до отрезка — $\sqrt5$.</p>
 
-    <h3>Ориентация тройки точек</h3>
+    <h2 id="ориентация-тройки-точек">Ориентация тройки точек</h2>
 
     <p>Пусть даны три точки $O$, $A$ и $B$ с целыми координатами. Векторное (косое) произведение векторов $\vec{OA}$ и $\vec{OB}$ равно $(A_x - O_x)(B_y - O_y) - (A_y - O_y)(B_x - O_x)$. Его знак показывает, в какую сторону повернёт путь $O \to A \to B$.</p>
     <p>Положительное значение означает поворот влево (против часовой стрелки), отрицательное - поворот вправо, ноль - точки лежат на одной прямой. Модуль значения равен удвоенной площади треугольника $OAB$.</p>
     <p>Вычисление состоит из двух умножений и одного вычитания, поэтому время работы $O(1)$. Все величины целые, поэтому знак определяется точно, без погрешностей вещественной арифметики.</p>
     <p>При координатах до $10^9$ по модулю все промежуточные значения помещаются в 64-битное целое. Функция возвращает знак: $1$, $-1$ или $0$.</p>
 
-    <p><strong>Реализация на Python</strong></p>
-    <pre class="sh_python">
+    <p>Например, для O=(0,0), A=(4,0), B=(2,3) косое произведение равно 12, а площадь треугольника — 6. Если B=(6,0), определитель равен нулю, но точка лежит за концом отрезка OA.</p>
+<p><strong>Проверьте на рисунке.</strong> Изменяйте координаты B: сравните левый и правый поворот, точку на отрезке и точку на продолжении прямой.</p>
+<div class="viz" data-viz="orientation"></div>
+<details class="geometry-code">
+<summary>Программа на Python</summary>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
 # Ориентация тройки точек (знак векторного произведения), время O(1)
 # Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
 
@@ -57,9 +79,12 @@ def main():
 if __name__ == "__main__":
     main()
 </pre>
+</details>
 
-    <p><strong>Реализация на C++</strong></p>
-    <pre class="sh_cpp">
+    <details class="geometry-code">
+<summary>Программа на C++</summary>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
 // Ориентация тройки точек (знак векторного произведения), время O(1)
 // Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
 #include &lt;iostream&gt;
@@ -89,9 +114,12 @@ int main() {
     return 0;
 }
 </pre>
+</details>
 
-    <p><strong>Реализация на Rust</strong></p>
-    <pre class="rust-code"><code class="language-rust">
+    <details class="geometry-code">
+<summary>Программа на Rust</summary>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
 // Ориентация тройки точек (знак векторного произведения), время O(1)
 // Результат: 1 - поворот влево (против часовой стрелки), -1 - поворот вправо, 0 - точки на одной прямой
 
@@ -120,41 +148,61 @@ fn main() {
     }
 }
 </code></pre>
+</details>
 
-    <h3>Площадь простого многоугольника (формула шнурка)</h3>
+
+
+<h2 id="точка-на-отрезке">Точка на отрезке</h2>
+<p>Для принадлежности точки $P$ отрезку $AB$ нужны два условия: коллинеарность $\operatorname{cross}(A,B,P)=0$ и попадание в ограничивающий прямоугольник:</p>
+<p>$\min(x_A,x_B)\le x_P\le\max(x_A,x_B)$, $\min(y_A,y_B)\le y_P\le\max(y_A,y_B)$.</p>
+<p>Одних сравнений координат недостаточно: точка $(2,3)$ находится в прямоугольнике диагонального отрезка $(0,0)$–$(4,4)$, но не лежит на его прямой. У вырожденного отрезка $A=B$ принадлежит только сама точка $A$. Все проверки выполняются за $O(1)$.</p>
+
+    <h2 id="площадь-простого-многоугольника-формула-шнурка">Площадь простого многоугольника (формула шнурка)</h2>
 
     <p>Пусть вершины многоугольника $P_0, P_1, \ldots, P_{n-1}$ заданы по порядку обхода контура, и $P_n = P_0$. Тогда удвоенная площадь выражается формулой шнурка: $2S = \left| \sum_{i=0}^{n-1} (x_i y_{i+1} - x_{i+1} y_i) \right|$.</p>
     <p>Удвоенная площадь выбрана намеренно: сумма целых слагаемых даёт целое $2S$, и не нужно делить на 2 и работать с дробями. Знак суммы до взятия модуля показывает направление обхода: положительный знак соответствует обходу против часовой стрелки.</p>
     <p>Алгоритм делает один проход по рёбрам, поэтому время работы $O(n)$, дополнительная память $O(1)$. Формула даёт площадь простого многоугольника, то есть без самопересечений. Для пустого списка вершин результат равен $0$.</p>
 
-    <p><strong>Реализация на Python</strong></p>
-    <pre class="sh_python">
+    <figure class="lesson-illustration">
+<img loading="lazy" decoding="async" src="geom/polygon-area.svg" width="960" height="600" alt="Вершины прямоугольника A(0,0), B(4,0), C(4,3), D(0,3) перечислены против часовой стрелки. Сумма шнурка 24 даёт площадь 12; обратный обход меняет знак суммы на минус 24, но площадь остаётся 12.">
+<figcaption>Знак суммы хранит направление обхода; модуль и деление на 2 дают площадь. <a href="geom/polygon-area.svg">Открыть схему в полном размере</a>.</figcaption>
+</figure>
+<details class="geometry-code">
+<summary>Программа на Python</summary>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
 # Площадь простого многоугольника по формуле шнурка, время O(n)
 # Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
 
 
 def polygon_double_area(points):
     total = 0
-    for (x1, y1), (x2, y2) in zip(points, points[1:] + points[:1]):
+    count = len(points)
+    for index in range(count):
+        x1, y1 = points[index]
+        x2, y2 = points[(index + 1) % count]
         total += x1 * y2 - x2 * y1
     return abs(total)
 
 
 def main():
-    square = [(0, 0), (4, 0), (4, 3), (0, 3)]
+    rectangle = [(0, 0), (4, 0), (4, 3), (0, 3)]
     triangle = [(0, 0), (4, 0), (0, 3)]
-    print("квадрат 4x3: 2S =", polygon_double_area(square))
+    print("прямоугольник 4x3: 2S =", polygon_double_area(rectangle))
     print("треугольник: 2S =", polygon_double_area(triangle))
-    print("обратный обход: 2S =", polygon_double_area(square[::-1]))
+    print("обратный обход: 2S =", polygon_double_area(rectangle[::-1]))
     print("без вершин: 2S =", polygon_double_area([]))
 
 
 if __name__ == "__main__":
     main()
 </pre>
+</details>
 
-    <p><strong>Реализация на C++</strong></p>
-    <pre class="sh_cpp">
+    <details class="geometry-code">
+<summary>Программа на C++</summary>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
 // Площадь простого многоугольника по формуле шнурка, время O(n)
 // Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
 #include &lt;cstddef&gt;
@@ -180,20 +228,23 @@ long long polygon_double_area(const std::vector&lt;Point&gt;&amp; points) {
 }
 
 int main() {
-    std::vector&lt;Point&gt; square = {{0, 0}, {4, 0}, {4, 3}, {0, 3}};
+    std::vector&lt;Point&gt; rectangle = {{0, 0}, {4, 0}, {4, 3}, {0, 3}};
     std::vector&lt;Point&gt; triangle = {{0, 0}, {4, 0}, {0, 3}};
-    std::vector&lt;Point&gt; reversed(square.rbegin(), square.rend());
+    std::vector&lt;Point&gt; reversed(rectangle.rbegin(), rectangle.rend());
     std::vector&lt;Point&gt; empty;
-    std::cout &lt;&lt; "квадрат 4x3: 2S = " &lt;&lt; polygon_double_area(square) &lt;&lt; "\n";
+    std::cout &lt;&lt; "прямоугольник 4x3: 2S = " &lt;&lt; polygon_double_area(rectangle) &lt;&lt; "\n";
     std::cout &lt;&lt; "треугольник: 2S = " &lt;&lt; polygon_double_area(triangle) &lt;&lt; "\n";
     std::cout &lt;&lt; "обратный обход: 2S = " &lt;&lt; polygon_double_area(reversed) &lt;&lt; "\n";
     std::cout &lt;&lt; "без вершин: 2S = " &lt;&lt; polygon_double_area(empty) &lt;&lt; "\n";
     return 0;
 }
 </pre>
+</details>
 
-    <p><strong>Реализация на Rust</strong></p>
-    <pre class="rust-code"><code class="language-rust">
+    <details class="geometry-code">
+<summary>Программа на Rust</summary>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
 // Площадь простого многоугольника по формуле шнурка, время O(n)
 // Вершины идут по контуру по порядку; возвращается удвоенная площадь 2S (целое число)
 
@@ -217,26 +268,35 @@ pub fn polygon_double_area(points: &amp;[Point]) -&gt; i64 {
 }
 
 fn main() {
-    let square = [(0, 0), (4, 0), (4, 3), (0, 3)].map(|(x, y)| Point { x, y });
+    let rectangle = [(0, 0), (4, 0), (4, 3), (0, 3)].map(|(x, y)| Point { x, y });
     let triangle = [(0, 0), (4, 0), (0, 3)].map(|(x, y)| Point { x, y });
-    let reversed: Vec&lt;Point&gt; = square.iter().rev().copied().collect();
+    let reversed: Vec&lt;Point&gt; = rectangle.iter().rev().copied().collect();
     let empty: Vec&lt;Point&gt; = Vec::new();
-    println!("квадрат 4x3: 2S = {}", polygon_double_area(&amp;square));
+    println!("прямоугольник 4x3: 2S = {}", polygon_double_area(&amp;rectangle));
     println!("треугольник: 2S = {}", polygon_double_area(&amp;triangle));
     println!("обратный обход: 2S = {}", polygon_double_area(&amp;reversed));
     println!("без вершин: 2S = {}", polygon_double_area(&amp;empty));
 }
 </code></pre>
+</details>
 
-    <h3>Пересечение двух отрезков</h3>
+
+    <h2 id="пересечение-двух-отрезков">Пересечение двух отрезков</h2>
 
     <p>Даны отрезки $P_1P_2$ и $Q_1Q_2$. Обозначим через $d_1$ и $d_2$ знаки поворота точек $P_1$ и $P_2$ относительно прямой $Q_1Q_2$, а через $d_3$ и $d_4$ - знаки поворота точек $Q_1$ и $Q_2$ относительно прямой $P_1P_2$.</p>
     <p>Если $d_1 d_2 &lt; 0$ и $d_3 d_4 &lt; 0$, то концы каждого отрезка лежат по разные стороны от прямой другого. Тогда точка пересечения прямых лежит внутри обоих отрезков, и отрезки пересекаются.</p>
     <p>Во всех остальных случаях пересечение возможно только касанием или наложением, и тогда хотя бы один конец одного отрезка лежит на другом. Такой конец имеет нулевой знак поворота относительно прямой другого отрезка, и остаётся проверить, попадает ли он в прямоугольник отрезка: $\min(a_x, b_x) \le c_x \le \max(a_x, b_x)$ и то же для $y$.</p>
     <p>Вырожденные отрезки (точки) обрабатываются теми же условиями. Вычисление состоит из четырёх ориентаций и нескольких сравнений, поэтому время работы $O(1)$.</p>
 
-    <p><strong>Реализация на Python</strong></p>
-    <pre class="sh_python">
+    <figure class="lesson-illustration">
+<img loading="lazy" decoding="async" src="geom/segment-intersections.svg" width="960" height="640" alt="Четыре случая: крестовое пересечение, общий конец и наложение отрезков дают ответ да; параллельные раздельные отрезки дают нет. У наложения общая часть от 2 до 4.">
+<figcaption>Достаточно хотя бы одной общей точки: касание и наложение тоже считаются пересечением. <a href="geom/segment-intersections.svg">Открыть схему в полном размере</a>.</figcaption>
+</figure>
+<p>В программах этого раздела помощник <code>on_segment</code> проверяет только ограничивающий прямоугольник: его вызывают после проверки нулевой ориентации. Полная проверка точки на отрезке состоит из обоих условий.</p>
+<details class="geometry-code">
+<summary>Программа на Python</summary>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
 # Пересечение двух отрезков (с касанием и наложением), время O(1)
 # Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
 
@@ -281,9 +341,12 @@ def main():
 if __name__ == "__main__":
     main()
 </pre>
+</details>
 
-    <p><strong>Реализация на C++</strong></p>
-    <pre class="sh_cpp">
+    <details class="geometry-code">
+<summary>Программа на C++</summary>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
 // Пересечение двух отрезков (с касанием и наложением), время O(1)
 // Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
 #include &lt;algorithm&gt;
@@ -330,9 +393,12 @@ int main() {
     return 0;
 }
 </pre>
+</details>
 
-    <p><strong>Реализация на Rust</strong></p>
-    <pre class="rust-code"><code class="language-rust">
+    <details class="geometry-code">
+<summary>Программа на Rust</summary>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
 // Пересечение двух отрезков (с касанием и наложением), время O(1)
 // Отрезки P1P2 и Q1Q2 пересекаются, если у них есть хотя бы одна общая точка
 
@@ -381,7 +447,439 @@ fn main() {
     }
 }
 </code></pre>
+</details>
+
+<h2 id="принадлежность-точки-многоугольнику">Принадлежность точки многоугольнику</h2>
+<p>Пусть вершины <strong>простого многоугольника</strong> перечислены по контуру, по часовой стрелке или против неё. Рёбра могут касаться только в общей вершине соседних рёбер; самопересечения в этой задаче не допускаются. Возвращаем один из трёх результатов: <code>INSIDE</code> — внутри, <code>BOUNDARY</code> — на границе, <code>OUTSIDE</code> — снаружи.</p>
+<ol>
+<li>Проверяем принадлежность каждому отрезку границы. При совпадении сразу возвращаем <code>BOUNDARY</code>.</li>
+<li>Пускаем из точки горизонтальный луч вправо. Ребро рассматриваем, только если $(y_A>y_P)\ne(y_B>y_P)$. Полуоткрытое правило сохраняет правильную чётность при проходе луча через вершину и исключает горизонтальные рёбра.</li>
+<li>Меняем чётность при каждом пересечении справа: нечётное число даёт <code>INSIDE</code>, чётное — <code>OUTSIDE</code>.</li>
+</ol>
+<p>Деление не требуется: для ребра, идущего вверх, пересечение справа определяется положительным $\operatorname{cross}(A,B,P)$, а для ребра, идущего вниз, — отрицательным. Проверка всех рёбер занимает $O(n)$ времени и $O(1)$ дополнительной памяти.</p>
+<figure class="lesson-illustration">
+<img loading="lazy" decoding="async" src="geom/point-in-polygon.svg" width="960" height="660"
+     alt="В Г-образном многоугольнике точка P(1,3) внутри: луч вправо пересекает границу один раз. Q(3,3) в выемке снаружи: пересечений ноль. R(2,3) лежит на вертикальном ребре и проверяется как граница до подсчёта пересечений.">
+<figcaption>Три разных ответа на одном контуре. Сначала проверяем границу, затем считаем пересечения луча.
+<a href="geom/point-in-polygon.svg">Открыть схему в полном размере</a>.</figcaption>
+</figure>
+<p>У пустого контура внутренних и граничных точек нет. В примерах ниже контур из одной или двух точек также обработан: возможна только принадлежность границе, а внутренней области нет.</p>
+
+<details class="geometry-code">
+<summary>Программа на Python</summary>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Положение точки относительно простого многоугольника: O(n) времени, O(1) памяти.
+# Координаты целые, |x|, |y| &lt;= 10^9. Самопересечения не допускаются.
+
+
+def cross(a, b, point):
+    return ((b[0] - a[0]) * (point[1] - a[1])
+            - (b[1] - a[1]) * (point[0] - a[0]))
+
+
+def on_segment(a, b, point):
+    return (cross(a, b, point) == 0
+            and min(a[0], b[0]) &lt;= point[0] &lt;= max(a[0], b[0])
+            and min(a[1], b[1]) &lt;= point[1] &lt;= max(a[1], b[1]))
+
+
+def point_location(polygon, point):
+    # Сначала вся граница: сюда входят вершины и вырожденные рёбра.
+    count = len(polygon)
+    for index, a in enumerate(polygon):
+        if on_segment(a, polygon[(index + 1) % count], point):
+            return "BOUNDARY"
+
+    inside = False
+    for index, a in enumerate(polygon):
+        b = polygon[(index + 1) % count]
+        # Полуоткрытый интервал по y сохраняет правильную чётность у вершин.
+        if (a[1] &gt; point[1]) == (b[1] &gt; point[1]):
+            continue
+        # Пересечение правее точки: знак cross совпадает со знаком b_y-a_y.
+        # Деления и умножения двух векторных произведений нет.
+        if (cross(a, b, point) &gt; 0) == (b[1] &gt; a[1]):
+            inside = not inside
+    return "INSIDE" if inside else "OUTSIDE"
+
+
+def main():
+    polygon = [(0, 0), (5, 0), (5, 2), (2, 2), (2, 5), (0, 5)]
+    for point in [(1, 3), (3, 3), (2, 3)]:
+        direct = point_location(polygon, point)
+        reverse = point_location(polygon[::-1], point)
+        print(f"{point}: {direct}; reversed: {reverse}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+</details>
+
+<details class="geometry-code">
+<summary>Программа на C++</summary>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Положение точки относительно простого многоугольника: O(n) времени, O(1) памяти.
+// Целые координаты |x|, |y| &lt;= 10^9. Самопересечения не допускаются.
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x, y;
+};
+
+long long cross(Point a, Point b, Point point) {
+    return (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x);
+}
+
+bool on_segment(Point a, Point b, Point point) {
+    return cross(a, b, point) == 0 &amp;&amp;
+           std::min(a.x, b.x) &lt;= point.x &amp;&amp; point.x &lt;= std::max(a.x, b.x) &amp;&amp;
+           std::min(a.y, b.y) &lt;= point.y &amp;&amp; point.y &lt;= std::max(a.y, b.y);
+}
+
+const char* point_location(const std::vector&lt;Point&gt;&amp; polygon, Point point) {
+    const std::size_t count = polygon.size();
+    // Сначала вся граница, включая вершины и вырожденные рёбра.
+    for (std::size_t index = 0; index &lt; count; ++index) {
+        if (on_segment(polygon[index], polygon[(index + 1) % count], point)) {
+            return "BOUNDARY";
+        }
+    }
+
+    bool inside = false;
+    for (std::size_t index = 0; index &lt; count; ++index) {
+        const Point a = polygon[index];
+        const Point b = polygon[(index + 1) % count];
+        // Полуоткрытый интервал по y сохраняет правильную чётность у вершин.
+        if ((a.y &gt; point.y) == (b.y &gt; point.y)) {
+            continue;
+        }
+        // Знаки совпадают, если пересечение луча с ребром правее точки.
+        // Нет деления и умножения двух векторных произведений.
+        if ((cross(a, b, point) &gt; 0) == (b.y &gt; a.y)) {
+            inside = !inside;
+        }
+    }
+    return inside ? "INSIDE" : "OUTSIDE";
+}
+
+int main() {
+    const std::vector&lt;Point&gt; polygon = {{0, 0}, {5, 0}, {5, 2}, {2, 2}, {2, 5}, {0, 5}};
+    const std::vector&lt;Point&gt; reversed(polygon.rbegin(), polygon.rend());
+    for (Point point : std::vector&lt;Point&gt;{{1, 3}, {3, 3}, {2, 3}}) {
+        std::cout &lt;&lt; "(" &lt;&lt; point.x &lt;&lt; ", " &lt;&lt; point.y &lt;&lt; "): "
+                  &lt;&lt; point_location(polygon, point) &lt;&lt; "; reversed: "
+                  &lt;&lt; point_location(reversed, point) &lt;&lt; "\n";
+    }
+}
+</pre>
+</details>
+
+<details class="geometry-code">
+<summary>Программа на Rust</summary>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">
+// Положение точки относительно простого многоугольника: O(n) времени, O(1) памяти.
+// Целые координаты |x|, |y| &lt;= 10^9. Самопересечения не допускаются.
+type Point = (i64, i64);
+
+fn cross(a: Point, b: Point, point: Point) -&gt; i64 {
+    (b.0 - a.0) * (point.1 - a.1) - (b.1 - a.1) * (point.0 - a.0)
+}
+
+fn on_segment(a: Point, b: Point, point: Point) -&gt; bool {
+    cross(a, b, point) == 0
+        &amp;&amp; a.0.min(b.0) &lt;= point.0 &amp;&amp; point.0 &lt;= a.0.max(b.0)
+        &amp;&amp; a.1.min(b.1) &lt;= point.1 &amp;&amp; point.1 &lt;= a.1.max(b.1)
+}
+
+fn point_location(polygon: &amp;[Point], point: Point) -&gt; &amp;'static str {
+    let count = polygon.len();
+    // Сначала вся граница, включая вершины и вырожденные рёбра.
+    for index in 0..count {
+        if on_segment(polygon[index], polygon[(index + 1) % count], point) {
+            return "BOUNDARY";
+        }
+    }
+
+    let mut inside = false;
+    for index in 0..count {
+        let a = polygon[index];
+        let b = polygon[(index + 1) % count];
+        // Полуоткрытый интервал по y сохраняет правильную чётность у вершин.
+        if (a.1 &gt; point.1) == (b.1 &gt; point.1) {
+            continue;
+        }
+        // Знаки совпадают, если пересечение правее точки. Деления нет.
+        if (cross(a, b, point) &gt; 0) == (b.1 &gt; a.1) {
+            inside = !inside;
+        }
+    }
+    if inside { "INSIDE" } else { "OUTSIDE" }
+}
+
+fn main() {
+    let polygon = vec![(0, 0), (5, 0), (5, 2), (2, 2), (2, 5), (0, 5)];
+    let reversed: Vec&lt;Point&gt; = polygon.iter().rev().copied().collect();
+    for point in [(1, 3), (3, 3), (2, 3)] {
+        println!("({}, {}): {}; reversed: {}", point.0, point.1,
+                 point_location(&amp;polygon, point), point_location(&amp;reversed, point));
+    }
+}
+</code></pre>
+</details>
+
+<h2 id="выпуклая-оболочка-алгоритм-эндрю">Выпуклая оболочка: алгоритм Эндрю</h2>
+<p><strong>Выпуклая оболочка</strong> — наименьший выпуклый многоугольник, содержащий все исходные точки. Представьте натянутую вокруг точек резинку: внутренние точки не становятся вершинами оболочки.</p>
+<p>Алгоритм Эндрю, или метод монотонной цепи, использует сортировку и проверку поворотов:</p>
+<ol>
+<li>Удаляем повторяющиеся точки и сортируем оставшиеся сначала по $x$, затем по $y$.</li>
+<li>Строим нижнюю цепь слева направо. Пока последние две точки цепи и новая точка дают правый поворот или лежат на одной прямой, удаляем последнюю точку цепи.</li>
+<li>Тем же способом строим верхнюю цепь в обратном порядке. Соединяем цепи, не дублируя их крайние точки.</li>
+</ol>
+<p>В этой версии условие удаления — $\operatorname{cross}\le0$: в ответ входят только крайние вершины, без промежуточных точек на рёбрах. Если все точки лежат на одной прямой, ответ — два конца; для одной различной точки — она сама; для пустого ввода — пустой список. Невырожденная оболочка выдаётся против часовой стрелки, без повторения первой вершины в конце.</p>
+<figure class="lesson-illustration">
+<img loading="lazy" decoding="async" src="geom/convex-hull.svg" width="960" height="610"
+     alt="Четыре угла прямоугольника образуют выпуклую оболочку. Точки (2,1) и (2,2) внутри, а промежуточная точка (1,0) на нижнем ребре не входят в список крайних вершин. Нижняя и верхняя цепи соединяются в контур против часовой стрелки.">
+<figcaption>Каждая точка добавляется в цепь один раз и удаляется не более одного раза: после сортировки построение линейно. Итоговое время $O(n\log n)$, дополнительная память $O(n)$.
+<a href="geom/convex-hull.svg">Открыть схему в полном размере</a>.</figcaption>
+</figure>
+
+<details class="geometry-code">
+<summary>Программа на Python</summary>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Выпуклая оболочка Эндрю: O(n log n) времени, O(n) дополнительной памяти.
+# Только крайние вершины, против часовой стрелки, без повторения первой.
+# Целые координаты |x|, |y| &lt;= 10^9; Python вычисляет произведение точно.
+
+
+def cross(a, b, point):
+    return ((b[0] - a[0]) * (point[1] - a[1])
+            - (b[1] - a[1]) * (point[0] - a[0]))
+
+
+def build_half(points):
+    half = []
+    for point in points:
+        # Удаляем правые повороты и промежуточные точки на прямой.
+        while len(half) &gt;= 2 and cross(half[-2], half[-1], point) &lt;= 0:
+            half.pop()
+        half.append(point)
+    return half
+
+
+def convex_hull(points):
+    points = sorted(set(points))
+    if len(points) &lt;= 1:
+        return points
+    lower = build_half(points)
+    upper = build_half(reversed(points))
+    # Концы общие у обеих цепей; каждый оставляем один раз.
+    return lower[:-1] + upper[:-1]
+
+
+def main():
+    points = [(0, 0), (4, 0), (4, 3), (0, 3), (2, 1), (2, 2), (1, 0), (0, 0)]
+    collinear = [(2, 2), (0, 0), (1, 1), (3, 3), (1, 1)]
+    for label, sample in [("hull", points), ("collinear", collinear)]:
+        print(f"{label}:", " ".join(f"({x}, {y})" for x, y in convex_hull(sample)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+</details>
+
+<details class="geometry-code">
+<summary>Программа на C++</summary>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Оболочка Эндрю: O(n log n) времени, O(n) дополнительной памяти.
+// Только крайние вершины, против часовой стрелки, без повторения первой.
+// Целые координаты |x|, |y| &lt;= 10^9; векторное произведение помещается в long long.
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x, y;
+
+    bool operator&lt;(const Point&amp; other) const {
+        return x &lt; other.x || (x == other.x &amp;&amp; y &lt; other.y);
+    }
+
+    bool operator==(const Point&amp; other) const {
+        return x == other.x &amp;&amp; y == other.y;
+    }
+};
+
+long long cross(Point a, Point b, Point point) {
+    return (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x);
+}
+
+std::vector&lt;Point&gt; build_half(const std::vector&lt;Point&gt;&amp; points) {
+    std::vector&lt;Point&gt; half;
+    for (Point point : points) {
+        // Удаляем правые повороты и промежуточные точки на прямой.
+        while (half.size() &gt;= 2 &amp;&amp; cross(half[half.size() - 2], half.back(), point) &lt;= 0) {
+            half.pop_back();
+        }
+        half.push_back(point);
+    }
+    return half;
+}
+
+std::vector&lt;Point&gt; convex_hull(std::vector&lt;Point&gt; points) {
+    std::sort(points.begin(), points.end());
+    points.erase(std::unique(points.begin(), points.end()), points.end());
+    if (points.size() &lt;= 1) {
+        return points;
+    }
+    std::vector&lt;Point&gt; lower = build_half(points);
+    std::reverse(points.begin(), points.end());
+    std::vector&lt;Point&gt; upper = build_half(points);
+    // У обеих цепей общие концы: каждый оставляем один раз.
+    lower.pop_back();
+    upper.pop_back();
+    lower.insert(lower.end(), upper.begin(), upper.end());
+    return lower;
+}
+
+void print_hull(const char* label, const std::vector&lt;Point&gt;&amp; points) {
+    std::cout &lt;&lt; label &lt;&lt; ":";
+    for (Point point : convex_hull(points)) {
+        std::cout &lt;&lt; " (" &lt;&lt; point.x &lt;&lt; ", " &lt;&lt; point.y &lt;&lt; ")";
+    }
+    std::cout &lt;&lt; "\n";
+}
+
+int main() {
+    print_hull("hull", {{0, 0}, {4, 0}, {4, 3}, {0, 3}, {2, 1}, {2, 2}, {1, 0}, {0, 0}});
+    print_hull("collinear", {{2, 2}, {0, 0}, {1, 1}, {3, 3}, {1, 1}});
+}
+</pre>
+</details>
+
+<details class="geometry-code">
+<summary>Программа на Rust</summary>
+<p><strong>Реализация на Rust</strong></p>
+<pre><code class="language-rust">
+// Оболочка Эндрю: O(n log n) времени, O(n) дополнительной памяти.
+// Только крайние вершины, против часовой стрелки, без повторения первой.
+// Целые координаты |x|, |y| &lt;= 10^9; векторное произведение помещается в i64.
+type Point = (i64, i64);
+
+fn cross(a: Point, b: Point, point: Point) -&gt; i64 {
+    (b.0 - a.0) * (point.1 - a.1) - (b.1 - a.1) * (point.0 - a.0)
+}
+
+fn build_half(points: &amp;[Point]) -&gt; Vec&lt;Point&gt; {
+    let mut half = Vec::new();
+    for &amp;point in points {
+        // Удаляем правые повороты и промежуточные точки на прямой.
+        while half.len() &gt;= 2 &amp;&amp; cross(half[half.len() - 2], half[half.len() - 1], point) &lt;= 0 {
+            half.pop();
+        }
+        half.push(point);
+    }
+    half
+}
+
+fn convex_hull(points: &amp;[Point]) -&gt; Vec&lt;Point&gt; {
+    let mut points = points.to_vec();
+    points.sort_unstable();
+    points.dedup();
+    if points.len() &lt;= 1 {
+        return points;
+    }
+    let mut lower = build_half(&amp;points);
+    points.reverse();
+    let mut upper = build_half(&amp;points);
+    // У обеих цепей общие концы: каждый оставляем один раз.
+    lower.pop();
+    upper.pop();
+    lower.extend(upper);
+    lower
+}
+
+fn main() {
+    let points = vec![(0, 0), (4, 0), (4, 3), (0, 3), (2, 1), (2, 2), (1, 0), (0, 0)];
+    let collinear = vec![(2, 2), (0, 0), (1, 1), (3, 3), (1, 1)];
+    for (label, sample) in [("hull", points), ("collinear", collinear)] {
+        print!("{}:", label);
+        for (x, y) in convex_hull(&amp;sample) {
+            print!(" ({}, {})", x, y);
+        }
+        println!();
+    }
+}
+</code></pre>
+</details>
+
+<h2 id="точность-и-граничные-случаи">Точность и граничные случаи</h2>
+<p>Для целых координат знак определителя можно вычислять точно. В Python <code>int</code> не имеет фиксированного предела разрядности; в C++ и Rust тип нужно выбрать с запасом <em>до</em> выполнения умножения.</p>
+<div class="geometry-table">
+<table>
+<thead><tr><th>Примеры в лекции</th><th>Достаточное ограничение для 64-битных знаковых вычислений</th></tr></thead>
+<tbody>
+<tr><td>Ориентация, пересечение, луч и оболочка</td><td>$|x|,|y|\le10^9$: оценка модуля косого произведения $8\cdot10^{18}$ меньше $2^{63}-1$.</td></tr>
+<tr><td>Сумма шнурка</td><td>При $|x|,|y|\le M$ достаточно $2nM^2<2^{63}$. В примерах C++/Rust подходят $n\le10^6$, $M\le10^6$.</td></tr>
+</tbody>
+</table>
+</div>
+<p>В проверке пересечения перемножаются <em>знаки</em> ориентаций из множества $\{-1,0,1\}$. Перемножение двух исходных больших определителей могло бы переполнить тип.</p>
+<p>Для вещественных координат ситуация сложнее: округление способно изменить знак почти нулевого определителя. Одна фиксированная константа <code>eps</code> не даёт универсальной гарантии для всех масштабов. Для таких задач существуют <a href="https://www.cs.cmu.edu/~quake/robust.html">адаптивные точные геометрические предикаты Джонатана Шевчука</a>. В данной лекции используем целочисленные предикаты.</p>
+<p>Перед решением проверьте контракт: учитываются ли касания, как представлена граница, могут ли точки совпадать, допустимы ли нулевые отрезки и коллинеарные наборы. У многоугольника вершины должны идти по контуру, а не в произвольном порядке.</p>
+
+<h2 id="сводка-алгоритмов">Сводка алгоритмов</h2>
+<div class="geometry-table">
+<table>
+<thead><tr><th>Задача</th><th>Время</th><th>Что важно</th></tr></thead>
+<tbody>
+<tr><td>Поворот тройки, площадь треугольника</td><td>$O(1)$</td><td>Знак или модуль косого произведения</td></tr>
+<tr><td>Точка на отрезке</td><td>$O(1)$</td><td>Коллинеарность и обе границы координат</td></tr>
+<tr><td>Площадь многоугольника</td><td>$O(n)$</td><td>Простой контур, вершины по порядку</td></tr>
+<tr><td>Пересечение двух отрезков</td><td>$O(1)$</td><td>Касание и наложение тоже дают пересечение</td></tr>
+<tr><td>Точка в многоугольнике</td><td>$O(n)$</td><td>Сначала граница, затем правило нечётности</td></tr>
+<tr><td>Выпуклая оболочка Эндрю</td><td>$O(n\log n)$</td><td>Дубликаты, коллинеарность, порядок обхода</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="задачи-для-самопроверки">Задачи для самопроверки</h2>
+<ol>
+<li>Для $O=(0,0)$, $A=(4,0)$, $B=(2,3)$ найдите знак поворота и площадь треугольника.</li>
+<li>Принадлежит ли точка $(6,0)$ отрезку $(0,0)$–$(4,0)$? Что даст только проверка коллинеарности?</li>
+<li>Пересекаются ли отрезки $(0,0)$–$(4,4)$ и $(0,4)$–$(4,0)$? Найдите общую точку.</li>
+<li>Для Г-образного контура из примера классифицируйте точки $(1,3)$, $(3,3)$ и $(2,3)$.</li>
+<li>Постройте оболочку четырёх углов прямоугольника $4\times3$ с добавленными точками $(2,1)$, $(2,2)$, $(1,0)$ и повторением $(0,0)$. Какие точки останутся?</li>
+<li>Примените косое произведение к <a href="../s2/backtracking.html#triangle-search">задаче о треугольнике наибольшей площади</a>. Почему для сравнения площадей можно не делить результат на 2?</li>
+</ol>
+<details class="geometry-code">
+<summary>Ответы для проверки</summary>
+<ol>
+<li>Косое произведение равно $12$: поворот влево, площадь $6$.</li>
+<li>Нет: точка на продолжении прямой. Коллинеарность есть, но $6>4$.</li>
+<li>Да, в точке $(2,2)$.</li>
+<li>Внутри, снаружи, на границе соответственно.</li>
+<li>$(0,0),(4,0),(4,3),(0,3)$ против часовой стрелки; удвоенная площадь $24$.</li>
+<li>Модуль определителя равен $2S$. Умножение всех сравниваемых величин на одну положительную константу сохраняет порядок.</li>
+</ol>
+</details>
+
+<h2 id="продолжение-и-источники">Продолжение и источники</h2>
+<ul>
+<li><a href="../s3/geom1.html">Основные геометрические понятия</a> и <a href="../s3/geom2.html">отношения между объектами</a> — прямые, окружности и расстояния.</li>
+<li><a href="../s3/geom3.html">Выпуклая оболочка: Джарвис и Грэхем</a> и <a href="../s6/geom.html">дополнительные алгоритмы геометрии</a> — продолжение темы оболочек.</li>
+<li><a href="https://doc.cgal.org/latest/Polygon/group__PkgPolygon2Functions.html">CGAL: площадь, простой многоугольник и положение точки</a> — справочник геометрических операций и их контрактов.</li>
+<li><a href="https://doc.cgal.org/latest/Convex_hull_2/group__PkgConvexHull2Functions.html">CGAL: алгоритмы выпуклой оболочки</a>, включая монотонную цепь Грэхема — Эндрю.</li>
+</ul>
+
 </div>
 </body>
-
 </html>

@@ -1153,7 +1153,103 @@
     build(true);
   }
 
+  // ----- orientation and point-on-segment predicates -----
+
+  function orientationArrow(svg, from, to, color, width = 3) {
+    const dx = to[0] - from[0];
+    const dy = to[1] - from[1];
+    const length = Math.hypot(dx, dy);
+    if (!length) return;
+    const ux = dx / length;
+    const uy = dy / length;
+    svg.append(svgNode('line', {
+      x1: from[0], y1: from[1], x2: to[0], y2: to[1], stroke: color, 'stroke-width': width,
+    }), svgNode('polygon', {
+      points: `${to[0]},${to[1]} ${to[0] - 10 * ux + 4 * uy},${to[1] - 10 * uy - 4 * ux} ${to[0] - 10 * ux - 4 * uy},${to[1] - 10 * uy + 4 * ux}`,
+      fill: color,
+    }));
+  }
+
+  function drawOrientation(output, x, y) {
+    const svg = svgNode('svg', {
+      viewBox: '0 0 420 300', class: 'viz-graph', role: 'img',
+      'aria-label': `Ориентация O, A и B; B = (${x}, ${y})`,
+    });
+    const toSvg = (px, py) => [80 + 40 * px, 180 - 40 * py];
+    const origin = toSvg(0, 0);
+    const a = toSvg(4, 0);
+    const b = toSvg(x, y);
+    for (let gx = -1; gx <= 6; gx++) {
+      const [sx] = toSvg(gx, 0);
+      svg.append(svgNode('line', { x1: sx, y1: 40, x2: sx, y2: 280, stroke: '#dde3eb' }));
+    }
+    for (let gy = -2; gy <= 3; gy++) {
+      const [, sy] = toSvg(0, gy);
+      svg.append(svgNode('line', { x1: 20, y1: sy, x2: 380, y2: sy, stroke: '#dde3eb' }));
+    }
+    orientationArrow(svg, [20, origin[1]], [390, origin[1]], '#778', 1);
+    orientationArrow(svg, [origin[0], 280], [origin[0], 20], '#778', 1);
+    orientationArrow(svg, origin, a, '#1d5fa8', 5);
+    orientationArrow(svg, origin, b, '#b97b00', 2);
+    for (const [name, point, color] of [['O', origin, '#1d5fa8'], ['A', a, '#1d5fa8'], ['B', b, '#b97b00']]) {
+      svg.append(svgNode('circle', { cx: point[0], cy: point[1], r: 5, fill: color, 'data-point': name }));
+    }
+    const labels = [
+      ['x', 402, 185, 'middle'], ['y', 92, 24, 'middle'],
+      ['O = (0, 0)', origin[0], origin[1] + 24, 'middle'],
+      ['A = (4, 0)', a[0], a[1] + 24, 'middle'],
+      [`B = (${x}, ${y})`, b[0] + (x < 1 ? -10 : x > 5 ? 10 : 0), b[1] + (y < 0 ? 24 : -18), x < 1 ? 'start' : x > 5 ? 'end' : 'middle'],
+    ];
+    for (const [label, sx, sy, anchor] of labels) {
+      const text = svgNode('text', { x: sx, y: sy, 'text-anchor': anchor });
+      text.textContent = label;
+      svg.append(text);
+    }
+    const cross = 4 * y;
+    const orientation = cross > 0 ? 'слева от O→A' : cross < 0 ? 'справа от O→A' : 'коллинеарна O и A';
+    const onSegment = cross === 0 && x >= 0 && x <= 4;
+    const caption = el('p', 'viz-caption', `Векторное произведение OA × OB: 4 · (${y}) = ${cross}. Точка B ${orientation}.`);
+    const note = el('p', 'viz-note', `Принадлежность отрезку OA: ${onSegment ? 'да' : 'нет'}. Нужно одновременно: произведение равно 0 и 0 ≤ B: x ≤ 4.`);
+    if (cross === 0 && !onSegment) note.append(' Коллинеарности недостаточно: точка B находится вне отрезка OA.');
+    clear(output);
+    output.append(svg, caption, note);
+  }
+
+  function mountOrientation(root) {
+    const presets = { left: [2, 2], right: [2, -2], 'on-segment': [2, 0], outside: [6, 0] };
+    const example = select('Пример', [
+      ['left', 'Слева от O→A'], ['right', 'Справа от O→A'],
+      ['on-segment', 'На отрезке OA'], ['outside', 'На прямой, вне отрезка OA'],
+    ]);
+    const x = field('B: x', '2', 8);
+    const y = field('B: y', '2', 8);
+    x.input.inputMode = y.input.inputMode = 'numeric';
+    const output = mountTool(root, [example.wrap, x.wrap, y.wrap]);
+    root.insertBefore(el('p', 'viz-note', 'O = (0, 0), A = (4, 0). Введите целые координаты B: x от −1 до 6, y от −2 до 3. Оси: x направлена вправо, y — вверх.'), root.firstChild);
+
+    function redraw() {
+      const bx = Number(x.input.value);
+      const by = Number(y.input.value);
+      if (!isInteger(x.input.value) || !isInteger(y.input.value) || bx < -1 || bx > 6 || by < -2 || by > 3) {
+        showError(output, 'Введите целые координаты: B: x от −1 до 6, B: y от −2 до 3.');
+        return;
+      }
+      drawOrientation(output, bx, by);
+    }
+
+    example.input.addEventListener('change', () => {
+      [x.input.value, y.input.value] = presets[example.input.value];
+      redraw();
+    });
+    for (const input of [x.input, y.input]) {
+      input.addEventListener('input', redraw);
+      input.addEventListener('change', redraw);
+    }
+    redraw();
+  }
+
   const MOUNTS = {
+    orientation: mountOrientation,
     segtree: mountSegtree,
     bipartite: mountBipartite,
     matching: mountMatching,
