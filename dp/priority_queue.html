@@ -123,6 +123,100 @@ HeapInsert(A, key)
 
     <h3>Удаление элемента - $O(\log{n})$</h3>
 
+    <p>Максимальный элемент max-heap находится в корне, в $A_1$. Чтобы удалить его, на место корня ставят последний
+        элемент кучи (с индексом heap_size), уменьшают heap_size на 1 и вызывают Heapify(A, 1): новый корень
+        опускается вниз, пока не станет не меньше своих потомков. Heapify проходит не больше одного пути от корня к
+        листу, поэтому удаление выполняется за $O(\log{n})$.</p>
+
+    <p>Так же удаляется элемент с любым индексом $i$: на его место ставят последний элемент и уменьшают heap_size на
+        1. Если новое значение $A_i$ больше родителя, его поднимают вверх, как в HeapIncreaseKey; если меньше одного из
+        потомков, его опускает Heapify(A, i). Нужно только одно из двух действий, и время работы тоже
+        $O(\log{n})$.</p>
+
+    <p>В программе ниже HeapExtractMax запоминает корень и вызывает HeapDelete(1). Программа строит кучу из 9 чисел,
+        удаляет элемент $A_2$, а затем извлекает максимумы, пока куча не опустеет: они выходят в порядке
+        убывания.</p>
+
+    <p><strong>Реализация на Pascal</strong></p>
+    <pre class="sh_pascal">{ Удаление элементов из двоичной кучи (max-heap) }
+const N = 9;
+
+var
+  A : array [1..N] of Integer = (5, 3, 17, 10, 84, 19, 6, 22, 9);
+  HeapSize : Integer = N; { Количество элементов в куче }
+
+{ Обменять значения двух переменных }
+procedure Swap( var x, y : Integer );
+var t : Integer;
+begin
+  t := x; x := y; y := t;
+end;
+
+{ Восстановить свойство кучи в поддереве с корнем i }
+procedure Heapify( i : Integer );
+var left, right, largest : Integer;
+begin
+  left := 2 * i;
+  right := 2 * i + 1;
+  largest := i;
+  if (left &lt;= HeapSize) and (A[left] &gt; A[largest]) then largest := left;
+  if (right &lt;= HeapSize) and (A[right] &gt; A[largest]) then largest := right;
+  if largest &lt;&gt; i then begin
+    Swap(A[i], A[largest]);
+    Heapify(largest);
+  end;
+end;
+
+{ Превратить массив A[1..HeapSize] в кучу }
+procedure BuildHeap;
+var i : Integer;
+begin
+  for i := HeapSize div 2 downto 1 do
+    Heapify(i);
+end;
+
+{ Удалить элемент с индексом i }
+procedure HeapDelete( i : Integer );
+begin
+  assert( (i &gt;= 1) and (i &lt;= HeapSize), 'В куче нет элемента с таким индексом!');
+  A[i] := A[HeapSize]; { На место удаляемого элемента - последний }
+  Dec(HeapSize);
+  { Новое значение больше родителя - поднимаем его, как в HeapIncreaseKey }
+  while (i &gt; 1) and (A[i div 2] &lt; A[i]) do begin
+    Swap(A[i], A[i div 2]);
+    i := i div 2;
+  end;
+  { Новое значение меньше потомка - опускаем его }
+  Heapify(i);
+end;
+
+{ Удалить максимальный элемент (корень) и вернуть его }
+function HeapExtractMax : Integer;
+begin
+  HeapExtractMax := A[1];
+  HeapDelete(1);
+end;
+
+{ Вывести элементы кучи в порядке хранения в массиве }
+procedure PrintHeap;
+var i : Integer;
+begin
+  for i := 1 to HeapSize do
+    Write(A[i], ' ');
+  Writeln;
+end;
+
+begin
+  BuildHeap;
+  PrintHeap; { 84 22 19 10 3 17 6 5 9 }
+  HeapDelete(2); { Удаляем A[2] = 22, на его место встаёт 9 и опускается }
+  PrintHeap; { 84 10 19 9 3 17 6 5 }
+  while HeapSize &gt; 0 do
+    Write(HeapExtractMax, ' '); { 84 19 17 10 9 6 5 3 }
+  Writeln;
+end.
+</pre>
+
     <h2>Биномиальная куча</h2>
 
     <p><strong>Биномиальная куча (binomial heap)</strong> — структура данных, реализующая абстрактный тип данных

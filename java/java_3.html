@@ -46,6 +46,95 @@
 
     <h2>Соглашения по именованию</h2>
 
+    <p>Регистр букв в именах пакетов, классов, методов, переменных и констант разобран на странице
+        <a href="java_2.html">«Типы. Операторы. Объектная модель в Java»</a>. Здесь — соглашения для массивов,
+        вложенных классов, исключений и коллекций.</p>
+
+    <ul>
+        <li><strong>Массивы.</strong> Скобки пишут после типа элемента: <code>int[] marks</code>. Запись
+            <code>int marks[]</code> тоже компилируется, но соглашения её не рекомендуют: скобки относятся к типу, а не
+            к имени.</li>
+        <li><strong>Массивы и коллекции</strong> удобно называть существительным во множественном числе: <code>marks</code>,
+            <code>students</code>; переменную цикла — тем же словом в единственном числе:
+            <code>for (Student student : students)</code>.</li>
+        <li><strong>Вложенные и внутренние классы</strong> называют так же, как классы верхнего уровня:
+            <code>GradeBook.Student</code>. Компилятор сохраняет такой класс в отдельный файл
+            <code>GradeBook$Student.class</code>. Знак <code>$</code> разрешён в идентификаторах, но спецификация языка
+            рекомендует применять его только в автоматически сгенерированном коде, поэтому в своих именах его не
+            пишут.</li>
+        <li><strong>Исключения.</strong> Имя класса исключения, как правило, заканчивается словом <code>Exception</code>:
+            <code>IllegalArgumentException</code>, <code>IOException</code>; имя подкласса <code>Error</code> — обычно словом
+            <code>Error</code>: <code>OutOfMemoryError</code>, <code>StackOverflowError</code>. Это соглашение, а не правило
+            языка: в самом JDK есть <code>SQLWarning</code> и <code>ThreadDeath</code>. Собственные исключения удобно
+            называть так же.</li>
+        <li><strong>Параметры типа</strong> обобщённых классов и методов — одна заглавная буква: <code>T</code> (type),
+            <code>E</code> (element) в коллекциях, <code>K</code> и <code>V</code> (key, value) в словарях
+            <code>Map&lt;K, V&gt;</code>.</li>
+    </ul>
+
+    <p><strong>Реализация на Java</strong></p>
+    <pre class="sh_java">
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Имена массивов, коллекций, вложенных классов и параметров типа
+ */
+public class GradeBook {
+    // Вложенный класс называют так же, как обычный: UpperCamelCase
+    static class Student {
+        final String name;
+        final int[] marks; // скобки массива стоят после типа
+
+        Student(String name, int[] marks) {
+            this.name = name;
+            this.marks = marks;
+        }
+
+        double averageMark() {
+            if (marks.length == 0) {
+                throw new IllegalArgumentException("У студента " + name + " нет оценок");
+            }
+            int sum = 0;
+            for (int mark : marks) {
+                sum += mark;
+            }
+            return (double) sum / marks.length;
+        }
+    }
+
+    // Параметр типа: одна заглавная буква
+    static &lt;T&gt; T lastOf(List&lt;T&gt; items) {
+        return items.get(items.size() - 1);
+    }
+
+    public static void main(String[] args) {
+        // Коллекция: существительное во множественном числе
+        List&lt;Student&gt; students = new ArrayList&lt;&gt;();
+        students.add(new Student("Анна", new int[] {5, 4, 5, 4}));
+        students.add(new Student("Борис", new int[] {3, 4}));
+        students.add(new Student("Вера", new int[0]));
+
+        for (Student student : students) {
+            try {
+                System.out.println(student.name + ": " + student.averageMark());
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.println("Последний в списке: " + lastOf(students).name);
+    }
+}
+</pre>
+
+    <p>Программа выводит:</p>
+    <pre>
+Анна: 4.5
+Борис: 3.5
+У студента Вера нет оценок
+Последний в списке: Вера
+</pre>
+
 
 </div>
 </body>

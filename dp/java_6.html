@@ -95,11 +95,120 @@
 
     <h2>Работа с Git</h2>
 
+    <p><strong>Git</strong> - распределённая система контроля версий (см. <a href="vcs.html">Системы контроля
+        версий</a>). У каждого разработчика есть полная копия репозитория со всей историей, поэтому коммиты делаются
+        локально, без сервера, а обмен коммитами с другими разработчиками идёт отдельными командами <b>push</b> и
+        <b>pull</b>.</p>
+
+    <p>Изменение проходит три места: <b>рабочую папку</b>, где файлы редактируют, <b>индекс</b> (staging area), куда
+        команда <b>git add</b> отбирает изменения для следующего коммита, и <b>репозиторий</b>, куда <b>git commit</b>
+        записывает новую версию. Скомпилированные файлы <b>*.class</b> в репозиторий не добавляют: их перечисляют в
+        файле <b>.gitignore</b> (строка <b>*.class</b>), и git status перестаёт их показывать.</p>
+
+    <p>Работа с репозиторием в папке проекта:</p>
+    <pre>
+git config --global user.name "Имя Фамилия"   # один раз: автор коммитов
+git config --global user.email "you@example.com"
+git init                            # создать репозиторий в текущей папке
+git status                          # какие файлы изменены и какие не отслеживаются
+git add HelloWorld.java .gitignore  # добавить изменения в индекс
+git commit -m "Первая программа"    # записать версию в историю
+git log --oneline                   # история, по строке на коммит
+git diff                            # изменения, ещё не добавленные в индекс
+</pre>
+
+    <p>Работа с общим репозиторием на сервере (адрес репозитория показывает хостинг, например GitHub или
+        Bitbucket):</p>
+    <pre>
+git clone адрес_репозитория  # скопировать репозиторий с сервера
+git push                     # отправить свои коммиты на сервер
+git fetch                    # получить чужие коммиты, не меняя своих файлов
+git pull                     # получить чужие коммиты и влить их в текущую ветку
+</pre>
+
 
     <p></p>
 
 
     <h3>Сценарии на проверку e-mail</h3>
+
+    <p><strong>Сценарий</strong> (тестовый случай) - входные данные и ожидаемый результат; здесь это адрес и ответ
+        проверки: принять его или отвергнуть. По TDD сценарии составляют
+        до того, как написана сама проверка: сначала решают, какие адреса должны приниматься, а какие отвергаться, потом
+        пишут код, который проходит все сценарии. На JUnit каждый сценарий становится отдельным тестом (см.
+        <a href="java_unit_tests.html">Пример модульных тестов на Java</a>).</p>
+
+    <p>Правило в примере упрощённое: <b>имя@домен.зона</b>. Имя состоит из латинских букв, цифр и знаков <b>_</b>,
+        <b>%</b>, <b>+</b> и <b>-</b>; домен - из латинских букв, цифр и дефиса. И имя, и домен могут делиться точками
+        на непустые части, зона - не короче двух латинских букв. Полная грамматика адреса в стандартах гораздо
+        сложнее.</p>
+
+    <ul>
+        <li><b>Верные адреса:</b> обычный адрес, точка и плюс в имени, поддомен, зона из двух букв.</li>
+        <li><b>Неверные адреса:</b> пустая строка, нет @, два символа @, пустое имя, пустой домен, нет зоны, точка в
+            начале имени, две точки подряд, зона из одной буквы, пробел.</li>
+    </ul>
+
+    <p>Каждый неверный адрес, кроме пустой строки, получен из верного одним изменением: вставкой или удалением фрагмента. Если проверка пропустит такой
+        адрес, сразу видно, какое правило реализовано с ошибкой. Проверка сделана регулярным выражением (класс
+        <b>java.util.regex.Pattern</b>); метод <b>matches()</b> требует, чтобы под шаблон подходила вся строка, а не её
+        часть.</p>
+
+    <p><strong>Реализация на Java</strong></p>
+    <pre class="sh_java">
+import java.util.regex.Pattern;
+
+/**
+ * Сценарии проверки адреса электронной почты
+ */
+public class EmailCheck {
+    // Упрощённое правило: имя@домен.зона
+    private static final Pattern EMAIL = Pattern.compile(
+            "[A-Za-z0-9_%+-]+(\\.[A-Za-z0-9_%+-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}");
+
+    private static final String[] VALID = {
+            "user@example.com",
+            "first.last@example.com",       // точка в имени
+            "user+tag@mail.example.org",    // плюс в имени, поддомен
+            "user@example.ru",              // зона из двух букв
+    };
+
+    private static final String[] INVALID = {
+            "",                             // пустая строка
+            "userexample.com",              // нет @
+            "user@@example.com",            // два символа @
+            "@example.com",                 // пустое имя
+            "user@",                        // пустой домен
+            "user@example",                 // нет зоны
+            ".user@example.com",            // точка в начале имени
+            "us..er@example.com",           // две точки подряд
+            "user@example.c",               // зона из одной буквы
+            "user name@example.com",        // пробел
+    };
+
+    static boolean isValid(String email) {
+        return EMAIL.matcher(email).matches();
+    }
+
+    // Возвращает число сценариев, в которых результат не совпал с ожидаемым
+    static int check(String[] emails, boolean expected) {
+        int failed = 0;
+        for (String email : emails) {
+            boolean passed = isValid(email) == expected;
+            System.out.println((passed ? "OK   " : "FAIL ") + "\"" + email + "\"");
+            if (!passed) {
+                failed++;
+            }
+        }
+        return failed;
+    }
+
+    public static void main(String[] args) {
+        int failed = check(VALID, true) + check(INVALID, false);
+        System.out.println("Не пройдено сценариев: " + failed);
+    }
+}
+</pre>
 
 
     <p></p>
@@ -107,7 +216,118 @@
 
     <h2>Дата и время</h2>
 
+    <p>Для дат и времени в Java есть пакет <b>java.time</b> (появился в Java 8). Его объекты неизменяемы: метод
+        <b>plusDays</b> не меняет дату, а возвращает новую. Месяцы нумеруются с 1.</p>
+
+    <ul>
+        <li><b>LocalDate</b> - дата без времени;</li>
+        <li><b>LocalTime</b> - время суток без даты;</li>
+        <li><b>LocalDateTime</b> - дата и время без часового пояса;</li>
+        <li><b>ZonedDateTime</b> - дата и время в заданном часовом поясе;</li>
+        <li><b>Instant</b> - момент времени, отсчитанный от 1970-01-01T00:00:00Z;</li>
+        <li><b>Duration</b> - промежуток в секундах и наносекундах, <b>Period</b> - в годах, месяцах и днях;</li>
+        <li><b>DateTimeFormatter</b> - вывод даты в строку по шаблону и разбор строки.</li>
+    </ul>
+
+    <p>Старые классы <b>java.util.Date</b> и <b>java.util.Calendar</b> встречаются в существующем коде. Их объекты
+        изменяемы, а месяцы в Calendar нумеруются с 0 (январь - 0), поэтому легко ошибиться на месяц. Старый
+        <b>SimpleDateFormat</b> нельзя без синхронизации использовать из нескольких потоков, а DateTimeFormatter
+        неизменяем, и один его объект можно использовать в любом потоке.</p>
+
+    <p>Текущую дату возвращает <b>LocalDate.now()</b>. В примере даты заданы явно, чтобы вывод не зависел от дня
+        запуска.</p>
+
+    <p><strong>Реализация на Java</strong></p>
+    <pre class="sh_java">
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
+public class DateTimeDemo {
+    public static void main(String[] args) {
+        LocalDate start = LocalDate.of(2024, 2, 27); // месяцы нумеруются с 1
+        LocalDate later = start.plusDays(3); // 2024 год високосный: есть 29 февраля
+        System.out.println(later); // 2024-03-01
+        System.out.println(later.getDayOfWeek()); // FRIDAY
+        System.out.println(start); // объект не изменился: 2024-02-27
+
+        LocalDate end = LocalDate.of(2024, 12, 31);
+        System.out.println(ChronoUnit.DAYS.between(start, end)); // 308
+        System.out.println(Period.between(start, end)); // P10M4D: 10 месяцев 4 дня
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        LocalDateTime begin = LocalDateTime.of(2024, 9, 2, 9, 30);
+        LocalDateTime finish = begin.plus(Duration.ofMinutes(90));
+        System.out.println(begin.format(format) + " - " + finish.format(format));
+        // 02.09.2024 09:30 - 02.09.2024 11:00
+
+        LocalDate parsed = LocalDate.parse("01.03.2024", DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        System.out.println(parsed.equals(later)); // true
+    }
+}
+</pre>
+
     <h2>Потоки в Java</h2>
+
+    <p><strong>Поток</strong> (thread) - последовательность команд, которая выполняется независимо от других потоков
+        того же процесса. Куча у всех потоков программы общая, а стек у каждого свой. Программа начинает работу в
+        главном потоке <b>main</b>.</p>
+
+    <p>Поток в Java - объект класса <b>Thread</b>. Код потока записывают в методе <b>run()</b>: наследуют класс Thread
+        либо передают в конструктор Thread объект, реализующий интерфейс <b>Runnable</b>. Новый поток запускает метод
+        <b>start()</b>; прямой вызов run() выполнит код в текущем потоке, и нового потока не будет. Метод <b>join()</b>
+        ждёт завершения потока, после него результаты потока видны тому, кто ждал.</p>
+
+    <p>Порядок, в котором выполняются потоки, не определён. Поэтому в примере потоки только считают, а печатает главный
+        поток после join(), и вывод всегда один и тот же.</p>
+
+    <p><strong>Реализация на Java</strong></p>
+    <pre class="sh_java">
+// Поток, который суммирует числа от from до to
+class Summer extends Thread {
+    private final long from;
+    private final long to;
+    private long sum;
+
+    Summer(String name, long from, long to) {
+        super(name);
+        this.from = from;
+        this.to = to;
+    }
+
+    @Override
+    public void run() {
+        for (long i = from; i &lt;= to; i++) {
+            sum += i;
+        }
+    }
+
+    long getSum() {
+        return sum;
+    }
+}
+
+public class ThreadsDemo {
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Главный поток: " + Thread.currentThread().getName());
+        Summer first = new Summer("first", 1, 500_000);
+        Summer second = new Summer("second", 500_001, 1_000_000);
+        first.start(); // run() выполняется в новом потоке
+        second.start();
+        first.join(); // ждём, пока поток завершится
+        second.join();
+        System.out.println(first.getName() + ": " + first.getSum());
+        System.out.println(second.getName() + ": " + second.getSum());
+        System.out.println("Всего: " + (first.getSum() + second.getSum()));
+    }
+}
+</pre>
+
+    <p>Подробнее о потоках - в занятии <a href="java_7.html">Java 7. Потоки в Java</a>, о состоянии гонки и
+        синхронизации - на странице <a href="multi_threading.html">Многопоточное программирование</a>.</p>
 
 
     <h2>JUnit подробнее</h2>
