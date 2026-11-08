@@ -1,0 +1,784 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Системы счисления</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_java.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_basic.js"></script>
+    <script type="text/javascript" src="../syntax/sh_alg.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+    <h1>Системы счисления. Позиционные и непозиционные. Перевод из одной системы счисления в другую. Римская система
+        счисления</h1>
+
+    <ul class="tags">
+        <li><a href="#">Системы счисления</a></li>
+        <li><a href="#">Алгоритмы над целыми числами</a></li>
+    </ul>
+
+    <p>Системы счисления делятся на:</p>
+    <ul>
+        <li><strong>позиционные</strong> - одна и та же цифра имеет разное значение в зависимости от позиции $143=1
+            \cdot
+            10^2 + 4 \cdot 10 + 3$.
+        </li>
+        <li><strong>непозиционные</strong> - число задаётся несколькими знаками с различным значением.</li>
+        <li> смешанные - например, римская система счисления $IX = 9$ - значение зависит от позиции цифр, но есть
+            ограничения.
+        </li>
+    </ul>
+
+    <h1>Системы счисления </h1>
+
+    <h2>Позиционные и непозиционные</h2>
+
+    <p>Позиционные - значение зависит от позиции цифры.</p>
+
+    <p>Например, десятичная система счисления: $343=3*10^2+4*10^1+3$</p>
+
+    <h2>Перевод из одной системы счисления в другую</h2>
+
+    <p>Мы считаем в десятичной системе счисления.</p>
+
+    <p>Перевод из <strong>десятичной</strong> в <strong>двоичную</strong> - <strong>деление</strong> в столбик или
+        сравнение
+        по таблице степеней двойки.</p>
+
+    <p>Перевод обратно, из <strong>двоичной</strong> в <strong>десятичную</strong> - умножение разрядов на степени
+        двойки и
+        сложение.</p>
+
+    <h3>Непозиционная: Римская система счисления</h3>
+
+    <p>I - 1, V - 5, X - 10, D - 50, L - 500, M - 1000 - значение не зависит от позиции (зависит по-другому).</p>
+
+    <h2>Двоичная система счисления (запись чисел)</h2>
+
+    <p><strong>Позиционная</strong> система счисления с основанием 2, Числа записываются с помощью двух символов: 0 и 1.
+    </p>
+
+    <p>Например: число $3 = 11_2$.</p>
+
+    <p>$\ x_{2,2} = a_{n-1} a_{n-2}\dots a_{1} a_{0} = \sum_{k=0}^{n-1} a_k b^k = \sum_{k=0}^{n-1} a_k 2^k,$<br>
+        где:<br>
+    <ul>
+        <li> $\ x_{2,2}$ — представляемое число, первый индекс - основание системы счисления
+            (размерность
+            множества цифр $a=\{0,1\}$), второй индекс - основание весовой показательной функции
+            $b$ (в двоично-десятичном кодировании $b=10$),
+        </li>
+        <li>$\ a_{n-1}a_{n-2}...a_1a_0$ — запись числа, строка цифр,</li>
+        <li> $\ .\ .\ .\ _{2,2}$ — обозначение основания системы кодирования и основания системы счисления,</li>
+        <li> $n$ — количество цифр (знаков) в числе $x_{2,2}$,</li>
+        <li> $k$ — порядковый номер цифры,</li>
+        <li> $a_k$ — цифры числа $x_{2,2}$ из множества $a=\{0,1\}$, в двоичной системе
+            счисления, основание системы кодирования равно 2,
+        </li>
+        <li> $b=2$ — основание показательной весовой функции, основание системы счисления,</li>
+        <li> $b^k=2^k$ — весовая показательная функция, создающая весовые коэффициенты.</li>
+    </ul>
+
+    <h2>Восьмеричная, шестнадцатеричная</h2>
+
+    <p>Позиционная целочисленная система счисления с основанием 8 (используются цифры от 0 до 7).</p>
+
+    <p>Таблица перевода восьмеричных чисел в двоичные:</p>
+
+    0<sub>8</sub> = 000<sub>2</sub><br>
+    1<sub>8</sub> = 001<sub>2</sub><br>
+    2<sub>8</sub> = 010<sub>2</sub><br>
+    3<sub>8</sub> = 011<sub>2</sub><br>
+    4<sub>8</sub> = 100<sub>2</sub><br>
+    5<sub>8</sub> = 101<sub>2</sub><br>
+    6<sub>8</sub> = 110<sub>2</sub><br>
+    7<sub>8</sub> = 111<sub>2</sub><br>
+
+    Для перевода восьмеричного числа в двоичное необходимо заменить каждую цифру восьмеричного числа на триплет двоичных
+    цифр. Например:
+    2541<sub>8</sub> = [ 2<sub>8</sub> | 5<sub>8</sub> | 4<sub>8</sub> | 1<sub>8</sub> ] = [ 010<sub>2</sub> |
+    101<sub>2</sub> | 100<sub>2</sub> | 001<sub>2</sub> ] = 010101100001<sub>2</sub>
+
+    <p>Аналогично, для шестнадцатеричной системы каждая цифра заменяется группой из четырёх двоичных цифр.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def base_to_binary(text, group_size):
+    """Каждая цифра записи (основание 2**group_size) заменяется группой из group_size двоичных цифр."""
+    bits = []
+    for symbol in text:
+        digit = DIGITS.find(symbol)
+        if not 0 &lt;= digit &lt; 2 ** group_size:
+            raise ValueError(f"цифра {symbol!r} не входит в систему с основанием {2 ** group_size}")
+        bits.append(format(digit, f"0{group_size}b"))
+    return "".join(bits)
+
+
+def binary_to_base(bits, group_size):
+    """Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр."""
+    if not set(bits) &lt;= {"0", "1"}:
+        raise ValueError("запись должна состоять из цифр 0 и 1")
+    width = (len(bits) + group_size - 1) // group_size * group_size
+    padded = bits.zfill(width)
+    return "".join(DIGITS[int(padded[i:i + group_size], 2)] for i in range(0, width, group_size))
+
+
+def main():
+    # 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    print(base_to_binary("2541", 3))         # 010101100001
+    print(binary_to_base("11111101000", 3))  # 3750
+    print(base_to_binary("7E8", 4))          # 011111101000
+    print(binary_to_base("11111101000", 4))  # 7E8
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+// group_size - число двоичных цифр в одной цифре: 3 для восьмеричной, 4 для шестнадцатеричной
+const DIGITS: &amp;[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Каждая цифра записи (основание 2^group_size) заменяется группой из group_size двоичных цифр
+pub fn base_to_binary(text: &amp;str, group_size: usize) -&gt; Option&lt;String&gt; {
+    let mut bits = String::new();
+    for symbol in text.bytes() {
+        let digit = DIGITS.iter().position(|&amp;known| known == symbol)?;
+        if digit &gt;= 1 &lt;&lt; group_size {
+            return None;
+        }
+        bits.push_str(&amp;format!("{digit:0group_size$b}"));
+    }
+    Some(bits)
+}
+
+// Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр
+pub fn binary_to_base(bits: &amp;str, group_size: usize) -&gt; Option&lt;String&gt; {
+    if !bits.bytes().all(|bit| bit == b'0' || bit == b'1') {
+        return None;
+    }
+    let width = (bits.len() + group_size - 1) / group_size * group_size;
+    let padded = format!("{}{bits}", "0".repeat(width - bits.len()));
+    let symbols = padded.as_bytes().chunks(group_size).map(|group| {
+        let value = group.iter().fold(0, |acc, &amp;bit| acc * 2 + usize::from(bit - b'0'));
+        char::from(DIGITS[value])
+    });
+    Some(symbols.collect())
+}
+
+fn main() {
+    // 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    println!("{}", base_to_binary("2541", 3).unwrap()); // 010101100001
+    println!("{}", binary_to_base("11111101000", 3).unwrap()); // 3750
+    println!("{}", base_to_binary("7E8", 4).unwrap()); // 011111101000
+    println!("{}", binary_to_base("11111101000", 4).unwrap()); // 7E8
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод между двоичной и системами с основанием 8 или 16 через группы цифр: O(n) операций
+// group_size - число двоичных цифр в одной цифре: 3 для восьмеричной, 4 для шестнадцатеричной
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+const std::string DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Каждая цифра записи (основание 2^group_size) заменяется группой из group_size двоичных цифр
+std::optional&lt;std::string&gt; base_to_binary(const std::string&amp; text, std::size_t group_size) {
+    std::string bits;
+    for (char symbol : text) {
+        const std::size_t digit = DIGITS.find(symbol);
+        if (digit == std::string::npos || digit &gt;= (std::size_t{1} &lt;&lt; group_size)) {
+            return std::nullopt;
+        }
+        // Старшие двоичные цифры группы выводим первыми
+        for (std::size_t shift = group_size; shift &gt; 0; --shift) {
+            bits += ((digit &gt;&gt; (shift - 1)) &amp; 1U) ? '1' : '0';
+        }
+    }
+    return bits;
+}
+
+// Двоичная запись дополняется нулями слева до кратности group_size и делится на группы по group_size цифр
+std::optional&lt;std::string&gt; binary_to_base(const std::string&amp; bits, std::size_t group_size) {
+    if (bits.find_first_not_of("01") != std::string::npos) {
+        return std::nullopt;
+    }
+    const std::size_t width = (bits.size() + group_size - 1) / group_size * group_size;
+    const std::string padded = std::string(width - bits.size(), '0') + bits;
+    std::string result;
+    for (std::size_t start = 0; start &lt; width; start += group_size) {
+        std::size_t value = 0;
+        for (std::size_t i = start; i &lt; start + group_size; ++i) {
+            value = value * 2 + static_cast&lt;std::size_t&gt;(padded[i] - '0');
+        }
+        result += DIGITS[value];
+    }
+    return result;
+}
+
+int main() {
+    // 3 двоичные цифры на цифру - восьмеричная система, 4 - шестнадцатеричная
+    std::cout &lt;&lt; base_to_binary("2541", 3).value() &lt;&lt; '\n';         // 010101100001
+    std::cout &lt;&lt; binary_to_base("11111101000", 3).value() &lt;&lt; '\n';  // 3750
+    std::cout &lt;&lt; base_to_binary("7E8", 4).value() &lt;&lt; '\n';          // 011111101000
+    std::cout &lt;&lt; binary_to_base("11111101000", 4).value() &lt;&lt; '\n';  // 7E8
+    return 0;
+}
+</pre>
+
+    <h2>Перевод целых чисел из 10 системы счисления в любую</h2>
+
+    <p>Для перевода надо делить "в столбик" число на основание системы счисления. Каждый очередной остаток будет цифрой
+        числа</p>
+
+    <p>Вывод числа в произвольной системе счисления:</p>
+
+    <pre class="sh_pascal">
+{$APPTYPE CONSOLE}
+
+uses SysUtils;
+
+var 
+  x, b : longint;
+  s : string; { Результат преобразования }
+begin
+  Write('Введите число: '); Readln(x);
+  Write('Введите основание системы счисления: '); Readln(b);  
+  s := '';
+  while x > 0 do begin
+    s := IntToStr(x mod b) + s; { Остаток - это очередная цифра. Приписываем её спереди к числу }
+    x := x div b; { Делим на основание системы счисления }
+  end;
+  if s = '' then s := '0';
+  writeln('Результат: ',s);
+end.
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def to_base(number, base):
+    """Возвращает запись неотрицательного числа number цифрами системы с основанием от 2 до 36."""
+    if number &lt; 0 or not 2 &lt;= base &lt;= 36:
+        raise ValueError("число должно быть неотрицательным, основание от 2 до 36")
+    if number == 0:
+        return "0"
+    digits = []
+    while number &gt; 0:
+        # Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        number, remainder = divmod(number, base)
+        digits.append(DIGITS[remainder])
+    return "".join(reversed(digits))
+
+
+def main():
+    print(to_base(2024, 2))
+    print(to_base(255, 16))
+    print(to_base(12345, 8))
+    print(to_base(0, 10))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+const DIGITS: &amp;str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Возвращает запись числа number цифрами системы с основанием от 2 до 36
+pub fn to_base(mut number: u64, base: u32) -&gt; Option&lt;String&gt; {
+    if !(2..=36).contains(&amp;base) {
+        return None;
+    }
+    if number == 0 {
+        return Some("0".to_string());
+    }
+    let radix = u64::from(base);
+    let mut digits = Vec::new();
+    while number &gt; 0 {
+        // Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        digits.push(DIGITS.as_bytes()[(number % radix) as usize] as char);
+        number /= radix;
+    }
+    Some(digits.into_iter().rev().collect())
+}
+
+fn main() {
+    println!("{}", to_base(2024, 2).unwrap());
+    println!("{}", to_base(255, 16).unwrap());
+    println!("{}", to_base(12345, 8).unwrap());
+    println!("{}", to_base(0, 10).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод целого числа в систему с основанием base делением с остатком: O(log n) делений
+#include &lt;algorithm&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+// Возвращает запись числа number цифрами системы с основанием от 2 до 36
+std::optional&lt;std::string&gt; to_base(std::uint64_t number, std::uint64_t base) {
+    const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (base &lt; 2 || base &gt; 36) {
+        return std::nullopt;
+    }
+    if (number == 0) {
+        return std::string("0");
+    }
+    std::string result;
+    while (number &gt; 0) {
+        // Остаток от деления - очередная цифра; первые остатки оказываются младшими разрядами
+        result += digits[number % base];
+        number /= base;
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+int main() {
+    std::cout &lt;&lt; to_base(2024, 2).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(255, 16).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(12345, 8).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; to_base(0, 10).value() &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+
+    <h2>Перевод целых чисел из 2-й, 8-й, 16-й в 10 сс</h2>
+
+    <p>Для перевода умножаем каждую последующую цифру на соответствующую степень 2-ки, 8-рки, 16-ти</p>
+
+    Для двоичного числа: $x = a_n{\cdot}2^n + ... + a_1{\cdot}2^1 + a_0{\cdot}2^0$
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def from_base(text, base):
+    """Возвращает десятичное значение записи text в системе с основанием base."""
+    value = 0
+    weight = 1  # base в степени k для разряда k (справа налево)
+    for symbol in reversed(text):
+        digit = DIGITS.find(symbol)
+        if not 0 &lt;= digit &lt; base:
+            raise ValueError(f"цифра {symbol!r} не входит в систему с основанием {base}")
+        value += digit * weight
+        weight *= base
+    return value
+
+
+def main():
+    print(from_base("11111101000", 2))
+    print(from_base("FF", 16))
+    print(from_base("30071", 8))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+
+// Возвращает десятичное значение записи text в системе с основанием base (от 2 до 36)
+pub fn from_base(text: &amp;str, base: u32) -&gt; Option&lt;u64&gt; {
+    if !(2..=36).contains(&amp;base) {
+        return None;
+    }
+    let mut value: u64 = 0;
+    let mut weight: u64 = 1; // base в степени k для разряда k (справа налево)
+    for symbol in text.chars().rev() {
+        value += u64::from(symbol.to_digit(base)?) * weight;
+        weight *= u64::from(base);
+    }
+    Some(value)
+}
+
+fn main() {
+    println!("{}", from_base("11111101000", 2).unwrap());
+    println!("{}", from_base("FF", 16).unwrap());
+    println!("{}", from_base("30071", 8).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Перевод из системы с основанием base в десятичную: сумма цифр, умноженных на степени base; O(n) для n цифр
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+
+// Возвращает десятичное значение записи text в системе с основанием base (от 2 до 36)
+std::optional&lt;std::uint64_t&gt; from_base(const std::string&amp; text, std::uint64_t base) {
+    const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (base &lt; 2 || base &gt; 36) {
+        return std::nullopt;
+    }
+    std::uint64_t value = 0;
+    std::uint64_t weight = 1;  // base в степени k для разряда k (справа налево)
+    for (auto it = text.rbegin(); it != text.rend(); ++it) {
+        std::size_t digit = digits.find(*it);
+        if (digit == std::string::npos || digit &gt;= base) {
+            return std::nullopt;
+        }
+        value += digit * weight;
+        weight *= base;
+    }
+    return value;
+}
+
+int main() {
+    std::cout &lt;&lt; from_base("11111101000", 2).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; from_base("FF", 16).value() &lt;&lt; '\n';
+    std::cout &lt;&lt; from_base("30071", 8).value() &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <h2>Перевод дробных чисел из 2-й в 10 сс и обратно</h2>
+
+    <p>Дробная часть числа записывается цифрами после точки. Цифра, стоящая на $k$-м месте после точки, имеет вес $2^{-k}$, поэтому двоичная дробь равна</p>
+
+    <p>$$0.b_1 b_2 \dots b_m = \sum_{k=1}^{m} b_k \cdot 2^{-k}, \qquad b_k \in \{0, 1\}.$$</p>
+
+    <p><strong>Из двоичной системы в десятичную.</strong> Складываем веса разрядов, в которых стоит единица:</p>
+
+    <p>$$0.101_2 = 1 \cdot 2^{-1} + 0 \cdot 2^{-2} + 1 \cdot 2^{-3} = \frac{1}{2} + \frac{1}{8} = 0.625_{10},$$</p>
+
+    <p>$$0.1011_2 = \frac{1}{2} + \frac{1}{8} + \frac{1}{16} = 0.6875_{10}.$$</p>
+
+    <p>Конечная двоичная дробь переводится в десятичную точно, и её десятичная запись содержит не больше цифр, чем двоичная.</p>
+
+    <p><strong>Из десятичной системы в двоичную.</strong> Дробную часть умножаем на 2. Целая часть произведения (0 или 1) - очередная двоичная цифра, а дробная часть продолжает процесс. Процесс заканчивается, когда дробная часть стала равна нулю, или когда набрано нужное число цифр. Для $0.625_{10}$:</p>
+
+    <ul>
+        <li>$0.625 \cdot 2 = 1.25$: цифра $1$, дробная часть $0.25$;</li>
+        <li>$0.25 \cdot 2 = 0.5$: цифра $0$, дробная часть $0.5$;</li>
+        <li>$0.5 \cdot 2 = 1.0$: цифра $1$, дробная часть $0$, процесс окончен.</li>
+    </ul>
+
+    <p>Цифры записываются в порядке их получения: $0.625_{10} = 0.101_2$.</p>
+
+    <p>Не всякая дробь имеет конечную запись в другой системе. Правильная несократимая дробь $\frac{p}{q}$ записывается в двоичной системе конечно тогда и только тогда, когда $q$ - степень двойки. Например, $0.1_{10} = \frac{1}{10}$ даёт бесконечную периодическую дробь:</p>
+
+    <p>$$0.1_{10} = 0.0\overline{0011}_2 = 0.0001100110011\dots_2$$</p>
+
+    <p>Такую дробь обрывают на заданном числе цифр. Если оставить $m$ цифр, погрешность меньше $2^{-m}$. Например, если оставить четыре цифры, получаем $0.1_{10} \approx 0.0001_2 = 0.0625$, и погрешность $0.0375$ меньше $2^{-4} = 0.0625$.</p>
+
+    <p>Программы ниже работают с дробями точно (тип Fraction в Python, целые числа в C++), поэтому ошибок округления, свойственных вещественным числам, здесь нет. Они переводят дроби в обе стороны и печатают результаты примеров выше; для $0.1_{10}$ печатаются первые 20 двоичных цифр.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Дробная часть: перевод 0.b1...bm из двоичной записи в десятичную и обратно; дроби точные (Fraction)
+from fractions import Fraction
+
+DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def binary_fraction_value(bits):
+    """Значение дроби 0.b1...bm: сумма разрядов b_k * 2^-k, где bits - строка из нулей и единиц."""
+    return sum(Fraction(int(bit), 2 ** k) for k, bit in enumerate(bits, start=1))
+
+
+def fraction_digits(value, base, max_digits):
+    """Цифры дробной части value (0 &lt;= value &lt; 1) в системе с основанием base, не больше max_digits штук."""
+    digits = ""
+    while value and len(digits) &lt; max_digits:
+        value *= base  # умножаем дробь на основание
+        digit = int(value)  # целая часть произведения - очередная цифра
+        digits += DIGITS[digit]
+        value -= digit  # дробная часть продолжает процесс
+    return digits or "0"
+
+
+def main():
+    print("0." + fraction_digits(binary_fraction_value("101"), 10, 20))
+    print("0." + fraction_digits(binary_fraction_value("1011"), 10, 20))
+    print("0." + fraction_digits(Fraction(5, 8), 2, 20))
+    print("0." + fraction_digits(Fraction(1, 10), 2, 20))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Дробная часть: перевод 0.b1...bm из двоичной записи в десятичную и обратно; только целые вычисления, без ошибок округления
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+const std::string DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Цифры дроби num/den (0 &lt;= num &lt; den) в системе с основанием base, не больше max_digits штук.
+// Умножаем числитель на основание: целая часть num / den - очередная цифра, остаток от деления продолжает процесс.
+std::string fraction_digits(std::uint64_t num, std::uint64_t den, std::uint64_t base, std::size_t max_digits) {
+    std::string digits;
+    while (num != 0 &amp;&amp; digits.size() &lt; max_digits) {
+        num *= base;
+        digits += DIGITS[num / den];
+        num %= den;
+    }
+    return digits.empty() ? "0" : digits;
+}
+
+// Двоичная дробь 0.bits равна N / 2^m, где N - число, записанное битами, m - их количество
+std::string binary_fraction_to_decimal(const std::string&amp; bits) {
+    std::uint64_t numerator = 0;
+    for (char bit : bits) {
+        numerator = 2 * numerator + static_cast&lt;std::uint64_t&gt;(bit - '0');
+    }
+    return fraction_digits(numerator, std::uint64_t{1} &lt;&lt; bits.size(), 10, bits.size());
+}
+
+int main() {
+    std::cout &lt;&lt; "0." &lt;&lt; binary_fraction_to_decimal("101") &lt;&lt; '\n';
+    std::cout &lt;&lt; "0." &lt;&lt; binary_fraction_to_decimal("1011") &lt;&lt; '\n';
+    std::cout &lt;&lt; "0." &lt;&lt; fraction_digits(5, 8, 2, 20) &lt;&lt; '\n';
+    std::cout &lt;&lt; "0." &lt;&lt; fraction_digits(1, 10, 2, 20) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <h2>Римская система счисления</h2>
+
+    <table>
+        <tr>
+            <td>1</td>
+            <td>I</td>
+            <td>лат. unus</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>V</td>
+            <td>лат. quinque</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>X</td>
+            <td>лат. decem</td>
+        </tr>
+        <tr>
+            <td>50</td>
+            <td>L</td>
+            <td>лат. quinquaginta</td>
+        </tr>
+        <tr>
+            <td>100</td>
+            <td>C</td>
+            <td>лат. centum</td>
+        </tr>
+        <tr>
+            <td>500</td>
+            <td>D</td>
+            <td>лат. quingenti</td>
+        </tr>
+        <tr>
+            <td>1000</td>
+            <td>M</td>
+            <td>лат. mille</td>
+        </tr>
+    </table>
+
+    <pre class="sh_pascal">
+{$APPTYPE CONSOLE}
+
+{ Функция для перевода из десятичной системы в римскую }
+function to_roman( n : integer ):string;
+const D : array [1..13] of integer = (1,4,5,9,10,40,50,90,100,400,500,900,1000);
+      S : array [1..13] of string = ('I','IV','V','IX','X','XL','L','XC','C','CD','D','CM','M');
+var k : integer;
+begin
+  result := '';
+  for k := high(D) downto low(D) do { Идём от старших разрядов к младшим }
+    while D[k] &lt;= n do begin
+      dec(n, D[k]);                    
+      result := result + S[k];
+    end;
+end;
+
+var N,Tests,Test : integer;
+begin
+  assign(input,'roman.in'); reset(input);
+  assign(output,'roman.out'); rewrite(output);
+  readln(Tests); { Количество тестов }
+  for Test := 1 to Tests do begin { Цикл по тестам }
+    readln(N);
+    writeLn(to_roman(N));
+  end;
+end.
+</pre>
+
+    <b>Реализация через массив с записями</b>
+
+    <pre class="sh_pascal">
+const
+  T : array [1..13] of record D:integer; S:string; end = (
+    (D:1000; S:'M'), (D:900; S:'CM'), 
+    (D:500;  S:'D'), (D:400; S:'CD'), 
+    (D:100;  S:'C'), (D:90;  S:'XC'), 
+    (D:50;   S:'L'), (D:40;  S:'XL'), 
+    (D:10;   S:'X'), (D:9;   S:'IX'), 
+    (D:5;    S:'V'), (D:4;   S:'IV'), 
+    (D:1;    S:'I'));
+
+{ Функция для перевода из десятичной системы в римскую }
+function to_roman( N : integer ):string;
+var i : integer;
+begin
+  result := '';
+  for i := 1 to 13 do 
+    while T[i].D <= n do begin
+      dec(N, T[i].D);                    
+      result := result + T[i].S;
+    end;
+end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+ROMAN_TABLE = (
+    (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+    (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+    (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"),
+)
+
+
+def to_roman(number):
+    """Возвращает римскую запись числа от 1 до 3999."""
+    if not 1 &lt;= number &lt;= 3999:
+        raise ValueError("римская запись возможна для чисел от 1 до 3999")
+    result = ""
+    for value, symbol in ROMAN_TABLE:
+        # Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while number &gt;= value:
+            number -= value
+            result += symbol
+    return result
+
+
+def main():
+    for number in (4, 1994, 2024, 3999):
+        print(number, to_roman(number))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+
+const ROMAN_TABLE: [(u32, &amp;str); 13] = [
+    (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"),
+    (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"),
+];
+
+// Возвращает римскую запись числа от 1 до 3999
+pub fn to_roman(mut number: u32) -&gt; Option&lt;String&gt; {
+    if !(1..=3999).contains(&amp;number) {
+        return None;
+    }
+    let mut result = String::new();
+    for &amp;(value, symbol) in &amp;ROMAN_TABLE {
+        // Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while number &gt;= value {
+            number -= value;
+            result.push_str(symbol);
+        }
+    }
+    Some(result)
+}
+
+fn main() {
+    for number in [4, 1994, 2024, 3999] {
+        println!("{number} {}", to_roman(number).unwrap());
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Римская запись жадным алгоритмом: от старших значений к младшим; O(1) при n &lt; 4000 (13 значений)
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Возвращает римскую запись числа от 1 до 3999
+std::string to_roman(int number) {
+    const std::vector&lt;std::pair&lt;int, std::string&gt;&gt; table = {
+        {1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"},
+        {40, "XL"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}};
+    if (number &lt; 1 || number &gt; 3999) {
+        throw std::invalid_argument("римская запись возможна для чисел от 1 до 3999");
+    }
+    std::string result;
+    for (const auto&amp; [value, symbol] : table) {
+        // Пока число не меньше значения цифры, вычитаем его и дописываем символ
+        while (number &gt;= value) {
+            number -= value;
+            result += symbol;
+        }
+    }
+    return result;
+}
+
+int main() {
+    for (int number : {4, 1994, 2024, 3999}) {
+        std::cout &lt;&lt; number &lt;&lt; ' ' &lt;&lt; to_roman(number) &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+
+
+</div>
+
+</body>
+</html>

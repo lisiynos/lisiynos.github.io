@@ -1,0 +1,432 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Вычислительная геометрия: Алгоритм Грэхема, Алгоритм Джарвиса, Проверка принадлежности точки
+        многоугольнику</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Вычислительная геометрия: Алгоритм Грэхема, Алгоритм Джарвиса, Проверка принадлежности точки многоугольнику</h1>
+
+
+<h3 id="алгоритм-грэхема">Алгоритм Грэхема</h3>
+<p>Выпуклая оболочка множества точек — наименьший выпуклый многоугольник, содержащий все эти точки. Алгоритм Грэхема строит её за $O(n\log n)$; основную стоимость составляет сортировка.</p>
+<p>Опорная точка $p_0$ — самая нижняя из точек, а при равенстве $y$ — самая левая. Она заведомо лежит на оболочке. Остальные точки сортируем по полярному углу относительно $p_0$. Все углы лежат в одной полуплоскости, поэтому порядок задаёт знак векторного произведения: точка $a$ идёт раньше $b$, если $(a-p_0)\times(b-p_0)$ больше нуля. Точки на одном луче сортируем по расстоянию до $p_0$.</p>
+<p>Затем проходим отсортированные точки и держим стек вершин. Перед добавлением новой точки $p$ снимаем с вершины стека точки, которые не дают строгого левого поворота: пока для двух последних вершин $a$ и $b$ выполнено $(b-a)\times(p-a)\le 0$, вершину $b$ удаляем. Так убираются вогнутости и точки на сторонах оболочки.</p>
+<p>Все вычисления целочисленные: векторное произведение состоит только из сложений и умножений, без углов и корней. Повторы точек удаляются заранее.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Грэхема, O(n log n)
+from functools import cmp_to_key
+
+
+def cross(o, a, b):
+    """Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево."""
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+
+def dist2(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def graham(points):
+    """Выпуклая оболочка против часовой стрелки, начиная с нижней левой точки."""
+    # Сортируем по (y, x) и удаляем повторы: первая точка — опорная
+    pts = sorted(set(points), key=lambda p: (p[1], p[0]))
+    if len(pts) &lt;= 2:
+        return pts
+    pivot, rest = pts[0], pts[1:]
+
+    def by_angle(a, b):
+        # a раньше b, если поворот pivot -&gt; a -&gt; b влево; при равном угле ближняя раньше
+        turn = cross(pivot, a, b)
+        if turn != 0:
+            return -turn
+        return dist2(pivot, a) - dist2(pivot, b)
+
+    rest.sort(key=cmp_to_key(by_angle))
+    hull = [pivot]
+    for p in rest:
+        # Удаляем вершины, которые не дают строгого левого поворота
+        while len(hull) &gt;= 2 and cross(hull[-2], hull[-1], p) &lt;= 0:
+            hull.pop()
+        hull.append(p)
+    return hull
+
+
+if __name__ == "__main__":
+    print(graham([(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (2, 0), (1, 3), (0, 0)]))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Грэхема, O(n log n)
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+bool operator==(const Point&amp; a, const Point&amp; b) { return a.x == b.x &amp;&amp; a.y == b.y; }
+
+// Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево
+long long cross(const Point&amp; o, const Point&amp; a, const Point&amp; b) {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+long long dist2(const Point&amp; a, const Point&amp; b) {
+    return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+}
+
+// Выпуклая оболочка против часовой стрелки, начиная с нижней левой точки
+std::vector&lt;Point&gt; graham(std::vector&lt;Point&gt; pts) {
+    // Сортируем по (y, x) и удаляем повторы: первая точка — опорная
+    std::sort(pts.begin(), pts.end(), [](const Point&amp; a, const Point&amp; b) {
+        return a.y != b.y ? a.y &lt; b.y : a.x &lt; b.x;
+    });
+    pts.erase(std::unique(pts.begin(), pts.end()), pts.end());
+    if (pts.size() &lt;= 2) return pts;
+
+    // Остальные точки — по полярному углу вокруг опорной; при равном угле ближняя раньше
+    const Point pivot = pts[0];
+    std::sort(pts.begin() + 1, pts.end(), [&amp;pivot](const Point&amp; a, const Point&amp; b) {
+        long long turn = cross(pivot, a, b);
+        return turn != 0 ? turn &gt; 0 : dist2(pivot, a) &lt; dist2(pivot, b);
+    });
+
+    std::vector&lt;Point&gt; hull;
+    for (const Point&amp; p : pts) {
+        // Удаляем вершины, которые не дают строгого левого поворота
+        while (hull.size() &gt;= 2 &amp;&amp; cross(hull[hull.size() - 2], hull.back(), p) &lt;= 0) {
+            hull.pop_back();
+        }
+        hull.push_back(p);
+    }
+    return hull;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; pts = {{0, 0}, {4, 0}, {4, 4}, {0, 4}, {2, 2}, {2, 0}, {1, 3}, {0, 0}};
+    for (const Point&amp; p : graham(pts)) {
+        std::printf("(%lld, %lld)\n", p.x, p.y);
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
+// Алгоритм Грэхема, O(n log n)
+type Point = (i64, i64);
+
+// Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево
+fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+fn dist2(a: Point, b: Point) -&gt; i64 {
+    (a.0 - b.0).pow(2) + (a.1 - b.1).pow(2)
+}
+
+// Выпуклая оболочка против часовой стрелки, начиная с нижней левой точки
+pub fn graham(mut pts: Vec&lt;Point&gt;) -&gt; Vec&lt;Point&gt; {
+    // Сортируем по (y, x) и удаляем повторы: первая точка — опорная
+    pts.sort_by_key(|p| (p.1, p.0));
+    pts.dedup();
+    if pts.len() &lt;= 2 {
+        return pts;
+    }
+    // Остальные точки — по полярному углу вокруг опорной; при равном угле ближняя раньше
+    let pivot = pts[0];
+    pts[1..].sort_by(|&amp;a, &amp;b| {
+        cross(pivot, a, b).cmp(&amp;0).reverse().then(dist2(pivot, a).cmp(&amp;dist2(pivot, b)))
+    });
+
+    let mut hull: Vec&lt;Point&gt; = Vec::new();
+    for p in pts {
+        // Удаляем вершины, которые не дают строгого левого поворота
+        while hull.len() &gt;= 2 &amp;&amp; cross(hull[hull.len() - 2], hull[hull.len() - 1], p) &lt;= 0 {
+            hull.pop();
+        }
+        hull.push(p);
+    }
+    hull
+}
+
+fn main() {
+    let pts = vec![(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (2, 0), (1, 3), (0, 0)];
+    for p in graham(pts) {
+        println!("({}, {})", p.0, p.1);
+    }
+}
+</code></pre>
+<h3 id="алгоритм-джарвиса-заворачивание-подарка">Алгоритм Джарвиса («заворачивание подарка»)</h3>
+<p>Алгоритм Джарвиса строит ту же оболочку иначе: как будто обворачиваем точки верёвкой. Начинаем с самой левой точки $p_0$, она лежит на оболочке, и на каждом шаге находим следующую вершину.</p>
+<p>Пусть $c$ — текущая вершина. Кандидат $n$ — такая точка, что все остальные точки лежат слева от направленного отрезка $c \to n$. Чтобы его найти, просматриваем все точки $p$: если $p$ лежит правее луча $c \to n$, она становится новым кандидатом. Если $p$ лежит на том же луче, берём более дальнюю точку, чтобы не класть в ответ точки, лежащие на стороне.</p>
+<p>Каждый шаг занимает $O(n)$, а вершин в оболочке $h$, поэтому весь алгоритм работает за $O(n \cdot h)$. При малом $h$ он быстрее алгоритма Грэхема, а в худшем случае, когда все точки на оболочке, даёт $O(n^2)$.</p>
+<p>Обход заканчивается, когда вернулись в $p_0$. Вычисления целочисленные, как и у алгоритма Грэхема: нужен только знак векторного произведения.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Джарвиса («заворачивание подарка»), O(n·h)
+def cross(o, a, b):
+    """Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево."""
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+
+def dist2(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def jarvis(points):
+    """Выпуклая оболочка против часовой стрелки, начиная с самой левой точки."""
+    pts = sorted(set(points))
+    if len(pts) &lt;= 2:
+        return pts
+    start = pts[0]
+    hull = []
+    current = start
+    while True:
+        hull.append(current)
+        candidate = next(p for p in pts if p != current)
+        for p in pts:
+            turn = cross(current, candidate, p)
+            # p правее луча current -&gt; candidate, или на нём, но дальше: берём p
+            if turn &lt; 0 or (turn == 0 and dist2(current, p) &gt; dist2(current, candidate)):
+                candidate = p
+        current = candidate
+        if current == start:
+            return hull
+
+
+if __name__ == "__main__":
+    print(jarvis([(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (2, 0), (1, 3), (0, 0)]))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Джарвиса («заворачивание подарка»), O(n·h)
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+bool operator==(const Point&amp; a, const Point&amp; b) { return a.x == b.x &amp;&amp; a.y == b.y; }
+bool operator&lt;(const Point&amp; a, const Point&amp; b) { return a.x != b.x ? a.x &lt; b.x : a.y &lt; b.y; }
+
+// Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево
+long long cross(const Point&amp; o, const Point&amp; a, const Point&amp; b) {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+long long dist2(const Point&amp; a, const Point&amp; b) {
+    return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+}
+
+// Выпуклая оболочка против часовой стрелки, начиная с самой левой точки
+std::vector&lt;Point&gt; jarvis(std::vector&lt;Point&gt; pts) {
+    std::sort(pts.begin(), pts.end());  // по (x, y)
+    pts.erase(std::unique(pts.begin(), pts.end()), pts.end());
+    if (pts.size() &lt;= 2) return pts;
+
+    const Point start = pts[0];
+    std::vector&lt;Point&gt; hull;
+    Point current = start;
+    do {
+        hull.push_back(current);
+        Point candidate = pts[0] == current ? pts[1] : pts[0];
+        for (const Point&amp; p : pts) {
+            long long turn = cross(current, candidate, p);
+            // p правее луча current -&gt; candidate или лежит на нём, но дальше: берём p
+            if (turn &lt; 0 || (turn == 0 &amp;&amp; dist2(current, p) &gt; dist2(current, candidate))) {
+                candidate = p;
+            }
+        }
+        current = candidate;
+    } while (!(current == start));
+    return hull;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; pts = {{0, 0}, {4, 0}, {4, 4}, {0, 4}, {2, 2}, {2, 0}, {1, 3}, {0, 0}};
+    for (const Point&amp; p : jarvis(pts)) {
+        std::printf("(%lld, %lld)\n", p.x, p.y);
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
+// Алгоритм Джарвиса («заворачивание подарка»), O(n·h)
+type Point = (i64, i64);
+
+// Векторное произведение (a - o) x (b - o): больше нуля, если поворот влево
+fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+fn dist2(a: Point, b: Point) -&gt; i64 {
+    (a.0 - b.0).pow(2) + (a.1 - b.1).pow(2)
+}
+
+// Выпуклая оболочка против часовой стрелки, начиная с самой левой точки
+pub fn jarvis(mut pts: Vec&lt;Point&gt;) -&gt; Vec&lt;Point&gt; {
+    pts.sort();
+    pts.dedup();
+    if pts.len() &lt;= 2 {
+        return pts;
+    }
+    let start = pts[0];
+    let mut hull = Vec::new();
+    let mut current = start;
+    loop {
+        hull.push(current);
+        let mut candidate = pts.iter().copied().find(|&amp;p| p != current).unwrap();
+        for &amp;p in &amp;pts {
+            let turn = cross(current, candidate, p);
+            // p правее луча current -&gt; candidate или лежит на нём, но дальше: берём p
+            if turn &lt; 0 || (turn == 0 &amp;&amp; dist2(current, p) &gt; dist2(current, candidate)) {
+                candidate = p;
+            }
+        }
+        current = candidate;
+        if current == start {
+            return hull;
+        }
+    }
+}
+
+fn main() {
+    let pts = vec![(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (2, 0), (1, 3), (0, 0)];
+    for p in jarvis(pts) {
+        println!("({}, {})", p.0, p.1);
+    }
+}
+</code></pre>
+<h3 id="принадлежность-точки-многоугольнику-правило-луча">Принадлежность точки многоугольнику (правило луча)</h3>
+<p>Пусть простой многоугольник задан списком вершин в порядке обхода. Проведём из точки $p$ луч вправо, вдоль горизонтали, и посчитаем, сколько раз он пересекает рёбра. Нечётное число пересечений означает, что точка внутри, чётное — что снаружи.</p>
+<p>Вершины, лежащие ровно на высоте $p_y$, нельзя считать дважды, поэтому используем полуинтервал: ребро $(a, b)$ учитываем, только если его концы лежат по разные стороны от горизонтали, то есть $(a_y > p_y) \neq (b_y > p_y)$. Горизонтальные рёбра при этом пропускаются автоматически.</p>
+<p>Лежит ли точка пересечения правее $p$, проверяем без деления: это так тогда и только тогда, когда $(b-a)\times(p-a)$ и $b_y-a_y$ имеют один знак. Поэтому весь алгоритм целочисленный и работает за $O(n)$: один проход по рёбрам.</p>
+<p>Точки на самой границе многоугольника этот алгоритм отдельно не выделяет, и результат для них не гарантирован. В демонстрации таких точек нет.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Принадлежность точки многоугольнику (правило луча), O(n)
+def cross(a, b, p):
+    """Векторное произведение (b - a) x (p - a)."""
+    return (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
+
+
+def point_in_polygon(polygon, point):
+    """Луч из точки вправо: нечётное число пересечений с рёбрами означает «внутри»."""
+    inside = False
+    for a, b in zip(polygon, polygon[1:] + polygon[:1]):
+        # Ребро пересекает луч, только если его концы по разные стороны от горизонтали
+        if (a[1] &gt; point[1]) == (b[1] &gt; point[1]):
+            continue
+        # Точка пересечения правее point, когда cross и dy одного знака
+        if (cross(a, b, point) &gt; 0) == (b[1] &gt; a[1]):
+            inside = not inside
+    return inside
+
+
+if __name__ == "__main__":
+    poly = [(0, 0), (6, 0), (6, 6), (3, 2), (0, 6)]
+    for point in [(3, 1), (3, 4), (1, 4), (5, 5)]:
+        print(point, point_in_polygon(poly, point))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Принадлежность точки многоугольнику (правило луча), O(n)
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+// Векторное произведение (b - a) x (p - a)
+long long cross(const Point&amp; a, const Point&amp; b, const Point&amp; p) {
+    return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+}
+
+// Луч из точки вправо: нечётное число пересечений с рёбрами означает «внутри»
+bool point_in_polygon(const std::vector&lt;Point&gt;&amp; polygon, const Point&amp; point) {
+    bool inside = false;
+    const size_t n = polygon.size();
+    for (size_t i = 0; i &lt; n; ++i) {
+        const Point&amp; a = polygon[i];
+        const Point&amp; b = polygon[(i + 1) % n];
+        // Ребро пересекает луч, только если его концы по разные стороны от горизонтали
+        if ((a.y &gt; point.y) == (b.y &gt; point.y)) continue;
+        // Точка пересечения правее point, когда cross и dy одного знака
+        if ((cross(a, b, point) &gt; 0) == (b.y &gt; a.y)) inside = !inside;
+    }
+    return inside;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; poly = {{0, 0}, {6, 0}, {6, 6}, {3, 2}, {0, 6}};
+    const std::vector&lt;Point&gt; tests = {{3, 1}, {3, 4}, {1, 4}, {5, 5}};
+    for (const Point&amp; p : tests) {
+        std::printf("(%lld, %lld) %d\n", p.x, p.y, point_in_polygon(poly, p) ? 1 : 0);
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
+// Принадлежность точки многоугольнику (правило луча), O(n)
+type Point = (i64, i64);
+
+// Векторное произведение (b - a) x (p - a)
+fn cross(a: Point, b: Point, p: Point) -&gt; i64 {
+    (b.0 - a.0) * (p.1 - a.1) - (b.1 - a.1) * (p.0 - a.0)
+}
+
+// Луч из точки вправо: нечётное число пересечений с рёбрами означает «внутри»
+pub fn point_in_polygon(polygon: &amp;[Point], point: Point) -&gt; bool {
+    let mut inside = false;
+    for (&amp;a, &amp;b) in polygon.iter().zip(polygon.iter().cycle().skip(1)) {
+        // Ребро пересекает луч, только если его концы по разные стороны от горизонтали
+        if (a.1 &gt; point.1) == (b.1 &gt; point.1) {
+            continue;
+        }
+        // Точка пересечения правее point, когда cross и dy одного знака
+        if (cross(a, b, point) &gt; 0) == (b.1 &gt; a.1) {
+            inside = !inside;
+        }
+    }
+    inside
+}
+
+fn main() {
+    let poly = [(0, 0), (6, 0), (6, 6), (3, 2), (0, 6)];
+    for point in [(3, 1), (3, 4), (1, 4), (5, 5)] {
+        println!("{:?} {}", point, point_in_polygon(&amp;poly, point));
+    }
+}
+</code></pre>
+<p>Продолжение темы: лекция <a href="geom_homogeneous.html">«Однородные координаты: точки, прямые, пересечения»</a> и лекция <a href="geom_transforms.html">«Преобразования плоскости в однородных координатах»</a>.</p>
+</div>
+
+</body>
+
+</html>

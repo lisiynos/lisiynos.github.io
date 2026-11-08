@@ -1,0 +1,558 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Основные геометрические понятия</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+    <link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Геометрия: основные понятия</h1>
+
+    <ul class="tags">
+        <li><a href="#">Геометрия</a></li>
+    </ul>
+
+    <h3>Этапы решения задачи "на геометрию"</h3>
+
+    <ol>
+        <li>Выразить <strong>условия</strong> задачи через <strong>уравнения</strong> и <strong>неравенства</strong>.
+        </li>
+        <li><strong>Решение</strong> системы уравнений/неравенств.</li>
+        <li><strong>Интерпретация</strong> результатов, анализ частных случаев (деление на ноль, корень из
+            отрицательного
+            числа и т.д.).
+        </li>
+    </ol>
+
+    <h3>Системы координат и векторы</h3>
+
+    <p>Положение любой точки $P$ в пространстве (в частности, на плоскости) может быть определено при помощи той или
+        иной
+        системы координат. Числа, определяющие положение точки, называются
+        <strong>
+            <a title="Координаты — величины, определяющие положение точки (тела) в пространстве (на плоскости, на прямой)">координатами</a>
+        </strong>
+        этой точки. Наиболее употребительные координатные системы - декартовы прямоугольные. Кроме прямоугольных систем
+        координат существуют косоугольные системы (когда координатные оси расположены не под прямым углом).
+        Прямоугольные и
+        косоугольные координатные системы объединяются под названием <i>декартовых систем координат</i>.</p>
+
+    <p>Иногда на плоскости применяют полярные системы координат, а в пространстве - цилиндрические или сферические
+        системы
+        координат.</p>
+
+    <div style="float:right;margin:0 0 0 10px;"><img loading="lazy" decoding="async" src="geom1/1.png">
+
+        <p class="title">Рис. 1</p>
+    </div>
+
+    <p>Для задания <b>декартовой прямоугольной системы</b> координат нужно выбрать несколько взаимно перпендикулярных
+        прямых, называемых осями. Точка пересечения осей $O$ называется началом координат. На каждой оси нужно задать
+        положительное направление и выбрать единицу масштаба. Координаты точки $P$ считаются положительными или
+        отрицательными в зависимости от того, на какую полуось попадает проекция точки $P$.</p>
+
+    <p>Когда говорят про двухмерную систему координат, горизонтальную ось называют осью абсцисс (осью $Ox$),
+        вертикальную
+        ось - осью ординат (осью $Оy$). Положительные направления выбирают на оси $Ox$ - вправо, на оси $Oy$ - вверх.
+        Координаты $x$ и $y$ называются соответственно <strong>абсциссой</strong> и <strong>ординатой</strong> точки.
+        Запись $P(a,b)$ означает, что точка $P$ на плоскости имеет абсциссу $a$ и ординату $b$  (рис.1).</p>
+
+    <p>Декартовыми прямоугольными координатами точки $P$ в трехмерном пространстве называются
+        взятые с определенным знаком расстояния (выраженные в единицах масштаба) этой точки до трех взаимно
+        перпендикулярных координатных плоскостей. В зависимости от взаимного расположения положительных направлений
+        координатных осей возможны левая и правая координатные системы.</p>
+
+    <div style="float:left;margin:0 10px 0 0;"><img loading="lazy" decoding="async" src="geom1/2.png">
+
+        <p class="title">Рис. 2</p>
+    </div>
+
+    <p>Отрезок, концы  которого упорядочены (рис.2), называется <strong>направленным</strong>
+        (упорядоченность означает, что один конец отрезка считается начальной
+        точкой, а другой – конечной).</p>
+
+    <p>Направленный отрезок называется <strong>вектором</strong>.</p>
+
+    <p>Длина вектора называется его <strong>модулем: <br>
+    </strong>|<strong> </strong><strong><i>a</i></strong> | – обозначение
+        модуля вектора <strong><i>a</i></strong>.</p>
+
+    <p>Проекции вектора $a$ с начальной точкой $(x_1,y_1)$ и конечной точкой $(x_2,y_2)$ на оси координат называются
+        <strong>координатами</strong> вектора: $a = \{ x_2 – x_1, y_2 – y_1\}$ или
+        <strong><i>a</i></strong>(<i>X,&nbsp;</i><i>Y</i>).
+        Модуль вектора через его координаты: $|a| = \sqrt{X^2+Y^2}$</p>
+
+    <p>Два вектора считаются равными, если они имеют одинаковую длину и направление (равенство соответствующих
+        координат),
+        следовательно, алгебраическое представление вектора — это упорядоченный набор чисел (его координаты). Сложение и
+        вычитание
+        векторов<strong><i> </i></strong><strong><i>a</i></strong>(<i>X</i><sub>1</sub><i>,</i><i>Y</i><sub>1</sub>) и
+        <strong><i>b</i></strong>(<i>X</i><sub>2</sub>, <i>Y</i><sub>2</sub>),
+        умножение вектора на число <i><span>t</span></i> определяются по следующим правилам:</p>
+
+    <p><strong><i>a</i></strong><i><span>
+</span></i>&#177;<i> <strong>b</strong></i><span> = (</span><i>X</i><sub><span>1</span><i>&nbsp;</i></sub>&#177;
+        <i>X</i><sub><span>2</span></sub><span>,Y<sub>1</sub></span><i><sub>&nbsp;</sub></i>&#177;<i> </i><i>
+            <span>Y</span></i><sub><span>2</span></sub><span>)</span></p>
+
+    <p><i><span>t<strong>a</strong></span></i> = (<i><span>tX</span></i><sub>1</sub><i>,
+    </i><i><span>tY</span></i><sub>1</sub>)</p>
+
+    <p style='text-indent:18.0pt'>Вектора, отличающиеся множителем, называются <strong><i>коллинеарными</i></strong>.
+    </p>
+
+
+    <h3>Скалярное и векторное произведение</h3>
+
+    <p><strong>Скалярное
+        произведение</strong> двух векторов – это число, равное произведению
+        модулей этих
+        векторов на косинус угла между ними <i>(</i><strong><i>a</i></strong><i>,
+        </i><strong><i>b</i></strong><i>)</i> =
+        |<strong><i>a</i></strong>|&#183;|<strong><i>b</i></strong>|
+        <i><span>cos</span></i><i>&#966;</i>.</p>
+
+    <p><i><cite>Следствие.</cite></i>
+        Если два вектора перпендикулярны, то их скалярное произведение равно
+        нулю.</p>
+
+    <p>Угол между
+        векторами – это наименьший угол между направленными отрезками,
+        приведенными к
+        одной начальной точке (рис. 3). </p>
+
+    <div style="float:left;margin:0 10px 0 0;"><img loading="lazy" decoding="async" src="geom1/4.png">
+
+        <p class="title">Рис. 3</p>
+    </div>
+
+    <p style='margin-left:47.85pt;'>1.&nbsp;&nbsp;&nbsp;Если угол
+        <i>&#966;&nbsp;</i>- острый, то (<strong><i>a</i></strong><i>,
+        </i><strong><i>b</i></strong>)&gt;0.</p>
+
+    <p style='margin-left:37.85pt;'>2.&nbsp;&nbsp;&nbsp;Если
+        угол <i>&#966; </i>-
+        тупой, то <i>(</i><strong><i>a</i></strong><i>, </i><strong><i>b</i></strong>)&lt;0.</p>
+
+    <p style='margin-left:37.85pt;'>3.&nbsp;&nbsp;&nbsp;Если  
+        вектор <strong><i>a</i></strong> перпендикулярен
+        вектору<strong> </strong><strong><i>b</i></strong>, то (<strong><i>a</i></strong><i>,
+        </i><strong><i>b</i></strong><i>)=</i>0.</p>
+
+    <p style='margin-left:37.85pt;'>4.&nbsp;&nbsp;&nbsp;<span lang=EN-
+                                                              US>(<strong><i>a</i></strong>,<i> <strong>a</strong>) =
+</i>|<strong><i>a</i></strong>|<sup>2</sup></span>.</p>
+
+    <p>Скалярное
+        произведение двух векторов
+        <strong><i>a</i></strong>(<i>X</i><sub>1</sub><i>,
+        </i><i>Y</i><sub>1</sub>)<i>
+        </i>и <strong><i>b</i></strong>(<i>X</i><sub>2</sub>, <i>Y</i><sub>2</sub>)
+        через их координаты выражается следующим
+        образом: (<strong><i>a</i></strong><i>, </i><strong><i>b</i></strong>) =
+        <i>X<sub>1</sub></i> &#183; <i>X<sub>2
+        </sub>+ </i><i>Y<sub>1 </sub></i>&#183; <i>Y</i><sub>2</sub></p>
+
+    <p>Из определения
+        скалярного произведения можно найти косинус угла, выраженный через
+        координаты
+        векторов.</p>
+
+    <p>
+        $\cos{\phi}=\frac{{x_1}{x_2}+{y_1}{y_2}}{\sqrt{{x_1}^2+{y_1}^2}\sqrt{{x_2}^2+{y_2}^2}}$
+    </p>
+
+
+    <p style='text-indent:35.4pt'><img loading="lazy" decoding="async" src="geom1/5.png" width="188"
+                                       height="52"></p>
+
+    <p><i><cite>Следствие.</cite></i>
+        Вектор <strong><i>b</i></strong>(<i>Y</i>,&nbsp;<i>-</i><i>X</i>) будет
+        перпендикулярен вектору
+        <strong><i>a</i></strong>(<i>X</i>,<i>&nbsp;Y</i>).</p>
+
+    <p style='text-indent:36.0pt'>&nbsp;</p>
+
+    <p>В трехмерном
+        пространстве для векторов
+        <strong><i>a</i></strong>(<i>X</i><sub>1</sub><i>,&nbsp;</i><i>Y</i><sub>1
+        </sub>,<i>&nbsp;<span>Z</span></i><sub>1</sub>) и
+        <strong><i>b</i></strong>(<i>X</i><sub>2</sub>,&nbsp;<i>Y</i><sub>2</sub>,&nbsp;
+        <i><span>Z</span></i><sub>2</sub>) соответственно формула скалярного произведения выражается:<i>
+            (</i><strong><i>a</i></strong><i>,
+        </i><strong><i>b</i></strong>) =
+        <i>X</i><sub>1</sub>&#183;<i>X</i><sub>2<i>
+        </i></sub><i>+
+        </i><i>Y</i><sub>1</sub><i>&#183;</i><i>Y</i><sub>2 
+        </sub><i>+ </i><i>Z</i><sub>1</sub>&#183;<i>Z</i><sub>2
+        </sub>,<sub> </sub> а для угла -</p>
+
+    <p style='text-indent:36.0pt'><img loading="lazy" decoding="async" src="geom1/6.png" width="243"
+                                       height="51"></p>
+
+    <p>&nbsp;</p>
+
+    <div style="float:left;margin:0 10px 0 0;"><img loading="lazy" decoding="async" src="geom1/7.png">
+
+        <p class="title">Рис. 4</p>
+    </div>
+
+    <p><strong>Векторное произведение</strong> двух
+        векторов – это вектор, обозначаемый
+        [<strong><i>a&nbsp;</i></strong>&#215;&nbsp;<strong><i>b</i></strong>], который
+        определяется следующими условиями:</p>
+
+    <ol style='margin-top:0' start=1 type=1>
+        <li>длина вектора |[<strong><i><span
+            <span></i></strong>&#215;
+            <strong><i><span
+                <span>| =
+        |<strong><i>a</i></strong>|&#183;|<strong><i><span>b</span></i></st
+                        <span>              >sin</span></i><i>&#966;</i>;
+                <span> угол
+        между векторами (т.е. равна <span>S</span> - площади
+        параллелограмма, построенного на сторонах <i>a</i>
+        и <i>b</i>);
+        </li>
+        <li>[<strong><i>a<span> </span></i></strong><i>&#215;<span> </sp<span></i></strong>] вектор
+            перпендикуляр<span>ong><i>a</i></strong>, так и
+        вектору <strong><i>b</i></strong>;
+        </li>
+        <li>[<strong><i>a<span> </span></i></strong><i>&#215;<span> </span></i><strong><i>b</i></s
+            <span>       как ось <i><span>oz</span><span>
+</s<span>span
+                >ox</span></i> и <i><span>oy</span></i>, то
+        есть
+        вектора <strong><i>a</i></strong>, <st<span>        и [<strong><i>a </i></strong><i>&#215;<span> </span></i><strong><i><span>b</span></i></strong>] образуют правую тройку (по правилу
+        “буравч<span>ng><i>a</i></strong>
+            поворачиват<span>>b<span>
+</span></i></strong>по
+        меньшему углу).
+        </li>
+    </ol>
+
+    <p style='text-indent:20pt'>&nbsp;</p>
+
+    <p>Векторное
+        произведение геометрически представлено на рис.4.</p>
+
+    <p>Векторное
+        произведение двух векторов через координаты выражается следующим
+        образом: </p>
+
+    <p><span>[<strong><i>a </i></strong></span><i>&#215;</i><i><span> <strong>b</strong></span></i><span>] =
+(<i>Y</i><sub>1</sub></span><i>&#183;</i><i><span>
+Z<sub<span>b>2</sub></span></i><i>&#183;</i><i><span> Z</span<span> lang=EN-
+                                 US>1</span></sub>
+        <span>)</span>&#183;<strong><i><span>i </span></i></strong><span>+ (<i>Z</i><s<span>n>&#183;<i><span> X<sub>2 </sub>- Z</span></i><sub><span
+                lang=EN-
+                                                <span>ub><i>&#183;</i><i><span>
+X</sp<span>an
+        >1</span></sub><span>)</span><span
+  <span>nt-family:
+Symbol'>&times;</span><strong><i><span>j +
+</span></i></strong><span>(<i>X</i><sub>1</sub></span>&#183;<i>Y</i><sub><span>2 </span></su
+                <span>    >- X</span></i><sub><span lang=EN-
+                                                    US>2</span></sub><i>&#183;</i><i><span>
+Y</span></i><sub>
+        <spa
+        <span>pan></sub><span>)</span><span
+            style='font-family<span>s;</span><strong><i>k</i></<span>/span>или</p>
+
+<div style="float:left;margin:10px 10px 0 0;"><img loading="lazy" decoding="async" src="geom1/8.png">
+</div>
+
+<p>где <strong><i>i</i></strong>,
+    <st<span>strong>, <strong><i>k&nbsp;</i></strong>единичные вектора осей <span>OX</span>, <span>OY</span>, <span>OZ</span> соответственно;
+<span>det</span>(…) – означает определитель матрицы,
+    составленной из орт
+    осей и координат исходных векторов.</p>
+
+<p> Если
+    плоскость исходных векторов взять за пл<span>EN-
+                    <span>                  US>XY</span>, то в
+    формулах коорди<span>sub>и Z<sub>2
+    </sub>равны нулю.</p>
+
+<p style=' text-indent:20pt'>Следует
+        обратить внимание на многозначность свойств приведенных
+        геометрических понятий,
+        которые можно использовать в различных задачах. Например, для понятия
+        векторное
+        произведение:
+    </p>
+    <ul>
+        <li>длина результирующего вектора определяет площадь
+            параллелограмма,
+            построенного на заданных векторах;
+        </li>
+
+        <li>нулевое значение длины — параллельность векторов;</li>
+
+        <li>результирующий вектор определяет нормаль к плоскости заданных
+            векторов;
+        </li>
+
+        <li>его направление означает, что один вектор расположен «слева» или
+            «справа» относительно другого.
+        </li>
+    </ul>
+    <h3>4.1.3. Уравнения прямой и
+        окружности на плоскости</h3>
+
+    <p style='margin: 6.0pt 0cm 0cm;text-indent:17.0pt'>a)<span
+            style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Через
+        заданную на плоскости точку с координатами
+        (<i>X<sub>0</sub>,</i><i><span>y</span><sub>0</sub></i>) можно провести прямую,
+        перпендикулярную
+        вектору <strong>$n$</strong>(<i>a</i>,<i>b</i>).
+        Для любой точки на этой прямой с координатами (<i>X,</i><i>Y</i>)
+        направляющий вектор <strong><i><span>a&nbsp;</span>=</i></stron<span>lang=EN-
+                                                          US>&nbsp;</span></i></strong>{<i>X
+            – </i><i>X</i><i><sub>0</sub>,
+        </i><i><span>y</span></i><i><sub> </sub>–
+            y<sub>0</sub></i>}<i>
+        </i>перпендикулярен  вект<span>><i><span lang=EN-
+                                                 US>n</span></i></strong>,
+    т.е. скалярное произведение (<strong><i><span lang=EN-
+                                                <span>strong><i>, </i><strong><i>a</i></strong><i>) </i>= 0
+    или
+    <i>A(</i><i>X
+                                                        – </i><i>X</i><sub>0</sub>)<i><span lang=EN-
+                                                                                            US>&nbsp;</span>+</i><i><span>&nbsp;</span>B(</i><i>Y</i><sub>&nbsp;</sub><i>–
+                                                        y</i><sub>0</sub>) = 0. Раскрывая скобки, легко
+    получить <i><span>&nbsp;</span></i>классическое
+    уравнение прямой<i>
+                                                        Ax</i><i><span>&nbsp;</span>+</i><i><span lang=EN-
+                                                                                                  US>&nbsp;</span>By</i><i><span
+         <span>/i><i><span lang=EN-
+                           US>&nbsp;</span>C</i><i><span>&nbsp;</span></i>=<span>&nbsp;</span>0, где
+    константа <i>C</i><i><span>&nbsp;</span></i>= <i>-A
+             </i><i>X</i><sub>0</sub><i><span>&nbsp;</span>-B y</i><sub>0</sub>.</p>
+
+    <p style='margin: 6.0<span>ent:17.0pt'><i>b)<span
+            style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></i>Уравнение
+        прям<span>й данной <i>Ax</i><i><span lang=EN-
+        <span>span>+</i><i><span>&nbsp;</span>By</i><i><span lang=EN-
+        <span>                      US>&nbsp;</span>+</i><i><span>&nbsp;</span>C</i><i><span lang=EN-
+                                                                                             US>&nbsp;</span>=</i><i><span>&nbsp;</span>0, </i>имеет вид <br>
+    <i><span>Bx</span> - </i><i><span>Ay</span>
+            + </i><i><span>C</span><sub>1</sub> = 0.</i></p>
+
+    <<span>0pt 0cm 0cm;text-indent:17.0pt'>c)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Уравнен<span>одящей через две различные точки с координатами
+    (<i>X</i><sub>1</sub><i>,</i><i><span lang=EN-
+        <span>         US>&nbsp;y</span></i><sub>1</sub>)
+    <i>и (</i><i>X</i><sub>2</sub><i>,&nbsp;</i><i><span
+            <span></sub><i>)</i>, выражается следующей
+    формулой:
+
+<p class="image"><img loading="lazy" decoding="async" src="geom1/9.png" width="278" height="69"></p>
+
+<p style='text-indent:20pt'>Эта формула выражает коллинеарность
+    векторов {<i>X – </i><i>X</i><sub>1</sub>,<i>
+    </i><i>Y</i><sub>&nbsp;</sub><i>– y</i><sub>1</sub>} и
+    {<i>X</i><sub>2</sub><i>
+        – </i><i>X</i><sub>1</sub>,<i> y</i><sub>2 </sub><i>–
+        y</i><sub>1</sub>}
+    для любой то<span></i>)
+    на прямой. </p>
+
+    <p style='text-indent:20pt'>От этого
+        уравнения тоже легко перейти к уравнению классического вида
+        <i>Ax</i><i><span>&nbsp;</span>+</i><i><span lang=EN-
+                                                     US>&nbsp;</span>By</i><i><span>&nbsp;</span>+</i><i><span lang=EN-
+                                                                                                               US>&nbsp;</span>C</i><i><span>&nbsp;</span>=</i><i><span
+                lang=EN-
+                US>&nbsp;</span>0</i>, где <i>A</i><i><span
+                lang=EN-
+                US>&nbsp;</span>=&nbsp;</i><i>Y</i><sub>1<i>&nbsp;</i></sub><i>–
+   <span>span
+            >y</span></i><sub>2</sub>,<i> B</i><i><span lang=EN-
+            <span>p;</span>=</i><i><span>&nbsp;x</span></i><sub>2</sub><sub><span lang=EN-
+            <span>        US>&nbsp;</span></sub><i>–</i><i><span>&nbsp;x</span></i><sub>1</sub>, <i>C
+            =</i><i>X</i><sub>1</sub><i>
+        </i><i>Y</i><sub>2</sub><i>– </i><i>X</i><sub>2
+        </sub><i>Y</i><sub>1</sub>.</p>
+
+<p style='margin: 6.0pt 0cm 0<span>pt'>d)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Уравнение
+    прямой в параметрическом виде задается системой уравнений<span>gin-left:35.4pt;'><i><span>x&nbsp;= &nbsp;x</span></i><sub><span
+            lang=EN-
+            US>1</span></sub><i><span>sp;t (x</span></i><sub><span lang=EN-
+                                                                   US>2&nbsp;</span></sub><i><span>–&nbsp;x</span></i><sub><span
+            lang=EN-
+            US>1</span></sub><i><span>)</span></i></p>
+
+<p style='margin-left:35.4pt;'><i><span>y&nbsp;&nbsp;= &nbsp;y</span></i><sub><span lang=EN-
+                                                                                    US<span></span></sub><i><span>+ t (y</span></i><sub><span
+        lang=EN-
+        US>2</span></sub><<span> >– y</span></i><sub><span lang=EN-
+                                                           US>1</span></sub><i><span>).</span></i><<span>margin-left:35.4pt;'>Эта же система
+    может задавать и отрезок при <i><span>t</span></i><span
+           <span>2; [0, 1], и луч при <i><span>t</span></i> &#871<span>fty].</p>
+
+<p style='margin: 6.0pt 0cm 0cm;text-indent:17.0pt'>e)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Уравнени<span>и с центром в точке с координатами 
+    <i>(</i><i>X</i><sub>1</sub><i>,</i><i><span>&nbsp<span>ub>1</sub><i>)</i> и радиусом
+    <i><span>r</span></i> имеет вид: (<i>X</i><sub>
+            <sp
+            <span>>&nbsp;</span></sub><i>–</i><i><span lang=EN-
+                                                       US>&nbsp;x</span></i><sub>1</sub><span> (<i>Y
+            – </i><sub> </sub><i>Y</i><sub>1</sub>)<sup<span>span>r</span></i><sup>2</sup>.</p>
+
+<p style='margin: 6.0pt 0cm 0cm;text-indent:17.0pt'>f)<span
+        style='font:7.0pt "Times New
+Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Уравнения
+    окружности в параметрическом виде выглядят так:</p>
+
+<p style='margin-left:35.4pt;'><i><s<span>;= &nbsp;x</span></i><sub><span lang=EN-
+    <span>S>1</span></sub><i><span>+ r cos</span></i<span>
+<p style='margin-left:35.4pt;'><i><span>y&nbsp;&nbsp;= &nbsp;y</span></i><sub><span lang=EN-
+                                                                                    US>1<i>&nbsp;</i></span></sub><i><span>+ r sin</span></i><i>&#966;</i><i><span>  </span></i>при <i>&#966;</i><i>&nbsp;</i>&#8712; [0,
+    2&#960;]</p>
+
+<h2>Примеры задач</h2>
+
+<h3>Пересечение 2-х прямых</h3>
+
+<p>
+    ${A_1}x+{B_1}y+C_1=0$<br>
+    ${A_2}x+{B_2}y+C_2=0$<br>
+
+    $x,y - ?$<br>
+</p>
+
+<p>
+    Выразим $x$ из первого уравнения:
+    $x = \frac{-{B_1}y-C_1}{A_1}$
+    Выразим $x$ из второго уравнения:
+    $x = \frac{-{B_2}y-C_2}{A_2}$
+
+    Приравняем их:
+
+    $\frac{{B_1}y+C_1}{A_1} = \frac{{B_2}y+C_2}{A_2}$
+
+    ${A_1}{B_2}y+{A_1}{C_2}={A_2}{B_1}y+{A_2}{C_1}$
+
+    $y = \frac{{A_2}{C_1}-{A_1}{C_2}}{ {A_1}{B_2}-{A_2}{B_1} }$
+
+    $x = \frac{-{C_1}-B_1y}{A_1}$
+
+    Или по симметрии заменить A на B:
+    $x = \frac{{B_2}{C_1}-{B_1}{C_2}}{ {B_1}{A_2}-{B_2}{A_1} }$
+</p>
+
+<h3>Отрезки при помощи векторов</h3>
+
+<p>Если отрезок $AB$ рассматривать как направленный (от $A$ к $B$), он задаёт вектор $\overrightarrow{AB}=\{x_2-x_1,\;y_2-y_1\}$,
+    где $A(x_1,y_1)$ и $B(x_2,y_2)$. Точка $P$ принадлежит отрезку $AB$ тогда и только тогда, когда
+    $\overrightarrow{AP}=t\,\overrightarrow{AB}$ при некотором числе $t$ из отрезка $[0,1]$. Поэтому отрезок можно
+    задать параметрически:</p>
+
+<p>$$P(t)=A+t\,\overrightarrow{AB},\qquad x=x_1+t\,(x_2-x_1),\qquad y=y_1+t\,(y_2-y_1),\qquad 0\le t\le 1.$$</p>
+
+<p>При $t=0$ получается точка $A$, при $t=1$ — точка $B$, при $t=\frac12$ — середина отрезка. Значения $t$ вне
+    отрезка $[0,1]$ дают точки прямой $AB$, которые не принадлежат отрезку.</p>
+
+<p>Для плоских векторов $\vec a=\{X_1,Y_1\}$ и $\vec b=\{X_2,Y_2\}$ число $\vec a\times\vec b=X_1Y_2-Y_1X_2$ является
+    третьей координатой векторного произведения векторов $\{X_1,Y_1,0\}$ и $\{X_2,Y_2,0\}$. Оно обладает следующими
+    свойствами:</p>
+
+<ul>
+    <li>модуль $|\vec a\times\vec b|$ равен площади параллелограмма, построенного на $\vec a$ и $\vec b$;</li>
+    <li>$\vec a\times\vec b=0$ тогда и только тогда, когда векторы коллинеарны;</li>
+    <li>если $\vec a\times\vec b&gt;0$, то поворот от $\vec a$ к $\vec b$ на меньший угол совершается против часовой
+        стрелки, а при $\vec a\times\vec b&lt;0$ — по часовой стрелке.</li>
+</ul>
+
+<p>Знак числа $\overrightarrow{AB}\times\overrightarrow{AP}$ показывает, с какой стороны от прямой $AB$ лежит точка
+    $P$: при положительном знаке — слева от направления $A\to B$, при отрицательном — справа, при нулевом — на
+    прямой $AB$.</p>
+
+<p>Пусть даны отрезки $AB$ и $CD$. Вычислим четыре числа:</p>
+
+<p>$$\delta_1=\overrightarrow{AB}\times\overrightarrow{AC},\quad \delta_2=\overrightarrow{AB}\times\overrightarrow{AD},
+    \quad \delta_3=\overrightarrow{CD}\times\overrightarrow{CA},\quad \delta_4=\overrightarrow{CD}\times\overrightarrow{CB}.$$</p>
+
+<p>Отрезки $AB$ и $CD$ имеют общую точку тогда и только тогда, когда выполнены два условия:</p>
+
+<ol>
+    <li>$\delta_1\delta_2\le 0$ и $\delta_3\delta_4\le 0$: концы каждого отрезка лежат по разные стороны от прямой,
+        содержащей другой отрезок, или на ней;</li>
+    <li>проекции отрезков на ось $Ox$ имеют общую точку, и проекции отрезков на ось $Oy$ имеют общую точку.</li>
+</ol>
+
+<p>Если хотя бы одно из чисел $\delta_i$ отлично от нуля, то условие 1 выполнено тогда и только тогда, когда отрезки
+    имеют общую точку, и условие 2 ничего не добавляет. Если же все $\delta_i$ равны нулю, то все четыре конца лежат
+    на одной прямой, условие 1 выполнено автоматически, и отрезки пересекаются тогда и только тогда, когда выполнено
+    условие 2. Например, отрезки $AB$ с $A(0,0)$, $B(2,0)$ и $CD$ с $C(3,0)$, $D(5,0)$ лежат на оси $Ox$, все
+    $\delta_i=0$, но их проекции $[0,2]$ и $[3,5]$ на ось $Ox$ не пересекаются, поэтому общих точек нет.</p>
+
+<p><i><cite>Пример.</cite></i>
+    Для отрезков $AB$ с $A(0,0)$, $B(4,4)$ и $CD$ с $C(0,4)$, $D(4,0)$ получаем $\delta_1=16$, $\delta_2=-16$,
+    $\delta_3=-16$, $\delta_4=16$. Оба условия выполнены, и отрезки пересекаются в точке $(2,2)$.</p>
+
+<p>Функция segments_intersect проверяет оба условия. Если координаты точек целые, все вычисления выполняются в целых числах,
+    поэтому округления не возникают.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+def vector(p, q):
+    """Вектор PQ с координатами (q_x - p_x, q_y - p_y)."""
+    return q[0] - p[0], q[1] - p[1]
+
+
+def cross(u, v):
+    """Векторное произведение плоских векторов u и v: u_x * v_y - u_y * v_x."""
+    return u[0] * v[1] - u[1] * v[0]
+
+
+def side(a, b, p):
+    """Знак AB x AP: плюс - P слева от AB, минус - справа, ноль - P на прямой AB."""
+    return cross(vector(a, b), vector(a, p))
+
+
+def projections_overlap(a, b, c, d):
+    """Пересекаются ли отрезки [a, b] и [c, d] на числовой прямой."""
+    return max(min(a, b), min(c, d)) &lt;= min(max(a, b), max(c, d))
+
+
+def segments_intersect(a, b, c, d):
+    """Есть ли у отрезков AB и CD общая точка. Точки - пары целых чисел."""
+    if not projections_overlap(a[0], b[0], c[0], d[0]):
+        return False
+    if not projections_overlap(a[1], b[1], c[1], d[1]):
+        return False
+    return side(a, b, c) * side(a, b, d) &lt;= 0 and side(c, d, a) * side(c, d, b) &lt;= 0
+
+
+if __name__ == "__main__":
+    print("Диагонали квадрата:", segments_intersect((0, 0), (4, 4), (0, 4), (4, 0)))
+    print("На одной прямой:", segments_intersect((0, 0), (2, 0), (3, 0), (5, 0)))
+    print("Касание концом:", segments_intersect((0, 0), (2, 0), (1, 0), (1, 5)))
+    print("Параллельные:", segments_intersect((0, 0), (2, 1), (0, 1), (2, 2)))
+    print("Точка на отрезке:", segments_intersect((1, 1), (1, 1), (0, 0), (2, 2)))
+</pre>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,258 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Тестирование решений на архивах тестов</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_java.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_basic.js"></script>
+    <script type="text/javascript" src="../syntax/sh_alg.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+
+    <script src="../Scripts/swfobject_modified.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+    <h1>Командная работа (решение олимпиад прошлых лет)</h1>
+
+    <ul class="tags">
+        <li><a href="#">Олимпиада</a></li>
+    </ul>
+
+    <h2>Работа с архивами олимпиад</h2>
+
+    <p>Архивы с прошедшими олимпиадами (условия, тесты, решения) можно найти на сайтах (список неполный).</p>
+    <ul>
+        <li><strong>На русском языке:</strong>
+            <ul>
+                <li><a href="http://neerc.ifmo.ru/school/archive/index.html">http://neerc.ifmo.ru/school/archive/index.html</a>
+                    - архив материалов олимпиад от Андрея Станкевича. В том числе: <a
+                            href="http://neerc.ifmo.ru/school/archive/2010-2011.html#regional">http://neerc.ifmo.ru/school/archive/2010-2011.html#regional</a>
+                    - областные (региональные) туры.
+                </li>
+                <li><a href="http://olympiads.ru/">http://olympiads.ru</a> - архивы Московских (в основном) олимпиад по
+                    информатике.
+                </li>
+                <li><a href="http://byoi.narod.ru/">http://byoi.narod.ru/</a> - белорусские олимпиады по информатике
+                    (где-то до
+                    2005 года)
+                </li>
+                <li>...</li>
+            </ul>
+        </li>
+        <li><strong>На английском языке:</strong>
+            <ul>
+                <li>...</li>
+            </ul>
+        </li>
+    </ul>
+    <p>Список будет пополняться ;) </p>
+
+    <h2>Содержимое архива</h2>
+
+    <p>Задача, как правило, содержит тесты, решения жюри, условия и чекер (checker) - программу для проверки ответа на
+        однин тест. </p>
+
+    <h3>1. Компиляция чекера </h3>
+
+    <p>Чекер (checker) проверяет ответ участника на одном тесте. Он получает три файла: входной файл теста, вывод
+        программы участника и эталонный ответ жюри. Имена файлов передаются в командной строке в этом порядке:
+        <strong>check input.txt output.txt answer.txt</strong>. Вердикт чекер сообщает кодом возврата (соглашение
+        библиотеки <a href="https://github.com/MikeMirzayanov/testlib">testlib</a>, коды по умолчанию):</p>
+    <ul>
+        <li><strong>0</strong> - OK: ответ верный;</li>
+        <li><strong>1</strong> - WA (Wrong Answer): ответ неверный;</li>
+        <li><strong>2</strong> - PE (Presentation Error): ответ верен по существу, но оформлен неверно, например, после
+            ответа есть лишний текст;</li>
+        <li><strong>3</strong> - FAIL: чекер или жюри не могут проверить тест, например, эталонный ответ не равен A+B.
+            Это ошибка организаторов, а не участника.</li>
+    </ul>
+    <p>Чекер обычно пишут с библиотекой <strong>testlib.h</strong> (Mike Mirzayanov), см. раздел «Чекер на С/C++» ниже.
+        Ниже приведён пример чекера для задачи A+B, который обходится без testlib.h и собирается без дополнительных
+        файлов: он сам читает три файла и возвращает те же коды.</p>
+    <p>Для компиляции можно использовать строку вида:</p>
+    <p><strong>g++ -std=c++17 -O2 -Wall check.cpp -o check.exe</strong></p>
+    <p>Запуск: <strong>check.exe input.txt output.txt answer.txt</strong> (в Linux: <strong>./check.exe input.txt output.txt answer.txt</strong>). Код возврата выводится командой
+        <strong>echo %errorlevel%</strong> в Windows или <strong>echo <code>$?</code></strong> в Linux.</p>
+    <p>Если аргументов командной строки не три, пример печатает четыре встроенных случая, по одному на каждый код
+        возврата.</p>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+#include &lt;charconv&gt;
+#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+#include &lt;system_error&gt;
+
+// Коды возврата чекера (соглашение testlib по умолчанию).
+enum Verdict { OK = 0, WA = 1, PE = 2, FAIL = 3 };
+
+// Целое число записано полностью (без знака '+', без лишних символов) и помещается в long long.
+bool parse_int(const std::string&amp; text, long long&amp; value) {
+    const char* end = text.data() + text.size();
+    const auto result = std::from_chars(text.data(), end, value);
+    return result.ec == std::errc() &amp;&amp; result.ptr == end;
+}
+
+// Сравнивает ответ участника с ответом жюри и печатает вердикт.
+Verdict check(std::istream&amp; input, std::istream&amp; output, std::istream&amp; answer) {
+    std::string a_text, b_text, jury_text, contestant_text, extra;
+    long long a = 0, b = 0, jury = 0, contestant = 0;
+    if (!(input &gt;&gt; a_text &gt;&gt; b_text) || !parse_int(a_text, a) || !parse_int(b_text, b)) {
+        std::cout &lt;&lt; "FAIL: input does not contain two integers\n";
+        return FAIL;
+    }
+    if (!(answer &gt;&gt; jury_text) || !parse_int(jury_text, jury) || jury != a + b) {
+        std::cout &lt;&lt; "FAIL: jury answer is wrong or missing\n";
+        return FAIL;
+    }
+    if (!(output &gt;&gt; contestant_text) || !parse_int(contestant_text, contestant)) {
+        std::cout &lt;&lt; "WA: no integer in the contestant output\n";
+        return WA;
+    }
+    if (contestant != jury) {
+        std::cout &lt;&lt; "WA: expected " &lt;&lt; jury &lt;&lt; ", got " &lt;&lt; contestant &lt;&lt; "\n";
+        return WA;
+    }
+    if (output &gt;&gt; extra) {
+        std::cout &lt;&lt; "PE: extra text after the answer: " &lt;&lt; extra &lt;&lt; "\n";
+        return PE;
+    }
+    std::cout &lt;&lt; "OK\n";
+    return OK;
+}
+
+// Если аргументов не три, программа показывает встроенные примеры: по одному на каждый код возврата.
+int demo() {
+    struct Test { const char* input; const char* output; const char* answer; };
+    const Test tests[] = {
+        {"2 3\n", "5\n", "5\n"},
+        {"2 3\n", "6\n", "5\n"},
+        {"2 3\n", "5 7\n", "5\n"},
+        {"2 3\n", "4\n", "4\n"},
+    };
+    for (const Test&amp; test : tests) {
+        std::istringstream input(test.input), output(test.output), answer(test.answer);
+        const Verdict verdict = check(input, output, answer);
+        std::cout &lt;&lt; "exit code " &lt;&lt; verdict &lt;&lt; "\n";
+    }
+    return 0;
+}
+
+// Запуск: check input.txt output.txt answer.txt; код возврата - вердикт.
+int main(int argc, char* argv[]) {
+    if (argc != 4) return demo();
+    std::ifstream input(argv[1]), output(argv[2]), answer(argv[3]);
+    return check(input, output, answer);
+}</pre>
+
+    <h3>Чекер на Delphi </h3>
+
+    <p>Обычно файл <a href="olymp/check.dpr">сheck.dpr</a>, может быть check.pas (на Borland Pascal).</p>
+
+    <p>Для компиляции нужна библиотека <a href="olymp/testlib.pas">testlib.pas</a>, которую, как правило, можно найти
+        там
+        же в
+        архиве.</p>
+
+    <p>Для компиляции можно: положить <a href="olymp/testlib.pas">testlib.pas</a> в ту же папку, что и check.dpr и
+        выполнить
+        команду <strong>dcc32 check.dpr</strong>.</p>
+
+    <p>Пример чекера <strong>check.dpr</strong> (русские буквы должны быть в DOS-кодировке cp866):</p>
+    <pre class="sh_pascal">
+{$APPTYPE CONSOLE}
+Uses TestLib, SysUtils;
+
+{ Чекер для задачи A+B (вывести сумму чисел, без длинной арифметики) }
+var A,B,C,J : int64;
+begin
+  A := inf.readLongint; { Число A из входного файла }
+  B := inf.readLongint; { Число B из входного файла }
+  C := ouf.readLongint; { C (Contestant) - ответ участника }
+  J := ans.readLongint; { J (Jury) - ответ жюри, может не использоваться! }
+  if C &lt;&gt; J then { Wrong Answer }
+    Quit(_WA,Format('%d + %d = %d, а выведено %d',[A,B,A+B,C]));
+  Quit(_OK,''); { Тест пройден! }
+end.</pre>
+    <p><strong>Чекер на С/C++</strong></p>
+
+    <p>Обычно файл называется <a href="olymp/check.cpp">check.cpp</a>. Для компиляции чаще всего нужна библиотека <a
+            href="olymp/testlib.h">testlib.h</a> (Mike Mirzayanov), с сайта <a href="http://code.google.com/p/testlib/">http://code.google.com/p/testlib/</a>.
+    </p>
+
+    <p>Для компиляции можно использовать строку вида:</p>
+
+    <p><strong>g++ -x c++ -O2 -Wall -Wl,--stack=67108864 check.cpp -o check.exe</strong></p>
+
+    <p>Пример чекера <strong>check.cpp</strong>:</p>
+
+    <pre class="sh_cpp">
+#include "testlib.h"
+
+int main( int argc, char *argv[] ) {
+  setName("Чекер для задачи A+B");
+  registerTestlibCmd(argc, argv); // Обработка параметров командной строки
+  int a = inf.readInt(), b = inf.readInt(); // Чтение исходных данных
+  int pa = ouf.readInt(); // Ответ участника
+  int ja = ans.readInt(); // Ответ жюри
+  if (ja != pa) // Wrong Answer
+    quitf(_wa, "%d + %d = %d, а выведено %d", a, b, ja, pa );
+  quitf(_ok, "ans = %d, a=%d,b=%d", pa, a, b); // Тест пройден
+}</pre>
+    <h3>2. Прогон на всех тестах с контролем времени и памяти</h3>
+
+    <p>Для этого можно использовать программу <a href="../run.exe">run.exe</a>, которую удобно поместить в папку с
+        решением и тестами. По-умолчанию программа ищет решение solution.dpr, компилирует его Delphi (dcc32), и
+        запускает на
+        всех тестах (01, 02,... до 99) используя имя входного файла <strong>input.txt</strong>, а выходного <strong>output.txt</strong>.
+        Для изменения этих настроек можно запустить программу <strong>run</strong> c параметрами командной строки или
+        создать файл <strong>task.cfg</strong>. Пример файла <strong>task.cfg</strong>:</p>
+    <pre>
+InputFile := bubble.in;
+OutputFile := bubble.out;
+CheckResult := true;</pre>
+    <ul>
+        <li><strong>InputFile</strong> - имя входного файла.</li>
+        <li><strong>OutputFile</strong> - имя выходного файла.</li>
+        <li><strong>CheckResult</strong> - запускать ли чекер <strong>check.exe</strong>.</li>
+    </ul>
+    <h3>3. Сборка условий задач (если они формате TeX)</h3>
+
+    <p>Под Windows можно использовать MikTex - <a href="http://miktex.org/">http://miktex.org</a>. В разделе Download
+        выберите подходящую версию. После установки удобно указать автоматическую доустановку пакетов.</p>
+
+    <p>Для сборки можно использовать <strong>bat/cmd</strong> файл следующего вида:</p>
+
+    <pre>
+@echo off
+set CURRENT=ИМЯ_TEX_ФАЙЛА
+latex %CURRENT%
+dvips -t landscape %CURRENT%
+dvipdfm -p a4 -l %CURRENT%
+</pre>
+
+    <p>&nbsp;</p>
+
+
+</div>
+<script type="text/javascript">
+    swfobject.registerObject("FlashID2");
+</script>
+</body>
+
+</html>

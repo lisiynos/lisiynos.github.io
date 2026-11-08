@@ -1,0 +1,383 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Структуры данных: рандомизированная куча, дерево двоичного поиска, декартово дерево по явному и неявному
+        ключу</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Структуры данных: рандомизированная куча, дерево двоичного поиска, декартово дерево по явному и неявному
+        ключу</h1>
+
+    <span class="theme">Структуры данных</span>
+
+
+
+    <h3 id="рандомизированная-куча-минимума">Рандомизированная куча минимума</h3>
+    <p>Куча минимума — это двоичное дерево, в котором ключ каждой вершины не больше ключей её детей, поэтому наименьший ключ находится в корне. Все операции с кучей выражаются через слияние двух куч $\mathrm{merge}(a, b)$.</p>
+    <p>Слияние устроено так. Если одна из куч пуста, результатом становится другая. Иначе корнем результата становится вершина с меньшим ключом, и её поддеревья с вероятностью $\frac{1}{2}$ меняются местами. После этого вторая куча сливается с левым поддеревом корня. Поэтому слияние с равной вероятностью продолжается то в одном, то в другом поддереве исходной вершины.</p>
+    <p>Вставка ключа $x$ — это слияние кучи с одновершинной кучей $\{x\}$. Извлечение минимума — это удаление корня и слияние его левого и правого поддеревьев.</p>
+    <p>Ожидаемая длина пути слияния равна $O(\log n)$, где $n$ — число вершин. Усреднение идёт по результатам монетки, а не по входным данным. Поэтому слияние, вставка и извлечение минимума выполняются за ожидаемое время $O(\log n)$. Без монетки, если всегда сливать в левое поддерево, вставка возрастающих ключей давала бы путь длины $O(n)$.</p>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Рандомизированная куча минимума: слияние, вставка и извлечение минимума за ожидаемое O(log n)
+from __future__ import annotations
+
+import random
+from dataclasses import dataclass
+
+
+@dataclass
+class Node:
+    key: int
+    left: Node | None = None
+    right: Node | None = None
+
+
+def merge(a: Node | None, b: Node | None) -&gt; Node | None:
+    """Сливает две кучи. Ожидаемое время O(log n)."""
+    if a is None:
+        return b
+    if b is None:
+        return a
+    if b.key &lt; a.key:
+        a, b = b, a  # в корне остаётся вершина с меньшим ключом
+    if random.random() &lt; 0.5:  # монетка: в левое или в правое поддерево пойдёт слияние
+        a.left, a.right = a.right, a.left
+    a.left = merge(a.left, b)
+    return a
+
+
+def insert(heap: Node | None, key: int) -&gt; Node | None:
+    return merge(heap, Node(key))
+
+
+def extract_min(heap: Node | None) -&gt; tuple[int, Node | None]:
+    """Возвращает минимум и кучу без него. Куча должна быть непустой."""
+    if heap is None:
+        raise IndexError("извлечение из пустой кучи")
+    return heap.key, merge(heap.left, heap.right)
+
+
+def main() -&gt; None:
+    random.seed(7)  # фиксированное зерно: демо всегда выводит один и тот же результат
+    heap = None
+    for key in [7, 3, 9, 1, 5, 8, 2]:
+        heap = insert(heap, key)
+    keys = []
+    while heap is not None:
+        key, heap = extract_min(heap)
+        keys.append(key)
+    print("Извлечение по возрастанию:", keys)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Рандомизированная куча минимума: слияние, вставка и извлечение минимума за ожидаемое O(log n)
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;random&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    long long key;
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+};
+
+using Heap = std::unique_ptr&lt;Node&gt;;
+
+// Слияние двух куч. Монетка решает, в левое или в правое поддерево пойдёт слияние.
+Heap merge(Heap a, Heap b, std::mt19937&amp; coins) {
+    if (!a) return b;
+    if (!b) return a;
+    if (b-&gt;key &lt; a-&gt;key) std::swap(a, b);  // в корне остаётся вершина с меньшим ключом
+    if (coins() % 2 == 1) std::swap(a-&gt;left, a-&gt;right);
+    a-&gt;left = merge(std::move(a-&gt;left), std::move(b), coins);
+    return a;
+}
+
+// Вставка: слияние кучи с одновершинной кучей.
+Heap insert(Heap heap, long long key, std::mt19937&amp; coins) {
+    auto node = std::make_unique&lt;Node&gt;(Node{key, nullptr, nullptr});
+    return merge(std::move(heap), std::move(node), coins);
+}
+
+// Извлечение минимума из непустой кучи: сливаем поддеревья корня.
+long long extract_min(Heap&amp; heap, std::mt19937&amp; coins) {
+    long long key = heap-&gt;key;
+    heap = merge(std::move(heap-&gt;left), std::move(heap-&gt;right), coins);
+    return key;
+}
+
+int main() {
+    std::mt19937 coins(7);  // фиксированное зерно: демо всегда выводит один и тот же результат
+    Heap heap;
+    for (long long key : {7, 3, 9, 1, 5, 8, 2}) heap = insert(std::move(heap), key, coins);
+    std::cout &lt;&lt; "Извлечение по возрастанию:";
+    while (heap) std::cout &lt;&lt; ' ' &lt;&lt; extract_min(heap, coins);
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Рандомизированная куча минимума: слияние, вставка и извлечение минимума за ожидаемое O(log n)
+
+/// Генератор xorshift64 (только std). Зерно должно быть ненулевым.
+pub struct Rng(pub u64);
+
+impl Rng {
+    pub fn next_u64(&amp;mut self) -&gt; u64 {
+        self.0 ^= self.0 &lt;&lt; 13;
+        self.0 ^= self.0 &gt;&gt; 7;
+        self.0 ^= self.0 &lt;&lt; 17;
+        self.0
+    }
+}
+
+pub struct Node {
+    pub key: i64,
+    pub left: Heap,
+    pub right: Heap,
+}
+
+pub type Heap = Option&lt;Box&lt;Node&gt;&gt;;
+
+/// Слияние двух куч. Монетка решает, в левое или в правое поддерево пойдёт слияние.
+pub fn merge(a: Heap, b: Heap, rng: &amp;mut Rng) -&gt; Heap {
+    match (a, b) {
+        (None, heap) | (heap, None) =&gt; heap,
+        (Some(x), Some(y)) =&gt; {
+            // В корне остаётся вершина с меньшим ключом (свойство кучи).
+            let (mut root, other) = if y.key &lt; x.key { (y, x) } else { (x, y) };
+            if rng.next_u64() % 2 == 1 {
+                std::mem::swap(&amp;mut root.left, &amp;mut root.right);
+            }
+            root.left = merge(root.left.take(), Some(other), rng);
+            Some(root)
+        }
+    }
+}
+
+/// Вставка: слияние кучи с одновершинной кучей.
+pub fn insert(heap: Heap, key: i64, rng: &amp;mut Rng) -&gt; Heap {
+    let node = Box::new(Node { key, left: None, right: None });
+    merge(heap, Some(node), rng)
+}
+
+/// Извлечение минимума: сливаем поддеревья корня.
+pub fn extract_min(heap: Heap, rng: &amp;mut Rng) -&gt; Option&lt;(i64, Heap)&gt; {
+    let Node { key, left, right } = *heap?;
+    Some((key, merge(left, right, rng)))
+}
+
+fn main() {
+    let mut rng = Rng(7); // фиксированное зерно: демо всегда выводит один и тот же результат
+    let mut heap: Heap = None;
+    for key in [7, 3, 9, 1, 5, 8, 2] {
+        heap = insert(heap, key, &amp;mut rng);
+    }
+    let mut keys = Vec::new();
+    while let Some((key, rest)) = extract_min(heap, &amp;mut rng) {
+        keys.push(key);
+        heap = rest;
+    }
+    println!("Извлечение по возрастанию: {keys:?}");
+}
+</code></pre>
+    <h3 id="дерево-двоичного-поиска">Дерево двоичного поиска</h3>
+    <p>В дереве двоичного поиска для каждой вершины все ключи левого поддерева меньше её ключа, а все ключи правого поддерева не меньше него. Равные ключи уходят вправо, поэтому дубликаты сохраняются.</p>
+    <p>Поиск начинается с корня: если искомый ключ меньше ключа вершины, идём влево, иначе вправо, пока ключ не найден или не встретилась пустая ссылка. Вставка проходит тот же путь, а новая вершина становится листом на месте, где путь обрывается.</p>
+    <p>Поиск и вставка работают за $O(h)$, где $h$ — высота дерева. Для сбалансированного дерева $h = O(\log n)$, но в худшем случае $h = O(n)$, например когда ключи вставляются по возрастанию.</p>
+    <p>Обход по порядку (сначала левое поддерево, затем вершина, затем правое поддерево) выводит ключи по возрастанию за $O(n)$. Декартово дерево, упомянутое в заголовке страницы, — это дерево двоичного поиска по ключу, которое одновременно является кучей по случайным приоритетам вершин; здесь оно не рассматривается.</p>
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Дерево двоичного поиска: поиск и вставка за O(h), обход по порядку за O(n), h - высота дерева
+from __future__ import annotations
+
+from collections.abc import Iterator
+from dataclasses import dataclass
+
+
+@dataclass
+class Node:
+    key: int
+    left: Node | None = None
+    right: Node | None = None
+
+
+def insert(root: Node | None, key: int) -&gt; Node:
+    """Вставка: равные ключи уходят вправо, дубликаты сохраняются."""
+    if root is None:
+        return Node(key)
+    if key &lt; root.key:
+        root.left = insert(root.left, key)
+    else:
+        root.right = insert(root.right, key)
+    return root
+
+
+def contains(root: Node | None, key: int) -&gt; bool:
+    node = root
+    while node is not None:
+        if node.key == key:
+            return True
+        node = node.left if key &lt; node.key else node.right
+    return False
+
+
+def keys_in_order(root: Node | None) -&gt; Iterator[int]:
+    """Обход по порядку: левое поддерево, вершина, правое поддерево."""
+    if root is None:
+        return
+    yield from keys_in_order(root.left)
+    yield root.key
+    yield from keys_in_order(root.right)
+
+
+def main() -&gt; None:
+    root = None
+    for key in [8, 3, 10, 1, 6, 14, 4, 7, 13]:
+        root = insert(root, key)
+    print(f"Поиск 6: {contains(root, 6)}, поиск 5: {contains(root, 5)}")
+    keys = list(keys_in_order(root))
+    print("Обход по порядку:", keys)
+    print("Отсортировано:", keys == sorted(keys))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Дерево двоичного поиска: поиск и вставка за O(h), обход по порядку за O(n), h - высота дерева
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;vector&gt;
+
+struct Node {
+    int key;
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+// Вставка: равные ключи уходят вправо, дубликаты сохраняются.
+void insert(Tree&amp; node, int key) {
+    if (!node) {
+        node = std::make_unique&lt;Node&gt;(Node{key, nullptr, nullptr});
+        return;
+    }
+    insert(key &lt; node-&gt;key ? node-&gt;left : node-&gt;right, key);
+}
+
+// Поиск: спускаемся от корня, сравнивая ключи.
+bool contains(const Tree&amp; root, int key) {
+    const Node* node = root.get();
+    while (node) {
+        if (node-&gt;key == key) return true;
+        node = key &lt; node-&gt;key ? node-&gt;left.get() : node-&gt;right.get();
+    }
+    return false;
+}
+
+// Обход по порядку: левое поддерево, вершина, правое поддерево.
+void inorder(const Tree&amp; node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    inorder(node-&gt;left, keys);
+    keys.push_back(node-&gt;key);
+    inorder(node-&gt;right, keys);
+}
+
+int main() {
+    Tree root;
+    for (int key : {8, 3, 10, 1, 6, 14, 4, 7, 13}) insert(root, key);
+    std::cout &lt;&lt; std::boolalpha;
+    std::cout &lt;&lt; "Поиск 6: " &lt;&lt; contains(root, 6) &lt;&lt; ", поиск 5: " &lt;&lt; contains(root, 5) &lt;&lt; '\n';
+    std::vector&lt;int&gt; keys;
+    inorder(root, keys);
+    std::cout &lt;&lt; "Обход по порядку:";
+    for (int key : keys) std::cout &lt;&lt; ' ' &lt;&lt; key;
+    std::cout &lt;&lt; '\n';
+    std::cout &lt;&lt; "Отсортировано: " &lt;&lt; std::is_sorted(keys.begin(), keys.end()) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Дерево двоичного поиска: поиск и вставка за O(h), обход по порядку за O(n), h - высота дерева
+
+pub struct Node {
+    pub key: i64,
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+/// Вставка: равные ключи уходят вправо, дубликаты сохраняются.
+pub fn insert(tree: &amp;mut Tree, key: i64) {
+    match tree {
+        None =&gt; *tree = Some(Box::new(Node { key, left: None, right: None })),
+        Some(node) if key &lt; node.key =&gt; insert(&amp;mut node.left, key),
+        Some(node) =&gt; insert(&amp;mut node.right, key),
+    }
+}
+
+/// Поиск: спускаемся от корня, сравнивая ключи.
+pub fn contains(mut tree: &amp;Tree, key: i64) -&gt; bool {
+    while let Some(node) = tree {
+        if node.key == key {
+            return true;
+        }
+        tree = if key &lt; node.key { &amp;node.left } else { &amp;node.right };
+    }
+    false
+}
+
+/// Обход по порядку: левое поддерево, вершина, правое поддерево.
+pub fn inorder(tree: &amp;Tree, keys: &amp;mut Vec&lt;i64&gt;) {
+    if let Some(node) = tree {
+        inorder(&amp;node.left, keys);
+        keys.push(node.key);
+        inorder(&amp;node.right, keys);
+    }
+}
+
+fn main() {
+    let mut root: Tree = None;
+    for key in [8, 3, 10, 1, 6, 14, 4, 7, 13] {
+        insert(&amp;mut root, key);
+    }
+    println!("Поиск 6: {}, поиск 5: {}", contains(&amp;root, 6), contains(&amp;root, 5));
+    let mut keys = Vec::new();
+    inorder(&amp;root, &amp;mut keys);
+    println!("Обход по порядку: {keys:?}");
+    println!("Отсортировано: {}", keys.windows(2).all(|w| w[0] &lt;= w[1]));
+}
+</code></pre>
+</div>
+
+</body>
+
+</html>

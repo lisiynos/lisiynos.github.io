@@ -1,0 +1,572 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Вычислительная геометрия: преобразования плоскости в однородных координатах</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <link rel="stylesheet" type="text/css" href="../style/site.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+<h1>Вычислительная геометрия: преобразования плоскости в однородных координатах</h1>
+<ul class="tags">
+<li><a href="#">Геометрия</a></li>
+<li><a href="#">Однородные координаты</a></li>
+<li><a href="#">Преобразования</a></li>
+<li><a href="#">Python</a></li>
+<li><a href="#">C/C++</a></li>
+<li><a href="#">Rust</a></li>
+</ul>
+
+<p>Сдвиг, поворот, растяжение и отражение плоскости удобно записывать одной формулой $P' = TP$ с матрицей $T$ размера $3\times 3$. Однородные координаты позволяют записать одной матрицей и сдвиг, который линейным отображением плоскости не является. Композиция преобразований становится произведением матриц, а проективные преобразования, в том числе перспективная проекция, получаются тем же приёмом. В конце лекции приведены три программы, которые выводят одинаковые строки.</p>
+<p>Лекция опирается на предыдущую лекцию «Однородные координаты»: там введены однородные координаты точки $(X : Y : W)$, прямая как вектор $l$ с условием $P \cdot l = 0$, векторное произведение и каноническая тройка. Обозначения здесь те же.</p>
+
+<h2>Преобразования как умножение на матрицу</h2>
+<p>Точку плоскости с декартовыми координатами $(x, y)$ запишем в однородных координатах как вектор-столбец $P = (x, y, 1)$. Вектор $(X, Y, W)$ с $W \neq 0$ задаёт точку $\left(\frac{X}{W}, \frac{Y}{W}\right)$. Вектор $\lambda(X, Y, W)$ при $\lambda \neq 0$ задаёт ту же точку, что и $(X, Y, W)$: например, векторы $(2, 4, 2)$ и $(1, 2, 1)$ задают точку $(1, 2)$.</p>
+<p>Преобразование плоскости задаётся матрицей $T$ размера $3\times 3$, и образ точки $P$ равен $P' = TP$. Элемент матрицы $T$ в строке $i$ и столбце $j$ обозначим $T_{ij}$. Буквой $T$ без аргументов обозначаем произвольную матрицу, а $T(t_x, t_y)$ — матрицу сдвига на вектор $(t_x, t_y)$. Буквой $R$ обозначим поворот на $90^\circ$ против часовой стрелки, $S(s_x, s_y)$ — растяжение с коэффициентами $s_x$ и $s_y$ вдоль осей $Ox$ и $Oy$, $F_x$ — отражение относительно оси $Ox$.</p>
+<p>Сдвиг переводит $(x, y)$ в $(x + t_x, y + t_y)$. Соответствующая матрица и её действие на вектор $(x, y, 1)$:</p>
+<p>$$T(t_x, t_y) = \begin{pmatrix} 1 &amp; 0 &amp; t_x \\ 0 &amp; 1 &amp; t_y \\ 0 &amp; 0 &amp; 1 \end{pmatrix}, \qquad T(t_x, t_y)\begin{pmatrix} x \\ y \\ 1 \end{pmatrix} = \begin{pmatrix} x + t_x \\ y + t_y \\ 1 \end{pmatrix}.$$</p>
+<p>Поворот $R$ переводит $(x, y)$ в $(-y, x)$. Это соответствует повороту на $90^\circ$ против часовой стрелки: базисный вектор $(1, 0)$ переходит в $(0, 1)$, а $(0, 1)$ — в $(-1, 0)$.</p>
+<p>$$R = \begin{pmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}.$$</p>
+<p>Растяжение $S(s_x, s_y)$ переводит $(x, y)$ в $(s_x x, s_y y)$, отражение $F_x$ переводит $(x, y)$ в $(x, -y)$:</p>
+<p>$$S(s_x, s_y) = \begin{pmatrix} s_x &amp; 0 &amp; 0 \\ 0 &amp; s_y &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}, \qquad F_x = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}.$$</p>
+<p><strong>Зачем нужна третья координата.</strong> Пусть $A$ — матрица $2\times 2$. Отображение $q \mapsto Aq$ переводит начало координат в себя, так как $A\cdot 0 = 0$. Сдвиг на ненулевой вектор переводит начало в $(t_x, t_y) \neq (0, 0)$, поэтому сдвиг нельзя задать никакой матрицей $2\times 2$. В однородных координатах начало записывается как $(0, 0, 1)$, и матрица $T(t_x, t_y)$ переводит его в $(t_x, t_y, 1)$. Смещение $(t_x, t_y)$ оказывается столбцом матрицы, который умножается на единицу третьей координаты.</p>
+<p>Матрица вида $\begin{pmatrix} T_{11} &amp; T_{12} &amp; b_1 \\ T_{21} &amp; T_{22} &amp; b_2 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}$ переводит $(x, y, 1)$ в $(T_{11}x + T_{12}y + b_1,\; T_{21}x + T_{22}y + b_2,\; 1)$, то есть задаёт преобразование $(x, y)\mapsto A(x, y) + b$ с матрицей $A = \begin{pmatrix} T_{11} &amp; T_{12} \\ T_{21} &amp; T_{22} \end{pmatrix}$ и вектором $b = (b_1, b_2)$. Такие преобразования называются аффинными. Все четыре базовых преобразования аффинны.</p>
+
+<h2 id="композиция-преобразований">Композиция преобразований</h2>
+<p>Пусть сначала действует преобразование с матрицей $T_1$, затем преобразование с матрицей $T_2$. Образ точки $P$ равен $T_2(T_1P)$. Утверждается, что $T_2(T_1 P) = (T_2T_1)\,P$, то есть композиция задаётся матрицей $T_2T_1$, и самая правая матрица действует первой.</p>
+<p><strong>Доказательство.</strong> Компонента с номером $i$ левой части равна
+$$\sum_j (T_2)_{ij}\,(T_1P)_j = \sum_j\sum_k (T_2)_{ij}(T_1)_{jk}\,P_k,$$
+где $(v)_j$ — компонента вектора $v$ с номером $j$. Компонента правой части равна $\sum_k \bigl(\sum_j (T_2)_{ij}(T_1)_{jk}\bigr)P_k$. Это одна и та же двойная сумма, записанная с другим порядком суммирования. Индукцией по числу преобразований получаем: композиция преобразований с матрицами $T_1, \dots, T_m$, применяемых в этом порядке, задаётся матрицей $T_m\cdots T_2T_1$.</p>
+<p>Порядок существен, потому что умножение матриц не коммутативно. Пусть сначала действует поворот $R$, затем сдвиг на $(3, 2)$. Тогда $T = T(3,2)\,R$:</p>
+<p>$$T(3,2)\,R = \begin{pmatrix} 1 &amp; 0 &amp; 3 \\ 0 &amp; 1 &amp; 2 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}\begin{pmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{pmatrix} = \begin{pmatrix} 0 &amp; -1 &amp; 3 \\ 1 &amp; 0 &amp; 2 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}.$$</p>
+<p>Для точки $P = (1, 0, 1)$ получаем
+$$TP = (0\cdot 1 + (-1)\cdot 0 + 3\cdot 1,\; 1\cdot 1 + 0\cdot 0 + 2\cdot 1,\; 1) = (3, 3, 1),$$
+то есть точка $(1, 0)$ переходит в $(3, 3)$. Проверка по шагам: поворот переводит $(1, 0)$ в $(0, 1)$, затем сдвиг на $(3, 2)$ переводит $(0, 1)$ в $(3, 3)$.</p>
+<p>В обратном порядке результат другой: $$R\,T(3,2) = \begin{pmatrix} 0 &amp; -1 &amp; -2 \\ 1 &amp; 0 &amp; 3 \\ 0 &amp; 0 &amp; 1 \end{pmatrix},$$ и точка $(1, 0)$ переходит в $(-2, 4)$. Сначала сдвиг переводит её в $(4, 2)$, затем поворот переводит $(4, 2)$ в $(-2, 4)$.</p>
+
+<h2>Прямые при преобразовании</h2>
+<p>Прямая на плоскости — множество точек $(x, y)$, удовлетворяющих уравнению $ax + by + c = 0$, где $(a, b) \neq (0, 0)$. В однородных координатах прямая задаётся вектором $l = (a, b, c)$: точка $P = (x, y, 1)$ лежит на прямой тогда и только тогда, когда $l\cdot P = ax + by + c = 0$. Здесь $u\cdot v = u^{\top}v$ — скалярное произведение векторов-столбцов, $u^{\top}$ — транспонированный вектор. Вектор $\lambda l$ при $\lambda \neq 0$ задаёт ту же прямую.</p>
+<p>Пусть $\det T \neq 0$, так что обратная матрица $T^{-1}$ существует. Положим $T^{-\top} := (T^{-1})^{\top}$.</p>
+<p><strong>Утверждение 1.</strong> Если точка $P$ лежит на прямой $l$, то образ $P' = TP$ лежит на прямой $l' = T^{-\top}l$, то есть $l'\cdot P' = 0$. Более того, образ прямой $l$ при $T$ как множество однородных векторов совпадает с прямой $l'$.</p>
+<p><strong>Доказательство.</strong> Так как $(T^{-\top}l)^{\top} = l^{\top}T^{-1}$, имеем $l'\cdot P' = l^{\top}T^{-1}TP = l^{\top}P = l\cdot P = 0$. Обратно, если $l'\cdot P' = 0$, то точка $P = T^{-1}P'$ по той же выкладке удовлетворяет $l\cdot P = l'\cdot P' = 0$, поэтому $P'$ — образ точки прямой $l$.</p>
+<p>Чтобы не работать с дробями, $T^{-\top}$ выражают через присоединённую матрицу. Пусть $M_{ij}$ — определитель матрицы, оставшейся после вычёркивания из $T$ строки $i$ и столбца $j$, и $C_{ij} = (-1)^{i+j}M_{ij}$ — алгебраическое дополнение элемента $T_{ij}$. Присоединённая матрица $\operatorname{adj}(T)$ — транспонированная матрица алгебраических дополнений, то есть $\operatorname{adj}(T)_{ij} = C_{ji}$. Через $E$ обозначим единичную матрицу $3\times 3$.</p>
+<p><strong>Утверждение 2.</strong> $T\operatorname{adj}(T) = \det(T)\,E$. Поэтому при $\det T \neq 0$ выполнено $T^{-1} = \dfrac{1}{\det T}\operatorname{adj}(T)$.</p>
+<p><strong>Доказательство.</strong> Элемент $(i, j)$ матрицы $T\operatorname{adj}(T)$ равен $\sum_k T_{ik}\,C_{jk}$. Рассмотрим матрицу $T'$, полученную из $T$ заменой строки $j$ строкой $i$. При вычёркивании строки $j$ остальные строки матриц $T$ и $T'$ совпадают, поэтому алгебраические дополнения элементов строки $j$ у $T'$ равны $C_{jk}$. Значит, сумма $\sum_k T_{ik}C_{jk}$ — разложение $\det T'$ по строке $j$. При $i = j$ имеем $T' = T$, и сумма равна $\det T$. При $i \neq j$ строки $i$ и $j$ матрицы $T'$ совпадают, и её определитель равен нулю.</p>
+<p>Отсюда $T^{-\top} = \dfrac{1}{\det T}\operatorname{adj}(T)^{\top}$ и</p>
+<p>$$\operatorname{adj}(T)^{\top}\, l = \det(T)\, T^{-\top} l = \det(T)\, l'.$$</p>
+<p>Так как $\det T \neq 0$ и $l' \neq 0$ (матрица $T^{-\top}$ обратима), вектор $\operatorname{adj}(T)^{\top}l$ — ненулевое кратное $l'$. Он задаёт ту же прямую и состоит из целых чисел, если целочисленна матрица $T$. При $\det T = 0$ обратной матрицы нет и утверждение 1 неприменимо, поэтому дальше речь идёт о $\det T \neq 0$.</p>
+<p><strong>Пример.</strong> Прямая $y = 0$ задаётся вектором $l = (0, 1, 0)$. Возьмём сдвиг $T = T(3, 2)$. Здесь $\det T = 1$ и</p>
+<p>$$\operatorname{adj}(T) = \begin{pmatrix} 1 &amp; 0 &amp; -3 \\ 0 &amp; 1 &amp; -2 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}.$$</p>
+<p>Например,
+$$\operatorname{adj}(T)_{13} = C_{31} = (-1)^{3+1}M_{31} = 0\cdot 2 - 3\cdot 1 = -3,$$
+где $M_{31}$ — определитель матрицы $\begin{pmatrix} 0 &amp; 3 \\ 1 &amp; 2 \end{pmatrix}$, оставшейся после вычёркивания третьей строки и первого столбца. Далее</p>
+<p>$$\operatorname{adj}(T)^{\top}\begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ -3 &amp; -2 &amp; 1 \end{pmatrix}\begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \\ -2 \end{pmatrix}.$$</p>
+<p>Вектор $(0, 1, -2)$ задаёт прямую $y - 2 = 0$, то есть $y = 2$. Это согласуется с прямым подсчётом: точка $(x, 0)$ переходит в $(x + 3, 2)$, и вторая координата образа равна $2$ при любом $x$. Здесь $\det T = 1$, поэтому множитель равен единице.</p>
+<p><strong>Пример с множителем.</strong> Если $\det T \neq 1$, множитель $\det T$ в формуле $\operatorname{adj}(T)^{\top}l = \det(T)\,l'$ виден явно. Для $S = S(2, 4)$ имеем $\det S = 8$ и $\operatorname{adj}(S) = \operatorname{diag}(4, 2, 8)$; здесь $\operatorname{diag}$ — диагональная матрица, и для $\operatorname{diag}(a, b, c)$ присоединённая матрица равна $\operatorname{diag}(bc, ac, ab)$. Для прямой $x + y - 1 = 0$, $l = (1, 1, -1)$, получаем $\operatorname{adj}(S)^{\top}l = (4, 2, -8) = 2\,(2, 1, -4)$. Точки $(1, 0)$ и $(0, 1)$ этой прямой переходят в $(2, 0)$ и $(0, 4)$, и обе удовлетворяют уравнению $2x + y - 4 = 0$.</p>
+
+<h2>Проективные преобразования</h2>
+<p>Проективное преобразование задаётся обратимой матрицей $H$ размера $3\times 3$, у которой последняя строка произвольна. Пусть $(X, Y, W) = H(x, y, 1)$. Образ точки $(x, y)$ равен $\left(\frac{X}{W}, \frac{Y}{W}\right)$, если $W \neq 0$. При $W = 0$ образом служит бесконечно удалённая точка направления $(X, Y)$; здесь $(X, Y) \neq (0, 0)$, так как вектор $(X, Y, W)$ ненулевой. Если последняя строка $H$ равна $(0, 0, 1)$, то $W = 1$ для всех точек, и получаем аффинное преобразование из раздела «Преобразования как умножение на матрицу».</p>
+<p><strong>Прямые переходят в прямые (в проективном смысле).</strong> Утверждение 1 верно для любой обратимой матрицы $H$. Поэтому для точки $P$ прямой $l$ выполнено $l'\cdot HP = 0$, где $l' = H^{-\top}l = (l'_1, l'_2, l'_3)$. Если $W \neq 0$ и $(l'_1, l'_2) \neq (0, 0)$, деление на $W$ даёт $l'_1\frac{X}{W} + l'_2\frac{Y}{W} + l'_3 = 0$: образ точки $(x', y') = (X/W, Y/W)$ лежит на аффинной прямой $l'_1 x' + l'_2 y' + l'_3 = 0$.</p>
+<p><strong>Пример.</strong> Рассмотрим</p>
+<p>$$H = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 1 &amp; 1 \end{pmatrix}.$$</p>
+<p>Здесь $(X, Y, W) = (x, y, y + 1)$, поэтому $(x, y)\mapsto\left(\dfrac{x}{y+1}, \dfrac{y}{y+1}\right)$ при $y \neq -1$. Матрица $H$ обратима, $\det H = 1$, и $H^{-1} = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; -1 &amp; 1 \end{pmatrix}$, поэтому $H^{-\top}l$ можно вычислять по утверждению 1. Отсюда следует:</p>
+<ul>
+<li>точка $(0, 1)$ переходит в $\left(0, \tfrac12\right)$, так как $(X, Y, W) = (0, 1, 2)$;</li>
+<li>прямая $y = 1$ (вектор $l = (0, 1, -1)$) переходит в прямую $y = \tfrac12$: здесь $H^{-\top}l = (0, 2, -1)$, то есть образ лежит на прямой $2Y - W = 0$, или $Y/W = \tfrac12$. Непосредственно: точки $(x, 1)$ переходят в $\left(\tfrac{x}{2}, \tfrac12\right)$, и при $x$, пробегающем все вещественные числа, $\tfrac{x}{2}$ тоже пробегает все вещественные числа;</li>
+<li>точки прямой $y = -1$ переходят в бесконечно удалённые точки: $H(x, -1, 1) = (x, -1, 0)$, так что $W = 0$. Вся прямая $y = -1$ переходит в бесконечно удалённую прямую $W = 0$, поскольку $H^{-\top}(0, 1, 1) = (0, 0, 1)$;</li>
+<li>образы параллельных прямых могут пересечься в конечной точке; сами параллельные прямые в конечной части плоскости не пересекаются. Прямые $y = x$ и $y = x + 1$ параллельны (направление $(1, 1)$). По утверждению 1 их образы — прямые $H^{-\top}(1, -1, 0) = (1, -1, 0)$, то есть $X = Y$, и $H^{-\top}(1, -1, 1) = (1, -2, 1)$, то есть однородное уравнение $X - 2Y + W = 0$, или $x' - 2y' + 1 = 0$ для точки $(x', y') = (X/W, Y/W)$. Обе прямые проходят через точку $(1, 1)$. Эта точка — образ бесконечно удалённой точки направления $(1, 1)$, так как $H(1, 1, 0) = (1, 1, 1)$.</li>
+</ul>
+<p><strong>Перспективная проекция.</strong> Поместим наблюдателя в начало трёхмерной системы координат $(X, Y, Z)$, а картинную плоскость — в плоскость $Z = 1$. Луч из начала, проходящий через точку $(X, Y, Z)$ с $Z &gt; 0$, пересекает картинную плоскость в точке $\left(\frac{X}{Z}, \frac{Y}{Z}, 1\right)$. Возьмём плоскость сцены $Z = Y + 1$ с параметризацией $(x, y)\mapsto(x, y, y + 1)$. Её точка $(x, y, y + 1)$ проецируется в $\left(\frac{x}{y+1}, \frac{y}{y+1}, 1\right)$. Значит, отображение $(x, y)\mapsto\left(\frac{x}{y+1}, \frac{y}{y+1}\right)$ из примера выше — это перспективная проекция плоскости сцены на картинную плоскость, то есть матрица $H$ описывает перспективное проецирование. Точки с $y = -1$ имеют $Z = 0$: их лучи параллельны картинной плоскости и не пересекают её в конечной точке, что согласуется с тем, что их образы бесконечно удалены. При $y + 1 &lt; 0$ точка лежит по другую сторону от наблюдателя; формула даёт её алгебраический образ, но такая точка на картинной плоскости не видна.</p>
+
+<h2>Вычисления</h2>
+<p>Пусть все элементы матриц и координаты точек — целые числа. Тогда все промежуточные результаты целые: элемент произведения $(AB)_{ij} = \sum_k A_{ik}B_{kj}$ — сумма произведений целых чисел; координаты $TP$ целые; $\det T$ — сумма произведений элементов $T$, то есть целое число; элементы $\operatorname{adj}(T)$ — миноры $2\times 2$ со знаком, то есть целые числа. Поэтому $\operatorname{adj}(T)^{\top}l$ тоже целочисленный вектор.</p>
+<p>Деление выполняется только один раз — в конце, при переходе к декартовым координатам $\left(\frac{X}{W}, \frac{Y}{W}\right)$. Результат хранится точно: как дробь с целыми числителем и знаменателем, знаменатель которой положителен и взаимно прост с числителем. Округления не возникает. Проверка $W = 0$ тоже точна, потому что $W$ — целое число. В C++ и Rust это верно при условии оценки размера из следующего абзаца; Python использует целые числа произвольной длины.</p>
+<p><strong>Оценка размера чисел.</strong> Пусть все элементы матриц по модулю не превосходят $K$. Тогда элементы произведения двух матриц не превосходят $3K^2$ по модулю (сумма трёх произведений), определитель не превосходит $6K^3$ (сумма шести произведений трёх элементов), а элементы $\operatorname{adj}(T)$ не превосходят $2K^2$ (разность двух произведений). Для произведения $m$ матриц индукцией по $m$ получаем, что его элементы не превосходят $B_m = 3^{m-1}K^m$: каждое следующее умножение увеличивает оценку в $3K$ раз.</p>
+<p>Программы считают $\operatorname{adj}$, $\det$ и образ прямой для самого произведения $T$, поэтому нужны оценки через $B_m$: элементы $\operatorname{adj}(T)$ не больше $2B_m^2$, определитель не больше $6B_m^3$, образ прямой $\operatorname{adj}(T)^{\top} l$ при $|l_i| \le K$ не больше $6B_m^2K$. Так как $K \le B_m$, все эти значения, включая промежуточные суммы, помещаются в 64 бита, если $6B_m^3 &lt; 2^{63}$. Координаты точки тоже должны быть по модулю не больше $K$: тогда координаты $TP$ не больше $3B_mK \le 3B_m^2 \le 6B_m^3 &lt; 2^{63}$ (здесь $K \le B_m$ и $B_m \ge 1$), так что условие покрывает и образы точек. Это достаточное условие по худшей оценке, а не точная граница: при его нарушении результат может оказаться точным. Например, при $K = 10$ и $m = 4$ имеем $B_4 = 2{,}7\cdot 10^5$ и $6B_4^3 \approx 1{,}2\cdot 10^{17} < 2^{63}$. При $m = 5$ уже $B_5 = 8{,}1\cdot 10^6$ и $6B_5^3 \approx 3{,}2\cdot 10^{21}$: гарантии нет, и для гарантии точности таких произведений нужны 128-битные целые или Python. При $K = 10^3$ гарантия есть только для одной матрицы ($m = 1$): для $m = 2$ уже $6B_2^3 \approx 1{,}6\cdot 10^{20}$.</p>
+<p><strong>Сложность.</strong> Применение матрицы к точке требует $9$ умножений и $6$ сложений, произведение двух матриц $3\times 3$ — $27$ умножений и $18$ сложений, а $\operatorname{adj}(T)$, $\det T$ и образ прямой вычисляются за постоянное число операций. Поэтому применение каждого преобразования к точке выполняется за $O(1)$ арифметических операций. Композиция $m$ преобразований вычисляется за $O(m)$ операций перемножением матриц; после этого каждая точка обрабатывается за $O(1)$.</p>
+
+<h2>Программы</h2>
+<p>Ниже приведены три программы: на Python, C++ и Rust. Каждая реализует функции <code>apply(T, p)</code> (вектор $TP$), <code>mul(A, B)</code> (произведение $AB$), <code>translation(tx, ty)</code>, <code>rotation90()</code> и <code>scaling(sx, sy)</code> (матрицы сдвига, поворота и растяжения), <code>det3(T)</code> (определитель), <code>adjugate(T)</code> (присоединённая матрица), <code>transform_line(T, l)</code> (вектор $\operatorname{adj}(T)^{\top}l$) и <code>to_cartesian(p)</code> (декартовы координаты $(X/W, Y/W)$ как рациональные числа или отсутствие значения при $W = 0$). В C++ функция образа точки называется <code>apply_matrix</code>: вызов <code>apply(T, p)</code> с аргументами <code>std::array</code> конфликтует с <code>std::apply</code>. Все числа демонстрации по модулю не больше 4, то есть далеко внутри границы из раздела «Вычисления».</p>
+<p>Демонстрация выводит восемь строк. Первая — матрица $T(3,2)\,R$. Вторая — образ точки $(1, 0)$, равный $(3, 3)$. Третья — $\det T(3,2) = 1$ и $\operatorname{adj}T(3,2)$, как в разделе о прямых. Четвёртая — образ прямой $y = 0$, вектор $(0, 1, -2)$. Пятая — проверка: точка $(1, 0)$ лежит на прямой $y = 0$, её образ $(4, 2)$, и скалярное произведение $l'\cdot P'$ равно $0$. Шестая — растяжение $S(2, 4)$, прямая $(1, 1, -1)$ и её образ $(4, 2, -8)$. Седьмая и восьмая строки — перспективный пример: $(0, 1)\mapsto\left(0, \tfrac12\right)$ и $(2, -1)\mapsto$ бесконечность.</p>
+<p>Программа на Python использует только модуль fractions из стандартной библиотеки и запускается командой python3 -I main.py.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+"""Преобразования плоскости в однородных координатах.
+
+Точка (x, y) записывается вектором (x, y, 1), преобразование задаётся матрицей 3x3.
+Все вычисления целочисленные (целые числа произвольной длины); деление на W выполняется только в to_cartesian.
+Запуск: python3 -I main.py
+"""
+from fractions import Fraction
+
+
+def apply(t, p):
+    """Образ вектора p = (x, y, w) при преобразовании с матрицей t, то есть T·p."""
+    return tuple(sum(t[i][k] * p[k] for k in range(3)) for i in range(3))
+
+
+def mul(a, b):
+    """Произведение матриц A·B: сначала действует B, затем A."""
+    return [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+
+
+def translation(tx, ty):
+    """Сдвиг на вектор (tx, ty)."""
+    return [[1, 0, tx], [0, 1, ty], [0, 0, 1]]
+
+
+def rotation90():
+    """Поворот на 90 градусов против часовой стрелки: (x, y) -&gt; (-y, x)."""
+    return [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+
+
+def scaling(sx, sy):
+    """Растяжение: (x, y) -&gt; (sx*x, sy*y)."""
+    return [[sx, 0, 0], [0, sy, 0], [0, 0, 1]]
+
+
+def adjugate(t):
+    """Присоединённая матрица adj(T): транспонированная матрица алгебраических дополнений."""
+    (a, b, c), (d, e, f), (g, h, i) = t
+    return [
+        [e * i - f * h, -(b * i - c * h), b * f - c * e],
+        [-(d * i - f * g), a * i - c * g, -(a * f - c * d)],
+        [d * h - e * g, -(a * h - b * g), a * e - b * d],
+    ]
+
+
+def det3(t):
+    """Определитель 3x3: разложение по первой строке, дополнения берутся из adj(T)."""
+    adj = adjugate(t)
+    return t[0][0] * adj[0][0] + t[0][1] * adj[1][0] + t[0][2] * adj[2][0]
+
+
+def transform_line(t, line):
+    """Образ прямой l: adj(T)^T · l. При det T = 0 результат — образ прямой, если он прямая, и нулевой вектор, если образ — точка или пустое множество."""
+    adj = adjugate(t)
+    return tuple(sum(adj[j][i] * line[j] for j in range(3)) for i in range(3))
+
+
+def to_cartesian(p):
+    """Декартовы координаты (X/W, Y/W) в виде рациональных чисел или None, если W = 0."""
+    x, y, w = p
+    if w == 0:
+        return None
+    return Fraction(x, w), Fraction(y, w)
+
+
+def format_point(point):
+    if point is None:
+        return "infinity"
+    return f"({point[0]}, {point[1]})"
+
+
+def demo():
+    shift = translation(3, 2)
+    t = mul(shift, rotation90())
+    print(f"T = T(3, 2) * R = {t}")
+    print(f"composition: (1, 0) -&gt; {format_point(to_cartesian(apply(t, (1, 0, 1))))}")
+    print(f"det T(3, 2) = {det3(shift)}, adj T(3, 2) = {adjugate(shift)}")
+    line = (0, 1, 0)
+    point = apply(shift, (1, 0, 1))
+    image = transform_line(shift, line)
+    print(f"line y = 0: {line} -&gt; {image}")
+    dot = sum(u * v for u, v in zip(image, point))
+    print(f"check: (1, 0) -&gt; {format_point(to_cartesian(point))}, l' . p' = {dot}")
+    scale = scaling(2, 4)
+    scaled_line = (1, 1, -1)
+    print(f"scaling S(2, 4): det = {det3(scale)}, line {scaled_line} -&gt; {transform_line(scale, scaled_line)}")
+    perspective = [[1, 0, 0], [0, 1, 0], [0, 1, 1]]
+    print(f"perspective: (0, 1) -&gt; {format_point(to_cartesian(apply(perspective, (0, 1, 1))))}")
+    print(f"perspective: (2, -1) -&gt; {format_point(to_cartesian(apply(perspective, (2, -1, 1))))}")
+
+
+if __name__ == "__main__":
+    demo()
+</pre>
+<p>Программа на C++ компилируется командой g++ -std=c++17 -Wall -Wextra -Werror -O2 main.cpp.</p>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Преобразования плоскости в однородных координатах.
+// Точка (x, y) записывается вектором (x, y, 1), преобразование задаётся матрицей 3x3.
+// Все вычисления целочисленные (int64; оценка размера в тексте лекции); деление на W выполняется только в to_cartesian.
+// Сборка: g++ -std=c++17 -Wall -Wextra -Werror -O2 main.cpp
+#include &lt;array&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;numeric&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+
+using Int = std::int64_t;
+using Matrix = std::array&lt;std::array&lt;Int, 3&gt;, 3&gt;;
+using Vector = std::array&lt;Int, 3&gt;;
+
+// Рациональное число num/den, den &gt; 0, gcd(|num|, den) = 1.
+struct Rational {
+    Int num;
+    Int den;
+};
+
+// Образ вектора p при преобразовании t: T·p.
+// Имя apply_matrix, а не apply: вызов apply(t, p) с аргументами std::array конфликтует с std::apply.
+Vector apply_matrix(const Matrix&amp; t, const Vector&amp; p) {
+    Vector result{};
+    for (std::size_t i = 0; i &lt; 3; ++i) {
+        for (std::size_t k = 0; k &lt; 3; ++k) {
+            result[i] += t[i][k] * p[k];
+        }
+    }
+    return result;
+}
+
+// Произведение матриц A·B: сначала действует B, затем A.
+Matrix mul(const Matrix&amp; a, const Matrix&amp; b) {
+    Matrix result{};
+    for (std::size_t i = 0; i &lt; 3; ++i) {
+        for (std::size_t j = 0; j &lt; 3; ++j) {
+            for (std::size_t k = 0; k &lt; 3; ++k) {
+                result[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+// Сдвиг на вектор (tx, ty).
+Matrix translation(Int tx, Int ty) {
+    return Matrix{{{1, 0, tx}, {0, 1, ty}, {0, 0, 1}}};
+}
+
+// Поворот на 90 градусов против часовой стрелки: (x, y) -&gt; (-y, x).
+Matrix rotation90() {
+    return Matrix{{{0, -1, 0}, {1, 0, 0}, {0, 0, 1}}};
+}
+
+// Растяжение: (x, y) -&gt; (sx*x, sy*y).
+Matrix scaling(Int sx, Int sy) {
+    return Matrix{{{sx, 0, 0}, {0, sy, 0}, {0, 0, 1}}};
+}
+
+// Присоединённая матрица adj(T): транспонированная матрица алгебраических дополнений.
+Matrix adjugate(const Matrix&amp; t) {
+    const Int a = t[0][0], b = t[0][1], c = t[0][2];
+    const Int d = t[1][0], e = t[1][1], f = t[1][2];
+    const Int g = t[2][0], h = t[2][1], i = t[2][2];
+    return Matrix{{
+        {e * i - f * h, -(b * i - c * h), b * f - c * e},
+        {-(d * i - f * g), a * i - c * g, -(a * f - c * d)},
+        {d * h - e * g, -(a * h - b * g), a * e - b * d},
+    }};
+}
+
+// Определитель 3x3: разложение по первой строке, дополнения берутся из adj(T).
+Int det3(const Matrix&amp; t) {
+    const Matrix adj = adjugate(t);
+    return t[0][0] * adj[0][0] + t[0][1] * adj[1][0] + t[0][2] * adj[2][0];
+}
+
+// Образ прямой l: adj(T)^T · l. При det T = 0 результат — образ прямой, если он прямая, и нулевой вектор, если образ — точка или пустое множество.
+Vector transform_line(const Matrix&amp; t, const Vector&amp; line) {
+    const Matrix adj = adjugate(t);
+    Vector result{};
+    for (std::size_t i = 0; i &lt; 3; ++i) {
+        for (std::size_t j = 0; j &lt; 3; ++j) {
+            result[i] += adj[j][i] * line[j];
+        }
+    }
+    return result;
+}
+
+// Нормированная дробь num/den; den != 0.
+Rational make_rational(Int num, Int den) {
+    const Int g = std::gcd(num, den);  // std::gcd неотрицателен, g &gt; 0 при den != 0
+    const Int sign = den &lt; 0 ? -1 : 1;
+    return Rational{sign * num / g, sign * den / g};
+}
+
+// Декартовы координаты (X/W, Y/W) или отсутствие значения при W = 0.
+std::optional&lt;std::pair&lt;Rational, Rational&gt;&gt; to_cartesian(const Vector&amp; p) {
+    if (p[2] == 0) {
+        return std::nullopt;
+    }
+    return std::pair{make_rational(p[0], p[2]), make_rational(p[1], p[2])};
+}
+
+std::string format_rational(const Rational&amp; r) {
+    if (r.den == 1) {
+        return std::to_string(r.num);
+    }
+    return std::to_string(r.num) + "/" + std::to_string(r.den);
+}
+
+std::string format_vector(const Vector&amp; v) {
+    return "(" + std::to_string(v[0]) + ", " + std::to_string(v[1]) + ", " + std::to_string(v[2]) + ")";
+}
+
+std::string format_matrix(const Matrix&amp; t) {
+    std::string text = "[";
+    for (std::size_t i = 0; i &lt; 3; ++i) {
+        text += i &gt; 0 ? ", [" : "[";
+        text += std::to_string(t[i][0]) + ", " + std::to_string(t[i][1]) + ", " + std::to_string(t[i][2]) + "]";
+    }
+    return text + "]";
+}
+
+std::string format_point(const std::optional&lt;std::pair&lt;Rational, Rational&gt;&gt;&amp; point) {
+    if (!point) {
+        return "infinity";
+    }
+    return "(" + format_rational(point-&gt;first) + ", " + format_rational(point-&gt;second) + ")";
+}
+
+void demo() {
+    const Matrix shift = translation(3, 2);
+    const Matrix t = mul(shift, rotation90());
+    std::cout &lt;&lt; "T = T(3, 2) * R = " &lt;&lt; format_matrix(t) &lt;&lt; "\n";
+    std::cout &lt;&lt; "composition: (1, 0) -&gt; " &lt;&lt; format_point(to_cartesian(apply_matrix(t, Vector{1, 0, 1}))) &lt;&lt; "\n";
+    std::cout &lt;&lt; "det T(3, 2) = " &lt;&lt; det3(shift) &lt;&lt; ", adj T(3, 2) = " &lt;&lt; format_matrix(adjugate(shift)) &lt;&lt; "\n";
+
+    const Vector line{0, 1, 0};
+    const Vector point = apply_matrix(shift, Vector{1, 0, 1});
+    const Vector image = transform_line(shift, line);
+    std::cout &lt;&lt; "line y = 0: " &lt;&lt; format_vector(line) &lt;&lt; " -&gt; " &lt;&lt; format_vector(image) &lt;&lt; "\n";
+    const Int dot = image[0] * point[0] + image[1] * point[1] + image[2] * point[2];
+    std::cout &lt;&lt; "check: (1, 0) -&gt; " &lt;&lt; format_point(to_cartesian(point)) &lt;&lt; ", l' . p' = " &lt;&lt; dot &lt;&lt; "\n";
+
+    const Matrix scale = scaling(2, 4);
+    const Vector scaled_line{1, 1, -1};
+    std::cout &lt;&lt; "scaling S(2, 4): det = " &lt;&lt; det3(scale) &lt;&lt; ", line " &lt;&lt; format_vector(scaled_line)
+              &lt;&lt; " -&gt; " &lt;&lt; format_vector(transform_line(scale, scaled_line)) &lt;&lt; "\n";
+
+    const Matrix perspective{{{1, 0, 0}, {0, 1, 0}, {0, 1, 1}}};
+    std::cout &lt;&lt; "perspective: (0, 1) -&gt; "
+              &lt;&lt; format_point(to_cartesian(apply_matrix(perspective, Vector{0, 1, 1}))) &lt;&lt; "\n";
+    std::cout &lt;&lt; "perspective: (2, -1) -&gt; "
+              &lt;&lt; format_point(to_cartesian(apply_matrix(perspective, Vector{2, -1, 1}))) &lt;&lt; "\n";
+}
+
+int main() {
+    demo();
+    return 0;
+}
+</pre>
+<p>Программа на Rust компилируется командой rustc --edition 2021 -D warnings -O main.rs.</p>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Преобразования плоскости в однородных координатах.
+// Точка (x, y) записывается вектором (x, y, 1), преобразование задаётся матрицей 3x3.
+// Все вычисления целочисленные (i64; оценка размера в тексте лекции); деление на W выполняется только в to_cartesian.
+// Сборка: rustc --edition 2021 -D warnings -O main.rs
+
+use std::fmt;
+
+pub type Int = i64;
+pub type Matrix = [[Int; 3]; 3];
+pub type Vector = [Int; 3];
+
+// Рациональное число num/den, den &gt; 0, gcd(|num|, den) = 1.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Rational {
+    pub num: Int,
+    pub den: Int,
+}
+
+impl fmt::Display for Rational {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        if self.den == 1 {
+            write!(f, "{}", self.num)
+        } else {
+            write!(f, "{}/{}", self.num, self.den)
+        }
+    }
+}
+
+// Образ вектора p при преобразовании t: T·p.
+pub fn apply(t: Matrix, p: Vector) -&gt; Vector {
+    let mut result = [0; 3];
+    for i in 0..3 {
+        for k in 0..3 {
+            result[i] += t[i][k] * p[k];
+        }
+    }
+    result
+}
+
+// Произведение матриц A·B: сначала действует B, затем A.
+pub fn mul(a: Matrix, b: Matrix) -&gt; Matrix {
+    let mut result = [[0; 3]; 3];
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                result[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+    result
+}
+
+// Сдвиг на вектор (tx, ty).
+pub fn translation(tx: Int, ty: Int) -&gt; Matrix {
+    [[1, 0, tx], [0, 1, ty], [0, 0, 1]]
+}
+
+// Поворот на 90 градусов против часовой стрелки: (x, y) -&gt; (-y, x).
+pub fn rotation90() -&gt; Matrix {
+    [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+}
+
+// Растяжение: (x, y) -&gt; (sx*x, sy*y).
+pub fn scaling(sx: Int, sy: Int) -&gt; Matrix {
+    [[sx, 0, 0], [0, sy, 0], [0, 0, 1]]
+}
+
+// Присоединённая матрица adj(T): транспонированная матрица алгебраических дополнений.
+pub fn adjugate(t: Matrix) -&gt; Matrix {
+    let [[a, b, c], [d, e, f], [g, h, i]] = t;
+    [
+        [e * i - f * h, -(b * i - c * h), b * f - c * e],
+        [-(d * i - f * g), a * i - c * g, -(a * f - c * d)],
+        [d * h - e * g, -(a * h - b * g), a * e - b * d],
+    ]
+}
+
+// Определитель 3x3: разложение по первой строке, дополнения берутся из adj(T).
+pub fn det3(t: Matrix) -&gt; Int {
+    let adj = adjugate(t);
+    t[0][0] * adj[0][0] + t[0][1] * adj[1][0] + t[0][2] * adj[2][0]
+}
+
+// Образ прямой l: adj(T)^T · l. При det T = 0 результат — образ прямой, если он прямая, и нулевой вектор, если образ — точка или пустое множество.
+pub fn transform_line(t: Matrix, line: Vector) -&gt; Vector {
+    let adj = adjugate(t);
+    let mut result = [0; 3];
+    for i in 0..3 {
+        for j in 0..3 {
+            result[i] += adj[j][i] * line[j];
+        }
+    }
+    result
+}
+
+// Наибольший общий делитель неотрицательных чисел (алгоритм Евклида).
+fn gcd(a: Int, b: Int) -&gt; Int {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
+
+// Нормированная дробь num/den; den != 0.
+fn make_rational(num: Int, den: Int) -&gt; Rational {
+    let g = gcd(num.abs(), den.abs()); // g &gt; 0, так как den != 0
+    let sign = if den &lt; 0 { -1 } else { 1 };
+    Rational {
+        num: sign * num / g,
+        den: sign * den / g,
+    }
+}
+
+// Декартовы координаты (X/W, Y/W) или None при W = 0.
+pub fn to_cartesian(p: Vector) -&gt; Option&lt;(Rational, Rational)&gt; {
+    if p[2] == 0 {
+        return None;
+    }
+    Some((make_rational(p[0], p[2]), make_rational(p[1], p[2])))
+}
+
+fn format_vector(v: Vector) -&gt; String {
+    format!("({}, {}, {})", v[0], v[1], v[2])
+}
+
+fn format_matrix(t: Matrix) -&gt; String {
+    let rows: Vec&lt;String&gt; = t
+        .iter()
+        .map(|r| format!("[{}, {}, {}]", r[0], r[1], r[2]))
+        .collect();
+    format!("[{}]", rows.join(", "))
+}
+
+fn format_point(point: Option&lt;(Rational, Rational)&gt;) -&gt; String {
+    match point {
+        Some((x, y)) =&gt; format!("({}, {})", x, y),
+        None =&gt; "infinity".to_string(),
+    }
+}
+
+fn demo() {
+    let shift = translation(3, 2);
+    let t = mul(shift, rotation90());
+    println!("T = T(3, 2) * R = {}", format_matrix(t));
+    println!("composition: (1, 0) -&gt; {}", format_point(to_cartesian(apply(t, [1, 0, 1]))));
+    println!(
+        "det T(3, 2) = {}, adj T(3, 2) = {}",
+        det3(shift),
+        format_matrix(adjugate(shift))
+    );
+
+    let line: Vector = [0, 1, 0];
+    let point = apply(shift, [1, 0, 1]);
+    let image = transform_line(shift, line);
+    println!("line y = 0: {} -&gt; {}", format_vector(line), format_vector(image));
+    let dot: Int = (0..3).map(|i| image[i] * point[i]).sum();
+    println!(
+        "check: (1, 0) -&gt; {}, l' . p' = {}",
+        format_point(to_cartesian(point)),
+        dot
+    );
+
+    let scale = scaling(2, 4);
+    let scaled_line: Vector = [1, 1, -1];
+    println!(
+        "scaling S(2, 4): det = {}, line {} -&gt; {}",
+        det3(scale),
+        format_vector(scaled_line),
+        format_vector(transform_line(scale, scaled_line))
+    );
+
+    let perspective: Matrix = [[1, 0, 0], [0, 1, 0], [0, 1, 1]];
+    println!(
+        "perspective: (0, 1) -&gt; {}",
+        format_point(to_cartesian(apply(perspective, [0, 1, 1])))
+    );
+    println!(
+        "perspective: (2, -1) -&gt; {}",
+        format_point(to_cartesian(apply(perspective, [2, -1, 1])))
+    );
+}
+
+fn main() {
+    demo();
+}
+</code></pre>
+
+<p>Вывод демонстрации (одинаковый у всех трёх программ):</p>
+<pre>
+T = T(3, 2) * R = [[0, -1, 3], [1, 0, 2], [0, 0, 1]]
+composition: (1, 0) -&gt; (3, 3)
+det T(3, 2) = 1, adj T(3, 2) = [[1, 0, -3], [0, 1, -2], [0, 0, 1]]
+line y = 0: (0, 1, 0) -&gt; (0, 1, -2)
+check: (1, 0) -&gt; (4, 2), l' . p' = 0
+scaling S(2, 4): det = 8, line (1, 1, -1) -&gt; (4, 2, -8)
+perspective: (0, 1) -&gt; (0, 1/2)
+perspective: (2, -1) -&gt; infinity
+</pre>
+</div>
+
+</body>
+
+</html>

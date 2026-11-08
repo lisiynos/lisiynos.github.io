@@ -1,0 +1,137 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Графы на C/C++</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/load.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+<h1>Разбор задач на графы на С/C++</h1>
+
+<h3>Количество простых путей</h3>
+
+<p>Простой путь - это путь на клеточном поле, который проходит через каждую клетку не более одного раза.</p>
+
+<p>Нужно вычислить количество возможных простых путей из клетки с координатами $(0,0)$ длины $K$.</p>
+
+<pre class="sh_cpp">
+#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+bool used[55][55]; // Клетка использована
+
+long long Answer = 0;
+int K;
+
+void R(int x, int y, int t) {
+  if (used[x][y]) return;
+  if (t == K) { Answer++; return; }
+  used[x][y] = true; // visit - посещаем вершину
+  // Идём во все стороны
+  R(x + 1, y, t + 1); R(x, y + 1, t + 1);     
+  R(x - 1, y, t + 1); R(x, y - 1, t + 1);    
+  used[x][y] = false; // leave - выходим из вершины
+}
+
+#define task  "paths"
+int main() {
+  freopen(task".in", "r", stdin);
+  freopen(task".out", "w", stdout);
+  cin &gt;&gt; K;
+  for(int i = 0; i &lt; 50; i++)
+    for(int j = 0; j &lt; 50; j++) 
+      used[i][j] = false;
+  R(20, 20, 0);
+  cout &lt;&lt; Answer;
+}</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Подсчёт простых путей длины K из клетки (0, 0): перебор с возвратом, время O(4^K)
+DIRECTIONS = ((1, 0), (0, 1), (-1, 0), (0, -1))
+
+
+def count_paths(x, y, steps_left, visited):
+    """Сколько путей длины steps_left из клетки (x, y) не проходят ни по одной клетке дважды."""
+    if steps_left == 0:
+        return 1
+    visited.add((x, y))  # Клетка использована
+    total = 0
+    for dx, dy in DIRECTIONS:
+        nx, ny = x + dx, y + dy
+        if (nx, ny) not in visited:
+            total += count_paths(nx, ny, steps_left - 1, visited)
+    visited.remove((x, y))  # Выходим из клетки (откат)
+    return total
+
+
+def count_simple_paths(k):
+    """Число простых путей длины k из клетки (0, 0)."""
+    return count_paths(0, 0, k, set())
+
+
+if __name__ == "__main__":
+    # Демонстрация: количество простых путей длины 0..6 из клетки (0, 0)
+    print([count_simple_paths(k) for k in range(7)])
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Подсчёт простых путей длины K из клетки (0, 0): перебор с возвратом, время O(4^K)
+use std::collections::HashSet;
+
+pub const DIRECTIONS: [(i64, i64); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+
+/// Сколько путей длины steps_left из клетки (x, y) не проходят ни по одной клетке дважды.
+fn count_paths(x: i64, y: i64, steps_left: u32, visited: &amp;mut HashSet&lt;(i64, i64)&gt;) -&gt; u64 {
+    if steps_left == 0 {
+        return 1;
+    }
+    visited.insert((x, y)); // Клетка использована
+    let mut total = 0;
+    for (dx, dy) in DIRECTIONS {
+        let next = (x + dx, y + dy);
+        if !visited.contains(&amp;next) {
+            total += count_paths(next.0, next.1, steps_left - 1, visited);
+        }
+    }
+    visited.remove(&amp;(x, y)); // Выходим из клетки (откат)
+    total
+}
+
+/// Число простых путей длины k из клетки (0, 0).
+pub fn count_simple_paths(k: u32) -&gt; u64 {
+    count_paths(0, 0, k, &amp;mut HashSet::new())
+}
+
+fn main() {
+    // Демонстрация: количество простых путей длины 0..6 из клетки (0, 0)
+    let counts: Vec&lt;u64&gt; = (0..7).map(count_simple_paths).collect();
+    println!("{counts:?}");
+}
+</code></pre>
+
+
+
+</div>
+</body>
+
+</html>

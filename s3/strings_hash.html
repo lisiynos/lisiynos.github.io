@@ -1,0 +1,193 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Полиномиальное хеширование строк</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+    <h1 id="полиномиальные-хеши-на-строках">Полиномиальные хеши на строках</h1>
+
+    <ul class="tags">
+        <li><a href="#">Строки</a></li>
+        <li><a href="#">Хеширование</a></li>
+    </ul>
+
+
+    <p></p>
+
+
+    <p>
+        Полиномиальная хэш-функция от строки $S$:
+        $h(S) = S_0 + S_1 b + S_2 b^2 + S_3 b^3 + ... + S_N b^N$
+    </p>
+
+    <p>
+        Чтобы не происходило переполнения надо считать этот хеш по модулю большого простого числа $P$
+        (или, хотя бы числа взаимно простого с $b$).
+        $h(S) = (S_0 + S_1 b + S_2 b^2 + S_3 b^3 + ... + S_N b^N) \mod P$
+    </p>
+
+
+    <p>В качестве $P$ удобно использовать, например, простое число: $10^9+7$</p>
+
+    <p>Как найти подходяшие простые числа? Можно просто запомнить несколько подходящих. Или поискать с помощью
+        программы.</p>
+
+
+    <p>Для поиска простых чисел можно использовать следующий код:</p>
+    <pre class="sh_python">
+# -*- utf-8 -*-
+# Полиномиальное хеширование строк
+
+from math import *
+
+
+def is_prime(a):
+    """ Простое ли число a? """
+    return all(a % i for i in range(2, int(a**0.5 + 0.1) + 1))
+    # all возвращает True только если все элементы множества не 0
+
+# Генерируем все простые числа < 100
+primes = [x for x in range(2, 100) if is_prime(x)]
+print(*primes)
+
+# Простые числа больше миллиарда
+primes = [x for x in range(10 ** 9, 10 ** 9 + 1000) if is_prime(x)]
+print(*primes)
+    </pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
+
+// Простое ли число n: перебираем делители d, пока d * d &lt;= n
+pub fn is_prime(n: u64) -&gt; bool {
+    if n &lt; 2 {
+        return false;
+    }
+    let mut d = 2;
+    while d * d &lt;= n {
+        if n % d == 0 {
+            return false;
+        }
+        d += 1;
+    }
+    true
+}
+
+fn main() {
+    // Простые числа меньше 100
+    let small: Vec&lt;u64&gt; = (0..100).filter(|&amp;n| is_prime(n)).collect();
+    println!("{:?}", small);
+    // Количество простых чисел в промежутке [10^9, 10^9 + 1000)
+    let count = (1_000_000_000..1_000_001_000).filter(|&amp;n| is_prime(n)).count();
+    println!("{}", count);
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск простых чисел пробным делением: O(sqrt(n)) на одно число
+#include &lt;iostream&gt;
+
+// Простое ли число n: перебираем делители d, пока d * d &lt;= n
+bool is_prime(long long n) {
+  if (n &lt; 2) return false;
+  for (long long d = 2; d * d &lt;= n; ++d) {
+    if (n % d == 0) return false;
+  }
+  return true;
+}
+
+int main() {
+  // Простые числа меньше 100
+  for (long long n = 0; n &lt; 100; ++n) {
+    if (is_prime(n)) std::cout &lt;&lt; n &lt;&lt; ' ';
+  }
+  std::cout &lt;&lt; '\n';
+  // Количество простых чисел в промежутке [10^9, 10^9 + 1000)
+  int count = 0;
+  for (long long n = 1000000000LL; n &lt; 1000001000LL; ++n) {
+    if (is_prime(n)) ++count;
+  }
+  std::cout &lt;&lt; count &lt;&lt; '\n';
+  return 0;
+}
+</pre>
+
+
+
+    <p>Пример вычисления хеша на C++</p>
+    <pre class="sh_cpp">
+const int p = 31;
+long long hash = 0, p_pow = 1;
+for (size_t i=0; i<s.length(); ++i)
+{
+	// желательно отнимать 'a' от кода буквы
+	// единицу прибавляем, чтобы у строки вида 'aaaaa' хэш был ненулевой
+	hash += (s[i] - 'a' + 1) * p_pow;
+	p_pow *= p;
+}
+    </pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
+B = 31  # основание b, как в примере на C++
+P = 10 ** 9 + 7  # большое простое число
+
+
+def poly_hash(s):
+    """Хеш строки: буква 'a' дает 1, 'b' - 2 и т.д., чтобы у строки 'aaa' хеш был ненулевым."""
+    result = 0
+    power = 1  # b^i mod P
+    for ch in s:
+        result = (result + (ord(ch) - ord("a") + 1) * power) % P
+        power = power * B % P
+    return result
+
+
+if __name__ == "__main__":
+    print(poly_hash("abc"))  # 1 + 2*31 + 3*31^2 = 2946
+    print(poly_hash("ab"))  # 1 + 2*31 = 63
+    print(poly_hash("ba"))  # 2 + 1*31 = 33
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Полиномиальный хеш строки h(S) = S_0 + S_1*b + S_2*b^2 + ... mod P: O(|S|)
+pub const B: u64 = 31; // основание b, как в примере на C++
+pub const P: u64 = 1_000_000_007; // большое простое число
+
+// Хеш строки: буква 'a' дает 1, 'b' - 2 и т.д., чтобы у строки "aaa" хеш был ненулевым
+pub fn poly_hash(s: &amp;str) -&gt; u64 {
+    let mut result = 0;
+    let mut power = 1; // b^i mod P
+    for ch in s.bytes() {
+        let value = ch as u64 - b'a' as u64 + 1;
+        result = (result + value * power) % P;
+        power = power * B % P;
+    }
+    result
+}
+
+fn main() {
+    println!("{}", poly_hash("abc")); // 1 + 2*31 + 3*31^2 = 2946
+    println!("{}", poly_hash("ab")); // 1 + 2*31 = 63
+    println!("{}", poly_hash("ba")); // 2 + 1*31 = 33
+}</code></pre>
+
+</div>
+
+</body>
+
+</html>

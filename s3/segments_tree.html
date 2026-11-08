@@ -1,0 +1,495 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Segments (Intervals?) tree</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+
+<h1>Дерево отрезков</h1>
+
+<ul class="tags">
+    <li><a href="#">Структуры данных</a></li>
+    <li><a href="#">Дерево отрезков</a></li>
+</ul>
+
+<h2>1. Постановка задачи</h2>
+
+<p>
+    Рассмотрим следующую задачу. Дано $n$ ящиков, пронумерованных числами от $1$
+    до $n$, в каждом из которых лежит несколько шариков. Известно, что $n$
+    достаточно велико. Нам нужно уметь быстро выполнять следующие операции:
+</p>
+
+<ol>
+    <li>$add(c, w)$ - изменить количество шариков в ящике $c$, прибавив к нему $w$ шариков
+        ($w$ может быть отрицательным);
+    </li>
+    <li>$sum(a, b)$ - посчитать количество шариков в нескольких ящиках, расположенных по порядку с номерами от $a$
+        до $b$, то есть на отрезке $[a,b]$.
+    </li>
+</ol>
+
+<p>
+    Мы можем просто завести массив, в котором будем хранить число шариков в ящиках.
+    Почему эта идея может оказаться неоптимальной?
+    При изменении числа шариков в ящике мы меняем значение элемента массива с номером $c$, что выполняется
+    за $O(1)$. Но чтобы посчитать сумму в нескольких идущих подряд ящиках, нам нужно будет сложить
+    $b - a + 1$ чисел. Поскольку длина отрезка может быть почти $n$, то выполняется порядка $n$ сложений, то есть
+    операция ${\it sum}$ выполняется за $O(n)$. При достаточно большом числе запросов суммы на отрезке решение
+    задачи перебором является далеко не лучшим.
+</p>
+
+<h2 id="2-корневая-оптимизация">2. Корневая оптимизация</h2>
+
+<div style="float:right;margin:50px 0 0 10px;"><img loading="lazy" decoding="async" src="segments_tree/1.png">
+</div>
+
+<p>
+    Первая идея, которая обычно приходит в голову, это разделить $n$ ящиков на $x$
+    групп таким образом, что первые несколько ящиков по порядку попадают в первую
+    группу, следующие - во вторую, и так далее. Далее заведем дополнительный массив
+    из $x$ элементов, где будет храниться количество шариков в каждой группе. Тогда
+    при выполнении операции ${\it add}$ нам нужно будет выполнить два действия:
+    изменить значение в соответствующей группе и в самом элементе. Зато операция
+    ${\it sum}$ потребует меньших затрат: нужно сложить элементы группы, которой
+    принадлежит число $a$ (обозначим ее $A$), начиная с элемента с номером $a$ и
+    кончая последним, элементы группы, которой принадлежит число $b$ (обозначим ее
+    $B$), начиная с первого и кончая элементом с номером $b$, что требует временных
+    затрат порядка $O(\frac{n}{x})$ и прибавить к ним суммы элементов в группах,
+    начиная с группы, следующей за $A$ и заканчивая группой, расположенной перед
+    группой $B$, что требует временных затрат порядка $O(x)$. Всего нужно выполнить
+    примерно $\frac{n}{x} + x$ операций. Если мы подберем число $x$ оптимальным
+    образом, то эта идея называется корневой оптимизацией. Чтобы ответить на вопрос,
+    какое $x$ является наилучшим, нужно устремить к минимуму выражение
+    $\frac{n}{x} + x$. Возьмем от него производную по $x$ и приравняем ее к нулю:
+    $-\frac{n}{x^{2}}+1=0$. Отсюда получаем $x=\sqrt{n}$. Таким образом,
+    оптимальное количество групп, на которые нужно разбить ящики: $[\sqrt{n}]$.
+    Мы добились оценки времени выполнения операции ${\it sum}$ $O(\sqrt{n})$, правда,
+    увеличился расход по памяти, но всего лищь на $\sqrt{n}$ - число дополнительных
+    ящиков для хранения сумм элементов в группах.
+</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+import math
+
+
+def make_structure(n):
+    """Ящики с номерами 0..n-1, суммы групп и размер группы около sqrt(n)."""
+    group_size = max(1, math.isqrt(n))
+    return [0] * n, [0] * (n // group_size + 1), group_size
+
+
+def add(structure, c, w):
+    """Добавляет w шариков в ящик c и в сумму его группы."""
+    boxes, group_sums, group_size = structure
+    boxes[c] += w
+    group_sums[c // group_size] += w
+
+
+def box_sum(structure, a, b):
+    """Сумма шариков в ящиках от a до b включительно."""
+    boxes, group_sums, group_size = structure
+    first, last = a // group_size, b // group_size
+    if first == last:
+        return sum(boxes[a:b + 1])
+    head = sum(boxes[a:(first + 1) * group_size])  # хвост первой группы
+    middle = sum(group_sums[first + 1:last])  # целые группы между ними
+    tail = sum(boxes[last * group_size:b + 1])  # начало последней группы
+    return head + middle + tail
+
+
+if __name__ == "__main__":
+    structure = make_structure(10)
+    for c, w in [(0, 5), (3, 2), (9, 7), (4, -1)]:
+        add(structure, c, w)
+    print(box_sum(structure, 0, 9))  # 13
+    print(box_sum(structure, 2, 4))  # 1
+    print(box_sum(structure, 4, 4))  # -1
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+// Ящики нумеруются с нуля; суммы групп из group_size соседних ящиков хранятся отдельно.
+
+pub struct Boxes {
+    counts: Vec&lt;i64&gt;,     // шарики в каждом ящике
+    group_sums: Vec&lt;i64&gt;, // сумма шариков в каждой группе
+    group_size: usize,    // размер группы, около sqrt(n)
+}
+
+impl Boxes {
+    pub fn new(n: usize) -&gt; Self {
+        let group_size = ((n as f64).sqrt() as usize).max(1);
+        Boxes {
+            counts: vec![0; n],
+            group_sums: vec![0; n / group_size + 1],
+            group_size,
+        }
+    }
+
+    // Добавляет w шариков в ящик c и в сумму его группы: O(1)
+    pub fn add(&amp;mut self, c: usize, w: i64) {
+        self.counts[c] += w;
+        self.group_sums[c / self.group_size] += w;
+    }
+
+    // Сумма шариков в ящиках от a до b включительно: O(sqrt(n))
+    pub fn sum(&amp;self, a: usize, b: usize) -&gt; i64 {
+        let first = a / self.group_size;
+        let last = b / self.group_size;
+        if first == last {
+            return self.counts[a..=b].iter().sum();
+        }
+        let head: i64 = self.counts[a..(first + 1) * self.group_size].iter().sum();
+        let middle: i64 = self.group_sums[first + 1..last].iter().sum();
+        let tail: i64 = self.counts[last * self.group_size..=b].iter().sum();
+        head + middle + tail
+    }
+}
+
+fn main() {
+    let mut boxes = Boxes::new(10);
+    for (c, w) in [(0, 5), (3, 2), (9, 7), (4, -1)] {
+        boxes.add(c, w);
+    }
+    println!("{}", boxes.sum(0, 9)); // 13
+    println!("{}", boxes.sum(2, 4)); // 1
+    println!("{}", boxes.sum(4, 4)); // -1
+}</code></pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Корневая оптимизация (sqrt-декомпозиция): add за O(1), sum за O(sqrt(n))
+// Ящики нумеруются с нуля; суммы групп из group_size соседних ящиков хранятся отдельно.
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Сумма элементов v на полуинтервале [from, to): O(to - from)
+long long range_sum(const std::vector&lt;long long&gt;&amp; v, std::size_t from, std::size_t to) {
+  long long total = 0;
+  for (std::size_t i = from; i &lt; to; ++i) total += v[i];
+  return total;
+}
+
+struct Boxes {
+  std::vector&lt;long long&gt; counts;      // шарики в каждом ящике
+  std::vector&lt;long long&gt; group_sums;  // сумма шариков в каждой группе
+  std::size_t group_size = 1;         // размер группы, около sqrt(n)
+
+  explicit Boxes(std::size_t n) {
+    double root = std::sqrt(static_cast&lt;double&gt;(n));
+    group_size = std::max&lt;std::size_t&gt;(1, static_cast&lt;std::size_t&gt;(root));
+    counts.assign(n, 0);
+    group_sums.assign(n / group_size + 1, 0);
+  }
+
+  // Добавляет w шариков в ящик c и в сумму его группы: O(1)
+  void add(std::size_t c, long long w) {
+    counts[c] += w;
+    group_sums[c / group_size] += w;
+  }
+
+  // Сумма шариков в ящиках от a до b включительно: O(sqrt(n))
+  long long sum(std::size_t a, std::size_t b) const {
+    std::size_t first = a / group_size;
+    std::size_t last = b / group_size;
+    if (first == last) return range_sum(counts, a, b + 1);
+    long long head = range_sum(counts, a, (first + 1) * group_size);
+    long long middle = range_sum(group_sums, first + 1, last);
+    long long tail = range_sum(counts, last * group_size, b + 1);
+    return head + middle + tail;
+  }
+};
+
+int main() {
+  Boxes boxes(10);
+  boxes.add(0, 5);
+  boxes.add(3, 2);
+  boxes.add(9, 7);
+  boxes.add(4, -1);
+  std::cout &lt;&lt; boxes.sum(0, 9) &lt;&lt; '\n';  // 13
+  std::cout &lt;&lt; boxes.sum(2, 4) &lt;&lt; '\n';  // 1
+  std::cout &lt;&lt; boxes.sum(4, 4) &lt;&lt; '\n';  // -1
+  return 0;
+}
+</pre>
+
+
+<h2>3. Дерево отрезков </h2>
+
+<p> Следующая мысль, которая приходит в голову, это то, что мы можем завести не один вспомогательный уровень, а много.
+    Каждый уровень будет служить для уменьшения вычислений на уровне ниже. Для простоты реализации проще иметь
+    одинаковое число возможных переходов на каждом уровне. Таким образом, мы приходим к дереву, из верхнего узла
+    которого $x$ переходов, из каждого из получившихся $x$ узлов также $x$ переходов, и так далее. На самом нижнем
+    уровне получается $x^{h}$ узлов, где $h$ - высота дерева, что должно быть равно $n$. Отсюда $h = \log_{x}n$.
+</p>
+
+<div class="picture">
+    <img loading="lazy" decoding="async" src="segments_tree/2.png"><br>Рисунок 1
+</div>
+
+<p>
+    Дальше нам нужно выяснить, какое $x$ является оптимальным. Теперь при
+    выполнении операции ${\it sum}$, так же как и ${\it add}$, нужно выполнить
+    $hx$ действий. Нам нужно минимизировать это выражение: $h * x\to\min$.
+    Возьмем от него производную и приравняем ее к нулю:
+    $(\log_{x}n * x)' = 0$. Получаем $x = e$. Таким образом, из каждого узла
+    должно выходить $e$ веток. Ближайшее к $e$ целое число - это $3$. Однако,
+    учитывая, что операции умножения и деления на $2$ на процессорах с
+    двоичной арифметикой выполняются значительно быстрее, в качестве $x$
+    берут $2$, а не $3$.
+</p>
+
+<h3> 3.1. Удобный способ хранения дерева отрезков </h3>
+
+<p>
+    Обозначим за $N$ ближайшее сверху к $n$ целое число такое, что $N$
+    является степенью двойки. Тогда $N = 2^{h}$. Элементы массива,
+    начиная с $1$ по $n$ образуют начало нижнего уровня дерева отрезков,
+    оставшиеся нижние узлы дерева от $n + 1$ до $N$ заполняются нулями.
+</p>
+
+<p>
+    Перенумеруем узлы дерева так, как показано на рисунке и разместим
+    значения, хранящиеся в узлах дерева, в массиве в соответствии с этой
+    нумерацией. Сначала расположен самый верхний узел дерева, потом узлы
+    второго сверху уровня слева направо, потом третьего слева направо, и
+    так далее. В конце идут значения, данные изначально.
+</p>
+
+<div style="margin:50px 0 0 10px;">
+    <div align="center"><img loading="lazy" decoding="async" src="segments_tree/3.png"></div>
+</div>
+<br>
+
+<p> Тогда переход сверху вниз выполняется по следующей схеме:</p>
+
+<div style="margin:50px 0 0 10px;"><p align="center" style="align:center"><img loading="lazy" decoding="async" src="segments_tree/4.png"></p></div>
+
+<p>
+    , а снизу вверх так:
+</p>
+
+<div style="margin:50px 0 0 10px;">
+    <div align="center"><img loading="lazy" decoding="async" src="segments_tree/5.png"></div>
+</div>
+
+<h3> 3.2. Сколько места занимает дерево отрезков? </h3>
+
+<p>
+    Кроме массива длины $N$, нужно еще $N - 1$ дополнительных
+    элементов, всего получается $2N - 1$. Причем удобно нумерацию
+    начинать с $1$, чтобы проще
+    вычислять переходы по приведенным схемам. Тогда в языках, где
+    массив начинается с нуля (например, C++), пропадает нулевой элемент,
+    затраты по памяти составляют $2N$.
+</p>
+
+<h3> 3.3. Реализация </h3>
+
+<p>
+    При реализации дерева отрезков можно написать операции add и sum
+    двумя способами: циклом и рекурсией. Кроме того, можно идти по
+    дереву отрезков вниз, а можно вверх. Итого, для каждой операции
+    четыре возможных варианта.
+</p>
+
+<h3> 3.3.1. Операция add</h3>
+
+<p>
+    Чтобы выполнить операцию ${\it add}$, нужно просто пройти по дереву вверх
+    как показано на рис. 5, увеличивая значение в каждом
+    встреченном узле на $w$.
+</p>
+
+<p>Реализация на C++ операции ${\it add}$ циклом, по дереву идем вверх
+</p>
+<pre class="sh_cpp">
+// Добавить, цикл, вверх
+void add_up(int c, int w)
+{
+  int i;
+  for(i = N - 1 + c; i != 0; i >>= 1)
+    tree[i] += w;
+}
+// Замечание: операция >>= 1 эквивалентна операции /= 2
+</pre>
+
+<h3>3.3.2. Операция sum</h3>
+
+<p>Заведем переменную $res$, в которой будем хранить текущее
+    значение суммы. Изначально стоим на нижнем уровне дерева,
+    нужно посчитать сумму элементов от $a$ до $b$ включительно.
+    Заметим, что для левой границы $a$, когда выполняем переход вверх,
+    нужно прибавлять значение в узле дерева к $res$, когда $a$ -
+    нечетное, после чего левую границу нужно сдвинуть на $1$ вправо.
+    Для правой границы, соответственно, наоборот. На каком-то шаге
+    левая граница становится больше правой и цикл заканчивается.</p>
+
+<p>
+    Реализация на C++ операции ${\it sum}$ циклом, по дереву идем вверх
+</p>
+
+<pre class="sh_cpp">
+// Сумма, цикл, вверх
+int sum(int a, int b)
+{
+  int res = 0;
+  for(a += N - 1, b += N - 1; a &lt;= b; a &gt;&gt;= 1, b &gt;&gt;= 1)
+  {
+    if(a % 2 == 1)
+    {
+      res += tree[a];
+      a++;
+    }
+    if(b % 2 == 0)
+    {
+      res += tree[b];
+      b--;
+    }
+  }
+  return res;
+}
+</pre>
+
+<p>
+    Реализация на C++ операции ${\it add}$ рекурсией, по дереву идем ?
+</p>
+
+<pre class="sh_cpp">файл 3.cpp - где он?</pre>
+<p>
+    Реализация на C++ операции ${\it sum}$ рекурсией, по дереву идем ?
+</p>
+
+<pre class="sh_cpp">файл 4.cpp - где он?</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
+def add_up(tree, size, c, w):
+    """Прибавляет w к ящику c и ко всем вершинам над ним, поднимаясь от листа к корню."""
+    vertex = size - 1 + c
+    while vertex != 0:
+        tree[vertex] += w
+        vertex &gt;&gt;= 1
+
+
+def sum_range(tree, size, a, b):
+    """Сумма ящиков от a до b включительно."""
+    result = 0
+    left, right = size - 1 + a, size - 1 + b
+    while left &lt;= right:
+        if left % 2 == 1:
+            result += tree[left]
+            left += 1
+        if right % 2 == 0:
+            result += tree[right]
+            right -= 1
+        left &gt;&gt;= 1
+        right &gt;&gt;= 1
+    return result
+
+
+if __name__ == "__main__":
+    size = 8  # степень двойки, не меньше числа ящиков
+    tree = [0] * (2 * size)
+    add_up(tree, size, 1, 5)
+    add_up(tree, size, 3, 2)
+    add_up(tree, size, 8, 4)
+    add_up(tree, size, 3, -1)
+    print(sum_range(tree, size, 1, 8))  # 10
+    print(sum_range(tree, size, 2, 3))  # 1
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Дерево отрезков снизу (итеративное): add и sum за O(log n), ящики нумеруются с 1
+
+// Прибавляет w к ящику c и ко всем вершинам над ним: O(log n)
+pub fn add_up(tree: &amp;mut [i64], size: usize, c: usize, w: i64) {
+    let mut vertex = size - 1 + c;
+    while vertex != 0 {
+        tree[vertex] += w;
+        vertex &gt;&gt;= 1;
+    }
+}
+
+// Сумма ящиков от a до b включительно: O(log n)
+pub fn sum_range(tree: &amp;[i64], size: usize, a: usize, b: usize) -&gt; i64 {
+    let mut result = 0;
+    let mut left = size - 1 + a;
+    let mut right = size - 1 + b;
+    while left &lt;= right {
+        if left % 2 == 1 {
+            result += tree[left];
+            left += 1;
+        }
+        if right % 2 == 0 {
+            result += tree[right];
+            right -= 1;
+        }
+        left &gt;&gt;= 1;
+        right &gt;&gt;= 1;
+    }
+    result
+}
+
+fn main() {
+    let size = 8; // степень двойки, не меньше числа ящиков
+    let mut tree = vec![0i64; 2 * size];
+    add_up(&amp;mut tree, size, 1, 5);
+    add_up(&amp;mut tree, size, 3, 2);
+    add_up(&amp;mut tree, size, 8, 4);
+    add_up(&amp;mut tree, size, 3, -1);
+    println!("{}", sum_range(&amp;tree, size, 1, 8)); // 10
+    println!("{}", sum_range(&amp;tree, size, 2, 3)); // 1
+}</code></pre>
+
+
+<h3>3.4. ?? Заголовок ??</h3>
+
+<p>Если мы задумаемся над следующим вопросом: при каких $n$ нам действительно выгодно применить
+    дерево отрезков, а когда не стоит тратить время и усилия на его написание, когда лучше написать
+    корневую оптимизацию или даже может оказаться, что оно работает медленнее перебора.
+    С этой целью можно предложить такой эксперимент:
+    написать дерево отрезков, корневую оптимизацию и перебор и запустить все три алгоритма при некоторых n, например,
+    при $n = 5, 10, 10^2, 10^3, 10^4,\ldots, 10^{12}$, записывая время работы каждого в два массива, а потом сравнить,
+    что получилось.</p>
+
+<h3>3.5. Стандартные ошибки при написании дерева отрезков</h3>
+
+<p>
+    1) Обычно, когда рисуют дерево отрезков, никто не забывает, что нужно увеличить $n$ до
+    ближайшей степени двойки, но во время реализации оставляют $n$ как есть, тесты из примеров
+    такой код проходит, но на больших тестах получается неверный ответ.
+</p>
+
+<p>
+    2) Перед выполнением операции $add$ или $sum$ нужно не забыть прибавить
+    к номеру элемента в исходном массиве
+    $N-1$, чтобы получить номер элемента в дереве.
+</p>
+
+<div style="margin:50px 0 0 10px;"><img loading="lazy" decoding="async" src="segments_tree/6.png"></div>
+
+</div>
+</body>
+
+</html>

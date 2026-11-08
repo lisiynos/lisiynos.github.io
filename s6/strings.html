@@ -1,0 +1,948 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Алгоритмы на строках</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+    <h1>Алгоритмы на строках (Хеширование и строки). Поиск подстроки в строке: наивный алгоритм, алгоритм Рабина-Карпа,
+        алгоритм Кнута-Морриса-Пратта, Z-функция. Бор</h1>
+
+    <ul class="tags">
+        <li><a href="#">Строки</a></li>
+        <li><a href="#">Хеширование</a></li>
+    </ul>
+
+    <h2 id="алгоритм-кнута-морриса-пратта-кмп-алгоритм">Алгоритм Кнута-Морриса-Пратта (КМП-алгоритм)</h2>
+
+    <p><b>Поиск подстроки в строке:</b>
+        даны образец для поиска $S$ и строка $T$, найти индекс, начиная с которого $S$ содержится в строке $T$.
+        Если $S$ не содержится в $T$  - вернуть индекс, который не может быть интерпретирован как позиция в строке
+        (например, отрицательное число).</p>
+
+    <p>При необходимости отслеживать каждое вхождение образца в текст имеет смысл завести дополнительную функцию,
+        вызываемую при каждом обнаружении образца.</p>
+
+    <h3>Описание алгоритма и оценка времени работы</h3>
+
+    <p>Рассмотрим сравнение строк на позиции $i$, где образец $S[0, m - 1]$ сопоставляется с частью текста
+        $T[ i, i + m - 1 ]$. Предположим, что первое несовпадение произошло между $T[i + j]$ и
+        $S[ j ]$, где $1 &lt; j &lt; m$. Тогда $T[ i, i + j - 1 ] = S[ 0, j - 1 ] = P$ и $a = T[ i + j ] \ne S[ j ] = b$.</p>
+
+    <p> При сдвиге вполне можно ожидать, что префикс (начальные символы) образца $S$ сойдется с каким-нибудь суффиксом
+        (конечные символы) текста $P$. Длина наиболее длинного префикса, являющегося одновременно суффиксом, есть
+        <b>префикс-функция</b> от строки $S$ для индекса $j$.</p>
+
+    <p>Это приводит нас к следующему алгоритму: пусть $\rm{\pi}[ j ]$ — префикс-функция от строки $S[ 0, m - 1 ]$ для
+        индекса $j$. Тогда после сдвига мы можем возобновить сравнения с места $T[ i + j ]$ и $S[ \rm{\pi}[ j ] ]$ без
+        потери возможного местонахождения образца. Можно показать, что таблица $\rm{\pi}$ может быть вычислена
+        (амортизационно) за $\Theta( m )$ сравнений перед началом поиска. А поскольку строка $T$ будет пройдена ровно
+        один раз, суммарное время работы алгоритма будет равно $\Theta(m + n)$, где
+        $n$ — длина текста $T$.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+
+
+def prefix_function(pattern: str) -&gt; list[int]:
+    """Для каждого i: длина наибольшего собственного префикса pattern[0..i], совпадающего с суффиксом."""
+    pi = [0] * len(pattern)
+    matched = 0  # длина совпавшего префикса образца
+    for i in range(1, len(pattern)):
+        while matched &gt; 0 and pattern[i] != pattern[matched]:
+            matched = pi[matched - 1]
+        if pattern[i] == pattern[matched]:
+            matched += 1
+        pi[i] = matched
+    return pi
+
+
+def kmp_search(text: str, pattern: str) -&gt; int:
+    """Индекс первого вхождения pattern в text или -1, если вхождения нет."""
+    if not pattern:
+        return 0
+    pi = prefix_function(pattern)
+    matched = 0  # длина совпавшего префикса образца
+    for i, symbol in enumerate(text):
+        while matched &gt; 0 and symbol != pattern[matched]:
+            matched = pi[matched - 1]
+        if symbol == pattern[matched]:
+            matched += 1
+        if matched == len(pattern):
+            return i - len(pattern) + 1
+    return -1
+
+
+if __name__ == "__main__":
+    print("pi для abacaba:", prefix_function("abacaba"))
+    print("abra в abracadabra:", kmp_search("abracadabra", "abra"))
+    print("cad в abracadabra:", kmp_search("abracadabra", "cad"))
+    print("xyz в abracadabra:", kmp_search("abracadabra", "xyz"))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">// КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+
+// Префикс-функция: pi[i] - длина наибольшего собственного префикса pattern[0..=i],
+// который одновременно является суффиксом этого отрезка.
+pub fn prefix_function(pattern: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let mut pi = vec![0; pattern.len()];
+    let mut matched = 0; // длина совпавшего префикса образца
+    for i in 1..pattern.len() {
+        while matched &gt; 0 &amp;&amp; pattern[i] != pattern[matched] {
+            matched = pi[matched - 1];
+        }
+        if pattern[i] == pattern[matched] {
+            matched += 1;
+        }
+        pi[i] = matched;
+    }
+    pi
+}
+
+// Индекс первого вхождения pattern в text или None, если вхождения нет.
+pub fn kmp_search(text: &amp;[u8], pattern: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+    if pattern.is_empty() {
+        return Some(0);
+    }
+    let pi = prefix_function(pattern);
+    let mut matched = 0; // длина совпавшего префикса образца
+    for (i, &amp;symbol) in text.iter().enumerate() {
+        while matched &gt; 0 &amp;&amp; symbol != pattern[matched] {
+            matched = pi[matched - 1];
+        }
+        if symbol == pattern[matched] {
+            matched += 1;
+        }
+        if matched == pattern.len() {
+            return Some(i + 1 - matched);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("pi для abacaba: {:?}", prefix_function(b"abacaba"));
+    println!("abra в abracadabra: {:?}", kmp_search(b"abracadabra", b"abra"));
+    println!("cad в abracadabra: {:?}", kmp_search(b"abracadabra", b"cad"));
+    println!("xyz в abracadabra: {:?}", kmp_search(b"abracadabra", b"xyz"));
+}</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// КМП-поиск подстроки: время O(n + m), память O(m), n - длина текста, m - длина образца
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// Префикс-функция: pi[i] - длина наибольшего собственного префикса pattern[0..i],
+// который одновременно является суффиксом этого отрезка.
+std::vector&lt;std::size_t&gt; prefix_function(const std::string&amp; pattern) {
+    std::vector&lt;std::size_t&gt; pi(pattern.size(), 0);
+    std::size_t matched = 0;  // длина совпавшего префикса образца
+    for (std::size_t i = 1; i &lt; pattern.size(); ++i) {
+        while (matched &gt; 0 &amp;&amp; pattern[i] != pattern[matched]) {
+            matched = pi[matched - 1];
+        }
+        if (pattern[i] == pattern[matched]) {
+            ++matched;
+        }
+        pi[i] = matched;
+    }
+    return pi;
+}
+
+// Индекс первого вхождения pattern в text или -1, если вхождения нет.
+std::ptrdiff_t kmp_search(const std::string&amp; text, const std::string&amp; pattern) {
+    if (pattern.empty()) {
+        return 0;
+    }
+    const std::vector&lt;std::size_t&gt; pi = prefix_function(pattern);
+    std::size_t matched = 0;  // длина совпавшего префикса образца
+    for (std::size_t i = 0; i &lt; text.size(); ++i) {
+        while (matched &gt; 0 &amp;&amp; text[i] != pattern[matched]) {
+            matched = pi[matched - 1];
+        }
+        if (text[i] == pattern[matched]) {
+            ++matched;
+        }
+        if (matched == pattern.size()) {
+            return static_cast&lt;std::ptrdiff_t&gt;(i + 1 - matched);
+        }
+    }
+    return -1;
+}
+
+int main() {
+    std::cout &lt;&lt; "pi для abacaba:";
+    for (std::size_t value : prefix_function("abacaba")) {
+        std::cout &lt;&lt; ' ' &lt;&lt; value;
+    }
+    std::cout &lt;&lt; '\n';
+    std::cout &lt;&lt; "abra в abracadabra: " &lt;&lt; kmp_search("abracadabra", "abra") &lt;&lt; '\n';
+    std::cout &lt;&lt; "cad в abracadabra: " &lt;&lt; kmp_search("abracadabra", "cad") &lt;&lt; '\n';
+    std::cout &lt;&lt; "xyz в abracadabra: " &lt;&lt; kmp_search("abracadabra", "xyz") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+
+<h2 id="z-функция">Z-функция</h2>
+
+<h3>Определение</h3>
+
+<p>Пусть $s$ — строка длины $n$. Символы строки нумеруются с нуля: $s[i]$ — символ с номером $i$, а $s[l, r]$ — подстрока из символов с номерами от $l$ до $r$ включительно. Z-функцией строки $s$ называется массив $z[0], \dots, z[n-1]$, в котором $z[i]$ — длина наибольшего общего префикса строк $s$ и $s[i, n-1]$:</p>
+
+<p>$$z[i] = \max\bigl\{\, k \ge 0 \;:\; i + k \le n \land s[0, k-1] = s[i, i+k-1] \,\bigr\}.$$</p>
+
+<p>По соглашению $z[0] = n$. Для строки aabxaab, в которой $n = 7$, получаем $z = (7, 1, 0, 0, 3, 1, 0)$. Например, $z[4] = 3$, так как $s[4, 6] = \text{aab}$ совпадает с префиксом $s[0, 2]$, а $z[1] = 1$, так как $s[1] = s[0] = \text{a}$, но $s[2] = \text{b} \ne s[1]$.</p>
+
+<h3>Построение за линейное время</h3>
+
+<p>Будем поддерживать полуинтервал $[l, r)$, где $l$ — тот из уже обработанных индексов, для которого $l + z[l]$ максимально, а $r = l + z[l]$. Тогда $s[l, r-1] = s[0, r-l-1]$. Вначале $l = r = 0$, и отрезок пуст.</p>
+
+<p>Пусть $1 \le i &lt; n$ — очередной индекс. Если $i &lt; r$, то отрезки $s[i, r-1]$ и $s[i-l, r-l-1]$ совпадают, поэтому $z[i] \ge \min(z[i-l], r-i)$. Если $z[i-l] &lt; r-i$, то это неравенство точное, и символы сравнивать не нужно. Иначе значение наращивается посимвольным сравнением.</p>
+
+<p><b>Утверждение.</b> Если $i &lt; r$ и $z[i-l] &lt; r-i$, то $z[i] = z[i-l]$.</p>
+
+<p><i>Доказательство.</i> Пусть $k = z[i-l]$. Так как $i + k &lt; r \le n$, позиции $i + k$ и $i - l + k$ существуют, и $s[i + k] = s[i - l + k]$, потому что $i + k$ лежит в $[i, r-1]$. По определению $z[i-l]$ выполнено $s[i-l+k] \ne s[k]$. Кроме того, $s[0, k-1] = s[i, i+k-1]$. Значит, наибольший общий префикс $s$ и $s[i, n-1]$ имеет длину ровно $k$.</p>
+
+<p>Алгоритм вычисляет Z-функцию следующим образом: при обработке $i$ значение $z[i]$ начинается с $\min(z[i-l], r-i)$ (или с нуля, если $i \ge r$) и наращивается, пока $s[z[i]] = s[i + z[i]]$. После этого, если $i + z[i] &gt; r$, отрезок $[l, r)$ заменяется на $[i, i + z[i])$.</p>
+
+<p><b>Теорема.</b> Описанный алгоритм корректно вычисляет Z-функцию строки длины $n$ и выполняет $O(n)$ сравнений символов.</p>
+
+<p><i>Доказательство.</i> Корректность следует из утверждения: начальное значение $z[i]$ не превосходит истинного, а если оно меньше $r - i$, то совпадает с ним. В остальных случаях значение доводится до истинного посимвольным сравнением. Для времени обозначим через $t_i$ число успешных сравнений при обработке $i$; при каждом $i$ выполняется не более одного неуспешного сравнения. Если $i \ge r$, то после обработки $i$ правая граница равна $i + t_i \ge r + t_i$. Если $i &lt; r$ и $t_i &gt; 0$, то по утверждению начальное значение равно $r - i$, и правая граница становится равной $r + t_i$. Правая граница $r$ не убывает и не превосходит $n$, поэтому $\sum_i t_i \le n$. Всего сравнений не больше $n + (n - 1)$.</p>
+
+<h3>Поиск подстроки</h3>
+
+<p>Пусть $P$ — образец длины $M \ge 1$, а $T$ — текст длины $N$. Выберем символ $\#$, не входящий ни в $P$, ни в $T$, и составим строку $u = P\#T$ длины $N + M + 1$. Её Z-функцию обозначим $z_u$.</p>
+
+<p><b>Теорема.</b> Образец $P$ входит в $T$ с позиции $j$ (то есть $j + M \le N$ и $T[j, j+M-1] = P$) тогда и только тогда, когда $z_u[M + 1 + j] = M$. Поиск всех вхождений за $O(N + M)$ операций выполняет функция <code>find_all</code>.</p>
+
+<p><i>Доказательство.</i> Пусть $p = M + 1 + j$. Если $z_u[p] &gt; M$, то $u[0, M] = u[p, p+M]$, и в частности $u[M] = u[p+M]$. Символ $\#$ встречается в $u$ только в позиции $M$, а $p + M &gt; M$, поэтому $z_u[p] \le M$. Далее, $z_u[p] \ge M$ означает, что $u[p, p+M-1]$ существует и совпадает с $u[0, M-1]$, то есть $P = T[j, j+M-1]$ (отсюда $j + M \le N$). Обратно, если $P = T[j, j+M-1]$, то $u[p, p+M-1] = P = u[0, M-1]$, и $z_u[p] \ge M$. Вместе с $z_u[p] \le M$ это даёт $z_u[p] = M$. Время складывается из построения Z-функции строки длины $N + M + 1$, то есть $O(N + M)$.</p>
+
+<h3>Реализация</h3>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Z-функция строки и поиск подстроки: время O(n), память O(n), n - длина строки
+
+
+def z_function(s: str) -&gt; list[int]:
+    """z[i] - длина наибольшего общего префикса строк s и s[i:]; z[0] = len(s)."""
+    n = len(s)
+    if n == 0:
+        return []
+    z = [0] * n
+    z[0] = n
+    left, right = 0, 0  # отрезок [left, right) совпадает с префиксом s[0:right-left]
+    for i in range(1, n):
+        if i &lt; right:
+            z[i] = min(right - i, z[i - left])
+        while i + z[i] &lt; n and s[z[i]] == s[i + z[i]]:
+            z[i] += 1
+        if i + z[i] &gt; right:
+            left, right = i, i + z[i]
+    return z
+
+
+def find_all(pattern: str, text: str) -&gt; list[int]:
+    """Начала всех вхождений pattern в text. Образец непустой, символ '#' не входит в pattern и text."""
+    z = z_function(pattern + "#" + text)
+    shift = len(pattern) + 1
+    return [j for j in range(len(text)) if z[shift + j] == len(pattern)]
+
+
+if __name__ == "__main__":
+    print("z:", *z_function("aabxaab"))
+    print("вхождения aab:", *find_all("aab", "aabxaabaab"))
+    print("вхождения xyz:", *find_all("xyz", "aabxaabaab"))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Z-функция строки и поиск подстроки: время O(n), память O(n), n - длина строки
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// z[i] - длина наибольшего общего префикса строк s и s[i..]; z[0] = размер строки
+std::vector&lt;std::size_t&gt; z_function(const std::string&amp; s) {
+    const std::size_t n = s.size();
+    if (n == 0) {
+        return {};
+    }
+    std::vector&lt;std::size_t&gt; z(n, 0);
+    z[0] = n;
+    std::size_t left = 0;  // отрезок [left, right) совпадает с префиксом s[0 .. right - left - 1]
+    std::size_t right = 0;
+    for (std::size_t i = 1; i &lt; n; ++i) {
+        if (i &lt; right) {
+            z[i] = std::min(right - i, z[i - left]);
+        }
+        while (i + z[i] &lt; n &amp;&amp; s[z[i]] == s[i + z[i]]) {
+            ++z[i];
+        }
+        if (i + z[i] &gt; right) {
+            left = i;
+            right = i + z[i];
+        }
+    }
+    return z;
+}
+
+// Начала всех вхождений pattern в text. Образец непустой, символ '#' не входит в pattern и text
+std::vector&lt;std::size_t&gt; find_all(const std::string&amp; pattern, const std::string&amp; text) {
+    const std::vector&lt;std::size_t&gt; z = z_function(pattern + '#' + text);
+    const std::size_t shift = pattern.size() + 1;
+    std::vector&lt;std::size_t&gt; starts;
+    for (std::size_t j = 0; j &lt; text.size(); ++j) {
+        if (z[shift + j] == pattern.size()) {
+            starts.push_back(j);
+        }
+    }
+    return starts;
+}
+
+// Печатает подпись и числа через пробел
+void print_line(const std::string&amp; label, const std::vector&lt;std::size_t&gt;&amp; values) {
+    std::cout &lt;&lt; label;
+    for (std::size_t value : values) {
+        std::cout &lt;&lt; ' ' &lt;&lt; value;
+    }
+    std::cout &lt;&lt; '\n';
+}
+
+int main() {
+    print_line("z:", z_function("aabxaab"));
+    print_line("вхождения aab:", find_all("aab", "aabxaabaab"));
+    print_line("вхождения xyz:", find_all("xyz", "aabxaabaab"));
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Z-функция строки и поиск подстроки: время O(n), память O(n), n - длина строки
+
+// z[i] - длина наибольшего общего префикса строк s и s[i..]; z[0] - длина строки
+pub fn z_function(s: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let n = s.len();
+    if n == 0 {
+        return Vec::new();
+    }
+    let mut z: Vec&lt;usize&gt; = vec![0; n];
+    z[0] = n;
+    // отрезок [left, right) совпадает с префиксом s[0 .. right - left]
+    let (mut left, mut right): (usize, usize) = (0, 0);
+    for i in 1..n {
+        if i &lt; right {
+            z[i] = (right - i).min(z[i - left]);
+        }
+        while i + z[i] &lt; n &amp;&amp; s[z[i]] == s[i + z[i]] {
+            z[i] += 1;
+        }
+        if i + z[i] &gt; right {
+            left = i;
+            right = i + z[i];
+        }
+    }
+    z
+}
+
+// Начала всех вхождений pattern в text. Образец непустой, байт '#' не входит в pattern и text
+pub fn find_all(pattern: &amp;[u8], text: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let mut joined = pattern.to_vec();
+    joined.push(b'#');
+    joined.extend_from_slice(text);
+    let z = z_function(&amp;joined);
+    let shift = pattern.len() + 1;
+    (0..text.len())
+        .filter(|&amp;j| z[shift + j] == pattern.len())
+        .collect()
+}
+
+// Печатает подпись и числа через пробел
+fn print_line(label: &amp;str, values: &amp;[usize]) {
+    print!("{}", label);
+    for value in values {
+        print!(" {}", value);
+    }
+    println!();
+}
+
+fn main() {
+    print_line("z:", &amp;z_function(b"aabxaab"));
+    print_line("вхождения aab:", &amp;find_all(b"aab", b"aabxaabaab"));
+    print_line("вхождения xyz:", &amp;find_all(b"xyz", b"aabxaabaab"));
+}
+</code></pre>
+<p>Все три программы печатают одинаковые строки:</p>
+<pre>
+z: 7 1 0 0 3 1 0
+вхождения aab: 0 4 7
+вхождения xyz:
+</pre>
+
+<h2 id="бор-и-алгоритм-ахо-корасика">Бор и алгоритм Ахо–Корасика</h2>
+
+<h3>Постановка задачи</h3>
+
+<p>Даны непустые попарно различные образцы $p_1, \dots, p_q$ и текст $T$ длины $N$. Требуется найти все вхождения образцов в текст, то есть все пары $(j, i)$ такие, что образец $p_i$ оканчивается в позиции $j$: $j - |p_i| + 1 \ge 0$ и $T[j - |p_i| + 1, j] = p_i$. Позиции нумеруются с нуля. Через $L = |p_1| + \dots + |p_q|$ обозначим суммарную длину образцов, а через $K$ — число найденных пар.</p>
+
+<p>Наивный перебор проверяет каждый образец в каждой позиции и выполняет $O(NL)$ сравнений. Алгоритм Ахо–Корасика решает задачу за $O(L + N + K)$ операций: сначала по образцам строится бор с дополнительными ссылками, затем текст читается один раз.</p>
+
+<h3>Бор образцов</h3>
+
+<p>Бор — корневое дерево, в котором каждой вершине $v$ соответствует строка $\mathrm{str}(v)$, метка пути от корня до $v$. Вершины бора — это все префиксы всех образцов, включая пустой префикс, которому соответствует корень. Ребро $v \to u$ с символом $c$ означает $\mathrm{str}(u) = \mathrm{str}(v)\,c$, поэтому из каждой вершины по каждому символу выходит не более одного ребра. Бор содержит не более $L + 1$ вершины. Вершина называется терминальной и получает метку $i$, если её строка равна $p_i$. Образцы различны, поэтому каждая терминальная вершина несёт одну метку.</p>
+
+<h3>Ссылки неудачи</h3>
+
+<p>Глубиной вершины назовём длину её строки. Ссылка неудачи $\mathrm{fail}(v)$ — вершина бора, строка которой является самым длинным собственным суффиксом $\mathrm{str}(v)$, присутствующим в боре. Пустой суффикс всегда присутствует, поэтому ссылка определена. Корень имеет номер $0$ и для него полагаем $\mathrm{fail}(0) = 0$; вершины глубины 1 ссылаются на корень.</p>
+
+<p><b>Утверждение.</b> Для вершины $u$, отличной от корня, вершины бора, строки которых являются собственными суффиксами $\mathrm{str}(u)$, в порядке убывания длины образуют цепочку $\mathrm{fail}(u), \mathrm{fail}(\mathrm{fail}(u)), \dots$, которая заканчивается корнем.</p>
+
+<p><i>Доказательство.</i> Пусть $x$ — собственный суффикс $\mathrm{str}(u)$, присутствующий в боре. По определению $\mathrm{fail}(u)$ выполнено $|x| \le |\mathrm{str}(\mathrm{fail}(u))|$. Обе строки $x$ и $\mathrm{str}(\mathrm{fail}(u))$ являются суффиксами $\mathrm{str}(u)$, поэтому $x$ — суффикс $\mathrm{str}(\mathrm{fail}(u))$. Если $x = \mathrm{str}(\mathrm{fail}(u))$, это первый элемент цепочки. Иначе $x$ — собственный суффикс $\mathrm{str}(\mathrm{fail}(u))$, и по индукции по длине строки он входит в цепочку $\mathrm{fail}(\mathrm{fail}(u)), \dots$.</p>
+
+<p>Ссылки вычисляются обходом бора в ширину. Для вершины $u$, отличной от корня, и ребра $u \to v$ с символом $c$ положим $w = \mathrm{fail}(u)$ и, пока $w$ не корень и из $w$ нет ребра с символом $c$, заменим $w$ на $\mathrm{fail}(w)$. Если из $w$ есть ребро $w \to x$ с символом $c$, то $\mathrm{fail}(v) = x$, иначе $\mathrm{fail}(v)$ — корень.</p>
+
+<p><b>Теорема.</b> Описанная процедура вычисляет $\mathrm{fail}(v)$ для каждой вершины $v$ глубины не меньше 2.</p>
+
+<p><i>Доказательство.</i> Пусть $y$ — собственный суффикс $\mathrm{str}(v) = \mathrm{str}(u)\,c$, присутствующий в боре, и $y$ непуст. Тогда $y = xc$, где $x$ — собственный суффикс $\mathrm{str}(u)$, присутствующий в боре (он является префиксом $y$, а бор замкнут относительно префиксов). Пустая строка $x$ тоже допустима. По утверждению кандидаты $x$ перебираются цепочкой $\mathrm{fail}(u), \mathrm{fail}(\mathrm{fail}(u)), \dots$ в порядке убывания длины. Процедура берёт первый кандидат, у которого есть ребро по $c$, поэтому получает самое длинное $xc$.</p>
+
+<p><b>Теорема.</b> Построение бора, ссылок неудачи и ссылок словаря выполняет $O(L)$ операций с переходами.</p>
+
+<p><i>Доказательство.</i> Для вершины $v$ глубины не меньше 2 с родителем $u$ обозначим через $d(v)$ глубину $\mathrm{fail}(v)$, а через $\tau(v)$ — число шагов $w \leftarrow \mathrm{fail}(w)$ при вычислении $\mathrm{fail}(v)$. Каждый шаг уменьшает глубину $w$ не менее чем на 1, поэтому после $\tau(v)$ шагов глубина $w$ не больше $d(u) - \tau(v)$. Если из $w$ есть переход по $c$, то $d(v) \le d(u) - \tau(v) + 1$. Если перехода нет, то $\mathrm{fail}(v)$ — корень, цикл остановился на корне, и $\tau(v) \le d(u)$. В обоих случаях $\tau(v) \le d(u) + 1 - d(v)$. Для пути от корня через вершины $v_1, \dots, v_m$ получаем $\sum_{t=1}^{m} \tau(v_t) \le \sum_{t=1}^{m} \bigl(d(v_{t-1}) + 1 - d(v_t)\bigr) = m - d(v_m) \le m$, так как $d(v_0) = 0$ для корня. Каждая вершина бора лежит на пути от корня хотя бы к одному образцу, а величины $\tau$ неотрицательны, поэтому $\sum_v \tau(v) \le \sum_i |p_i| = L$. Остальные действия — построение бора по символам и обход в ширину с константой работы на ребро — выполняются за $O(L)$.</p>
+
+<h3>Ссылки словаря</h3>
+
+<p>Для вершины $v$ обозначим через $\mathrm{dict}(v)$ ближайшую терминальную вершину в цепочке $\mathrm{fail}(v), \mathrm{fail}(\mathrm{fail}(v)), \dots$ — самый длинный терминальный собственный суффикс $\mathrm{str}(v)$. Если такой вершины нет, $\mathrm{dict}(v)$ не определена. Значение вычисляется по правилу: $\mathrm{dict}(v) = \mathrm{fail}(v)$, если $\mathrm{fail}(v)$ терминальна, и $\mathrm{dict}(v) = \mathrm{dict}(\mathrm{fail}(v))$ в противном случае.</p>
+
+<p>Терминальные вершины цепочки $v, \mathrm{fail}(v), \dots$ перечисляются так: сначала $v$, если она терминальна, затем $\mathrm{dict}(v)$, $\mathrm{dict}(\mathrm{dict}(v))$ и т. д. Каждый шаг по $\mathrm{dict}$ даёт одну терминальную вершину.</p>
+
+<h3>Поиск в тексте</h3>
+
+<p>Текст читается слева направо, текущая вершина $v$ после чтения $T[0, j]$ определяется так: $\mathrm{str}(v)$ — самый длинный суффикс $T[0, j]$, присутствующий в боре. Чтобы прочитать очередной символ $c$, поступаем так: пока $v$ не корень и из $v$ нет ребра с символом $c$, заменяем $v$ на $\mathrm{fail}(v)$; если из $v$ есть ребро по $c$, переходим по нему, иначе остаёмся в корне. После этого выводим образцы, оканчивающиеся в текущей позиции: терминальную вершину $v$ (если она есть) и далее цепочку $\mathrm{dict}$.</p>
+
+<p><b>Теорема.</b> Для каждого $j$ вершина $v_j$ после чтения $T[0, j]$ такова, что $\mathrm{str}(v_j)$ — самый длинный суффикс $T[0, j]$, присутствующий в боре. Образец $p_i$ оканчивается в позиции $j$ тогда и только тогда, когда терминальная вершина с меткой $i$ лежит в цепочке $v_j, \mathrm{fail}(v_j), \dots$.</p>
+
+<p><i>Доказательство.</i> Индукция по $j$. Перед чтением первого символа $v$ — корень, и утверждение верно для пустого суффикса. Пусть оно верно для $j$. Любой непустой суффикс $T[0, j+1]$, присутствующий в боре, имеет вид $yc$, где $c = T[j+1]$, а $y$ — суффикс $T[0, j]$, присутствующий в боре (пустой допустим). Такие $y$ совпадают с цепочкой $v_j, \mathrm{fail}(v_j), \dots$ вместе с корнем. Цикл поиска начинает с $v_j$ и берёт первую вершину цепочки, у которой есть ребро по $c$, поэтому получает самое длинное такое $yc$. Второе утверждение следует из того, что образец $p_i$ — суффикс $T[0, j]$ тогда и только тогда, когда он является суффиксом $\mathrm{str}(v_j)$.</p>
+
+<p><b>Теорема.</b> Поиск по тексту длины $N$ с выводом $K$ пар выполняет $O(N + K)$ операций с переходами.</p>
+
+<p><i>Доказательство.</i> Глубина текущей вершины возрастает не более чем на 1 за каждый символ. Каждый переход по ссылке неудачи уменьшает её не менее чем на 1, значит, таких переходов не больше $N$. Каждый шаг по ссылке словаря выводит одну пару, то есть всего таких шагов $K$. Остальные действия выполняются за $O(1)$ на символ.</p>
+
+<p>Переходы хранятся в словарях (dict в Python, <code>std::map</code> в C++, <code>BTreeMap</code> в Rust). Оценки $O(L + N + K)$ предполагают, что переход по символу находится за $O(1)$; для массива по алфавиту или хеш-таблицы это верно. Для деревьев из стандартной библиотеки C++ и Rust каждый поиск перехода добавляет множитель $O(\log|\Sigma|)$, где $\Sigma$ — алфавит. При фиксированном алфавите это константа.</p>
+
+<h3>Реализация</h3>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Ахо-Корасика: все вхождения образцов в текст за O(L + N + K) времени,
+# L - суммарная длина образцов, N - длина текста, K - число вхождений
+
+from collections import deque
+from dataclasses import dataclass
+
+
+@dataclass
+class Automaton:
+    children: list[dict[str, int]]  # children[v][c] - вершина по символу c; 0 означает, что перехода нет
+    fail: list[int]                 # ссылка неудачи: вершина самого длинного собственного суффикса строки v
+    end: list[int]                  # номер образца, оканчивающегося в вершине v, или -1
+    dict_link: list[int]            # ближайшая вершина по ссылкам неудачи, в которой оканчивается образец, или -1
+
+
+def build(patterns: list[str]) -&gt; Automaton:
+    """Бор образцов со ссылками неудачи. Образцы непустые и попарно различные."""
+    children = [{}]
+    end = [-1]
+    for index, pattern in enumerate(patterns):
+        node = 0
+        for symbol in pattern:
+            if symbol not in children[node]:
+                children[node][symbol] = len(children)
+                children.append({})
+                end.append(-1)
+            node = children[node][symbol]
+        end[node] = index
+    fail = [0] * len(children)
+    dict_link = [-1] * len(children)
+    queue = deque(children[0].values())  # вершины глубины 1 ссылаются на корень
+    while queue:
+        node = queue.popleft()
+        for symbol, child in children[node].items():
+            link = fail[node]
+            while link and symbol not in children[link]:
+                link = fail[link]
+            fail[child] = children[link].get(symbol, 0)
+            target = fail[child]
+            dict_link[child] = target if end[target] &gt;= 0 else dict_link[target]
+            queue.append(child)
+    return Automaton(children, fail, end, dict_link)
+
+
+def search(automaton: Automaton, text: str) -&gt; list[tuple[int, int]]:
+    """Пары (j, номер образца): образец оканчивается в позиции j текста. Позиции нумеруются с нуля."""
+    found = []
+    node = 0
+    for j, symbol in enumerate(text):
+        while node and symbol not in automaton.children[node]:
+            node = automaton.fail[node]
+        node = automaton.children[node].get(symbol, 0)
+        hit = node if automaton.end[node] &gt;= 0 else automaton.dict_link[node]
+        while hit &gt;= 0:
+            found.append((j, automaton.end[hit]))
+            hit = automaton.dict_link[hit]
+    return found
+
+
+if __name__ == "__main__":
+    patterns = ["he", "she", "his", "hers"]
+    automaton = build(patterns)
+    print("вершин в боре:", len(automaton.children))
+    for j, index in search(automaton, "ushers"):
+        print(f"позиция {j}: образец {patterns[index]}")
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Ахо-Корасика: все вхождения образцов в текст за O(L + N + K) времени,
+// L - суммарная длина образцов, N - длина текста, K - число вхождений
+#include &lt;cstddef&gt;
+#include &lt;deque&gt;
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Automaton {
+    std::vector&lt;std::map&lt;char, int&gt;&gt; children;  // переходы бора по символам; 0 - перехода нет
+    std::vector&lt;int&gt; fail;                      // ссылка неудачи
+    std::vector&lt;int&gt; end;                       // номер образца, оканчивающегося в вершине, или -1
+    std::vector&lt;int&gt; dict_link;                 // ближайшая вершина по ссылкам неудачи с образцом, или -1
+};
+
+// Переход из вершины по символу; 0, если перехода нет (корень никогда не бывает потомком)
+int go(const Automaton&amp; a, int node, char symbol) {
+    const auto it = a.children[node].find(symbol);
+    return it == a.children[node].end() ? 0 : it-&gt;second;
+}
+
+// Бор образцов со ссылками неудачи и ссылками словаря. Образцы непустые и попарно различные
+Automaton build(const std::vector&lt;std::string&gt;&amp; patterns) {
+    Automaton a;
+    a.children.emplace_back();
+    a.end.push_back(-1);
+    for (std::size_t index = 0; index &lt; patterns.size(); ++index) {
+        int node = 0;
+        for (char symbol : patterns[index]) {
+            if (go(a, node, symbol) == 0) {
+                a.children[node][symbol] = static_cast&lt;int&gt;(a.children.size());
+                a.children.emplace_back();
+                a.end.push_back(-1);
+            }
+            node = go(a, node, symbol);
+        }
+        a.end[node] = static_cast&lt;int&gt;(index);
+    }
+    a.fail.assign(a.children.size(), 0);
+    a.dict_link.assign(a.children.size(), -1);
+    std::deque&lt;int&gt; queue;
+    for (const auto&amp; entry : a.children[0]) {
+        queue.push_back(entry.second);
+    }
+    while (!queue.empty()) {
+        const int node = queue.front();
+        queue.pop_front();
+        for (const auto&amp; [symbol, child] : a.children[node]) {
+            int link = a.fail[node];
+            while (link != 0 &amp;&amp; go(a, link, symbol) == 0) {
+                link = a.fail[link];
+            }
+            a.fail[child] = go(a, link, symbol);
+            const int target = a.fail[child];
+            a.dict_link[child] = a.end[target] &gt;= 0 ? target : a.dict_link[target];
+            queue.push_back(child);
+        }
+    }
+    return a;
+}
+
+// Пары (j, номер образца): образец оканчивается в позиции j текста; позиции нумеруются с нуля
+std::vector&lt;std::pair&lt;std::size_t, int&gt;&gt; search(const Automaton&amp; a, const std::string&amp; text) {
+    std::vector&lt;std::pair&lt;std::size_t, int&gt;&gt; found;
+    int node = 0;
+    for (std::size_t j = 0; j &lt; text.size(); ++j) {
+        while (node != 0 &amp;&amp; go(a, node, text[j]) == 0) {
+            node = a.fail[node];
+        }
+        node = go(a, node, text[j]);
+        int hit = a.end[node] &gt;= 0 ? node : a.dict_link[node];
+        while (hit &gt;= 0) {
+            found.emplace_back(j, a.end[hit]);
+            hit = a.dict_link[hit];
+        }
+    }
+    return found;
+}
+
+int main() {
+    const std::vector&lt;std::string&gt; patterns = {"he", "she", "his", "hers"};
+    const Automaton a = build(patterns);
+    std::cout &lt;&lt; "вершин в боре: " &lt;&lt; a.children.size() &lt;&lt; '\n';
+    for (const auto&amp; [j, index] : search(a, "ushers")) {
+        std::cout &lt;&lt; "позиция " &lt;&lt; j &lt;&lt; ": образец " &lt;&lt; patterns[static_cast&lt;std::size_t&gt;(index)] &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Алгоритм Ахо-Корасика: все вхождения образцов в текст за O(L + N + K) времени,
+// L - суммарная длина образцов, N - длина текста, K - число вхождений
+use std::collections::{BTreeMap, VecDeque};
+
+pub struct Automaton {
+    children: Vec&lt;BTreeMap&lt;u8, usize&gt;&gt;, // переходы бора по символам; 0 - перехода нет
+    fail: Vec&lt;usize&gt;,                   // ссылка неудачи
+    end: Vec&lt;Option&lt;usize&gt;&gt;,            // номер образца, оканчивающегося в вершине
+    dict_link: Vec&lt;Option&lt;usize&gt;&gt;,      // ближайшая вершина по ссылкам неудачи с образцом
+}
+
+// Переход из вершины по символу; 0, если перехода нет (корень никогда не бывает потомком)
+fn go(children: &amp;[BTreeMap&lt;u8, usize&gt;], node: usize, symbol: u8) -&gt; usize {
+    children[node].get(&amp;symbol).copied().unwrap_or(0)
+}
+
+// Бор образцов со ссылками неудачи и ссылками словаря. Образцы непустые и попарно различные
+pub fn build(patterns: &amp;[&amp;str]) -&gt; Automaton {
+    let mut children: Vec&lt;BTreeMap&lt;u8, usize&gt;&gt; = vec![BTreeMap::new()];
+    let mut end: Vec&lt;Option&lt;usize&gt;&gt; = vec![None];
+    for (index, pattern) in patterns.iter().enumerate() {
+        let mut node = 0;
+        for &amp;symbol in pattern.as_bytes() {
+            if go(&amp;children, node, symbol) == 0 {
+                let created = children.len();
+                children[node].insert(symbol, created);
+                children.push(BTreeMap::new());
+                end.push(None);
+            }
+            node = go(&amp;children, node, symbol);
+        }
+        end[node] = Some(index);
+    }
+    let mut fail: Vec&lt;usize&gt; = vec![0; children.len()];
+    let mut dict_link: Vec&lt;Option&lt;usize&gt;&gt; = vec![None; children.len()];
+    let mut queue: VecDeque&lt;usize&gt; = children[0].values().copied().collect();
+    while let Some(node) = queue.pop_front() {
+        for (&amp;symbol, &amp;child) in &amp;children[node] {
+            let mut link = fail[node];
+            while link != 0 &amp;&amp; go(&amp;children, link, symbol) == 0 {
+                link = fail[link];
+            }
+            fail[child] = go(&amp;children, link, symbol);
+            let target = fail[child];
+            dict_link[child] = if end[target].is_some() { Some(target) } else { dict_link[target] };
+            queue.push_back(child);
+        }
+    }
+    Automaton {
+        children,
+        fail,
+        end,
+        dict_link,
+    }
+}
+
+// Пары (j, номер образца): образец оканчивается в позиции j текста; позиции нумеруются с нуля
+pub fn search(automaton: &amp;Automaton, text: &amp;[u8]) -&gt; Vec&lt;(usize, usize)&gt; {
+    let mut found = Vec::new();
+    let mut node = 0;
+    for (j, &amp;symbol) in text.iter().enumerate() {
+        while node != 0 &amp;&amp; go(&amp;automaton.children, node, symbol) == 0 {
+            node = automaton.fail[node];
+        }
+        node = go(&amp;automaton.children, node, symbol);
+        let mut hit = if automaton.end[node].is_some() {
+            Some(node)
+        } else {
+            automaton.dict_link[node]
+        };
+        while let Some(v) = hit {
+            found.extend(automaton.end[v].map(|index| (j, index)));
+            hit = automaton.dict_link[v];
+        }
+    }
+    found
+}
+
+fn main() {
+    let patterns = ["he", "she", "his", "hers"];
+    let automaton = build(&amp;patterns);
+    println!("вершин в боре: {}", automaton.children.len());
+    for (j, index) in search(&amp;automaton, b"ushers") {
+        println!("позиция {}: образец {}", j, patterns[index]);
+    }
+}
+</code></pre>
+<p>Все три программы печатают одинаковые строки. В тексте ushers образец she оканчивается в позиции 3, образец he — в той же позиции (он является суффиксом she и находится по ссылке словаря), а образец hers — в позиции 5:</p>
+<pre>
+вершин в боре: 10
+позиция 3: образец she
+позиция 3: образец he
+позиция 5: образец hers
+</pre>
+
+<h2 id="манакер-палиндромы-за-o-n">Манакер: палиндромы за O(N)</h2>
+
+<h3>Определения</h3>
+
+<p>Пусть $s$ — строка длины $N$, символы нумеруются с нуля. Подстрока $s[l, r]$ при $0 \le l \le r \le N-1$ называется палиндромом, если $s[l + t] = s[r - t]$ для всех целых $t$ таких, что $0 \le t \le (r-l)/2$.</p>
+
+<p>Для каждой позиции $i$ определим два радиуса. Число $d_1[i]$ — наибольшее $k \ge 1$, при котором $s[i-k+1, i+k-1]$ — палиндром. Это число палиндромов нечётной длины с центром в позиции $i$; одиночный символ всегда является палиндромом, поэтому $d_1[i] \ge 1$. Число $d_2[i]$ — наибольшее $k \ge 0$, при котором $s[i-k, i+k-1]$ — палиндром (при $k = 0$ подстрока пуста). Это число палиндромов чётной длины с центром между позициями $i-1$ и $i$. Значение $d_2[0] = 0$.</p>
+
+<p><b>Утверждение.</b> Палиндромы нечётной длины с центром $i$ — это ровно $s[i-k+1, i+k-1]$ для $1 \le k \le d_1[i]$. Палиндромы чётной длины с центром между $i-1$ и $i$ — это ровно $s[i-k, i+k-1]$ для $1 \le k \le d_2[i]$.</p>
+
+<p><i>Доказательство.</i> Пусть $s[i-k+1, i+k-1]$ — палиндром и $k \ge 2$. Тогда $s[i-k+2, i+k-2]$ — тоже палиндром, так как условие симметрии для меньшего отрезка выполнено. Значит, палиндромы с одним центром образуют цепочку вложенных отрезков, и их число равно наибольшему радиусу, то есть $d_1[i]$. Для $d_2$ рассуждение то же.</p>
+
+<p><b>Теорема (подсчёт).</b> Число палиндромных подстрок $s$, то есть пар $(l, r)$ с $0 \le l \le r \le N-1$, для которых $s[l, r]$ — палиндром, равно</p>
+<p>$$\sum_{i=0}^{N-1} d_1[i] + \sum_{i=0}^{N-1} d_2[i].$$</p>
+
+<p><i>Доказательство.</i> Каждый палиндром $s[l, r]$ имеет единственный центр. Если $l + r$ чётно, центр — позиция $i = (l+r)/2$, и длина $r - l + 1$ нечётна. Если $l + r$ нечётно, центр — промежуток между позициями $(l+r-1)/2$ и $(l+r+1)/2$, и длина чётна; по соглашению его номер $i = (l+r+1)/2$. По утверждению палиндромов с центром $i$ ровно $d_1[i]$ (или $d_2[i]$). Суммирование по всем центрам даёт тождество.</p>
+
+<h3>Алгоритм</h3>
+
+<p>Вычисляем $d_1$ слева направо. Поддерживаем полуинтервал $[l, r)$ — самый правый найденный нечётный палиндром $s[l, r-1]$, то есть палиндром с наибольшим $r$. Вначале $l = r = 0$. Для $i &lt; r$ обозначим $i' = l + r - 1 - i$ — позицию, симметричную $i$ относительно центра отрезка $[l, r)$. Отрезок $[l, r)$ был найден при обработке позиции $c$, которая является его центром: $2c = l + r - 1$. Все позиции $i$, обрабатываемые после этого, больше $c$, поэтому при $i &lt; r$ выполнено $2i &gt; l + r - 1$, и утверждение ниже применимо. Для $d_2$ аналогично, с $2c = l + r$.</p>
+
+<p><b>Утверждение (зеркало).</b> Пусть $i &lt; r$ и $2i &gt; l + r - 1$, то есть $i$ лежит правее центра отрезка. Тогда $d_1[i] \ge \min(d_1[i'], r - i)$. Если $d_1[i'] &lt; r - i$, то $d_1[i] = d_1[i']$.</p>
+
+<p><i>Доказательство.</i> Так как $s[l, r-1]$ — палиндром, $s[p] = s[l + r - 1 - p]$ для всех $p \in [l, r-1]$. Заметим, что $i' - l + 1 = r - i$. Пусть $k = \min(d_1[i'], r - i)$. Палиндром радиуса $k$ с центром $i'$ лежит в $[l, r-1]$: левая граница $i' - k + 1 \ge l$ следует из $k \le r - i$, а правая $i' + k - 1 &lt; r - 1$ — из $2i &gt; l + r - 1$. При отражении этот палиндром переходит в $s[i-k+1, i+k-1]$, значит, $d_1[i] \ge k$.</p>
+
+<p>Пусть теперь $d = d_1[i'] &lt; r - i$. Тогда позиции $i' - d$ и $i' + d$ лежат в $[l, r-1]$, и символы $a = s[i'-d]$ и $b = s[i'+d]$ различны, так как палиндром с центром $i'$ максимален. Отражения этих позиций равны $i + d$ и $i - d$, поэтому $s[i+d] = a$ и $s[i-d] = b$ различны. Значит, палиндром с центром $i$ имеет радиус ровно $d$.</p>
+
+<p>Для $d_2$ аналогично: если $[l, r)$ — самый правый чётный палиндром, $i' = l + r - i$, то $d_2[i] \ge \min(d_2[i'], r - i)$, а при $d_2[i'] &lt; r - i$ выполнено $d_2[i] = d_2[i']$.</p>
+
+<p>Алгоритм вычисляет $d_1$ так: при $i &lt; r$ начальное значение $k = \min(d_1[i'], r - i)$, при $i \ge r$ начальное значение $k = 1$; затем $k$ наращивается, пока $s[i-k] = s[i+k]$ и границы не нарушены; если $i + k &gt; r$, отрезок заменяется на $[i-k+1, i+k)$. Для $d_2$ начальное значение $k = \min(d_2[i'], r - i)$ при $i &lt; r$ и $k = 0$ при $i \ge r$; наращивание идёт по паре $s[i-k-1] = s[i+k]$, отрезок заменяется на $[i-k, i+k)$.</p>
+
+<p><b>Теорема.</b> Алгоритм вычисляет массивы $d_1$ и $d_2$ корректно и выполняет $O(N)$ сравнений символов.</p>
+
+<p><i>Доказательство.</i> Корректность: начальное значение $k$ не превосходит истинного радиуса, а если оно меньше $r - i$, то совпадает с ним по утверждению; в остальных случаях значение доводится посимвольным сравнением. Для времени обозначим через $t_i$ число успешных сравнений при обработке $i$. Если $i &lt; r$ и $t_i &gt; 0$, то начальное значение равно $r - i$ (иначе первое сравнение было бы неуспешным), и новая правая граница равна $r + t_i$. Если $i \ge r$, то новая правая граница не меньше $i + t_i \ge r + t_i$. Правая граница не убывает и не превосходит $N$, поэтому $\sum_i t_i \le N$ для каждого из двух проходов. Неуспешных сравнений не больше одного на $i$ в каждом проходе. Всего сравнений не больше $4N$.</p>
+
+<h3>Реализация</h3>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Алгоритм Манакера: радиусы всех палиндромов и их число за O(N), N - длина строки
+
+
+def manacher(s: str) -&gt; tuple[list[int], list[int]]:
+    """d1[i] - число палиндромов нечётной длины с центром в i; d2[i] - чётной длины с центром между i-1 и i."""
+    n = len(s)
+    d1 = [0] * n
+    left, right = 0, 0  # самый правый нечётный палиндром - полуинтервал [left, right)
+    for i in range(n):
+        k = min(d1[left + right - 1 - i], right - i) if i &lt; right else 1
+        while i - k &gt;= 0 and i + k &lt; n and s[i - k] == s[i + k]:
+            k += 1
+        d1[i] = k
+        if i + k &gt; right:
+            left, right = i - k + 1, i + k
+    d2 = [0] * n
+    left, right = 0, 0  # самый правый чётный палиндром - полуинтервал [left, right)
+    for i in range(n):
+        k = min(d2[left + right - i], right - i) if i &lt; right else 0
+        while i - k - 1 &gt;= 0 and i + k &lt; n and s[i - k - 1] == s[i + k]:
+            k += 1
+        d2[i] = k
+        if i + k &gt; right:
+            left, right = i - k, i + k
+    return d1, d2
+
+
+def count_palindromes(s: str) -&gt; int:
+    """Число палиндромных подстрок s: подстрока s[l..r] учитывается по паре позиций (l, r)."""
+    d1, d2 = manacher(s)
+    return sum(d1) + sum(d2)
+
+
+if __name__ == "__main__":
+    for text in ["abacaba", "aabbaa"]:
+        d1, d2 = manacher(text)
+        print(text, "d1:", *d1)
+        print(text, "d2:", *d2)
+        print(text, "палиндромов:", count_palindromes(text))
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Алгоритм Манакера: радиусы всех палиндромов и их число за O(N), N - длина строки
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;numeric&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// d1[i] - число палиндромов нечётной длины с центром в i; d2[i] - чётной длины с центром между i-1 и i
+std::pair&lt;std::vector&lt;std::size_t&gt;, std::vector&lt;std::size_t&gt;&gt; manacher(const std::string&amp; s) {
+    const std::size_t n = s.size();
+    std::vector&lt;std::size_t&gt; d1(n, 0);
+    std::size_t left = 0;  // самый правый нечётный палиндром - полуинтервал [left, right)
+    std::size_t right = 0;
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        std::size_t k = 1;
+        if (i &lt; right) {
+            k = std::min(d1[left + right - 1 - i], right - i);
+        }
+        while (k &lt;= i &amp;&amp; i + k &lt; n &amp;&amp; s[i - k] == s[i + k]) {
+            ++k;
+        }
+        d1[i] = k;
+        if (i + k &gt; right) {
+            left = i + 1 - k;
+            right = i + k;
+        }
+    }
+    std::vector&lt;std::size_t&gt; d2(n, 0);
+    left = 0;  // самый правый чётный палиндром - полуинтервал [left, right)
+    right = 0;
+    for (std::size_t i = 0; i &lt; n; ++i) {
+        std::size_t k = 0;
+        if (i &lt; right) {
+            k = std::min(d2[left + right - i], right - i);
+        }
+        while (k &lt; i &amp;&amp; i + k &lt; n &amp;&amp; s[i - k - 1] == s[i + k]) {
+            ++k;
+        }
+        d2[i] = k;
+        if (i + k &gt; right) {
+            left = i - k;
+            right = i + k;
+        }
+    }
+    return {d1, d2};
+}
+
+// Число палиндромных подстрок s; подстрока s[l..r] учитывается по паре позиций (l, r)
+std::size_t count_palindromes(const std::string&amp; s) {
+    const auto [d1, d2] = manacher(s);
+    return std::accumulate(d1.begin(), d1.end(), std::size_t{0}) +
+           std::accumulate(d2.begin(), d2.end(), std::size_t{0});
+}
+
+// Печатает подпись и числа через пробел
+void print_values(const std::string&amp; label, const std::vector&lt;std::size_t&gt;&amp; values) {
+    std::cout &lt;&lt; label;
+    for (std::size_t value : values) {
+        std::cout &lt;&lt; ' ' &lt;&lt; value;
+    }
+    std::cout &lt;&lt; '\n';
+}
+
+int main() {
+    for (const std::string text : {"abacaba", "aabbaa"}) {
+        const auto [d1, d2] = manacher(text);
+        print_values(text + " d1:", d1);
+        print_values(text + " d2:", d2);
+        std::cout &lt;&lt; text &lt;&lt; " палиндромов: " &lt;&lt; count_palindromes(text) &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Алгоритм Манакера: радиусы всех палиндромов и их число за O(N), N - длина строки
+
+// d1[i] - число палиндромов нечётной длины с центром в i; d2[i] - чётной длины с центром между i-1 и i
+pub fn manacher(s: &amp;[u8]) -&gt; (Vec&lt;usize&gt;, Vec&lt;usize&gt;) {
+    let n = s.len();
+    let mut d1: Vec&lt;usize&gt; = vec![0; n];
+    // самый правый нечётный палиндром - полуинтервал [left, right)
+    let (mut left, mut right): (usize, usize) = (0, 0);
+    for i in 0..n {
+        let mut k = if i &lt; right {
+            d1[left + right - 1 - i].min(right - i)
+        } else {
+            1
+        };
+        while k &lt;= i &amp;&amp; i + k &lt; n &amp;&amp; s[i - k] == s[i + k] {
+            k += 1;
+        }
+        d1[i] = k;
+        if i + k &gt; right {
+            left = i + 1 - k;
+            right = i + k;
+        }
+    }
+    let mut d2: Vec&lt;usize&gt; = vec![0; n];
+    // самый правый чётный палиндром - полуинтервал [left, right)
+    (left, right) = (0, 0);
+    for i in 0..n {
+        let mut k = if i &lt; right {
+            d2[left + right - i].min(right - i)
+        } else {
+            0
+        };
+        while k &lt; i &amp;&amp; i + k &lt; n &amp;&amp; s[i - k - 1] == s[i + k] {
+            k += 1;
+        }
+        d2[i] = k;
+        if i + k &gt; right {
+            left = i - k;
+            right = i + k;
+        }
+    }
+    (d1, d2)
+}
+
+// Число палиндромных подстрок s; подстрока s[l..r] учитывается по паре позиций (l, r)
+pub fn count_palindromes(s: &amp;[u8]) -&gt; usize {
+    let (d1, d2) = manacher(s);
+    d1.iter().sum::&lt;usize&gt;() + d2.iter().sum::&lt;usize&gt;()
+}
+
+// Печатает подпись и числа через пробел
+fn print_values(label: &amp;str, values: &amp;[usize]) {
+    print!("{}", label);
+    for value in values {
+        print!(" {}", value);
+    }
+    println!();
+}
+
+fn main() {
+    for text in ["abacaba", "aabbaa"] {
+        let (d1, d2) = manacher(text.as_bytes());
+        print_values(&amp;format!("{} d1:", text), &amp;d1);
+        print_values(&amp;format!("{} d2:", text), &amp;d2);
+        println!("{} палиндромов: {}", text, count_palindromes(text.as_bytes()));
+    }
+}
+</code></pre>
+<p>Все три программы печатают одинаковые строки. Для строки abacaba массив $d_1$ равен $(1, 2, 1, 4, 1, 2, 1)$, а палиндромов в ней $12$:</p>
+<pre>
+abacaba d1: 1 2 1 4 1 2 1
+abacaba d2: 0 0 0 0 0 0 0
+abacaba палиндромов: 12
+aabbaa d1: 1 1 1 1 1 1
+aabbaa d2: 0 1 0 3 0 1
+aabbaa палиндромов: 11
+</pre>
+</div>
+</body>
+
+</html>

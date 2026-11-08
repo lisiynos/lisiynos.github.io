@@ -1,0 +1,93 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Язык программирования C/C++</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+
+    <h1>Система управления версиями Mercurail (hg)</h1>
+
+    <p><strong>Mercurial</strong> - распределённая система управления версиями написанная на <a
+            href="../s2/python.html">Python</a>'е. Она проигрывает по производительности <strong>git</strong>,
+        но
+        зато
+        клиенты для mercurial лучше интегрированы в Windows, и легко найти бесплатный хостинг любого объёма (например,
+        сайт
+        <a href="https://bitbucket.org/">bitbucket.org</a> предоставляет любое количество открытых и закрытых
+        репозитариев
+        при условии что количество участников проекта не больше 5).</p>
+
+    <h2><strong>Скачивание и установка:</strong></h2>
+    <ul type="disc">
+        <li>Клиент TortoiseHG для Mercurial для Windows: <a href="http://tortoisehg.bitbucket.org/">http://tortoisehg.bitbucket.org</a>,
+            скачайте и установите последнюю версию.
+        </li>
+        <li>Под Linux: <strong>sudo apt-get install mercurial</strong></li>
+    </ul>
+    <p>&nbsp;</p>
+
+    <p>Главный недостаток ручного тестирования: его нужно выполнять каждый раз когда программа меняется,  даже если
+        изменился кусок кода от другого разработчика, наша часть могла перестать работать. При росте размера проекта
+        количество практически одновременных изменений в различных кусках кода непрерывно возрастает, и количество
+        тестов,
+        которые нужно сделать чтобы убедиться что &ldquo;мы ничего не сломали&rdquo;  тоже возрастает. Начиная с
+        некоторого
+        объема проекта такое ручное тестирование становится слишком трудоёмким,  а следовательно, этим тестированием 
+        пожертвуют в первую очередь и не будут выполнять. Именно по этой причине лучше сразу же делать модульные
+        тесты.</p>
+
+    <h2>Тестирование в рабочем процессе с Mercurial</h2>
+
+    <p>Тесты удобно запускать до фиксации изменений: тогда ошибка не попадает в историю репозитория. Mercurial позволяет
+        связать запуск тестов с командой <strong>hg commit</strong> через хук <strong>precommit</strong>. Хук задаётся в
+        файле <strong>.hg/hgrc</strong> в служебном каталоге репозитория. Если команда хука завершилась с ненулевым кодом,
+        фиксация не выполняется. Пример настройки:</p>
+
+    <pre>
+[hooks]
+precommit.tests = python3 -m unittest discover -s tests
+</pre>
+
+    <p>Файл .hg/hgrc не входит в репозиторий, поэтому каждый участник настраивает хук у себя. Команда должна возвращать
+        ненулевой код при провале тестов; модуль unittest из стандартной библиотеки Python делает это сам.</p>
+
+    <p>Если тесты перестали проходить в уже зафиксированной ревизии, нужный коммит можно найти командой <strong>hg bisect</strong>.
+        Она делит диапазон ревизий пополам. Заведомо плохую и заведомо хорошую ревизии отмечают командами
+        <strong>hg bisect --bad 5</strong> и <strong>hg bisect --good 0</strong>, а затем автоматический перебор запускает
+        тесты: <strong>hg bisect --command "python3 -m unittest discover -s tests"</strong>. Код возврата 0 означает хорошую
+        ревизию, 125 — пропустить ревизию, 127 прерывает поиск, любой другой ненулевой код означает плохую ревизию.</p>
+
+    <p>Тест, результат которого меняется от запуска к запуску, может пометить хорошую ревизию как плохую, и поиск приведёт
+        к неверному коммиту. Подробнее: <a href="https://mercurial-scm.org/help/commands/bisect">справка hg bisect</a>;
+        раздел о хуках в <a href="https://www.mercurial-scm.org/help/topics/config">справке по конфигурации</a>.</p>
+
+    <h2>Системы управления версиями*</h2>
+
+    <p>Управление версиями также тем актуальнее, чем больше и сложнее проект. Для решения олимпиадных задач оно не
+        актуально, так что эта часть общеразвивающая.</p>
+
+    <p><strong>Централизованные:</strong> CVS, SVN - сихронизация (обмен исходными текстами программ) между
+        разработчиками
+        происходит через единый центральный сервер.<br>
+        <strong>Децентрализованные:</strong> GIT, Mercurial, Bazaar - у каждого разработчика свой репозиторий с историей
+        изменений, он может свободно обмениваться накопленными изменениями с любым другим разработчиком.</p>
+
+    <h2>Ссылки</h2>
+    <ul>
+        <li>Руководство по Mercurial на русском языке: <a href="http://mercurial.selenic.com/wiki/RussianTutorial">http://mercurial.selenic.com/wiki/RussianTutorial</a>
+        </li>
+        <li><strong> </strong></li>
+    </ul>
+    <p>&nbsp;</p>
+</div>
+</body>
+
+</html>

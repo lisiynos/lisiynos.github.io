@@ -1,0 +1,210 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Язык программирования C/C++ - STL</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/load.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script type="text/javascript">
+        function f() {
+            sh_highlightDocument();
+            loadFiles([
+                ['test', 'a.cpp']
+            ], function () {
+                sh_highlightDocument();
+            });
+        }
+    </script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="f()">
+
+<div id="content">
+
+    <h1>С/C++: библиотека STL</h1>
+
+    <ul class="tags">
+        <li><a href="#">C/C++</a></li>
+    </ul>
+
+    <h3>vector - вектор</h3>
+
+    <p>
+        vector &lt;тип_данных&gt; имя_массива;
+    </p>
+
+    <p>
+        Вектор - динамический массив: его размер может меняться во время работы программы. Заголовочный файл - <b>&lt;vector&gt;</b>. Имена стандартной библиотеки записываются с префиксом <b>std::</b>.
+    </p>
+
+    <ul>
+        <li><b>push_back(x)</b> - добавляет элемент x в конец вектора</li>
+        <li><b>size()</b> - число элементов</li>
+        <li><b>имя[i]</b> - элемент с индексом i; индексы начинаются с 0, проверка выхода за границы не выполняется</li>
+        <li><b>begin()</b>, <b>end()</b> - итераторы на первый элемент и на позицию за последним элементом</li>
+        <li><b>sort(begin(), end())</b> - сортировка по возрастанию; функция sort находится в заголовочном файле <b>&lt;algorithm&gt;</b></li>
+    </ul>
+
+    <p>
+        В первом примере числа добавляются в вектор с помощью push_back, затем выводятся размер вектора, элементы по индексам и элементы при обходе итератором. Элемент по индексу можно не только читать, но и изменять.
+    </p>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::vector&lt;int&gt; data = {5, 3, 8, 1, 9, 2, 7};   // исходные числа
+
+    std::vector&lt;int&gt; v;                              // пустой вектор
+    for (int x : data) {
+        v.push_back(x);                              // добавляем элемент в конец вектора
+    }
+
+    std::cout &lt;&lt; "size: " &lt;&lt; v.size() &lt;&lt; '\n';       // число элементов
+    std::cout &lt;&lt; "v[0]: " &lt;&lt; v[0] &lt;&lt; '\n';           // индексы начинаются с 0
+    v[1] = 30;                                       // элементу с индексом 1 присваиваем новое значение
+    std::cout &lt;&lt; "v[1]: " &lt;&lt; v[1] &lt;&lt; '\n';
+
+    std::cout &lt;&lt; "by index:";
+    for (std::size_t i = 0; i &lt; v.size(); ++i) {     // обход по индексам
+        std::cout &lt;&lt; ' ' &lt;&lt; v[i];
+    }
+    std::cout &lt;&lt; '\n';
+
+    std::cout &lt;&lt; "by iterator:";
+    for (auto it = v.begin(); it != v.end(); ++it) { // обход итератором от begin() до end()
+        std::cout &lt;&lt; ' ' &lt;&lt; *it;
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>
+        Функция sort переставляет элементы от begin() до end() (не включая end()) в порядке возрастания. Пример выводит вектор до сортировки и после неё.
+    </p>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::vector&lt;int&gt; v = {5, 3, 8, 1, 9, 2, 7};   // исходный вектор
+
+    std::cout &lt;&lt; "before:";
+    for (int x : v) {
+        std::cout &lt;&lt; ' ' &lt;&lt; x;
+    }
+    std::cout &lt;&lt; '\n';
+
+    std::sort(v.begin(), v.end());                 // сортировка по возрастанию: от begin() до end()
+
+    std::cout &lt;&lt; "after:";
+    for (int x : v) {
+        std::cout &lt;&lt; ' ' &lt;&lt; x;
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <h3>set - множество</h3>
+
+    <p>
+        set &lt;тип_данных&gt; имя_множества;
+    </p>
+
+    <p>
+        Множество хранит только различные элементы и держит их в порядке возрастания (по оператору &lt;). Заголовочный файл - <b>&lt;set&gt;</b>.
+    </p>
+
+    <ul>
+        <li><b>insert(x)</b> - добавляет элемент x; если такой элемент уже есть, множество не меняется</li>
+        <li><b>find(x)</b> - итератор на элемент x или end(), если элемента нет</li>
+        <li><b>count(x)</b> - число элементов, равных x: 1 или 0</li>
+        <li><b>erase(x)</b> - удаляет элемент x; <b>erase(it)</b> - удаляет элемент, на который указывает итератор it</li>
+        <li><b>size()</b> - число элементов</li>
+        <li><b>begin()</b>, <b>end()</b> - обход элементов от наименьшего к наибольшему</li>
+    </ul>
+
+    <p>
+        Программа добавляет в множество числа с повторами, проверяет наличие элементов и удаляет два из них. Итератор, который возвращает find, нужно сравнить с end() до его использования.
+    </p>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+#include &lt;iostream&gt;
+#include &lt;set&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::vector&lt;int&gt; data = {5, 1, 4, 1, 3, 9, 2, 6, 5};   // исходные числа, есть повторы
+
+    std::set&lt;int&gt; s;                                        // пустое множество
+    for (int x : data) {
+        s.insert(x);                                        // повтор уже имеющегося элемента ничего не меняет
+    }
+
+    std::cout &lt;&lt; "size: " &lt;&lt; s.size() &lt;&lt; '\n';              // число различных элементов
+    std::cout &lt;&lt; "count(4): " &lt;&lt; s.count(4) &lt;&lt; '\n';        // 1: элемент есть
+    std::cout &lt;&lt; "count(7): " &lt;&lt; s.count(7) &lt;&lt; '\n';        // 0: элемента нет
+
+    auto it = s.find(6);                                    // итератор на элемент 6
+    if (it != s.end()) {                                    // find возвращает end(), если элемента нет
+        std::cout &lt;&lt; "found: " &lt;&lt; *it &lt;&lt; '\n';
+    }
+    if (s.find(7) == s.end()) {
+        std::cout &lt;&lt; "7 not found\n";
+    }
+
+    s.erase(4);                                             // удаление по значению
+    auto nine = s.find(9);
+    if (nine != s.end()) {
+        s.erase(nine);                                      // удаление по итератору
+    }
+
+    std::cout &lt;&lt; "elements:";
+    for (int x : s) {                                       // обход в порядке возрастания
+        std::cout &lt;&lt; ' ' &lt;&lt; x;
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>
+        Повторы не сохраняются, а обход выводит элементы в порядке возрастания, хотя добавлялись они в другом порядке.
+    </p>
+
+    <h3>map - ассоциативный массив</h3>
+
+    <p>
+        map &lt;тип_данных_ключа, тип_данных_значения&gt; имя_массива;
+    </p>
+
+    <ul>
+        <li><b>begin()</b> - итератор на первый элемент</li>
+        <li><b>end()</b> - итератор на последний элемент</li>
+        <li><b>empty()</b> - true, если контейнер пуст</li>
+        <li><b>count(key)</b> - число элементов с заданным ключом (в map 1 или 0)</li>
+        <li><b>find(key)</b> - итератор на элемент с указанным ключом</li>
+        <li><b>erase(it), erase(start,end)</b> - удаляет элемент с заданным итератором или между заданными</li>
+        <li><b>size()</b> - число элементов</li>
+        <li><b>clear()</b> - полная очистка контейнера</li>
+    </ul>
+
+
+</div>
+</body>
+
+</html>

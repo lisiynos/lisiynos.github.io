@@ -1,0 +1,544 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Суффиксный массив
+        и суффиксный автомат</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Суффиксный массив и суффиксный автомат</h1>
+
+    <ul class="tags">
+        <li><a href="#">Строки</a></li>
+        <li><a href="#">Суффиксный массив</a></li>
+        <li><a href="#">Суффиксный автомат</a></li>
+        <li><a href="#">Число различных подстрок</a></li>
+    </ul>
+
+    <p>Суффиксный массив и суффиксный автомат описывают все подстроки заданной строки. Суффиксный массив — это отсортированный список суффиксов; он позволяет искать образец бинарным поиском. Суффиксный автомат — детерминированный конечный автомат, пути которого из начального состояния задают в точности все подстроки строки; он строится по символам слева направо. Обе структуры дают простой способ подсчитать число различных подстрок.</p>
+
+    <h2 id="суффиксный-массив">Суффиксный массив</h2>
+
+    <h3>Определения</h3>
+
+    <p>Пусть $s = s_0 s_1 \ldots s_{N-1}$ — строка длины $N$; её символы сравниваются между собой, а позиции нумеруются с нуля. Для $0 \le i \le j &lt; N$ через $s[i..j]$ обозначим подстроку $s_i s_{i+1} \ldots s_j$, а через $s[i..]$ — суффикс $s[i..N-1]$. У строки $N$ суффиксов, и все они различны, так как имеют разные длины.</p>
+
+    <p>Суффиксы сравниваются лексикографически: $x &lt; y$, если $x$ — собственный префикс строки $y$ или в первой позиции $k$, где строки различаются, выполнено $x_k &lt; y_k$. Так, строка a меньше строки ana, а строка ana меньше строки anana.</p>
+
+    <p><strong>Суффиксный массив</strong> строки $s$ — перестановка $\mathrm{sa}[0], \mathrm{sa}[1], \ldots, \mathrm{sa}[N-1]$ чисел $0, 1, \ldots, N-1$, для которой
+    $$s[\mathrm{sa}[0]..] &lt; s[\mathrm{sa}[1]..] &lt; \ldots &lt; s[\mathrm{sa}[N-1]..].$$
+    Суффиксы различны, поэтому порядок строгий и перестановка определена однозначно. Обратная перестановка $\mathrm{rank}$ задаётся равенством $\mathrm{rank}[\mathrm{sa}[k]] = k$: значение $\mathrm{rank}[i]$ — место суффикса $s[i..]$ в отсортированном списке.</p>
+
+    <p>Суффиксный массив занимает $O(N)$ памяти. Его можно построить несколькими способами; здесь разбирается метод удвоения длин.</p>
+
+    <h3>Построение удвоением длин</h3>
+
+    <p>Для $k \ge 1$ обозначим через $t_k(i)$ первые $k$ символов суффикса $s[i..]$, а если суффикс короче, то весь суффикс. Ранг $r_k[i]$ — целое число, для которого $r_k[i] &lt; r_k[j]$ тогда и только тогда, когда $t_k(i) &lt; t_k(j)$, и $r_k[i] = r_k[j]$ тогда и только тогда, когда $t_k(i) = t_k(j)$.</p>
+
+    <p>Начальными рангами $r_1[i]$ можно взять коды символов $s_i$: важны только порядок и равенство значений. Строка $t_{2k}(i)$ равна $t_k(i)\,t_k(i+k)$, если $i + k &lt; N$, и совпадает с $t_k(i)$, если $i + k \ge N$. Поэтому порядок строк $t_{2k}$ задаётся парами
+    $$\bigl(r_k[i],\ r_k[i+k]\bigr),$$
+    в которых при $i + k \ge N$ вторая компонента считается равной $-1$. Это значение меньше любого ранга и соответствует пустому хвосту.</p>
+
+    <p>Алгоритм выполняет раунды с $k = 1, 2, 4, \ldots$. В каждом раунде суффиксы сортируются по паре $(r_k[i], r_k[i+k])$, затем по порядку пар назначаются ранги $r_{2k}$, причём равные пары получают равный ранг. Раунды прекращаются, как только все ранги различны. Это происходит не позже раунда, в котором $2k \ge N$: тогда $t_{2k}(i)$ — весь суффикс $s[i..]$, и все суффиксы различны.</p>
+
+    <p><strong>Теорема.</strong> Удвоение длин строит суффиксный массив за время $O(N \log^2 N)$.</p>
+
+    <p>Доказательство. Раунд с числом $k$ выполняется только при $k &lt; N$, поэтому раундов не больше $\lceil \log_2 N \rceil$. Каждый раунд сортирует $N$ пар сравнениями за $O(N \log N)$, а пересчёт рангов занимает $O(N)$. Перемножая число раундов и стоимость одного раунда, получаем $O(N \log^2 N)$.</p>
+
+    <p>Замечание. Пары можно сортировать поразрядно, сортировкой подсчётом. Ранги, полученные в раунде, лежат в отрезке $[0, N-1]$; начальные ранги — коды символов, и при фиксированном алфавите они ограничены константой. Тогда каждый раунд занимает $O(N)$, и весь алгоритм работает за $O(N \log N)$. Программы ниже сортируют сравнениями, поэтому для них верна оценка $O(N \log^2 N)$.</p>
+
+    <h3>LCP-массив и алгоритм Касаи</h3>
+
+    <p>Обозначим через $\mathrm{LCP}(x, y)$ длину наибольшего общего префикса строк $x$ и $y$. <strong>LCP-массив</strong> строки $s$ — массив $\mathrm{lcp}$ длины $N$, для которого $\mathrm{lcp}[0] = 0$ и
+    $$\mathrm{lcp}[k] = \mathrm{LCP}\bigl(s[\mathrm{sa}[k-1]..],\ s[\mathrm{sa}[k]..]\bigr) \quad \text{при } 1 \le k &lt; N.$$
+    Значение $\mathrm{lcp}[k]$ — длина общего префикса двух суффиксов, стоящих в суффиксном массиве рядом.</p>
+
+    <p><strong>Лемма 1 (о промежуточных строках).</strong> Если $x \le y \le z$, то $\mathrm{LCP}(x, z) \le \mathrm{LCP}(x, y)$ и $\mathrm{LCP}(x, z) \le \mathrm{LCP}(y, z)$.</p>
+
+    <p>Доказательство. Пусть $L = \mathrm{LCP}(x, z)$. Предположим, что $y$ не совпадает с $x$ в первых $L$ позициях, и пусть $k &lt; L$ — первая позиция, в которой $y$ отличается от $x$ или заканчивается. Если $y$ заканчивается в позиции $k$, то $y$ — собственный префикс $x$, и $y &lt; x$. Иначе $x_k \ne y_k$, и из $x \le y$ следует $x_k &lt; y_k$. Но $z$ совпадает с $x$ в позиции $k$, поэтому $z$ и $y$ впервые различаются в позиции $k$, и $z_k = x_k &lt; y_k$ означает $z &lt; y$. Оба случая противоречат условию $x \le y \le z$. Значит, $y$ совпадает с $x$ в первых $L$ позициях; так как $z$ тоже совпадает с $x$ в этих позициях, $y$ совпадает и с $z$. Отсюда $\mathrm{LCP}(x, y) \ge L$ и $\mathrm{LCP}(y, z) \ge L$.</p>
+
+    <p><strong>Алгоритм Касаи</strong> (Kasai и соавторы, 2001) строит LCP-массив за $O(N)$ по суффиксному массиву. Предшественником суффикса $s[i..]$ называем суффикс, который стоит непосредственно перед ним в суффиксном массиве. Алгоритм обходит позиции $i = 0, 1, \ldots, N-1$ по порядку строки и поддерживает число $h$. Если $\mathrm{rank}[i] = 0$, то суффикс $s[i..]$ стоит первым, и полагаем $h = 0$. Иначе пусть $j = \mathrm{sa}[\mathrm{rank}[i] - 1]$ — предшественник $s[i..]$. Сравниваем символы $s_{i+h}$ и $s_{j+h}$, пока они совпадают, увеличивая $h$; затем записываем $\mathrm{lcp}[\mathrm{rank}[i]] = h$ и уменьшаем $h$ на единицу, если он положителен.</p>
+
+    <p><strong>Лемма 2.</strong> Пусть $j$ — предшественник суффикса $s[i..]$, причём $h = \mathrm{LCP}(s[j..], s[i..]) \ge 1$, и пусть $p$ — предшественник суффикса $s[i+1..]$ при $i + 1 &lt; N$. Тогда $\mathrm{LCP}(p, s[i+1..]) \ge h - 1$.</p>
+
+    <p>Доказательство. Если $j + 1 = N$, то суффикс $s[j..]$ состоит из одного символа, поэтому $h = 1$, и утверждение очевидно. Иначе суффиксы $s[j..]$ и $s[i..]$ начинаются с одного символа, поэтому удаление этого символа сохраняет порядок: $s[j+1..] &lt; s[i+1..]$ и $\mathrm{LCP}(s[j+1..], s[i+1..]) = h - 1$. Суффикс $p$ стоит в массиве не раньше $s[j+1..]$ и раньше $s[i+1..]$, поэтому по лемме 1 $\mathrm{LCP}(p, s[i+1..]) \ge \mathrm{LCP}(s[j+1..], s[i+1..]) = h - 1$.</p>
+
+    <p>По лемме 2 значение $h$, с которого начинается шаг $i+1$, не превосходит длины общего префикса суффикса $s[i+1..]$ с его предшественником, поэтому первые $h$ символов можно не сравнивать.</p>
+
+    <p><strong>Теорема.</strong> Алгоритм Касаи строит LCP-массив за $O(N)$ при заданном суффиксном массиве.</p>
+
+    <p>Доказательство. Значение $h$ не превосходит $N$. На обычном шаге оно уменьшается не более чем на единицу; единственный шаг с $\mathrm{rank}[i] = 0$ сбрасывает его в ноль. Сумма увеличений равна конечному значению $h$ плюс сумма уменьшений, а сумма уменьшений не больше $N$ на обычных шагах и не больше $N$ на сбросе. Поэтому увеличений $h$, то есть успешных сравнений символов, не больше $3N$. На каждом шаге есть не более одного неуспешного сравнения, так что всего $O(N)$.</p>
+
+    <h3>Число различных подстрок</h3>
+
+    <p><strong>Теорема.</strong> Число различных непустых подстрок строки $s$ равно
+    $$\sum_{k=0}^{N-1} \bigl(N - \mathrm{sa}[k]\bigr) \;-\; \sum_{k=0}^{N-1} \mathrm{lcp}[k].$$</p>
+
+    <p>Доказательство. Каждая подстрока является префиксом некоторого суффикса. Для подстроки $t$ обозначим через $k(t)$ наименьший номер $k$, при котором $t$ является префиксом суффикса $s[\mathrm{sa}[k]..]$. Если $|t| \le \mathrm{lcp}[k(t)]$, то $t$ — префикс предыдущего суффикса $s[\mathrm{sa}[k(t)-1]..]$, что противоречит минимальности $k(t)$. Значит, $\mathrm{lcp}[k(t)] &lt; |t| \le N - \mathrm{sa}[k(t)]$.</p>
+
+    <p>Обратно, пусть $\mathrm{lcp}[k] &lt; \ell \le N - \mathrm{sa}[k]$, и $t$ — префикс длины $\ell$ суффикса $s[\mathrm{sa}[k]..]$. Для $m &lt; k$ по лемме 1 имеем $\mathrm{LCP}(s[\mathrm{sa}[m]..], s[\mathrm{sa}[k]..]) \le \mathrm{lcp}[k] &lt; \ell$, поэтому $t$ не является префиксом суффиксов с номерами $m &lt; k$, и $k(t) = k$.</p>
+
+    <p>Таким образом, отображение $t \mapsto (k(t), |t|)$ — взаимно однозначное соответствие между подстроками и парами $(k, \ell)$ с $\mathrm{lcp}[k] &lt; \ell \le N - \mathrm{sa}[k]$. Для фиксированного $k$ таких $\ell$ ровно $N - \mathrm{sa}[k] - \mathrm{lcp}[k]$. Суммируя по $k$, получаем формулу.</p>
+
+    <h3>Поиск образца</h3>
+
+    <p>Пусть $P$ — образец длины $m \ge 1$. Вхождение $P$ в строку $s$ — это позиция $i$, для которой $s[i..i+m-1] = P$. Суффиксы, начинающиеся с $P$, стоят в суффиксном массиве подряд. Действительно, если $x \le y \le z$, а строки $x$ и $z$ начинаются с $P$, то $\mathrm{LCP}(x, z) \ge m$, и по лемме 1 строка $y$ тоже начинается с $P$.</p>
+
+    <p>Поэтому вхождения $P$ — это позиции $\mathrm{sa}[k]$ при $lo \le k &lt; hi$, где $lo$ — первый индекс, для которого $s[\mathrm{sa}[k]..] \ge P$, а $hi$ — первый индекс, для которого $s[\mathrm{sa}[k]..\mathrm{sa}[k]+m-1] &gt; P$; если суффикс короче $m$, в правой части берём его целиком. Оба индекса находятся бинарным поиском по суффиксному массиву. Оба условия монотонны по $k$: суффиксы стоят по возрастанию, а обрезание строк до длины $m$ не нарушает неубывания. Каждое сравнение строк длины не больше $m$ требует $O(m)$ операций над символами, поэтому поиск занимает $O(m \log N)$ операций над символами.</p>
+
+    <h2 id="суффиксный-автомат">Суффиксный автомат</h2>
+
+    <h3>Состояния как классы позиций окончания</h3>
+
+    <p>Для непустой подстроки $t$ обозначим через $\mathrm{endpos}(t)$ множество позиций $j$, $0 \le j &lt; N$, в которых $t$ заканчивается: $t = s[j-|t|+1..j]$, где $|t|$ — длина строки $t$. Две подстроки эквивалентны, если их множества $\mathrm{endpos}$ совпадают. <strong>Состояние</strong> суффиксного автомата — класс эквивалентности непустых подстрок. Пустая строка образует отдельное состояние, <em>корень</em>, которое обозначаем $0$.</p>
+
+    <p><strong>Лемма 3.</strong> Если $w$ — суффикс строки $t$, то $\mathrm{endpos}(t) \subseteq \mathrm{endpos}(w)$. Если $\mathrm{endpos}(t_1) \cap \mathrm{endpos}(t_2) \ne \varnothing$, то одна из строк $t_1$, $t_2$ — суффикс другой.</p>
+
+    <p>Доказательство. Если $t$ заканчивается в позиции $j$, то и $w$ заканчивается там же. Если $j$ принадлежит обоим множествам $\mathrm{endpos}$, то $t_1$ и $t_2$ — суффиксы $s[0..j]$, и более короткая из них — суффикс более длинной.</p>
+
+    <p>Для состояния $v$ обозначим через $\mathrm{longest}(v)$ самую длинную строку класса $v$, а через $\mathrm{len}(v)$ — её длину. Для $v \ne 0$ суффиксная ссылка $\mathrm{link}(v)$ — это состояние, которому принадлежит самый длинный собственный суффикс строки $\mathrm{longest}(v)$, не лежащий в $v$. Такой суффикс существует, так как пустой суффикс лежит в корне.</p>
+
+    <p><strong>Теорема.</strong> Для состояния $v \ne 0$ строки класса $v$ — это в точности суффиксы строки $\mathrm{longest}(v)$ длин от $\mathrm{len}(\mathrm{link}(v)) + 1$ до $\mathrm{len}(v)$. Поэтому в классе $v$ ровно $\mathrm{len}(v) - \mathrm{len}(\mathrm{link}(v))$ строк.</p>
+
+    <p>Доказательство. Пусть $u = \mathrm{longest}(v)$, а $w_0$ — самый длинный собственный суффикс $u$, не лежащий в $v$. По выбору $w_0$ все собственные суффиксы $u$ длиннее $w_0$ лежат в $v$. Суффиксы строки $w_0$ в $v$ не лежат: по лемме 3 для суффикса $w'$ строки $w_0$ имеем $\mathrm{endpos}(w') \supseteq \mathrm{endpos}(w_0) \supsetneq \mathrm{endpos}(u)$. Любая строка $t \in v$ имеет $\mathrm{endpos}(t) = \mathrm{endpos}(u) \ne \varnothing$, поэтому по лемме 3 одна из строк $t$, $u$ — суффикс другой; так как $|t| \le |u|$, строка $t$ — суффикс $u$. Итак, класс $v$ состоит из суффиксов $u$ длин от $|w_0| + 1$ до $|u|$.</p>
+
+    <p>Остаётся проверить, что $\mathrm{len}(\mathrm{link}(v)) = |w_0|$. Пусть $x$ — самая длинная строка класса $w_0$, то есть класса $\mathrm{link}(v)$. Так как $w_0$ — суффикс $u$ и $\mathrm{endpos}(x) = \mathrm{endpos}(w_0)$, по лемме 3 имеем $\mathrm{endpos}(u) \subseteq \mathrm{endpos}(x)$. Если $u$ — суффикс $x$, то $\mathrm{endpos}(x) \subseteq \mathrm{endpos}(u)$, значит, $\mathrm{endpos}(x) = \mathrm{endpos}(u)$ и $x \in v$, что неверно. Иначе по лемме 3 строка $x$ — собственный суффикс $u$, не лежащий в $v$, и по выбору $w_0$ имеем $|x| \le |w_0|$. Так как $w_0 \in \mathrm{link}(v)$, получаем $|x| = |w_0|$.</p>
+
+    <p><strong>Следствие.</strong> Число различных непустых подстрок строки $s$ равно
+    $$\sum_{v \ne 0} \bigl(\mathrm{len}(v) - \mathrm{len}(\mathrm{link}(v))\bigr).$$
+    Действительно, классы разбивают все непустые подстроки, а класс $v$ содержит $\mathrm{len}(v) - \mathrm{len}(\mathrm{link}(v))$ строк.</p>
+
+    <h3>Переходы и размер автомата</h3>
+
+    <p>Пусть $v$ — состояние, а $c$ — символ. Для любой строки $t \in v$ выполнено
+    $$\mathrm{endpos}(tc) = \{\, j + 1 : j \in \mathrm{endpos}(t),\ j + 1 &lt; N,\ s_{j+1} = c \,\},$$
+    и правая часть зависит только от $v$. Поэтому переход $\delta(v, c)$ — это состояние строки $tc$ для любой $t \in v$; он существует тогда и только тогда, когда правая часть непуста. Путь из корня, выписанный по меткам переходов, задаёт в точности все подстроки строки $s$.</p>
+
+    <p><strong>Теорема.</strong> Для строки длины $N \ge 2$ суффиксный автомат содержит не более $2N - 1$ состояний, включая корень, а при $N \ge 3$ — не более $3N - 4$ переходов. Доказательство опускаем; см. Блюмер и др. (1985).</p>
+
+    <h3>Построение по одному символу</h3>
+
+    <p>Автомат строится слева направо. Состояние $\mathrm{last}$ соответствует всему уже прочитанному префиксу. Чтобы добавить символ $c$, выполняем шаги. Число $-1$ обозначает условное состояние над корнем.</p>
+
+    <ol>
+        <li>Создаём состояние $\mathrm{cur}$ с $\mathrm{len}(\mathrm{cur}) = \mathrm{len}(\mathrm{last}) + 1$.</li>
+        <li>Полагаем $p = \mathrm{last}$. Пока $p \ne -1$ и у $p$ нет перехода по $c$, добавляем переход $\delta(p, c) = \mathrm{cur}$ и переходим к $p := \mathrm{link}(p)$.</li>
+        <li>Если $p = -1$, полагаем $\mathrm{link}(\mathrm{cur}) = 0$.</li>
+        <li>Иначе пусть $q = \delta(p, c)$. Если $\mathrm{len}(q) = \mathrm{len}(p) + 1$, полагаем $\mathrm{link}(\mathrm{cur}) = q$.</li>
+        <li>Иначе создаём клон $\mathrm{clone}$ состояния $q$: $\mathrm{len}(\mathrm{clone}) = \mathrm{len}(p) + 1$, переходы такие же, как у $q$, и $\mathrm{link}(\mathrm{clone}) = \mathrm{link}(q)$. Пока $p \ne -1$ и $\delta(p, c) = q$, переводим переход в $\mathrm{clone}$ и переходим к $p := \mathrm{link}(p)$. Наконец, полагаем $\mathrm{link}(q) = \mathrm{link}(\mathrm{cur}) = \mathrm{clone}$.</li>
+        <li>Полагаем $\mathrm{last} = \mathrm{cur}$.</li>
+    </ol>
+
+    <p><strong>Теорема.</strong> Построение автомата по строке длины $N$ занимает $O(N)$ времени при фиксированном алфавите, то есть $O(1)$ амортизированно на один символ. Доказательство опускаем; см. Блюмер и др. (1985).</p>
+
+    <h2>Программы</h2>
+
+    <p>Программы ниже строят оба объекта для строки banana и печатают суффиксный массив, LCP-массив и число различных подстрок, найденное двумя способами: по суффиксному массиву и по суффиксному автомату. Все три программы содержат функции с одинаковыми именами и смыслом:</p>
+
+    <ul>
+        <li><code>suffix_array</code> — суффиксный массив удвоением длин;</li>
+        <li><code>lcp_array</code> — LCP-массив по алгоритму Касаи;</li>
+        <li><code>build_sam</code> — суффиксный автомат, возвращающий длины состояний и суффиксные ссылки;</li>
+        <li><code>distinct_by_sa</code> и <code>distinct_by_sam</code> — подсчёт числа различных подстрок по суффиксному массиву и по автомату.</li>
+    </ul>
+
+    <p>Переходы автомата хранятся в словарях (Python), в <code>std::map</code> (C++) и в <code>BTreeMap</code> (Rust); при фиксированном алфавите это не меняет оценок времени. Программы используют только стандартную библиотеку.</p>
+
+    <p>Программы проверены сравнением с эталоном, вычисленным полным перебором, на 2000 случайных строках над алфавитом {a, b, c} длины от 0 до 12 при фиксированном зерне генератора: суффиксный массив совпал с отсортированным списком суффиксов, LCP-массив — с прямым подсчётом общих префиксов, число подстрок по массиву и по автомату — с размером множества всех подстрок.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Суффиксный массив, LCP-массив (алгоритм Касаи) и суффиксный автомат для строки s.
+# Суффиксный массив: O(N log^2 N), LCP-массив: O(N), суффиксный автомат: O(N) при фиксированном алфавите.
+
+
+def suffix_array(s):
+    """Суффиксный массив: sa[i] — начало i-го по порядку суффикса строки s (удвоение длин)."""
+    n = len(s)
+    sa = list(range(n))
+    rank = [ord(c) for c in s]
+    k = 1
+    while k &lt; n:
+        # Ключ суффикса i: ранги первых k символов и следующих k символов (-1 — конец строки)
+        key = [(rank[i], rank[i + k] if i + k &lt; n else -1) for i in range(n)]
+        sa.sort(key=lambda i: key[i])
+        rank = [0] * n
+        for j in range(1, n):
+            rank[sa[j]] = rank[sa[j - 1]] + (key[sa[j]] != key[sa[j - 1]])
+        if rank[sa[-1]] == n - 1:
+            break
+        k *= 2
+    return sa
+
+
+def lcp_array(s, sa):
+    """LCP-массив: lcp[i] — длина общего префикса суффиксов sa[i - 1] и sa[i], lcp[0] = 0 (алгоритм Касаи)."""
+    n = len(s)
+    rank = [0] * n
+    for i, start in enumerate(sa):
+        rank[start] = i
+    lcp = [0] * n
+    h = 0
+    for i in range(n):
+        if rank[i] == 0:
+            h = 0
+            continue
+        j = sa[rank[i] - 1]
+        while i + h &lt; n and j + h &lt; n and s[i + h] == s[j + h]:
+            h += 1
+        lcp[rank[i]] = h
+        h = max(h - 1, 0)
+    return lcp
+
+
+def distinct_by_sa(sa, lcp):
+    """Число различных непустых подстрок: сумма (N - sa[i]) минус сумма lcp[i]."""
+    n = len(sa)
+    return sum(n - start for start in sa) - sum(lcp)
+
+
+def build_sam(s):
+    """Суффиксный автомат: длины состояний и суффиксные ссылки. Состояние 0 — пустая строка."""
+    length = [0]
+    link = [-1]
+    nxt = [{}]
+    last = 0
+    for c in s:
+        cur = len(length)
+        length.append(length[last] + 1)
+        link.append(-1)
+        nxt.append({})
+        p = last
+        while p != -1 and c not in nxt[p]:
+            nxt[p][c] = cur
+            p = link[p]
+        if p == -1:
+            link[cur] = 0
+        elif length[p] + 1 == length[nxt[p][c]]:
+            link[cur] = nxt[p][c]
+        else:
+            q = nxt[p][c]
+            clone = len(length)
+            length.append(length[p] + 1)
+            link.append(link[q])
+            nxt.append(dict(nxt[q]))
+            while p != -1 and nxt[p].get(c) == q:
+                nxt[p][c] = clone
+                p = link[p]
+            link[q] = clone
+            link[cur] = clone
+        last = cur
+    return length, link
+
+
+def distinct_by_sam(length, link):
+    """Число различных непустых подстрок: сумма len(v) - len(link(v)) по всем состояниям, кроме корня."""
+    return sum(length[v] - length[link[v]] for v in range(1, len(length)))
+
+
+if __name__ == "__main__":
+    s = "banana"
+    sa = suffix_array(s)
+    lcp = lcp_array(s, sa)
+    length, link = build_sam(s)
+    print(s)
+    print("suffix array:", *sa)
+    print("lcp:", *lcp)
+    print("distinct substrings (suffix array):", distinct_by_sa(sa, lcp))
+    print("distinct substrings (suffix automaton):", distinct_by_sam(length, link))
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Суффиксный массив, LCP-массив (алгоритм Касаи) и суффиксный автомат для строки s.
+// Суффиксный массив: O(N log^2 N), LCP-массив: O(N), суффиксный автомат: O(N) при фиксированном алфавите.
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Суффиксный массив: sa[i] — начало i-го по порядку суффикса строки s (удвоение длин)
+std::vector&lt;int&gt; suffix_array(const std::string&amp; s) {
+    const int n = static_cast&lt;int&gt;(s.size());
+    std::vector&lt;int&gt; sa(n);
+    for (int i = 0; i &lt; n; ++i) sa[i] = i;
+    // Код символа без знака: при знаковом char байты от 0x80 стали бы отрицательными
+    std::vector&lt;int&gt; rank(n);
+    for (int i = 0; i &lt; n; ++i) rank[i] = static_cast&lt;unsigned char&gt;(s[i]);
+    for (int k = 1; k &lt; n; k *= 2) {
+        // Ключ суффикса i: ранги первых k символов и следующих k символов (-1 — конец строки)
+        std::vector&lt;std::pair&lt;int, int&gt;&gt; key(n);
+        for (int i = 0; i &lt; n; ++i) key[i] = {rank[i], i + k &lt; n ? rank[i + k] : -1};
+        std::sort(sa.begin(), sa.end(), [&amp;key](int a, int b) { return key[a] &lt; key[b]; });
+        std::vector&lt;int&gt; next_rank(n, 0);
+        for (int j = 1; j &lt; n; ++j) {
+            next_rank[sa[j]] = next_rank[sa[j - 1]] + (key[sa[j]] != key[sa[j - 1]] ? 1 : 0);
+        }
+        rank = next_rank;
+        if (rank[sa[n - 1]] == n - 1) break;
+    }
+    return sa;
+}
+
+// LCP-массив: lcp[i] — длина общего префикса суффиксов sa[i - 1] и sa[i], lcp[0] = 0 (алгоритм Касаи)
+std::vector&lt;int&gt; lcp_array(const std::string&amp; s, const std::vector&lt;int&gt;&amp; sa) {
+    const int n = static_cast&lt;int&gt;(s.size());
+    std::vector&lt;int&gt; rank(n);
+    for (int i = 0; i &lt; n; ++i) rank[sa[i]] = i;
+    std::vector&lt;int&gt; lcp(n, 0);
+    int h = 0;
+    for (int i = 0; i &lt; n; ++i) {
+        if (rank[i] == 0) {
+            h = 0;
+            continue;
+        }
+        const int j = sa[rank[i] - 1];
+        while (i + h &lt; n &amp;&amp; j + h &lt; n &amp;&amp; s[i + h] == s[j + h]) ++h;
+        lcp[rank[i]] = h;
+        h = std::max(h - 1, 0);
+    }
+    return lcp;
+}
+
+// Число различных непустых подстрок: сумма (N - sa[i]) минус сумма lcp[i]
+long long distinct_by_sa(const std::vector&lt;int&gt;&amp; sa, const std::vector&lt;int&gt;&amp; lcp) {
+    const long long n = static_cast&lt;long long&gt;(sa.size());
+    long long total = 0;
+    for (const int start : sa) total += n - start;
+    for (const int h : lcp) total -= h;
+    return total;
+}
+
+// Суффиксный автомат: len[v] — длина longest(v), link[v] — суффиксная ссылка, next[v] — переходы; 0 — пустая строка
+struct SuffixAutomaton {
+    std::vector&lt;int&gt; len;
+    std::vector&lt;int&gt; link;
+    std::vector&lt;std::map&lt;char, int&gt;&gt; next;
+};
+
+SuffixAutomaton build_sam(const std::string&amp; s) {
+    SuffixAutomaton sam;
+    sam.len = {0};
+    sam.link = {-1};
+    sam.next.resize(1);
+    int last = 0;
+    for (const char c : s) {
+        const int cur = static_cast&lt;int&gt;(sam.len.size());
+        sam.len.push_back(sam.len[last] + 1);
+        sam.link.push_back(-1);
+        sam.next.emplace_back();
+        int p = last;
+        while (p != -1 &amp;&amp; sam.next[p].count(c) == 0) {
+            sam.next[p][c] = cur;
+            p = sam.link[p];
+        }
+        if (p == -1) {
+            sam.link[cur] = 0;
+        } else if (sam.len[p] + 1 == sam.len[sam.next[p][c]]) {
+            sam.link[cur] = sam.next[p][c];
+        } else {
+            const int q = sam.next[p][c];
+            const int clone = static_cast&lt;int&gt;(sam.len.size());
+            sam.len.push_back(sam.len[p] + 1);
+            sam.link.push_back(sam.link[q]);
+            sam.next.push_back(sam.next[q]);
+            while (p != -1 &amp;&amp; sam.next[p].count(c) != 0 &amp;&amp; sam.next[p][c] == q) {
+                sam.next[p][c] = clone;
+                p = sam.link[p];
+            }
+            sam.link[q] = clone;
+            sam.link[cur] = clone;
+        }
+        last = cur;
+    }
+    return sam;
+}
+
+// Число различных непустых подстрок: сумма len(v) - len(link(v)) по всем состояниям, кроме корня
+long long distinct_by_sam(const SuffixAutomaton&amp; sam) {
+    long long total = 0;
+    for (std::size_t v = 1; v &lt; sam.len.size(); ++v) {
+        total += sam.len[v] - sam.len[sam.link[v]];
+    }
+    return total;
+}
+
+// Печатает подпись и значения через пробел
+void print_list(const char* title, const std::vector&lt;int&gt;&amp; values) {
+    std::printf("%s", title);
+    for (const int v : values) std::printf(" %d", v);
+    std::printf("\n");
+}
+
+int main() {
+    const std::string s = "banana";
+    const std::vector&lt;int&gt; sa = suffix_array(s);
+    const std::vector&lt;int&gt; lcp = lcp_array(s, sa);
+    const SuffixAutomaton sam = build_sam(s);
+    std::printf("%s\n", s.c_str());
+    print_list("suffix array:", sa);
+    print_list("lcp:", lcp);
+    std::printf("distinct substrings (suffix array): %lld\n", distinct_by_sa(sa, lcp));
+    std::printf("distinct substrings (suffix automaton): %lld\n", distinct_by_sam(sam));
+    return 0;
+}
+</pre>
+    <p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">
+// Суффиксный массив, LCP-массив (алгоритм Касаи) и суффиксный автомат для строки s.
+// Суффиксный массив: O(N log^2 N), LCP-массив: O(N), суффиксный автомат: O(N) при фиксированном алфавите.
+use std::collections::BTreeMap;
+
+// Суффиксный массив: sa[i] — начало i-го по порядку суффикса строки s (удвоение длин)
+pub fn suffix_array(s: &amp;[u8]) -&gt; Vec&lt;usize&gt; {
+    let n = s.len();
+    let mut sa: Vec&lt;usize&gt; = (0..n).collect();
+    let mut rank: Vec&lt;i64&gt; = s.iter().map(|&amp;c| i64::from(c)).collect();
+    let mut k: usize = 1;
+    while k &lt; n {
+        // Ключ суффикса i: ранги первых k символов и следующих k символов (-1 — конец строки)
+        let key: Vec&lt;(i64, i64)&gt; = (0..n)
+            .map(|i| (rank[i], if i + k &lt; n { rank[i + k] } else { -1 }))
+            .collect();
+        sa.sort_by_key(|&amp;i| key[i]);
+        let mut next_rank = vec![0; n];
+        for j in 1..n {
+            next_rank[sa[j]] = next_rank[sa[j - 1]] + i64::from(key[sa[j]] != key[sa[j - 1]]);
+        }
+        rank = next_rank;
+        if rank[sa[n - 1]] == (n - 1) as i64 {
+            break;
+        }
+        k *= 2;
+    }
+    sa
+}
+
+// LCP-массив: lcp[i] — длина общего префикса суффиксов sa[i - 1] и sa[i], lcp[0] = 0 (алгоритм Касаи)
+pub fn lcp_array(s: &amp;[u8], sa: &amp;[usize]) -&gt; Vec&lt;usize&gt; {
+    let n = s.len();
+    let mut rank = vec![0; n];
+    for (i, &amp;start) in sa.iter().enumerate() {
+        rank[start] = i;
+    }
+    let mut lcp = vec![0; n];
+    let mut h: usize = 0;
+    for i in 0..n {
+        if rank[i] == 0 {
+            h = 0;
+            continue;
+        }
+        let j = sa[rank[i] - 1];
+        while i + h &lt; n &amp;&amp; j + h &lt; n &amp;&amp; s[i + h] == s[j + h] {
+            h += 1;
+        }
+        lcp[rank[i]] = h;
+        h = h.saturating_sub(1);
+    }
+    lcp
+}
+
+// Число различных непустых подстрок: сумма (N - sa[i]) минус сумма lcp[i]
+pub fn distinct_by_sa(sa: &amp;[usize], lcp: &amp;[usize]) -&gt; usize {
+    let n = sa.len();
+    sa.iter().map(|&amp;start| n - start).sum::&lt;usize&gt;() - lcp.iter().sum::&lt;usize&gt;()
+}
+
+// Суффиксный автомат: len[v] — длина longest(v), link[v] — суффиксная ссылка, next[v] — переходы; 0 — пустая строка
+pub fn build_sam(s: &amp;[u8]) -&gt; (Vec&lt;usize&gt;, Vec&lt;Option&lt;usize&gt;&gt;) {
+    let mut len: Vec&lt;usize&gt; = vec![0];
+    let mut link: Vec&lt;Option&lt;usize&gt;&gt; = vec![None];
+    let mut next: Vec&lt;BTreeMap&lt;u8, usize&gt;&gt; = vec![BTreeMap::new()];
+    let mut last: usize = 0;
+    for &amp;c in s {
+        let cur = len.len();
+        len.push(len[last] + 1);
+        link.push(None);
+        next.push(BTreeMap::new());
+        let mut p = Some(last);
+        while let Some(v) = p {
+            if next[v].contains_key(&amp;c) {
+                break;
+            }
+            next[v].insert(c, cur);
+            p = link[v];
+        }
+        match p {
+            None =&gt; link[cur] = Some(0),
+            Some(v) if len[v] + 1 == len[next[v][&amp;c]] =&gt; link[cur] = Some(next[v][&amp;c]),
+            Some(v) =&gt; {
+                let q = next[v][&amp;c];
+                let clone = len.len();
+                len.push(len[v] + 1);
+                link.push(link[q]);
+                next.push(next[q].clone());
+                let mut u = Some(v);
+                while let Some(w) = u {
+                    if next[w].get(&amp;c) != Some(&amp;q) {
+                        break;
+                    }
+                    next[w].insert(c, clone);
+                    u = link[w];
+                }
+                link[q] = Some(clone);
+                link[cur] = Some(clone);
+            }
+        }
+        last = cur;
+    }
+    (len, link)
+}
+
+// Число различных непустых подстрок: сумма len(v) - len(link(v)) по всем состояниям, кроме корня
+pub fn distinct_by_sam(len: &amp;[usize], link: &amp;[Option&lt;usize&gt;]) -&gt; usize {
+    (1..len.len()).map(|v| len[v] - len[link[v].unwrap()]).sum()
+}
+
+// Строка из значений через пробел
+fn join(values: &amp;[usize]) -&gt; String {
+    values.iter().map(|v| v.to_string()).collect::&lt;Vec&lt;_&gt;&gt;().join(" ")
+}
+
+fn main() {
+    let s = "banana";
+    let sa = suffix_array(s.as_bytes());
+    let lcp = lcp_array(s.as_bytes(), &amp;sa);
+    let (len, link) = build_sam(s.as_bytes());
+    println!("{}", s);
+    println!("suffix array: {}", join(&amp;sa));
+    println!("lcp: {}", join(&amp;lcp));
+    println!("distinct substrings (suffix array): {}", distinct_by_sa(&amp;sa, &amp;lcp));
+    println!("distinct substrings (suffix automaton): {}", distinct_by_sam(&amp;len, &amp;link));
+}
+</code></pre>
+    <p>Все три программы печатают одинаковые строки:</p>
+<pre>banana
+suffix array: 5 3 1 0 4 2
+lcp: 0 1 3 0 0 2
+distinct substrings (suffix array): 15
+distinct substrings (suffix automaton): 15
+</pre>
+    <p>Строка banana имеет шесть суффиксов: banana, anana, nana, ana, na и a. В лексикографическом порядке они идут так: a, ana, anana, banana, na, nana. Их начальные позиции образуют суффиксный массив $5, 3, 1, 0, 4, 2$.</p>
+
+    <p>LCP-массив $0, 1, 3, 0, 0, 2$ задаёт длины общих префиксов соседних суффиксов: a и ana — 1, ana и anana — 3, anana и banana — 0, banana и na — 0, na и nana — 2.</p>
+
+    <p>По формуле из теоремы о числе различных подстрок получаем $\sum_k (6 - \mathrm{sa}[k]) - \sum_k \mathrm{lcp}[k] = 21 - 6 = 15$. Проверка перебором по длинам даёт то же число: подстрок длины 1 три (b, a, n), длины 2 — три (ba, an, na), длины 3 — три (ban, ana, nan), длины 4 — три (bana, anan, nana), длины 5 — две (banan, anana), длины 6 — одна (banana). Всего $3 + 3 + 3 + 3 + 2 + 1 = 15$. Суффиксный автомат даёт то же значение 15.</p>
+
+    <p>Итоговые оценки: построение суффиксного массива удвоением длин — $O(N \log^2 N)$, LCP-массив — $O(N)$, суффиксный автомат — $O(N)$ при фиксированном алфавите, подсчёт различных подстрок — $O(N)$ по массиву или по автомату. Поиск образца по суффиксному массиву занимает $O(m \log N)$ операций над символами.</p>
+</div></body></html>

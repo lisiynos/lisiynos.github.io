@@ -1,0 +1,3067 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Перебор вариантов</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Перебор вариантов</h1>
+
+    <p>Очень часто можно слышать фразу «ЭВМ проанализировала огромное количество вариантов и
+        выдала наилучший» [4]. Так обычно говорят о тех задачах, которые требуют при поиске решения перебора
+        вариантов. </p>
+
+    <ul>
+        <li>Простейшие задачи на перебор – это задачи на поиск решения
+            в одномерном массиве (например, найти элемент с заданным свойством).
+            Сложность таких задач пропорциональна количеству элементов в массиве <span>$N$</span>.
+        </li>
+        <li>Следующие задачи на перебор – поиск пар элементов либо из одного массива, либо из двух разных массивов. При
+            решении таких задач, как правило, используется вложенный цикл, то есть их сложность пропорциональна $N^2$ .
+        </li>
+        <li>Далее идет перебор троек элементов. Рассмотрим, например, следующую задачу.
+        </li>
+    </ul>
+
+    <h3>Треугольник максимальной площади</h3>
+
+    <p>На плоскости разбросаны $N$ точек с координатами $(x_1, y_1), (x_2, y_2), ..., (x_N, y_N)$.
+        Найти тройку точек, которые образуют треугольник с максимальной площадью.</p>
+
+    <p>Ясно, что при решении этой задачи необходимо использовать три вложенных цикла, таким образом,
+        задача решается за $N^3$ шагов. </p>
+
+    <p>Для задания координат точек используем датчик случайных чисел.</p>
+
+    <pre class="sh_python">
+from random import *
+
+N = 100
+MIN_X = -10000
+MAX_X = 10000
+MIN_Y = -10000
+MAX_Y = 10000
+# Генерируем N случайных точек
+points = [(randrange(MIN_X, MAX_X), randrange(MIN_Y, MAX_Y)) for i in range(N)]
+
+
+def area(p1, p2, p3):
+    """ Удвоенная площадь треугольника (модуль векторного произведения) """
+    x1, y1 = p1
+    x2, y2 = p2
+    x3, y3 = p3
+    # Получаем вектора
+    ax, ay = x2 - x1, y2 - y1
+    bx, by = x3 - x1, y3 - y1
+    # Векторное произведение
+    cross_product = ax * by - ay * bx
+    # Возвращаем удвоенную площадь (целое число)
+    return abs(cross_product)
+
+
+# Проверяем работу функции
+assert area((0, 0), (0, 1), (1, 0)) == 1
+assert area((1, 1), (1, 2), (3, 1)) == 2
+
+S_max = 0
+triangle = []  # Номера вершин треугольника с максимальной площадью
+
+# Начинаем перебор: перебираем тройки точек
+for i in range(N):
+    for j in range(i + 1, N):
+        for k in range(j + 1, N):
+            S = area(points[i], points[j], points[k])
+            if S > S_max:
+                S_max = S
+                # Запоминаем номера точек
+                triangle = [i + 1, j + 1, k + 1]
+
+print("Удвоенная площадь =", S_max)
+if S_max > 0:
+    print("Номера точек:", *triangle)
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+// Удвоенная площадь треугольника abc: модуль векторного произведения (целое число)
+long long doubledArea(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    long long cross = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    return cross &lt; 0 ? -cross : cross;
+}
+
+struct BestTriangle {
+    long long area2 = 0;         // удвоенная площадь лучшего треугольника
+    int i = -1, j = -1, k = -1;  // номера его вершин (от 0)
+};
+
+// Перебираем все тройки i &lt; j &lt; k и запоминаем треугольник наибольшей площади
+BestTriangle maxTriangle(const std::vector&lt;Point&gt;&amp; points) {
+    BestTriangle best;
+    const int n = static_cast&lt;int&gt;(points.size());
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = i + 1; j &lt; n; ++j) {
+            for (int k = j + 1; k &lt; n; ++k) {
+                long long area2 = doubledArea(points[i], points[j], points[k]);
+                if (area2 &gt; best.area2) best = {area2, i, j, k};
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {4, 0}, {0, 3}, {1, 1}, {5, 5}, {-2, 4}, {3, -3}};
+    const BestTriangle best = maxTriangle(points);
+    std::printf("Удвоенная площадь = %lld\n", best.area2);
+    std::printf("Номера точек: %d %d %d\n", best.i + 1, best.j + 1, best.k + 1);
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перебор троек точек: треугольник максимальной площади, O(N^3) времени
+#[derive(Clone, Copy)]
+pub struct Point {
+    pub x: i64,
+    pub y: i64,
+}
+
+// Удвоенная площадь треугольника abc: модуль векторного произведения (целое число)
+pub fn doubled_area(a: Point, b: Point, c: Point) -&gt; i64 {
+    ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)).abs()
+}
+
+// Перебираем все тройки i &lt; j &lt; k и запоминаем треугольник наибольшей площади.
+// Возвращает удвоенную площадь и номера вершин (от 0); None, если все площади нулевые.
+pub fn max_triangle(points: &amp;[Point]) -&gt; (i64, Option&lt;(usize, usize, usize)&gt;) {
+    let n = points.len();
+    let mut best = (0, None);
+    for i in 0..n {
+        for j in i + 1..n {
+            for k in j + 1..n {
+                let area2 = doubled_area(points[i], points[j], points[k]);
+                if area2 &gt; best.0 {
+                    best = (area2, Some((i, j, k)));
+                }
+            }
+        }
+    }
+    best
+}
+
+fn main() {
+    let points = [
+        Point { x: 0, y: 0 },
+        Point { x: 4, y: 0 },
+        Point { x: 0, y: 3 },
+        Point { x: 1, y: 1 },
+        Point { x: 5, y: 5 },
+        Point { x: -2, y: 4 },
+        Point { x: 3, y: -3 },
+    ];
+    let (area2, triple) = max_triangle(&amp;points);
+    println!("Удвоенная площадь = {area2}");
+    if let Some((i, j, k)) = triple {
+        println!("Номера точек: {} {} {}", i + 1, j + 1, k + 1);
+    }
+}
+</code></pre>
+
+    <p>В последующих
+        задачах будет показано, как ограничить число вариантов перебора, используя
+        условия задачи, различные приемы и методы программирования.</p>
+
+    <h2>Перебор с отсечениями</h2>
+
+    <p>Решить уравнение в целых числах:
+        $x_1^4 + x_2^4 + ... + x_{15}^4 = 2000$</p>
+
+    <p>Чтобы ответ был единственным, добавим условие: $x_i \ge x_{i-1}$</p>
+
+    <pre class="sh_python">
+x = [0] * 16  # значения переменных x, x[0] всегда равно 0
+
+
+def rec(i, s):  # рекурсивная процедура
+    """ i - индекс икса, s - оставшаяся сумма """
+    if i == 16:  # Получили набор x
+        if s == 0:  # набрана нужная сумма
+            # Выводим ответ
+            print(*x[1:])
+            # Для проверки вычисляем сумму
+            print(sum([v ** 4 for v in x]))
+        return
+    if s < 0:  # Если оставшаяся сумма отрицательна => на выход
+        return
+    # Перебираем значение x от значения предыдущего икса до
+    # корня четвёртой степени из оставшейся суммы
+    for value in range(x[i - 1], int(s ** 0.25) + 1):
+        x[i] = value  # фиксируем значение x[i]
+        rec(i + 1, s - value ** 4)
+
+# Запускаем перебор
+rec(1, 2000)
+# Получаем: 2 2 2 2 2 2 2 2 2 2 2 2 4 4 6
+</pre>
+
+    <p>Приведенная программа ищет решения уравнения
+        $x_1^4 + x_2^4 + ... + x_{15}^4 = 2000$ в натуральных числах методом перебора. Перебор является, пожалуй,
+        одним из самых простых (по реализации), но, вместе с тем, самым медленным (по
+        времени выполнения) из всех алгоритмов, поэтому при решении каждой конкретной
+        задачи перебором возникает другая задача – сократить и оптимизировать перебор,
+        иными словами, максимально уменьшить время, затрачиваемое компьютером на поиск
+        решения.</p>
+
+    <p>Познакомимся с некоторыми возможными приемами сокращения перебора на данной конкретной задаче.</p>
+
+    <p>1) В первую очередь, надо правильно выбрать границы значений перебираемых величин. По
+        условию задачи все переменные принимают натуральные значения, но ведь
+        натуральных чисел бесконечно много! Однако, в данном примере совершенно
+        очевидно, что, если решение уравнения существует, то все
+        $x_1, ..., x_{15}$ лежат в промежутке от 1 до 6,
+        поскольку натуральные числа, большие 6, в четвертой степени дают значение уже
+        превосходящее 2000 ($7^4 = 2401 \gt 2000$). Итак, в алгоритме все
+        переменные перебираются в пределах от 1 до 6.</p>
+
+    <p>2) Далее, важным моментом при оптимизации является отсечение заведомо неверных ветвей
+        перебора. Например, в данном примере, не имеет смысла продолжать поиск, если на
+        некотором шаге сумма $x_1^4 + ... + x_n^4$ уже превысила 2000.</p>
+
+    <p style='text-indent:18.0pt'>3) Следует избегать
+        многократного выполнения одних и тех же операций в циклах и рекурсивных
+        процедурах, если данные, используемые в этих циклах, могут быть подготовлены
+        заранее. Так, в приведенном примере значения четвертых степеней чисел 1, 2, …,
+        6 вычислены один раз и занесены в массив констант: <strong><span>p</span>4
+            = (1, 16, 81, 256, 625, 1296)</strong>. Подобный прием часто помогает избавиться от
+        лишних вычислений, например, в алгоритмах, работающих с простыми числами,
+        полезно бывает включить заранее найденные простые числа в текст программы, так
+        же, в виде массива констант.</p>
+
+    <p>4) Кроме того,
+        можно существенно ускорить перебор, если не рассматривать варианты, аналогичные
+        (либо похожие) ранее рассмотренным. Так, в данной задаче решения уравнения
+        определены с точностью до перестановки слагаемых, т.е., если найдено одно
+        решение, то любая перестановка переменных в нем тоже будет являться решением.
+        Поэтому, чтобы сократить поиск, не перебирая варианты, отличающиеся только
+        перестановкой слагаемых, в процедуру <strong><span>Find</span></strong> был
+        введен дополнительный параметр <strong><span>start</span></strong> –
+        максимальное значение, которое может принимать очередная ($N$-ая)
+        переменная. Благодаря этому гарантируется, что алгоритм будет рассматривать
+        только те значения переменных, при которых $x_1$
+        <span style=''>&sup3;</span> $x_2$
+        <span style=''>&sup3;</span> … <span style=''>&sup3;</span>
+        $x_{15}$ .</p>
+
+    <p>5) Наконец,
+        если задача предполагает поиск какого-либо одного решения, а не всех, можно
+        добиться более быстрого получения результата путем выбора хорошего начального
+        приближения, либо перебором с предпочтением (так называемыми эвристическими
+        методами). Эти методы различны для каждого конкретного случая, но, как правило,
+        заключаются в том или ином способе реализации «жадного» алгоритма. В указанной
+        программе эвристика заключается в том, что перебор осуществляется от большего
+        значения к меньшему, а не наоборот:
+        <strong><span>for</span><span> </span></strong><strong><span>i</span>=</strong><strong><span>start</span><span> </span></strong><strong><span>to</span>
+            1 </strong><strong><span>step</span>
+            -1</strong>. Интуитивно понятно, что, начиная перебор с больших значений переменных
+        (6, 5, 4), мы быстрее «доберемся» до решения нежели, чем «пробуя» меньшие
+        значения.</p>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+using Solution = std::vector&lt;long long&gt;;
+
+// Подбирает countLeft чисел не меньше low с суммой четвертых степеней rest
+void search(int countLeft, long long low, long long rest, Solution&amp; chosen,
+            std::vector&lt;Solution&gt;&amp; solutions) {
+    if (countLeft == 0) {
+        if (rest == 0) solutions.push_back(chosen);
+        return;
+    }
+    // Отсечение: даже countLeft одинаковых чисел value дают сумму больше rest
+    for (long long value = low; countLeft * value * value * value * value &lt;= rest; ++value) {
+        chosen.push_back(value);
+        search(countLeft - 1, value, rest - value * value * value * value, chosen, solutions);
+        chosen.pop_back();  // возврат
+    }
+}
+
+// Все наборы натуральных чисел x1 &lt;= ... &lt;= xn с суммой четвертых степеней target
+std::vector&lt;Solution&gt; findSolutions(int n, long long target) {
+    std::vector&lt;Solution&gt; solutions;
+    Solution chosen;
+    search(n, 1, target, chosen, solutions);
+    return solutions;
+}
+
+int main() {
+    const std::vector&lt;Solution&gt; solutions = findSolutions(15, 2000);
+    std::printf("Решений: %zu\n", solutions.size());
+    for (const Solution&amp; solution : solutions) {
+        for (long long value : solution) std::printf("%lld ", value);
+        std::printf("\n");
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перебор с отсечениями: x1^4 + ... + xn^4 = S (натуральные, x1 &lt;= ... &lt;= xn), без отсечений O(S^(n/4))
+
+// Подбирает count_left чисел не меньше low с суммой четвертых степеней rest
+pub fn search(
+    count_left: u32,
+    low: u64,
+    rest: u64,
+    chosen: &amp;mut Vec&lt;u64&gt;,
+    solutions: &amp;mut Vec&lt;Vec&lt;u64&gt;&gt;,
+) {
+    if count_left == 0 {
+        if rest == 0 {
+            solutions.push(chosen.clone());
+        }
+        return;
+    }
+    let mut value = low;
+    // Отсечение: даже count_left одинаковых чисел value дают сумму больше rest
+    while u64::from(count_left) * value.pow(4) &lt;= rest {
+        chosen.push(value);
+        search(count_left - 1, value, rest - value.pow(4), chosen, solutions);
+        chosen.pop(); // возврат
+        value += 1;
+    }
+}
+
+// Все наборы натуральных чисел x1 &lt;= ... &lt;= xn с суммой четвертых степеней target
+pub fn find_solutions(n: u32, target: u64) -&gt; Vec&lt;Vec&lt;u64&gt;&gt; {
+    let mut solutions = Vec::new();
+    search(n, 1, target, &amp;mut Vec::new(), &amp;mut solutions);
+    solutions
+}
+
+fn main() {
+    let solutions = find_solutions(15, 2000);
+    println!("Решений: {}", solutions.len());
+    for solution in &amp;solutions {
+        let line: Vec&lt;String&gt; = solution.iter().map(|v| v.to_string()).collect();
+        println!("{}", line.join(" "));
+    }
+}
+</code></pre>
+
+    <p>&nbsp;</p>
+
+    <p><cite>Пример</cite><cite><span>&n<span>e>.<span>&nbsp;</span>Найти все решения
+    уравнения в целых числах <br>
+    МУХА+МУХА+МУХА=СЛОН</p>
+
+    <p>Используем
+        факт, что C <span style='font-family:Symbol'>&pound;</span> 9 и число не
+        начинается с 0, тогда 1 <span style='font-family:Symbol'>&pound;</span> <span
+        >M</span> <span style='font-family:Symbol'>&pound;</span>
+        3.  Если М&nbsp;=&nbsp;3, то У&nbsp;<span style='font-family:Symbol'>&pound;</span>&nbsp;2
+        (иначе имели бы справа от знака равенства четырехзначное число). Следовательно,
+        число МУХА возможно из диапазона [1023, 3210]. Начинаем перебор.</p>
+
+    <p>&nbsp;</p>
+
+    <p style=' text-indent:18pt'><cite>Программа
+        (</cite><cite><span>QBasic</span>)</cite>:</p>
+
+    <p><span>DIM</span> <span>SHARED</s<span><span>(1 </span><span>TO</span><span> 4)                      'цифры
+для слова &quot;МУХА&quot;</span></p>
+
+    <p><span>CLS</span></p>
+
+    <p>$N$<span>(1) = 1: </span>$N$<span>(2) = 0: </span>$N$<span>(3) = 2: </span>$N$<span>(4) = 3      
+'начальный набор цифр слова &quot;МУХА&quot;</span></p>
+
+    <p><span>DO</span></p>
+
+    <p style='text-indent:1.0<span>span><span>1</span></p>
+
+<span>indent:1.0cm'><span>i</span><span> = </span><span>Test</span><span>%                                              'число,
+соответствующее набору цифр слов<span>ot;</span></p>
+
+    <p style='text-indent:1<span>e=' font-size:12.0pt;
+       font-family:"","se<span>L i &gt;= 3210            'максимально
+<span></span></p>
+
+    <p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span style='font-size:12.0pt;
+<span>"serif"'>SUB Add1                                              'ув<span>а единицу (поразрядное сложение)</sp<span>le='text-indent:1.0cm'><span>n(4) = n(4) + 1</span>
+</p>
+
+<p style='text-indent:1.0cm'><span>FOR i = 4 TO 2
+STEP -1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>IF
+n(i) = 10 THEN</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>n(i)
+= 0</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>n(i -
+1) = n(i - 1) + 1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>ELSE</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>EXIT
+SUB</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>END
+IF</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT</span></p>
+
+<p><span>END SUB</span></p>
+
+<p>&nbsp;</p>
+
+<p><span>FUNCTION Test%</span></p>
+
+<p style='text-indent:1.0cm'><span>DIM L(1 TO 4)</span></p>
+
+<p style='text-indent:1.0cm'><span>Number = n(1) *
+1000 + n(2) * 100 + n(3) * 10 + n(4)</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>Test% = Number</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>k = Number                                          'число
+соответствует слову &quot;МУХА&quot;</span></p>
+
+<p style='text-indent:1.0cm'><span>Number = Number
+* 3             '</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR i = 4 TO 1
+STEP -1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>L(i) = Number
+MOD 10 'цифры соответствуют слову &quot;СЛОН&quot;</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>Number
+= Number \ 10</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR i = 1 TO 3                                               '</span><span
+>проверка</span><span>: </span><span
+>разным</span><span
+> </span><span
+>буквам</span><span> - </span><span
+>разные</span><span
+> </span><span
+>цифры</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>FOR j
+= i + 1 TO 4</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>IF
+(L(i) = L(j)) OR (n(i) = n(j)) THEN EXIT FUNCTION</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT j, i</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR i = 1 TO 4</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR j = 1 TO 4</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>IF
+L(i) = n(j) THEN EXIT FUNCTION</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT</span> <span>j</span><span
+>, </span><span>i</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>PRINT k; &quot;&#8729; 3 =&quot;; k * 3                        'печать,
+если комбинация цифр - удачная</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>END FUNCTION</span></p>
+
+<p>&nbsp;</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор с отсечениями: ребус word+...+word = total (k слагаемых), O(10^L) вариантов, L - длина слова
+# Буквы записаны латиницей: МУХА - MUHA, СЛОН - SLON. Разным буквам соответствуют разные цифры.
+
+
+def match(mapping, letters, number):
+    """Дописывает к mapping соответствие букв цифрам числа; False, если буква уже означает другую цифру."""
+    for letter, digit in zip(letters, map(int, str(number))):
+        if letter in mapping and mapping[letter] != digit:
+            return False
+        mapping[letter] = digit
+    return True
+
+
+def solve(word, total, k):
+    """Все решения ребуса word+...+word (k слагаемых) = total в виде словарей {буква: цифра}."""
+    if not word or not total:
+        return []
+    solutions = []
+    for number in range(10 ** (len(word) - 1), 10 ** len(word)):  # число без ведущего нуля
+        product = k * number
+        if product == 0 or len(str(product)) != len(total):  # отсечение: ноль или сумма другой длины
+            continue
+        mapping = {}
+        if not (match(mapping, word, number) and match(mapping, total, product)):
+            continue
+        if len(set(mapping.values())) == len(mapping):  # разным буквам - разные цифры
+            solutions.append(mapping)
+    return solutions
+
+
+def main():
+    solutions = solve("MUHA", "SLON", 3)
+    print("Решений:", len(solutions))
+    for mapping in solutions[:3]:
+        muha = "".join(str(mapping[c]) for c in "MUHA")
+        slon = "".join(str(mapping[c]) for c in "SLON")
+        print(f"MUHA={muha} SLON={slon}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с отсечениями: ребус word+...+word = total (k слагаемых), O(10^L) вариантов, L - длина слова
+// Буквы записаны латиницей: МУХА - MUHA, СЛОН - SLON. Разным буквам соответствуют разные цифры.
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+using Mapping = std::map&lt;char, int&gt;;  // буква -&gt; цифра
+
+// Дописывает к mapping соответствие букв цифрам числа; false, если буква уже означает другую цифру
+bool match(Mapping&amp; mapping, const std::string&amp; letters, long long number) {
+    std::string digits = std::to_string(number);
+    for (size_t i = 0; i &lt; letters.size(); ++i) {
+        int digit = digits[i] - '0';
+        auto found = mapping.find(letters[i]);
+        if (found != mapping.end() &amp;&amp; found-&gt;second != digit) return false;
+        mapping[letters[i]] = digit;
+    }
+    return true;
+}
+
+// Все решения ребуса: словари {буква: цифра}
+std::vector&lt;Mapping&gt; solve(const std::string&amp; word, const std::string&amp; total, long long k) {
+    std::vector&lt;Mapping&gt; solutions;
+    if (word.empty() || total.empty()) return solutions;
+    long long low = 1;  // 10^(L-1): число без ведущего нуля
+    for (size_t i = 1; i &lt; word.size(); ++i) low *= 10;
+    for (long long number = low; number &lt; low * 10; ++number) {
+        long long product = k * number;
+        if (product == 0 || std::to_string(product).size() != total.size()) continue;  // отсечение
+        Mapping mapping;
+        if (!match(mapping, word, number) || !match(mapping, total, product)) continue;
+        std::vector&lt;bool&gt; used(10, false);  // разным буквам - разные цифры
+        bool distinct = true;
+        for (const auto&amp; entry : mapping) {
+            if (used[entry.second]) distinct = false;
+            used[entry.second] = true;
+        }
+        if (distinct) solutions.push_back(mapping);
+    }
+    return solutions;
+}
+
+int main() {
+    std::vector&lt;Mapping&gt; solutions = solve("MUHA", "SLON", 3);
+    std::cout &lt;&lt; "Решений: " &lt;&lt; solutions.size() &lt;&lt; "\n";
+    for (size_t s = 0; s &lt; solutions.size() &amp;&amp; s &lt; 3; ++s) {
+        std::cout &lt;&lt; "MUHA=";
+        for (char c : std::string("MUHA")) std::cout &lt;&lt; solutions[s].at(c);
+        std::cout &lt;&lt; " SLON=";
+        for (char c : std::string("SLON")) std::cout &lt;&lt; solutions[s].at(c);
+        std::cout &lt;&lt; "\n";
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перебор с отсечениями: ребус word+...+word = total (k слагаемых), O(10^L) вариантов, L - длина слова
+// Буквы записаны латиницей: МУХА - MUHA, СЛОН - SLON. Разным буквам соответствуют разные цифры.
+use std::collections::BTreeMap;
+
+pub type Mapping = BTreeMap&lt;char, u8&gt;; // буква -&gt; цифра
+
+// Дописывает к mapping соответствие букв цифрам числа; false, если буква уже означает другую цифру
+fn match_digits(mapping: &amp;mut Mapping, letters: &amp;str, number: u64) -&gt; bool {
+    let digits = number.to_string();
+    for (letter, digit) in letters.chars().zip(digits.bytes()) {
+        let digit = digit - b'0';
+        if let Some(&amp;known) = mapping.get(&amp;letter) {
+            if known != digit {
+                return false;
+            }
+        }
+        mapping.insert(letter, digit);
+    }
+    true
+}
+
+// Все решения ребуса: словари {буква: цифра}
+pub fn solve(word: &amp;str, total: &amp;str, k: u64) -&gt; Vec&lt;Mapping&gt; {
+    let mut solutions = Vec::new();
+    if word.is_empty() || total.is_empty() {
+        return solutions;
+    }
+    let low = 10u64.pow(word.len() as u32 - 1); // 10^(L-1): число без ведущего нуля
+    for number in low..low * 10 {
+        let product = k * number;
+        if product == 0 || product.to_string().len() != total.len() {
+            continue; // отсечение: ноль или сумма другой длины
+        }
+        let mut mapping = Mapping::new();
+        if !match_digits(&amp;mut mapping, word, number) || !match_digits(&amp;mut mapping, total, product) {
+            continue;
+        }
+        let mut digits: Vec&lt;u8&gt; = mapping.values().copied().collect();
+        digits.sort_unstable();
+        digits.dedup();
+        if digits.len() == mapping.len() {
+            // разным буквам - разные цифры
+            solutions.push(mapping);
+        }
+    }
+    solutions
+}
+
+fn main() {
+    let solutions = solve("MUHA", "SLON", 3);
+    println!("Решений: {}", solutions.len());
+    for mapping in solutions.iter().take(3) {
+        let muha: String = "MUHA".chars().map(|c| (b'0' + mapping[&amp;c]) as char).collect();
+        let slon: String = "SLON".chars().map(|c| (b'0' + mapping[&amp;c]) as char).collect();
+        println!("MUHA={} SLON={}", muha, slon);
+    }
+}
+</code></pre>
+
+<p>С перебором
+    связаны и комбинаторные задачи.</p>
+
+<p>Следует
+    освоить алгоритмы создания лексикографического упорядочения и всевозможных
+    перестановок из $n$ элементов.</p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:18pt'><cite>Пример 6.4</cite>.<span
+>&nbsp;</span>В языке государства Икнатсо всего семь букв А, И, К, Н,
+    О, С, Т. Составлен полный словарь семибуквенных слов (все буквы в словах
+    различны), и первым словом в словаре является слово ИКНАТСО. По заданному слову
+    вывести следующее за ним слово в лексикографическом (словарном) порядке.</p>
+
+<p>Например, за
+    словом СКОАТНИ следует слово СКОТИНА.</p>
+
+<p style='text-indent:18pt'><cite>Программа</cite><cite><span
+> (QBasic)</span></cite><span>:</span></p>
+
+<p style='text-indent:1.0cm'><span>DIM A(1 TO 7)</span></p>
+
+<p style='text-indent:1.0cm'><span>First</span><span
+>$ =
+&quot;ИКНАТСО&quot; ‘Первое слово в словаре</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p style='text-indent:1.0cm'><span>INPUT
+&quot;Введите слово: &quot;, s$</span></p>
+
+<p style='text-indent:1.0cm'><span>n = LEN(s$)</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR</span> <span>i</span><span
+> = 1 </span><span>TO</span> <span>n</span><span
+>            ‘Представляем
+исходное слово в виде</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>A(i)
+= INSTR(First$, MID$(s$, i, 1))    ‘массива из семи чисел</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p style='text-indent:1.0cm'><span>FOR</span> <span>i</span><span
+> = </span><span>n</span><span
+> - 1 </span><span>TO</span><span
+> 1 </span><span>STEP</span><span
+> –1   ‘Ищем
+первую с конца пару элементов,</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>IF</span> <span>A</span><span
+>(</span><span>i</span><span
+>) &lt; </span><span>A</span><span
+>(</span><span>i</span><span
+> + 1) </span><span>THEN</span><span
+>            ‘упорядоченную
+по возрастанию</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>FOR</span> <span>j</span><span
+> = </span><span>n</span> <span>TO</span> <span>i</span><span
+> + 1 </span><span>STEP</span><span
+> –1        ‘Среди
+ранее рассмотренных элементов</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span>IF
+A(j) &gt; A(i) THEN           ‘ищем наименьший, который больше A(i)</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>t =
+A(i): A(i) = A(j): A(j) = t  ‘Ставим его на i ое место</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>FOR</span> <span>k</span><span
+> = </span><span>i</span><span
+> + 1 </span><span>TO</span> <span>n</span><span
+> – 1         ‘Оставшиеся
+элементы упорядочиваем</span></p>
+
+<p style='margin-left:5.0cm;text-indent:1.0cm'><span>min</span><span
+> = </span><span>k</span><span
+>  ‘по
+возрастанию методом поиска</span></p>
+
+<p style='margin-left:5.0cm;text-indent:1.0cm'><span>FOR</span> <span>l</span><span
+> = </span><span>k</span><span
+> + 1 </span><span>TO</span> <span>n</span><span
+>      ‘последовательных
+минимумов</span></p>
+
+<p style='margin-left:6.0cm;text-indent:1.0cm'><span>IF
+A(l) &lt; A(min) THEN min = l</span></p>
+
+<p style='margin-left:5.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='margin-left:5.0cm;text-indent:1.0cm'><span>t =
+A(k): A(k) = A(min): A(min) = t</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>FOR</span> <span>i</span><span
+> = 1 </span><span>TO</span> <span>n</span><span
+>          ‘Переводим
+массив чисел обратно в слово</span></p>
+
+<p style='margin-left:5.0cm;text-indent:1.0cm'><span>PRINT
+MID$(First$, A(i), 1); ‘из алфавита Икнатсо</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>PRINT</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>END</span><span
+>   ‘Печатаем
+ответ и завершаем программу</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span>END
+IF</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>END
+IF</span></p>
+
+<p style='text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='text-indent:27.0pt'>'Если же все пары соседних
+    элементов были упорядочены по убыванию, то</p>
+
+<p style='text-indent:1.0cm'><span>PRINT</span><span
+> &quot;Это слово
+было в словаре последним&quot;     </span></p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:18pt'>Данную задачу
+    на математический язык можно перефразировать так: по заданной перестановке из
+    семи элементов требуется сгенерировать следующую за ней в лексикографическом
+    порядке. Так как порядок букв в алфавите Икнатсо отличен от обычного, лучше
+    оперировать не с буквами, а с числами от 1 до 7. Сопоставим буквам
+    И,&nbsp;К,&nbsp;Н,&nbsp;А,&nbsp;Т,&nbsp;С,&nbsp;О их порядок в алфавите: букву
+    «И» обозначим единицей, «К» - двойкой, и т. д., таким образом, исходное слово
+    представим в виде массива из семи чисел. Далее вместо слова из алфавита Икнатсо
+    будем говорить об этом массиве.</p>
+
+<p style='text-indent:18pt'>Проще всего
+    получить следующую по порядку перестановку, когда последний (седьмой) элемент
+    массива больше предпоследнего. В этом случае, чтобы получить ответ, достаточно
+    поменять местами эти два последних элемента. В противном случае, надо
+    рассмотреть два предпоследних элемента (пятый и шестой). Если пятый оказался
+    меньше, на его место нужно поставить тот из двух последних, который должен
+    следовать за ним (т.е. тот, который больше него, но, в то же время, меньше всех
+    остальных). Так, например, в массиве (…, 3, 6, 5) нужно поменять местами тройку
+    с пятеркой, а в массиве (…, 4, 6, 2) – четверку с шестеркой. После этого два
+    последних элемента нужно записать в порядке возрастания (т.е. по алфавиту).
+    Таким образом, после этой операции первый массив преобразуется в (…, 5, 3, 6),
+    а второй – в (…, 6, 2, 4). Если же пятый элемент оказался больше шестого,
+    потребуется рассмотреть предыдущую пару (четвертый с пятым). И так далее, до
+    самого первого элемента.</p>
+
+<p style='text-indent:18pt'>Итак, весь
+    алгоритм заключается в следующем:</p>
+
+<p>1.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Запишем
+    исходное слово в виде массива чисел от 1 до 7. Назовем его <span>A</span>.</p>
+
+<p>2.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Будем
+    последовательно рассматривать пары элементов <span>A<sub>i</sub></span>,
+    <span>A<sub>i</sub></span><sub>+1</sub> (<span>i</span> =
+    6, 5, …, 1), пока не найдем такую пару, где <span>A<sub>i</sub></span>
+    &lt; <span>A<sub>i</sub></span><sub>+1</sub>. Если такой пары не
+    найдется, это означает, что весь массив отсортирован в порядке убывания, т.е.
+    следующей перестановки не существует, а введенное слово является в словаре
+    Икнатсо последним.</p>
+
+<p>3.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Пусть
+    оказалось, что <span>A<sub>i</sub></span> &lt; <span>A<sub>i</sub></span><sub>+1</sub>.
+    Среди элементов <span>A<sub>i</sub></span><sub>+1</sub>, <span>A<sub>i</sub></span><sub>+2,</sub> …,
+    $A_7$
+    найдем наибольшй <span>A<sub>j</sub></span>, такой что <span>A<sub>j</sub></span> &gt; <span>A<sub>i</sub></span>.
+    Поменяем элементы <span>A<sub>i</sub></span> и <span>A<sub>j</sub></span>
+    местами.</p>
+
+<p>4.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Упорядочим
+    элементы <span>A<sub>i</sub></span><sub>+1</sub>, <span>A<sub>i</sub></span><sub>+2,</sub>
+    …, $A_7$ по возрастанию.</p>
+
+<p>5.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Полученный
+    массив преобразуем обратно в слово. Числу 1 сопоставим букву «И», числу 2 –
+    «К», и т.д. Полученное слово – искомое.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Следующая перестановка в лексикографическом порядке: O(n) времени на один шаг
+# Алфавит Икнатсо: И &lt; К &lt; Н &lt; А &lt; Т &lt; С &lt; О, буквы заменяем их номерами в алфавите
+
+
+ALPHABET = "ИКНАТСО"
+
+
+def next_permutation(a):
+    """Превращает список a в следующую перестановку; False, если a - последняя (убывающая)."""
+    i = len(a) - 2
+    while i &gt;= 0 and a[i] &gt;= a[i + 1]:  # ищем самую правую пару a[i] &lt; a[i+1]
+        i -= 1
+    if i &lt; 0:
+        return False
+    j = len(a) - 1
+    while a[j] &lt;= a[i]:  # ищем самый правый элемент, больший a[i]
+        j -= 1
+    a[i], a[j] = a[j], a[i]
+    a[i + 1:] = a[i + 1:][::-1]  # хвост после обмена убывает: переворот дает возрастание
+    return True
+
+
+def main():
+    word = "СКОАТНИ"
+    numbers = [ALPHABET.index(ch) for ch in word]  # буквы -&gt; номера
+    next_permutation(numbers)
+    print(word, "-&gt;", "".join(ALPHABET[i] for i in numbers))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Следующая перестановка в лексикографическом порядке: O(n) времени на один шаг
+// Алфавит Икнатсо: И &lt; К &lt; Н &lt; А &lt; Т &lt; С &lt; О, буквы заменяем их номерами 0..6
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+const char* const ALPHABET[] = {"И", "К", "Н", "А", "Т", "С", "О"};
+
+// Превращает a в следующую перестановку; false, если a - последняя (убывающая)
+bool next_permutation(std::vector&lt;int&gt;&amp; a) {
+    int i = static_cast&lt;int&gt;(a.size()) - 2;
+    while (i &gt;= 0 &amp;&amp; a[i] &gt;= a[i + 1]) --i;  // ищем самую правую пару a[i] &lt; a[i+1]
+    if (i &lt; 0) return false;
+    int j = static_cast&lt;int&gt;(a.size()) - 1;
+    while (a[j] &lt;= a[i]) --j;  // ищем самый правый элемент, больший a[i]
+    std::swap(a[i], a[j]);
+    std::reverse(a.begin() + i + 1, a.end());  // хвост после обмена убывает: переворот дает возрастание
+    return true;
+}
+
+int main() {
+    std::vector&lt;int&gt; word = {5, 1, 6, 3, 4, 2, 0};  // СКОАТНИ: номера букв в алфавите Икнатсо
+    next_permutation(word);
+    std::cout &lt;&lt; "СКОАТНИ -&gt; ";
+    for (int i : word) std::cout &lt;&lt; ALPHABET[i];
+    std::cout &lt;&lt; "\n";
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Следующая перестановка в лексикографическом порядке: O(n) времени на один шаг
+// Алфавит Икнатсо: И &lt; К &lt; Н &lt; А &lt; Т &lt; С &lt; О, буквы заменяем их номерами 0..6
+const LETTERS: [&amp;str; 7] = ["И", "К", "Н", "А", "Т", "С", "О"];
+
+// Превращает a в следующую перестановку; false, если a - последняя (убывающая)
+pub fn next_permutation(a: &amp;mut [usize]) -&gt; bool {
+    // ищем самую правую пару a[i] &lt; a[i+1]
+    let Some(i) = (0..a.len().saturating_sub(1)).rev().find(|&amp;i| a[i] &lt; a[i + 1]) else {
+        return false;
+    };
+    // ищем самый правый элемент, больший a[i]
+    let j = (i + 1..a.len()).rev().find(|&amp;j| a[j] &gt; a[i]).unwrap();
+    a.swap(i, j);
+    a[i + 1..].reverse(); // хвост после обмена убывает: переворот дает возрастание
+    true
+}
+
+fn main() {
+    let mut word: Vec&lt;usize&gt; = vec![5, 1, 6, 3, 4, 2, 0]; // СКОАТНИ: номера букв в алфавите Икнатсо
+    next_permutation(&amp;mut word);
+    let text: String = word.iter().map(|&amp;i| LETTERS[i]).collect();
+    println!("СКОАТНИ -&gt; {}", text);
+}
+</code></pre>
+
+<p><cite>Пример 6.5</cite>.<strong>
+</strong>Образовать все перестановки из $n$ элем<span>з которых содержит все эти элементы по одному разу, и которые
+    отличаются друг от друга лишь порядком элементов.</p>
+
+<p>&nbsp;</p>
+
+<<span>t:18pt'>Число таких
+    перестановок будет $n$!&nbsp;(факториал).
+    Сопоставим каждому элементу натуральное число от 1 до  $n$
+    и запускаем перебор.</p>
+
+        <p>&nbsp;</p>
+
+<p><cite>Программа
+    (</cite><cite><span>QBasic</span>)</cite>:</p>
+
+<p><span>DIM</span> <span>SHARED</span> $N$<span>                                               '</span>$N$<span> - количество
+элементов</span></p>
+
+<p>
+    <span>INPUT</span><span> &quot;</span>$N$<span> = &quot;, </span>$N$<span>                                      '</span><span>num</span><span>(</span><span>k</span><span>) - число на </span><span>k</span><span>-ой позиции</span>
+</p>
+
+<p><span>DIM</span> <span>SHARED</span><span>
+</span><span>num</span><span>(</span>$N$<span>), </span><span>used</span><span>(</span>$N$<span>)            '</span><span>used</span><span>(</span><span>i</span><span>) - использовано
+ли число </span><span>i</span><span> (1-да, 0-нет)</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>CA<span>                                
+           'начинаем перестановки с первого э<span>/p>
+
+<p style='margin-left:7.0cm;text-indent:-178.6pt'><span>SUB Permute (k%)
+    <span>             'перебирает все числа, к<span>ставить
+в ‘k-ую позицию</span></p>
+
+<p st<span>t:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>IF k% &<span>                            'ес<span>уже расставлены,</span></p>
+
+            <p style='marg<span>ext-indent:1.0cm'><span>FOR i = 1 TO n              'выводим
+результат очередной перестановки</span></p>
+
+<p style='ma<span>;text-indent:1.0cm'><span>PRINT<span></p>
+
+<p style='margin-left:1.0cm;te<span>'><span>NEXT</span></p>
+
+<p sty<span>:1.0cm;text-indent:1.0cm'><span>PRINT</span></p<span>xt-indent:1.0cm'><span>ELSE</sp<span>le='margin-left:1.0cm;text-indent:1.0cm'><span><span>                         'иначе
+просматриваем по порядку числа от 1 до n</span></p>
+
+                <p style='margin-left:2.0cm;text-indent:1.0cm'><span>IF used(i) = 0
+THEN         'и, если очередное число i еще не использовано,</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span
+>used(i) = 1                'помечаем
+его как использованное,</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span
+>num(k%) = i 'ставим
+на k-ое место и</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span
+>'продолжаем
+построение перестановки с k+1 позиции</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span>CALL</span> <span>Permute</span><span
+>(</span><span>k</span><span
+>% + 1) </span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span
+>used(i) = 0                'по
+возвращении, помечаем i как неиспользованное</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>END
+IF</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='text-indent:1.0cm'><span>END IF</span></p>
+
+<p style='text-indent:18pt'><span>END SUB</span></p>
+
+<p class=Normal style='margin: 0cm 0cm .0001pt;text-indent:18pt'><span
+>&nbsp;</span></p>
+
+<p style='text-indent:18pt'>Идея данного
+    алгоритма в том, что используется дополнительный массив (<span>used</span>),
+    в котором хранится информация о том, какие целые числа из интервала 1..<i><span
+    >n</span></i> мы уже использовали при рекурсивном построении
+    перестановки. Рекурсия состоит в том, что для построения цепочки длины <span
+    >k</span>+1 из <i><span>n</span></i> чисел сначала строим
+    цепочку длины <span>k</span>.</p>
+
+<p style='text-indent:18pt'>Данная идея
+    успешно используется в следующем разделе, когда в задаче число вариантов
+    перебора очень велико и требуется их систематизировать.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перестановки рекурсией с массивом used: все перестановки чисел 1..n, O(n * n!) времени
+def build(n, used, current, result):
+    """Дописывает к current оставшиеся числа от 1 до n; полную перестановку сохраняет в result."""
+    if len(current) == n:
+        result.append(tuple(current))
+        return
+    for number in range(1, n + 1):
+        if used[number]:
+            continue
+        used[number] = True  # помечаем число как использованное
+        current.append(number)  # ставим его на очередное место
+        build(n, used, current, result)  # достраиваем перестановку дальше
+        current.pop()  # возврат
+        used[number] = False
+
+
+def permutations_rec(n):
+    """Список всех перестановок чисел 1..n в лексикографическом порядке."""
+    result = []
+    build(n, [False] * (n + 1), [], result)
+    return result
+
+
+if __name__ == "__main__":
+    for permutation in permutations_rec(3):
+        print(*permutation)
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перестановки рекурсией с массивом used: все перестановки чисел 1..n, O(n * n!) времени
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+using Permutation = std::vector&lt;int&gt;;
+
+// Дописывает к current оставшиеся числа от 1 до n; полную перестановку сохраняет в result
+void build(int n, std::vector&lt;bool&gt;&amp; used, Permutation&amp; current, std::vector&lt;Permutation&gt;&amp; result) {
+    if (static_cast&lt;int&gt;(current.size()) == n) {
+        result.push_back(current);
+        return;
+    }
+    for (int number = 1; number &lt;= n; ++number) {
+        if (used[number]) continue;
+        used[number] = true;     // помечаем число как использованное
+        current.push_back(number);  // ставим его на очередное место
+        build(n, used, current, result);  // достраиваем перестановку дальше
+        current.pop_back();      // возврат
+        used[number] = false;
+    }
+}
+
+// Все перестановки чисел 1..n в лексикографическом порядке
+std::vector&lt;Permutation&gt; permutationsRec(int n) {
+    std::vector&lt;Permutation&gt; result;
+    Permutation current;
+    std::vector&lt;bool&gt; used(n + 1, false);
+    build(n, used, current, result);
+    return result;
+}
+
+int main() {
+    for (const Permutation&amp; permutation : permutationsRec(3)) {
+        for (int value : permutation) std::printf("%d ", value);
+        std::printf("\n");
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перестановки рекурсией с массивом used: все перестановки чисел 1..n, O(n * n!) времени
+// Дописывает к current оставшиеся числа от 1 до n; полную перестановку сохраняет в result
+pub fn build(n: usize, used: &amp;mut Vec&lt;bool&gt;, current: &amp;mut Vec&lt;usize&gt;, result: &amp;mut Vec&lt;Vec&lt;usize&gt;&gt;) {
+    if current.len() == n {
+        result.push(current.clone());
+        return;
+    }
+    for number in 1..=n {
+        if used[number] {
+            continue;
+        }
+        used[number] = true; // помечаем число как использованное
+        current.push(number); // ставим его на очередное место
+        build(n, used, current, result); // достраиваем перестановку дальше
+        current.pop(); // возврат
+        used[number] = false;
+    }
+}
+
+// Все перестановки чисел 1..n в лексикографическом порядке
+pub fn permutations_rec(n: usize) -&gt; Vec&lt;Vec&lt;usize&gt;&gt; {
+    let mut result = Vec::new();
+    build(n, &amp;mut vec![false; n + 1], &amp;mut Vec::new(), &amp;mut result);
+    result
+}
+
+fn main() {
+    for permutation in permutations_rec(3) {
+        let line: Vec&lt;String&gt; = permutation.iter().map(|v| v.to_string()).collect();
+        println!("{}", line.join(" "));
+    }
+}
+</code></pre>
+
+<h2>2.3.2. Перебор с возвратом (backtracking)</h2>
+
+
+<p style='text-indent:18pt'>Любая задача,
+    к которой применим алгоритм перебора с возвратом (бектрекинг), может быть
+    описана в общем случае следующим образом: требуется построить к данной задаче
+    вектор решения (<span>a</span><sub>1</sub>, <span>a</span><sub>2</sub>,
+    …, <span>a<sub>n</sub></span>), удовлетворяющий множеству условий и
+    ограничений. Такой вектор строится покомпонентно слева направо. Предположим,
+    что уже найдены значения первых <span>k</span>-1 компонент, а выбор
+    следующей компоненты <span>a<sub>k</sub></span><sub><span
+    > </span></sub>зависит от некоторых ограничений и условий. Если
+    условия и ограничения выполнимы, то выбираем <span>a<sub>k</sub></span><sub><span
+    > </span></sub>и переходим к рассмотрению компоненты <span
+    >a<sub>k</sub></span><sub>+1</sub>, затем <sub> </sub><span
+    >a<sub>k</sub></span><sub>+2 </sub>и так далее, если же оказалось
+    невозможным выбрать компоненту <span>a<sub>k</sub></span>, то
+    необходимо вернуться к предыдущему этапу, выбросить (<span>k</span>-1)-й
+    элемент и выбрать другой <span>a<sub>k</sub></span><sub>-1</sub>,
+    перейдя после этого снова к выбору <span>k</span>-й компоненты.
+    Такой перебор может возвращать назад на несколько шагов,  вплоть до выбора
+    самой первой компоненты. </p>
+
+<p style='text-indent:18pt'>Решаемые
+    бектрекингом задачи, как правило, принадлежат одному из трех классов –
+    требуется найти либо произвольное из решений, либо перечислить все возможные
+    решения, либо найти решение оптимальное по заданному критерию [2].</p>
+
+<p style='text-indent:18pt'>Одной из
+    классических задач на бектрекинг является задача о рюкзаке.</p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:18pt'><cite>Пример 6.6</cite>.<strong>
+</strong>«<strong>Рюкзак».</strong></p>
+
+<p style='text-indent:18pt'>Имеется <i><span
+>m</span></i> различных предметов, известны веса предметов <i><span
+>p</span></i><sub>1</sub>, …, <i><span>p<sub>m</sub></span></i>
+    и их стоимости - <i><span>c</span></i><sub>1</sub>, …, <i><span
+    >c<sub>m</sub></span></i>. Определить, какие предметы надо положить в
+    рюкзак, чтобы общий вес не превышал <i><span>P</span></i>, а общая
+    стоимость была максимальна.</p>
+
+<p style='text-indent:18pt'>Предполагаем,
+    что входные данные считываются из файла данных <span>bag</span>.<span
+    >dat</span> по строкам:</p>
+
+<p style='text-indent:18pt'><span
+>m</span>                          {количество предметов}</p>
+
+<p style='text-indent:18pt'>P                           {максимальный
+    вес}</p>
+
+<p style='text-indent:18pt'><i><span
+>p</span></i><sub><span>i</span></sub>, <i><span
+>c</span></i><sub><span>i</span></sub>                      {вес
+    и стоимость <i><span>i</span></i>-го предмета, <i><span
+    >i</span></i> = 1,…<span>m</span>}</p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:18pt'><cite>Программа</cite><cite><span
+> (QBasic)</span></cite><span>:</span></p>
+
+<p style='text-indent:18pt'><span>DIM SHARED
+Items, BagSize, TotalCost, TotalWeight, MaxCost, MaxWeight</span></p>
+
+<p style='text-indent:18pt'><span>OPEN
+&quot;bag.dat&quot; FOR INPUT AS #1</span></p>
+
+<p style='text-indent:18pt'><span>INPUT</span>
+    #1, <span>Items</span>                                                            'Количество
+    предметов</p>
+
+<p class=Normal style='margin: 0cm 0cm .0001pt;text-indent:18pt'>INPUT
+    #1, BagSize                                                       'Вместимость
+    рюкзака</p>
+
+<p style='text-indent:18pt'><span>DIM SHARED
+Weight(1 TO Items), Cost(1 TO Items)          '</span>Вес и стоимость предметов</p>
+
+<p style='text-indent:18pt'><span>DIM SHARED
+Used(1 TO Items), MaxUsed(1 TO Items)     </span></p>
+
+<p style='text-indent:18pt'>'<span>Used</span>(<span
+>i</span>)=1, если предмет <span>i</span> использован и 0
+    в противном случае</p>
+
+<p>&nbsp;</p>
+
+<p class=Preformatted style='text-indent:18pt'><span>FOR</span> <span>i</span><span
+> = 1 </span><span>TO</span> <span>Items</span><span
+>                                         'Считываем
+из файла характеристики предметов</span></p>
+
+<p style='text-indent:1.0cm'><span>INPUT #1,
+Weight(i), Cost(i)</span></p>
+
+<p style='text-indent:18pt'><span>NEXT</span></p>
+
+<p style='text-indent:18pt'><span>CLOSE #1</span></p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:18pt'><span>MaxCost = 0:
+TotalCost = 0: TotalWeight = 0</span></p>
+
+<p style='text-indent:18pt'><span>CALL AddNew(0)</span></p>
+
+<p style='text-indent:18pt'><span>PRINT &quot;Max
+weight:&quot;; MaxWeight</span></p>
+
+<p style='text-indent:18pt'><span>PRINT &quot;Max
+cost:&quot;; MaxCost</span></p>
+
+<p style='text-indent:18pt'><span>PRINT
+&quot;Items in the bag:&quot;;</span></p>
+
+<p style='text-indent:18pt'><span>FOR i = 1 TO
+Items</span></p>
+
+<p style='text-indent:1.0cm'><span>IF MaxUsed(i) = 1
+THEN PRINT i;</span></p>
+
+<p style='text-indent:18pt'>NEXT</p>
+
+<p style='text-indent:18pt'>PRINT</p>
+
+<p style='text-indent:18pt'><span style='font-size:10.0pt'>&nbsp;</span></p>
+
+<p class=Normal style='margin: 0cm 0cm .0001pt;text-indent:18pt'>SUB
+    AddNew (Last)                  'Добавление в рюкзак очередного предмета</p>
+
+<p style='text-indent:1.0cm'>'Last - номер последнего предмета,
+    положенного в рюкзак</p>
+
+<p>&nbsp;</p>
+
+<p style='text-indent:1.0cm'>FOR i = Last+1 TO Items        'Пробуем
+    добавить преметы с номерами больше Last</p>
+
+<p style='text-indent:1.0cm'>'Если предмет i еще не в рюкзаке и
+    общий вес предметов не превысит вместимость</p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span
+>IF Used(i) = 0 AND TotalWeight + Weight(i) &lt;= BagSize THEN</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'>Used(i) = 1                                    'Тогда
+    добавляем в рюкзак предмет i</p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'>                                                      <span
+>'</span>Высчитываем получившуюся стоимость и вес</p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span
+>TotalCost = TotalCost + Cost(i): TotalWeight = TotalWeight +
+Weight(i)</span></p>
+
+<p style='margin-left:3.0cm'>IF TotalCost &gt; MaxCost THEN   'Если
+    получившаяся стоимость больше ‘ранее найденной максимальной стоимости, то
+    запоминаем новый набор ‘предметов</p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span
+>FOR j = 1 TO Items</span></p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'><span>MaxUsed(j) = Used(j)</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'>NEXT</p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'>                                         'и
+    обновляем значение максимальной стоимости</p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><span>MaxCost = TotalCost: MaxWeight = TotalWeight</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>END IF</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'>CALL AddNew(i)              <span>матриваем
+    рюкзак с новым предметом</p>
+
+<p style='margin-left:4.0cm;text-indent:1.0cm'>            'Затем
+    убираем предмет i из рюкзака и переходим к новому i</p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>TotalCost = TotalCost - Cost(i): TotalWeight = TotalWeight -
+Weight(i)</span></p>
+
+<p styl<span>2.0cm;text-indent:1.0cm'><span>Used(i) = 0</span></p>
+
+                    <p style='margin-left:1.0cm;text-indent:1.0cm'<span>>END IF</span></p>
+
+                    <p style='text-indent:1.0cm'><span>NEXT</span></p>
+
+<p><span>END SUB</span></p>
+
+<p>&nbsp;</p>
+
+<p>Программная
+    реализация метода перебора с возвратом заключается в том, что на каждом шаге,
+    перед рассмотрением очередного варианта, запоминается текущее<span>перебора, а после анализа этого варианта – сохраненные значения
+    восстанавливаются и<span>ри рассмотрении следующего. По окончании
+    анализа некоторого варианта, данные, записанные последними, восстанавливаются в
+    первую очередь, поэтому для хранения состояний удобно использовать структуры
+    данных на основе стека. По этой же причине перебор с возвратом часто
+    орган<span>рекурсивной процедуры.</p>
+
+<p>В данной
+    задаче под «состоянием перебора» подразумева<span>собранных в рюкзак
+    предметов (<span>Used</span>), их суммарная стоимость (<span>TotalCost</span>) и общий вес (<span>TotalWeight</span>).
+    Алгоритм перебора представлен рекурсивной процедурой, в которую в качестве
+    параметра (<span>Last</span>) передается порядковый номер последнего
+    добавленного в рюкзак пре<span> самом начале, пока рюкзак пустой). 
+    Процедура перебирает предметы с номерами, большими <span>Last</span>,
+    и, если  <i><span>i</spa<span>ет может поместиться в рюкзак
+    (т.е. его вес <span>Weight</span>(<span>i</spa<span>с текущим весом рюкзака <span>TotalWeight</span> не превысит
+    максимальную вместимость <span>BagSize</span>), то выполняет над ним
+    следующие операции:</p>
+
+<p style='text-align:left;text-indent:18pt'>1.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>«помещает»
+    <i><span>i</span></i>-ый предмет в рюкзак, т.е. помечает в массиве <span>Used</span> этот предмет как
+    использованный;</p>
+
+<p style='text-align:left;text-indent:18pt'>2.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>пересчитывает
+    общий вес и суммарную стоимость предметов рюкзака с учетом добавленного <i><span>i</span></i>-го предмета;</p>
+
+<p style='text-align:left;text-indent:18pt'>3.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>в
+    случае, когда общая стоимость оказалась больше ранее найденной максимальной
+    стоимости предметов, текущий вариант заполнения рюкзака зап<span>аилучший;</p>
+
+<p style='text-align:left;text-indent:18pt'>4.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>эта
+    же процедура вызывается рекурсивно для рассмотрения оставшихся предметов с
+    новым значением параметра <span>Last</span>, равным <i><span>i</span></i>;</p>
+
+<p style='text-align:left;text-indent:18pt'>5.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>по
+    возвращении из рекурсивной процедуры <i><span>i</span></i>-ый
+    предмет «вынимается» из рюкзака (помечается как неиспользованный), и снова
+    пересчитывается общая стоимость и вес предметов (восстанавливаются прежние
+    значения, не учитывающие <i><span>i</span></i>-ый предмет);</p>
+
+<p style='text-align:left;text-indent:18pt'>6.<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>продолжается
+    перебор вариа<span> следующего, (<i><span>i</span></i>+1)<cite>-го</cite>
+    предмета.</p>
+
+<p>&nbsp;</p>
+
+<p>После
+    завершения работы алгоритма перебора достаточно вывести на печать запомненный
+    наилучший вариант заполнения рюкзака – это и будет являться ответом<span>>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+def knapsack(weights, costs, capacity):
+    """Возвращает (максимальная стоимость, номера предметов) для рюкзака вместимостью capacity."""
+    best = (0, [])
+    chosen = []  # предметы, которые сейчас лежат в рюкзаке
+
+    def search(first, weight, cost):
+        nonlocal best
+        if cost &gt; best[0]:
+            best = (cost, list(chosen))
+        for item in range(first, len(weights)):
+            # Отсечение: предмет не помещается в рюкзак
+            if weight + weights[item] &gt; capacity:
+                continue
+            chosen.append(item)  # кладем предмет в рюкзак
+            search(item + 1, weight + weights[item], cost + costs[item])
+            chosen.pop()  # возврат: вынимаем предмет и пробуем следующий
+
+    search(0, 0, 0)
+    return best
+
+
+if __name__ == "__main__":
+    cost, items = knapsack([3, 4, 2, 5, 9], [10, 4, 7, 8, 13], 10)
+    print("Максимальная стоимость:", cost)
+    print("Номера предметов:", *[item + 1 for item in items])
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+struct Problem {
+    std::vector&lt;long long&gt; weights;
+    std::vector&lt;long long&gt; costs;
+    long long capacity;
+};
+
+struct Bag {
+    long long cost = 0;
+    std::vector&lt;int&gt; items;  // номера предметов (от 0), положенных в рюкзак
+};
+
+// Рекурсивно перебирает наборы предметов с номерами от first; текущий набор лежит в chosen
+void search(const Problem&amp; problem, int first, long long weight, long long cost,
+            std::vector&lt;int&gt;&amp; chosen, Bag&amp; best) {
+    if (cost &gt; best.cost) best = {cost, chosen};
+    const int count = static_cast&lt;int&gt;(problem.weights.size());
+    for (int item = first; item &lt; count; ++item) {
+        // Отсечение: предмет не помещается в рюкзак
+        if (weight + problem.weights[item] &gt; problem.capacity) continue;
+        chosen.push_back(item);  // кладем предмет
+        search(problem, item + 1, weight + problem.weights[item], cost + problem.costs[item],
+               chosen, best);
+        chosen.pop_back();  // возврат: вынимаем предмет и пробуем следующий
+    }
+}
+
+Bag knapsack(const Problem&amp; problem) {
+    Bag best;
+    std::vector&lt;int&gt; chosen;
+    search(problem, 0, 0, 0, chosen, best);
+    return best;
+}
+
+int main() {
+    const Problem problem{{3, 4, 2, 5, 9}, {10, 4, 7, 8, 13}, 10};
+    const Bag best = knapsack(problem);
+    std::printf("Максимальная стоимость: %lld\n", best.cost);
+    std::printf("Номера предметов:");
+    for (int item : best.items) std::printf(" %d", item + 1);
+    std::printf("\n");
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перебор с возвратом (backtracking): задача о рюкзаке, O(2^m) вариантов, отсечение по весу
+pub struct Problem {
+    pub weights: Vec&lt;u64&gt;,
+    pub costs: Vec&lt;u64&gt;,
+    pub capacity: u64,
+}
+
+pub struct Bag {
+    pub cost: u64,
+    pub items: Vec&lt;usize&gt;, // номера предметов (от 0), положенных в рюкзак
+}
+
+// Рекурсивно перебирает наборы предметов с номерами от first; текущий набор лежит в chosen
+pub fn search(
+    problem: &amp;Problem,
+    first: usize,
+    weight: u64,
+    cost: u64,
+    chosen: &amp;mut Vec&lt;usize&gt;,
+    best: &amp;mut Bag,
+) {
+    if cost &gt; best.cost {
+        *best = Bag { cost, items: chosen.clone() };
+    }
+    for item in first..problem.weights.len() {
+        let new_weight = weight + problem.weights[item];
+        // Отсечение: предмет не помещается в рюкзак
+        if new_weight &gt; problem.capacity {
+            continue;
+        }
+        chosen.push(item); // кладем предмет
+        search(problem, item + 1, new_weight, cost + problem.costs[item], chosen, best);
+        chosen.pop(); // возврат: вынимаем предмет и пробуем следующий
+    }
+}
+
+pub fn knapsack(problem: &amp;Problem) -&gt; Bag {
+    let mut best = Bag { cost: 0, items: Vec::new() };
+    search(problem, 0, 0, 0, &amp;mut Vec::new(), &amp;mut best);
+    best
+}
+
+fn main() {
+    let problem = Problem {
+        weights: vec![3, 4, 2, 5, 9],
+        costs: vec![10, 4, 7, 8, 13],
+        capacity: 10,
+    };
+    let best = knapsack(&amp;problem);
+    println!("Максимальная стоимость: {}", best.cost);
+    let numbers: Vec&lt;String&gt; = best.items.iter().map(|item| (item + 1).to_string()).collect();
+    println!("Номера предметов: {}", numbers.join(" "));
+}
+</code></pre>
+
+<p><cite>Пример 6.7</cite>.<strong>
+</strong>Обойти шахматную доску ходом коня, побывав в каждой клетке по одному разу.</p>
+
+<p>&nbsp;</p>
+
+<p><cite>Программа</cite><cite><span> (QBasic)</span></cite><span>:</span></p>
+
+<p><span>DECLARE SUB pr
+(y, x)</span></p>
+
+<p><span>CLEAR</span><span> , , 20000                                    'Увеличим
+стандартный размер стека  </span></p>
+
+<p><span>DIM</span> <span>SHARED</span> $N$<span>, </s<span>span
+        >, </span><span>k</span></p>
+
+<p><span>CLS</span></p>
+
+<p><span>INPUT</span><span> &quot;</span>$N$<span>,</span><span>m</span><span>=&quot;, </span>$N$<span>, </span><span>m</span><span>                   'Задать
+размер доски </span>$N$<span
+        style='font-size:12.0pt;'>&acute;</span><span>m</span><span> клеток</span></p>
+
+<p><span>DIM SHARED a(n,
+m)</span></p>
+
+<p><span>CALL</span> <span>pr</span><span>(1, 1)                             'Начнем
+обход с клетки (1,1)</span></p>
+
+<p><span>PRINT</span><span> &quot;</span><span>no</span><span>&quot;                                            'В
+случае, когда обход всех клеток невозможен</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span>SUB</span> <span>pr</span><span> (</span><span>y</span><span
+ <span>n><span>x</span><span>)                               'Возможность
+хода конем в клетку (</span><span style='font-size:12.0pt;
+font-family:"","serif"'>x</span<span>ont-size:12.0pt;
+font-family:"","serif"'>,</span><span>y</span><span>)</span></p>
+
+<p style='text-indent:1.0cm'><span>IF x &lt; 1 OR x
+&gt; m OR y &lt; 1 OR y &gt; n THEN EXI<span>><span style='font-size:
+12.0pt;<span>"serif"'>Выход</span><span> </span><span>за</span><span> </span><span>пределы</span><span
+        <span>        >доски</span></p>
+
+<p style='<span>cm'><span>IF</span> <span>k</sp<span>  > = </span>$N$<span
+      <span>pan>m</span> <span>THEN</span><s<span>                'Удачный
+обход всех клеток, печать результата обхода</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>FOR i
+= 1 TO n</span><<span>margin-left:1.0cm;text-indent:1.0cm'><span>FOR j
+= 1 TO m</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>PRINT</span>
+    <span>USING</span><<span>&quot;####&quot;; </span><span style='font-size:12.0pt;font-family:
+"","serif"'>a</span><span style='font-size:12.0pt;font-family:
+<span>span><span style=' font-size:12.0pt;
+                          fo<span>erif"'>i</span><span style='font-size:12.0pt;
+font-family:"","serif"'>, </span><span>j</span><span>);     'каждой
+клетке сопоставлен номер шага</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>NEXT
+j</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.<span>T</span></p>
+
+<p style=' margin-l<span>indent:1.0cm'><span>NEXT
+i</span<span>='margin-left:1.0cm;text-indent:1.0cm'><span>END</span></p>
+
+                        <p style='text-indent:1.0cm'><span>END</span> <span>IF</span></p>
+
+<p style='text-indent:1.0cm'><span>IF</span> <span>a</span><span>(</span><span>y</spa
+    <span> >, </span><span>x</span><span>) = 0 </span><span>THEN</span><span>                'на
+данном поле еще не были</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>k</<span>    > = </span><s<span>an
+        > + 1  <span>        'очередно<span>pan></p>
+
+<p style='mar<span>text-indent:1.0cm<span>><span>(</span><span>y</span><span>, </span><span>x</span><span
+    <span>><span>k</span><span>   <span>                 ' сопоставим
+   пройденной клетке номе<span>p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>'попытаемся,
+если возможно, из данной клетки шагнуть ходом коня в другую </span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>'если не удачно,
+то в следующую по порядку </span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y + 2<span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y - 1, x + 2)</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y + 1, x - 2)</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y - 1, x - 2)</span></p>
+
+<p style='margin-left:1.0cm;text-in<span>an>CALL
+pr(y + 1, x + 2)</span></p>
+
+<p style=' margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y - 2, x + 1)</span></p>
+
+                            <p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y + 2, x + 1)</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+pr(y - 2, x - 1)</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>'Если все
+попытки шагнуть из клетки(</span><span style='font-size:12.0pt;
+font-family:"","serif"'>x</span><span styl<span>.0pt;
+font-family:"","serif"'>,<span>/span><span>) в другие <span>/span></p>
+
+<p style='margin-left:1.0cm<span>0cm'><span>'освобождаем
+клетку и возвращаемся к предыдущему шагу</span></p>
+
+<p style='margin-left:1.0cm;text-indent:<span>= k
+- 1</span></p>
+
+<p style=' mar<span>text-indent:1.0cm'><span>a(y,
+x) = 0</span></p>
+
+                                <p style='text-indent:1.0cm'><span>END IF</span></p>
+
+<p><s<span>an></p>
+
+<p>&nbsp;</p>
+
+<p>В задачах на
+    бектрекинг используются рекурсивные процедуры для ф<span>иантов
+    перебора, поэтому следует позаботиться об увеличении размера стека (с помощью
+    оператора <span>CLEAR</span>), если возможен вариан<span>  длинный (по количеству вложенных вызовов рекурсивной процедуры).</p>
+
+        <p>Отметим, что
+            по быстродействию програм<span><span>Qbasic</span>
+    значительно уступает аналогичной программе, написанной на языке <span>Pascal</span>. В частности, в данной задаче уже для реальной
+    шахматной доски (8<span style=''>&acute;</span>8) перебор
+    занимает достаточно много времени, поэтому рекомендуется  ограничивать
+    бектрекинг. Можно и даже нужно применять симметрию, зеркальное отображение,
+    выполняя задание для половины или меньшей части шахматной доски (переход коня
+    на другую выделенную часть доски учитывается заданием начального поля).</p>
+
+<div style="float:left;margin:10px 10px 0 0;"><img loading="lazy" decoding="async" src="Info2.3.0/img/img.png" width="231" height="188">
+
+    <p class="title">Рис.</p>
+</div>
+<p>Разбивая доску (рис. ) на три части: (5<span
+        style='font-size:<span>ily:Symbol'>&acute;</span><span>4), (5</span><span
+        style='font-size:12.0pt;'>&acute;</span><span>4), (8</span><span
+        style='font-size:12.0pt;<span>bol'>&acute;</span><span>3), решаем
+задачу последовательно для каждой части доски с н<span>ениями </span><span>H</span><sub><span>1</span></sub><span>(1,1), </span><span>H</span><sub><span>2</span></sub><span>(3,1), </span><span>H</span><sub><span>3</span></sub><span>(3,1),
+соответственно получим обход коня с конечными полями в К<sub>1</sub>, К<sub>2</sub>,
+К<sub>3</sub>, а в целом – обход всей доски за приемлемое время расчета. Данный
+пример разбиения задачи на ряд подзадач (каждая для своей подобласти данных)
+следует рассматривать как один из принципов упрощения сложной задачи.</span></p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Перебор с возвратом и эвристика Варнсдорфа: обход коня на доске n x n, O(8^(n*n)) в худшем случае
+MOVES = [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
+
+
+def free_moves(board, row, col):
+    """Свободные клетки, куда конь может прыгнуть из клетки (row, col)."""
+    n = len(board)
+    cells = [(row + dr, col + dc) for dr, dc in MOVES]
+    return [(r, c) for r, c in cells if 0 &lt;= r &lt; n and 0 &lt;= c &lt; n and board[r][c] == 0]
+
+
+def search(board, row, col, number):
+    """Ставит номер хода на клетку (row, col) и продолжает обход; True, если обход найден."""
+    board[row][col] = number
+    if number == len(board) ** 2:
+        return True
+    # эвристика Варнсдорфа: сначала идем в клетку, из которой меньше всего ходов
+    for r, c in sorted(free_moves(board, row, col), key=lambda cell: len(free_moves(board, *cell))):
+        if search(board, r, c, number + 1):
+            return True
+    board[row][col] = 0  # тупик: убираем номер и возвращаемся назад
+    return False
+
+
+def knight_tour(n, start_row, start_col):
+    """Номера ходов 1..n*n на доске n x n или None, если обхода из стартовой клетки нет."""
+    if not (0 &lt;= start_row &lt; n and 0 &lt;= start_col &lt; n):
+        return None
+    board = [[0] * n for _ in range(n)]
+    if search(board, start_row, start_col, 1):
+        return board
+    return None
+
+
+def main():
+    board = knight_tour(8, 0, 0)
+    for row in board:
+        print(" ".join(f"{x:2d}" for x in row))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Перебор с возвратом и эвристика Варнсдорфа: обход коня на доске n x n, O(8^(n*n)) в худшем случае
+#include &lt;algorithm&gt;
+#include &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Board = std::vector&lt;std::vector&lt;int&gt;&gt;;  // номера ходов, 0 - клетка свободна
+using Cell = std::pair&lt;int, int&gt;;
+
+const int DR[8] = {1, 2, 2, 1, -1, -2, -2, -1};  // ходы коня (порядок такой же, как в Python)
+const int DC[8] = {2, 1, -1, -2, -2, -1, 1, 2};
+
+// Свободные клетки, куда конь может прыгнуть из клетки (row, col)
+std::vector&lt;Cell&gt; free_moves(const Board&amp; board, int row, int col) {
+    int n = static_cast&lt;int&gt;(board.size());
+    std::vector&lt;Cell&gt; cells;
+    for (int m = 0; m &lt; 8; ++m) {
+        int r = row + DR[m], c = col + DC[m];
+        if (r &gt;= 0 &amp;&amp; r &lt; n &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; n &amp;&amp; board[r][c] == 0) cells.push_back({r, c});
+    }
+    return cells;
+}
+
+// Ставит номер хода на клетку (row, col) и продолжает обход; true, если обход найден
+bool search(Board&amp; board, int row, int col, int number) {
+    board[row][col] = number;
+    int n = static_cast&lt;int&gt;(board.size());
+    if (number == n * n) return true;
+    std::vector&lt;Cell&gt; cells = free_moves(board, row, col);
+    // эвристика Варнсдорфа: сначала идем в клетку, из которой меньше всего ходов
+    std::stable_sort(cells.begin(), cells.end(), [&amp;board](Cell a, Cell b) {
+        return free_moves(board, a.first, a.second).size() &lt; free_moves(board, b.first, b.second).size();
+    });
+    for (Cell cell : cells) {
+        if (search(board, cell.first, cell.second, number + 1)) return true;
+    }
+    board[row][col] = 0;  // тупик: убираем номер и возвращаемся назад
+    return false;
+}
+
+// Номера ходов 1..n*n на доске n x n или nullopt, если обхода из стартовой клетки нет
+std::optional&lt;Board&gt; knight_tour(int n, int start_row, int start_col) {
+    if (start_row &lt; 0 || start_row &gt;= n || start_col &lt; 0 || start_col &gt;= n) return std::nullopt;
+    Board board(n, std::vector&lt;int&gt;(n, 0));
+    if (search(board, start_row, start_col, 1)) return board;
+    return std::nullopt;
+}
+
+int main() {
+    std::optional&lt;Board&gt; board = knight_tour(8, 0, 0);
+    if (!board) return 0;
+    for (const auto&amp; row : *board) {
+        for (int x : row) std::cout &lt;&lt; std::setw(3) &lt;&lt; x;
+        std::cout &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Перебор с возвратом и эвристика Варнсдорфа: обход коня на доске n x n, O(8^(n*n)) в худшем случае
+pub const MOVES: [(i32, i32); 8] = [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)];
+
+// Свободные клетки, куда конь может прыгнуть из клетки (row, col)
+fn free_moves(board: &amp;[Vec&lt;u32&gt;], row: usize, col: usize) -&gt; Vec&lt;(usize, usize)&gt; {
+    let n = board.len() as i32;
+    MOVES
+        .iter()
+        .map(|&amp;(dr, dc)| (row as i32 + dr, col as i32 + dc))
+        .filter(|&amp;(r, c)| r &gt;= 0 &amp;&amp; r &lt; n &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; n &amp;&amp; board[r as usize][c as usize] == 0)
+        .map(|(r, c)| (r as usize, c as usize))
+        .collect()
+}
+
+// Ставит номер хода на клетку (row, col) и продолжает обход; true, если обход найден
+fn search(board: &amp;mut Vec&lt;Vec&lt;u32&gt;&gt;, row: usize, col: usize, number: u32) -&gt; bool {
+    board[row][col] = number;
+    let n = board.len();
+    if number as usize == n * n {
+        return true;
+    }
+    let view: &amp;Vec&lt;Vec&lt;u32&gt;&gt; = board;
+    let mut cells = free_moves(view, row, col);
+    // эвристика Варнсдорфа: сначала идем в клетку, из которой меньше всего ходов
+    cells.sort_by_key(|&amp;(r, c)| free_moves(view, r, c).len());
+    for (r, c) in cells {
+        if search(board, r, c, number + 1) {
+            return true;
+        }
+    }
+    board[row][col] = 0; // тупик: убираем номер и возвращаемся назад
+    false
+}
+
+// Номера ходов 1..n*n на доске n x n или None, если обхода из стартовой клетки нет
+pub fn knight_tour(n: usize, start_row: usize, start_col: usize) -&gt; Option&lt;Vec&lt;Vec&lt;u32&gt;&gt;&gt; {
+    if start_row &gt;= n || start_col &gt;= n {
+        return None;
+    }
+    let mut board = vec![vec![0u32; n]; n];
+    if search(&amp;mut board, start_row, start_col, 1) {
+        Some(board)
+    } else {
+        None
+    }
+}
+
+fn main() {
+    match knight_tour(8, 0, 0) {
+        None =&gt; println!("Обхода нет"),
+        Some(board) =&gt; {
+            for row in board {
+                let line: Vec&lt;String&gt; = row.iter().map(|x| format!("{:2}", x)).collect();
+                println!("{}", line.join(" "));
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>Освоены
+    алгоритмы и приемы программирования огромного класса олимпиадных задач - задач
+    перебора. Эти алгоритмы послужат нам в следующем разделе путеводной нитью,
+    указывающей выход из лабиринта вариантов.</p>
+
+<h2>2.3.3. Лабиринты</h2>
+
+<p>Практи<span>лимпиада областного и Российского уровня не обходится без
+    использования какого-либо алгоритма на графах. Замечательно эта тема
+    рассматривается в книге [5], в журнале [6]. Там вводятся понятие графа через
+    вершины и ребра, понятие ориентированных или неориентированных графов,
+    разбираются методы представления графов в виде матрицы смежности, матрицы инциденций,
+    списка связей. Разбираются основные алгоритмы на графах:</p>
+
+<p><span
+        style='font-size:14.0pt;'>·<span style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>поиск в глубину (иными словами “бектрекинг” или перебор с
+    возвратом);</p>
+
+<p><span
+        style='font-size:14.0pt;font-family:S<span>tyle=' font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>поиск в ширину (или метод заливки)<span>='text-indent:18pt'><span
+                                style='font-size:14.0pt;'>·<span style='fo<span>bsp;&nbsp;&nbsp;&nbsp;
+</span></span>Алгоритм Дейкстры для поиска кратчайших путей в графе из заданной
+    вершины во<span></p>
+
+<p style=' text-in<span>n
+        style='font-size:14.0pt;font-fam<span>pan style='font:7.0pt "<span>&nbsp;&nbsp;
+</span></span>алгоритм Флойда<span>тчайших путей в графе м<span>парами вершин.</p>
+
+                                <p>&nbsp;</p>
+
+<p>Ограничимся
+    разбором задач, являющихся по своей сути, хотя и обширным, но все же частным
+    случаем данного класса задач – задачами на лабиринты.</p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span>Для работы с
+лабиринтами нужны сами лабиринты. Приведем алгоритм генерации простейшего
+лабиринта.</span></p>
+
+<p><span>На плоскости
+чертится прямоугольник, задающий границы лабиринта. Внутри прямоугольника
+выбирается точка (координаты которой задаются случайным образом), не лежащая на
+ранее построенных границах. От точки в случайном направлении (вправо, влево,
+вверх, вниз) рисуется линия границы до пересечения с какой-либо другой линией.
+Чтобы проходы в лабиринте были одинаковой ширины, координаты точки задаются с
+заранее выбранным шагом (например, на целочисленной сетке). Построение
+лабиринта прекращается по нажатию клавиши &lt;ESC&gt; или когда выбраны все
+допустимые точки. Такой алгоритм построения не дает циклических путей в
+лабиринте и, следовательно, в нем всегда можно найти выход. На рис. приведен вариант
+сгенерированного лабиринта, в котором необходимо отыскать путь, например, из
+левого верхнего поля – в правое нижнее. </span></p>
+
+<p>&nbsp;</p>
+
+<p><cite><span style='font-size:
+12.0pt;font-family:"","serif"'>Пример 7.1.</span></cite><span> Построить
+лабиринт, используя приведенный выше алгоритм.</span></p>
+
+<p>&nbsp;</p>
+
+<p><cite><span style='font-size:
+12.0pt;font-family:"","serif"'>Программа</span></cite><cite><span>
+(QBasic)</span></cite><span>:</span></p>
+
+<p><span>SCREEN 12</span></p>
+
+<p><span>RANDOMIZE TIMER</span></p>
+
+<p><span>DIM SHARED x1,
+x2, y1, y2, h</span></p>
+
+<p><span>DIM SHARED ix,
+iy</span></p>
+
+<p><span>x1 = 100: y1 =
+100</span></p>
+
+<p><span>x</span><span>2 = 500: </span><span>y</span><span>2 = 420</span></p>
+
+<p>
+    <span>LINE</span><span> (</span><span>x</span><span>1, </span><span>y</span><span>1)-(</span><span>x</span><span
+    <span>pan>y</span><span>2), , </span><span>B</span><span>                                'очертим
+границы лабиринта</span></p>
+
+<p styl<span>18pt'>
+    <span>h = 20                                                                             '</span><span>шаг</span><span> </span><span>сетки</span></p>
+
+                                    <p><span>DO</span></p>
+
+<p style='text-indent:1.0cm'><span>i = INT(RND *
+20): j = INT(RND * 16)</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>'i и j - номера линий на плоскости, по
+которым строятся стены</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>'        лабиринта, т.о. учитывается
+шаг    </span></p>
+
+<p style='text-indent:1.0cm'><span>x</span><span> = </span><span>x</span><span>1 + </span><span>i</span><span> * </span><span>h</span>
+</p>
+
+<p style='text-indent:1.0cm'><span>y</span><span> = </span><span>y</span><span>1 + </span><span>j</span><span> * </span><span>h</span>
+</p>
+
+<p style='text-ind<span>n>IF</span> <span>POINT</span><span>(</span><span>x</span><span>, </span><span>y</span><span>) &lt;&gt; 15 </span><span>THEN</span><span>                         '
+   нашли
+   случайную точку не на стене</span></p>
+
+                                <p style='margin-left:1.0cm;text-indent:1.0cm'><span>PSET
+(x, y)</span></p>
+
+<div style="float:right;margin-right:40px;"><img loading="lazy" decoding="async" src="Info2.3.0/img/img2.png">
+
+    <p class="title">Рис.</p>
+</div>
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span style='font-size:
+12.0pt;font-family:"","serif"'>napr = INT(RND * 4 + 1)</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><<span>E napr</span></p>
+
+<p style='margin-lef<span>dent:1.0cm'><span>CASE
+1</span></p>
+
+<p style='margin-left:3.0cm;text-inde<span>>ix =
+1: iy = 0</span></p>
+
+<p s<span>ft:2.0cm;text-indent:1.0cm'><span<span>/p>
+
+<p style='margin-left:3.0cm;t<span>m'><span>ix =
+0: iy = 1</span></p<span>rgin-left:2.0cm;text-indent:1.0cm'><<span>an></p>
+
+                                    <p style='margin-left:3.0cm;text-indent:1.0cm'><span>ix =
+-1: iy = 0</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>CASE
+4</span></p>
+
+<p style='margin-left:3.0cm;text-indent:1.0cm'><<span> = -1</span></p>
+
+<<span>-left:1.0cm;text-<span>span>END
+SELECT</span></p>
+
+                                        <p style='margin-left:1.0cm;text-indent:1.0cm'><span>CALL
+r(x, y)</span></p>
+
+<p style='text-indent:1.0cm'><span>END IF</span></p>
+
+<p><span>LOOP</span><span>
+UNTIL INKEY$ = CHR$(27)</span></p>
+
+<p><span>SUB</span>
+    <span>r</span><span> (</span><span>x</span><span>, </span><span>y</span><span>)</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif<span>тся от текущей точки с
+заданным ш<span>
+
+<p style=' text-indent:1.0cm'>
+    <sp<span>size:12.0pt;
+font-family:"","serif"'>'оператор POINT(X,Y)определяет цвет
+точки, т.<span>an></p>
+
+<p style='text-indent:1.<span>span></p>
+
+<p style=' margin-left:1<span>t:1.0cm'><span>x = x
++ ix * h</span></p>
+
+                                            <p style='margin-left:1.0cm;text-indent:1.0cm'><span>y = y
++<span>/p>
+
+<p style='margin-left:1.0c<span>.0cm'><span>IF
+POINT(x, y) &lt;&<span>E -(x, y) ELSE LINE -(x, y): EXIT DO</span></p><span>t-indent:1.0cm'><span>LOOP</span></p>
+
+                                                <p><span>END</span> <span>SUB</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span>Преобразуйте
+алгоритм для построения лабиринта на квадратной сетке, где квадрат – есть часть
+стены (1) или коридора (0). Выведите матрицу лабиринта в файл, который можно
+использовать далее в задачах.</span></p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Генерация лабиринта случайными стенами: O(H*W) времени на все точки, H и W - нечетные размеры сетки
+import random
+
+DIRECTIONS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+
+def make_maze(height, width, seed):
+    """Лабиринт: 1 - стена, 0 - коридор. Стены растут от случайных точек с четными координатами."""
+    rng = random.Random(seed)
+    grid = [[1 if y in (0, height - 1) or x in (0, width - 1) else 0 for x in range(width)]
+            for y in range(height)]
+    points = [(y, x) for y in range(2, height - 1, 2) for x in range(2, width - 1, 2)]
+    rng.shuffle(points)  # точки выбираем в случайном порядке
+    for row, col in points:
+        if grid[row][col] == 1:  # точка уже лежит на стене
+            continue
+        dy, dx = rng.choice(DIRECTIONS)
+        grid[row][col] = 1
+        r, c = row + dy, col + dx
+        while grid[r][c] == 0:  # стена растет, пока не упрется в другую стену
+            grid[r][c] = 1
+            r, c = r + dy, c + dx
+    return grid
+
+
+def main():
+    for row in make_maze(9, 19, 7):
+        print("".join(map(str, row)))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Генерация лабиринта случайными стенами: O(H*W) времени на все точки, H и W - нечетные размеры сетки
+// Результат: 1 - стена, 0 - коридор
+#include &lt;iostream&gt;
+#include &lt;random&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Grid = std::vector&lt;std::vector&lt;int&gt;&gt;;
+
+const int DR[4] = {0, 1, 0, -1};
+const int DC[4] = {1, 0, -1, 0};
+
+Grid make_maze(int height, int width, unsigned seed) {
+    std::mt19937 rng(seed);
+    Grid grid(height, std::vector&lt;int&gt;(width, 0));
+    for (int y = 0; y &lt; height; ++y) {
+        for (int x = 0; x &lt; width; ++x) {
+            if (y == 0 || y == height - 1 || x == 0 || x == width - 1) grid[y][x] = 1;  // рамка
+        }
+    }
+    // точки с четными координатами внутри рамки
+    std::vector&lt;std::pair&lt;int, int&gt;&gt; points;
+    for (int y = 2; y &lt; height - 1; y += 2) {
+        for (int x = 2; x &lt; width - 1; x += 2) points.push_back({y, x});
+    }
+    // перемешивание Фишера - Йетса: точки выбираются в случайном порядке
+    for (size_t i = points.size(); i &gt; 1; --i) {
+        std::swap(points[i - 1], points[rng() % i]);
+    }
+    for (auto [row, col] : points) {
+        if (grid[row][col] == 1) continue;  // точка уже лежит на стене
+        int m = static_cast&lt;int&gt;(rng() % 4);
+        grid[row][col] = 1;
+        int r = row + DR[m], c = col + DC[m];
+        while (grid[r][c] == 0) {  // стена растет, пока не упрется в другую стену
+            grid[r][c] = 1;
+            r += DR[m];
+            c += DC[m];
+        }
+    }
+    return grid;
+}
+
+int main() {
+    for (const auto&amp; row : make_maze(9, 19, 7)) {
+        for (int value : row) std::cout &lt;&lt; value;
+        std::cout &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Генерация лабиринта случайными стенами: O(H*W) времени на все точки, H и W - нечетные размеры сетки
+// Результат: 1 - стена, 0 - коридор. Случайные числа берутся из простого генератора (LCG).
+const DR: [i32; 4] = [0, 1, 0, -1];
+const DC: [i32; 4] = [1, 0, -1, 0];
+
+// Случайное число от 0 до k-1
+fn below(state: &amp;mut u64, k: usize) -&gt; usize {
+    *state = state
+        .wrapping_mul(6364136223846793005)
+        .wrapping_add(1442695040888963407);
+    ((*state &gt;&gt; 33) % k as u64) as usize
+}
+
+pub fn make_maze(height: usize, width: usize, seed: u64) -&gt; Vec&lt;Vec&lt;u8&gt;&gt; {
+    let mut state = seed;
+    let mut grid = vec![vec![0u8; width]; height];
+    for y in 0..height {
+        for x in 0..width {
+            if y == 0 || y == height - 1 || x == 0 || x == width - 1 {
+                grid[y][x] = 1; // рамка
+            }
+        }
+    }
+    // точки с четными координатами внутри рамки
+    let mut points = Vec::new();
+    for y in (2..height.saturating_sub(1)).step_by(2) {
+        for x in (2..width.saturating_sub(1)).step_by(2) {
+            points.push((y, x));
+        }
+    }
+    // перемешивание Фишера - Йетса: точки выбираются в случайном порядке
+    for i in (1..points.len()).rev() {
+        let j = below(&amp;mut state, i + 1);
+        points.swap(i, j);
+    }
+    for (row, col) in points {
+        if grid[row][col] == 1 {
+            continue; // точка уже лежит на стене
+        }
+        let m = below(&amp;mut state, 4);
+        grid[row][col] = 1;
+        let mut r = row as i32 + DR[m];
+        let mut c = col as i32 + DC[m];
+        while grid[r as usize][c as usize] == 0 {
+            // стена растет, пока не упрется в другую стену
+            grid[r as usize][c as usize] = 1;
+            r += DR[m];
+            c += DC[m];
+        }
+    }
+    grid
+}
+
+fn main() {
+    for row in make_maze(9, 19, 7) {
+        let line: String = row.iter().map(|&amp;v| if v == 1 { '1' } else { '0' }).collect();
+        println!("{}", line);
+    }
+}
+</code></pre>
+
+<p><cite>Пример 7.2</cite>.<strong>
+</strong>Лабиринт состоит из квадратных клеток и задается двумерным массивом <span>A</span> размерности 20 на 20, в
+    котором если <span>A</span>[<span>i</span>, <span>j</span>]=0, то клетка [<span>i</span>,
+    <span>j</span>] проходима. Если <span>A</span>[<span>i</span>, <span>j</span>]=1, то клетка [<span>i</span>,
+    <span>j</span>] непроходима.</p>
+
+<p>Начальное
+    положение путника задается в проходимой клетке [<span>k</span>, <span>m</span>]. Путник может перемещаться из одной
+    проходимой клетки в
+    другую, если они имеют общую сторону. Путник выходит из лабиринта, когда
+    попадает в граничную клетку, то есть клетку [<span>i</span>, <span>j</span>], где <span>i</span> и <span>j</span>
+    равны 1 или 20. В<span>абиринта от выхода до начального положения
+    путника либо фразу «Выхода нет».</p>
+
+<p><cite>
+    <sp
+    <span>зание 1</span></cite><span
+     <span>и в
+лабиринте осуществляется с п<span>а, известного как перебор с
+возвратом (см. предыдущий раздел), но при решении задач на лабиринты (в общем
+случае, на графы) он носит название «поиска в глубину». Реализуется данный
+алгоритм чаще всего с помощью рекурсивной процедуры и организации данных в виде
+стека (</span><span>LIFO</span><span> – </span><span>last</span> <span>in</span><span>, </span><span>first</span> <span>out</span><span> – последним
+вошел, первым вышел).</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><cite><span style='font-size:
+12.0pt;font-family:"","serif"'>Программа (</span></cite><cite><span<span>/cite><cite><span>)</span></cite><span>:</span>
+</p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>'Поиск в глубину</span></p>
+
+<p><span>DEFINT<span></span><span>-</span><span>Z</span></p>
+
+<p><span>TYPE TPoint</span></p>
+
+<p style='text-indent:35.4pt'><span>x AS INTEGER</span></p>
+
+<p style='text-indent:35.4pt'><span>y AS INTEGER</span></p>
+
+<p><span>END TYPE</span></p>
+
+<p><span>DIM SHARED a(1
+TO 20, 1 TO 20), Stack(1 <span>nt</span></p>
+
+<p><span style='font-size:12.0<span>:"","serif"'>DIM SHARED p                        'Указатель
+на вершину стека</span></p>
+
+<p style='text-indent:18pt'<span>size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+                                                <p><span>'</span><span>Чтение</span><span> </span><span>входного</span><span> </span><span
+     <span>>
+
+<p><span>OPEN
+&quot;lab.dat&quot; FOR INPUT AS #1</span></p>
+
+<p><span>FOR i = 1 TO 20</span></p>
+
+<p style='text-indent:35.4pt'><span>FOR j = 1 TO 20</span></p>
+
+<p st<span>.4pt;text-indent:35.4pt'><span>INPUT
+#1, a(i, j)</span></p>
+
+                                                    <p style='text-indent:35.4pt'><span>NEXT j</span></p>
+
+<p><span>NEXT i</span></p>
+
+<p><span>INPUT #1, k,<span><p><span<span>></p>
+
+<p>&nbsp;</p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>CALL Search(k, m)         'Начинаем
+искать путь к выходу из текущей клетки</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>'Если выход не найден, выдаем
+соответствующий результат</span></p>
+
+<p style='text-i<span>an>PRINT &quot;</span><span>Выхода</span><s<span>/span><span>нет</span><span>&quot;</span></p<span>>
+
+<p style=' text-indent:18pt'><span>SUB Search (k,
+m)</span></p>
+
+                                                    <p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>a(k, m) = 1                                'Помечаем
+текущую клетку как непроходимую </span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+f<span>serif"'>p = p + 1       <span>             '(т.к.
+здесь уже побывали)</span></p>
+
+<p style='text-indent:1.0cm'>
+    <span>Stack</span><span>(</span><span>p</span><span>).</span><span>x</span><span> = </spa<span>><span>               'и
+сохраняем в стеке текущие координаты</span></p>
+
+<p style='text-indent:1.0cm'><span>Stack</span><span>(</span><span>p</span><span>).</span><span>y</span><span> = </span><span>m</span>
+</p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p style='text-indent:1.0cm'><span style='font-size:12.0pt;
+font-family:"","serif"'>IF k = 1 OR k = 20 OR m = 1 OR m = 20
+THEN      'Если дошли до граничной клетки,</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>FOR i = p TO 1
+STEP -1                                               'то печатаем резуль<span>an></p>
+
+<p style='mar<span>text-indent:1.0cm<span>quot;(&quot;; Stack(i).x<span>; Stack(i).y; &qu<span>an></p>
+
+<p style=' margin-left:1.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+                                                    <p style='margin-left:1.0cm;text-indent:1.0cm'><span>END                                                                                          'и
+завершаем программу</span></p>
+
+<p style='margin-left:14.1pt;text-indent:14.25pt'><span>END</span> <span>IF</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p style='text-indent:1.0cm'><span>IF</span> <span>a</span><span>(</span><span>k</span><span> + 1, <span>m</span>) = 0 </span><span
+        style='font-size:12.0pt;
+font-family:"","serif"'>THEN</span> <span>CALL</span><span>
+</span><span>Search</span><span>(</span><span>k</span><span> + 1, <span>m</span>)     'Если соседние клетки свободны,</span>
+</p>
+
+<p style='text-indent:1.0cm'><span>IF</span> <span>a</span><span
+    <span>pan>k</span><span
+    <span>n
+        >m</spa<span><span style='font-size:12.0pt;
+font-family:"","serif"'>THEN</span> <span>CALL</span><span>
+</span><span>Search</span><span>(</span><span>k</span><span> - 1, <span>m</span>)       'пробуем продолжить поиск из них</span>
+</p>
+
+<p style='text-indent:1.0cm'><span>IF a(k, m + 1) =
+0 THEN CALL Search(k, m + 1)</span></p>
+
+<p style='text-indent:1.0cm'><span>IF a(k, m - 1) =
+0 THEN CALL Search(k, m - 1)</span></p>
+
+<p style='text-indent:1.0cm'><span>p</span><span> = </span><span>p</span><span> – 1             
+'Вынимаем из <span>ое текущее положение</span></p>
+<span>-indent:18pt'><span>END SUB</span<span>='margin-left:18pt;text-indent:
+-18pt'><span>1)<span
+            style='font:7.0pt ""'>&nbsp;&nbsp; </span></span><span
+       <span>уктуре лабиринта считываются из<span> и заносятся в двумерный
+массив <span><i><span>a</span></i></strong><span> размерности 20
+на 20, где проходимые клетки принимают значение 0, а непроходимые – 1. Из файла
+также считываются координаты клетки, задающей начальное положение путника, - </span><span>k</span><span> и </span><span>m</span><span>.</span></p>
+
+               <p style='margin-left:18pt;text-indent:
+-18pt'><span>2)<sp<span>e='font:7.0pt ""'>&nbsp;&nbsp; </span></span><span>Поиск пути в
+лабиринте начинается с исходной клетки с координатами [k, m]. Поиск
+осуществляется вызовом рекурсивной процедуры </span><strong><i><span>Search</span></i></strong><strong><i><span>
+</span></i></strong><span>с параметрами -
+коо<span>й клетки.</span></p>
+
+<p style='margin-left:18pt;text-indent:
+-18pt'>
+    <spa
+    <span>   style='font:7.0pt ""'>&nbsp;&nbsp; </span></span><span>Если выход из
+лабиринта не найден, то управление из рекурсивной процедуры будет возвращено в
+головную программу, которая выведет соответствующее сообщение.</span></p>
+
+           <p style='margin-left:18pt;text-indent:-18pt'><span>4)<span
+                   style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span
+           <span>рекурсивной процедуры заключает<span></span></p>
+
+<p<span>left:36.85pt;text-indent:
+-17.0pt'><span style='font-size:12.0pt;'>·<span
+                       style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&<span>p;</span></span><span>Пометить
+<span>как непроходиму<span>нной клетке путник уже побывал, а
+это означает присвоить соответствующему элементу массива единицу, </span><strong><i><span>a<<span>ong><strong><i><span>(<span>rong><strong><i<span></i></strong><strong><i><span>, </span></i></strong><strong><i><span>m</span></i></strong><strong><i><span>) = </span></i></stron
+    <span>
+        >1</span></strong><spa<span>pan></p>
+
+    <p st<span>t:36.85pt;text-indent:
+-17.0pt'><span style='font-size:12.0pt;'>·<span
+                style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span>Запомнить
+текущие координаты и номер клетки в пути. Номер текущей клетки в пути будет
+храниться в переменной </span><s<span>style='font-size:12.0pt;
+font-fam<span>>p</span></i></strong><span style='font-size:
+12.0pt;font-family:"","serif"'>, координаты клетки будут
+храниться в стеке. </span><strong><i><span style='font-size:12.0pt;
+font-family:"","serif"'>Stack</span></i></strong><span> – это
+специальный массив<span>ут последовательно запоминаться координаты
+клеток, входящих в путь (размерность данного массива равна максимальной длине
+пути 20х20 = 400). </spa<span>e='margin-left:36.85pt;text-indent:
+-17.0pt'><span style='font-size:12.0pt;'>·<span
+                    style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span>Проверить<span>ли выход из лабиринта, то есть, н<span>динаты текущей
+клетки (граничной клетки) 1 или 20, и при достижении выхода вывести весь путь
+(а именно, координаты клеток) с конечного (значе<span>ong><i><span>p</span></i></strong><span>) до начального
+положения (значение 1), после чего завершить программу.</span></p>
+
+                    <p style='margin-left:36.85pt;text-indent:
+-17.0pt'><span style='font-size:12.0pt;font-fam<span>pan
+        style=' font:7.0pt ""'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span>Если
+выход еще пока не достигнут, то проверить, свободны ли соседние клетки, и, если
+св<span> рекурсивную процедуру с параметрами-координатами этих клеток.</span></p>
+
+                <p style='margin-left:36.85pt;text-indent:
+-17.0pt'><span style='font-size:12.0pt;'>·<span
+                        style='font:7.0pt ""'>&nbsp;&nb<span>&nbsp;&nbsp;&nbsp;</span></span><span>Если
+произошел выход из рекурсивной процедуры, то есть<span> в данном
+направлении нет пути, вернуться на шаг назад, уменьшив номер на единицу<br>
+</span><strong><i><span>p</span></i></strong><strong><i><span> = </span></i></strong><strong><i><span>p</span></i></strong><strong><i><span> – </span></i></strong><strong><span>1</span></strong><span>.</span>
+</p>
+
+<p style='margin-left:18pt;text-indent:
+-18pt'><span>5)<span>&nbsp; </span></span><span><span>Дл</span>я того чтобы
+данная программа находила<span> возможные пути выхода из лабиринта,
+необходимо не завершать программу оператор<span>роцедуры Search, а
+ввести признак того, что какой-либо путь найден. </span></p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Поиск в глубину (перебор с возвратом): путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+# В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+
+DIRECTIONS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+MAZE = [
+    "####.####",
+    "#.......#",
+    "#.#####.#",
+    "#.#...#.#",
+    "#.#.#.#.#",
+    "#...#...#",
+    "#########",
+]
+
+
+def on_border(grid, row, col):
+    return row in (0, len(grid) - 1) or col in (0, len(grid[0]) - 1)
+
+
+def search(grid, row, col, path):
+    """Идет от клетки (row, col) к границе; пройденные клетки помечает стенами и добавляет в path."""
+    grid[row][col] = 1
+    path.append((row, col))
+    if on_border(grid, row, col):
+        return True
+    for dr, dc in DIRECTIONS:
+        r, c = row + dr, col + dc
+        if grid[r][c] == 0 and search(grid, r, c, path):
+            return True
+    path.pop()  # тупик: шаг назад
+    return False
+
+
+def find_exit(maze, start):
+    """Путь от start до выхода (список клеток) или None, если выхода нет."""
+    grid = [row[:] for row in maze]  # копия: поиск помечает пройденные клетки
+    path = []
+    if grid[start[0]][start[1]] == 1 or not search(grid, start[0], start[1], path):
+        return None
+    return path
+
+
+def main():
+    maze = [[int(ch == "#") for ch in line] for line in MAZE]
+    path = find_exit(maze, (5, 1))
+    if path is None:
+        print("Выхода нет")
+        return
+    print("Шагов:", len(path) - 1)
+    print(path)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск в глубину (перебор с возвратом): путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+// В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Grid = std::vector&lt;std::vector&lt;int&gt;&gt;;
+using Cell = std::pair&lt;int, int&gt;;
+
+const int DR[4] = {0, 1, 0, -1};
+const int DC[4] = {1, 0, -1, 0};
+const char* const MAZE[] = {"####.####", "#.......#", "#.#####.#", "#.#...#.#",
+                            "#.#.#.#.#", "#...#...#", "#########"};
+
+bool on_border(const Grid&amp; grid, int row, int col) {
+    return row == 0 || row == static_cast&lt;int&gt;(grid.size()) - 1 || col == 0 ||
+           col == static_cast&lt;int&gt;(grid[0].size()) - 1;
+}
+
+// Идет от клетки (row, col) к границе; пройденные клетки помечает стенами и добавляет в path
+bool search(Grid&amp; grid, int row, int col, std::vector&lt;Cell&gt;&amp; path) {
+    grid[row][col] = 1;
+    path.push_back({row, col});
+    if (on_border(grid, row, col)) return true;
+    for (int m = 0; m &lt; 4; ++m) {
+        int r = row + DR[m], c = col + DC[m];
+        if (grid[r][c] == 0 &amp;&amp; search(grid, r, c, path)) return true;
+    }
+    path.pop_back();  // тупик: шаг назад
+    return false;
+}
+
+// Путь от start до выхода (список клеток) или пустой список, если выхода нет
+std::vector&lt;Cell&gt; find_exit(const Grid&amp; maze, Cell start) {
+    Grid grid = maze;  // копия: поиск помечает пройденные клетки
+    std::vector&lt;Cell&gt; path;
+    if (grid[start.first][start.second] == 1 || !search(grid, start.first, start.second, path)) return {};
+    return path;
+}
+
+int main() {
+    Grid maze;
+    for (const char* line : MAZE) {
+        maze.emplace_back();
+        for (const char* p = line; *p != '\0'; ++p) maze.back().push_back(*p == '#');
+    }
+    std::vector&lt;Cell&gt; path = find_exit(maze, {5, 1});
+    if (path.empty()) {
+        std::cout &lt;&lt; "Выхода нет\n";
+        return 0;
+    }
+    std::cout &lt;&lt; "Шагов: " &lt;&lt; path.size() - 1 &lt;&lt; "\n";
+    for (size_t i = 0; i &lt; path.size(); ++i) {
+        if (i &gt; 0) std::cout &lt;&lt; ' ';
+        std::cout &lt;&lt; '(' &lt;&lt; path[i].first &lt;&lt; ',' &lt;&lt; path[i].second &lt;&lt; ')';
+    }
+    std::cout &lt;&lt; "\n";
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Поиск в глубину (перебор с возвратом): путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+// В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+pub const DR: [i32; 4] = [0, 1, 0, -1];
+pub const DC: [i32; 4] = [1, 0, -1, 0];
+pub const MAZE: [&amp;str; 7] = [
+    "####.####", "#.......#", "#.#####.#", "#.#...#.#", "#.#.#.#.#", "#...#...#", "#########",
+];
+
+fn on_border(grid: &amp;[Vec&lt;u8&gt;], row: usize, col: usize) -&gt; bool {
+    row == 0 || row == grid.len() - 1 || col == 0 || col == grid[0].len() - 1
+}
+
+// Идет от клетки (row, col) к границе; пройденные клетки помечает стенами и добавляет в path
+fn search(grid: &amp;mut Vec&lt;Vec&lt;u8&gt;&gt;, row: usize, col: usize, path: &amp;mut Vec&lt;(usize, usize)&gt;) -&gt; bool {
+    grid[row][col] = 1;
+    path.push((row, col));
+    if on_border(grid, row, col) {
+        return true;
+    }
+    for m in 0..4 {
+        let r = (row as i32 + DR[m]) as usize;
+        let c = (col as i32 + DC[m]) as usize;
+        if grid[r][c] == 0 &amp;&amp; search(grid, r, c, path) {
+            return true;
+        }
+    }
+    path.pop(); // тупик: шаг назад
+    false
+}
+
+// Путь от start до выхода (список клеток) или None, если выхода нет
+pub fn find_exit(maze: &amp;[Vec&lt;u8&gt;], start: (usize, usize)) -&gt; Option&lt;Vec&lt;(usize, usize)&gt;&gt; {
+    let mut grid = maze.to_vec(); // копия: поиск помечает пройденные клетки
+    let mut path = Vec::new();
+    if grid[start.0][start.1] == 0 &amp;&amp; search(&amp;mut grid, start.0, start.1, &amp;mut path) {
+        Some(path)
+    } else {
+        None
+    }
+}
+
+fn main() {
+    let maze: Vec&lt;Vec&lt;u8&gt;&gt; = MAZE
+        .iter()
+        .map(|line| line.bytes().map(|ch| u8::from(ch == b'#')).collect())
+        .collect();
+    match find_exit(&amp;maze, (5, 1)) {
+        None =&gt; println!("Выхода нет"),
+        Some(path) =&gt; {
+            println!("Шагов: {}", path.len() - 1);
+            let cells: Vec&lt;String&gt; = path.iter().map(|(r, c)| format!("({r},{c})")).collect();
+            println!("{}", cells.join(" "));
+        }
+    }
+}
+</code></pre>
+
+<span>
+<p><cite><span
+    <span>ие 2</span></cite><span
+  <span>><span>В тех случаях,
+когда необходимо найти кратчайший путь, используется другой алгоритм,
+называемый «поиском в ширину» или «волной на графе», или алгоритмом «заливки».
+Этот алгоритм может быть реализован как рекурсивно, так и без рекурсии. Но
+более быстрым, а значит и более предпочтительным, считается не рекурсивный
+алгоритм с использованием организации данных в виде очереди (</span><span>FIFO</span><span> – </span><span>first</span> <span>in</span><span>, </span><span>first</span> <span>out</span><span> – первым вошел,
+первым вышел).</span></p>
+
+<p>&nbsp;</p>
+
+<p>
+    <cite><span>Про<span></cite><cite><span>QBasic</span></cite><strong><cite><span>)</span></cite></strong><span>:</span>
+</p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>'Поиск в ширину</span></p>
+
+<p><span>DEFINT</span> <span>A</span><span>-</span><span>Z</span></p>
+
+<p><span>TYPE TPoint</span></p>
+
+<p style='text-indent:35.4pt'><span>x AS INTEGER</span></p>
+
+<p style='text-indent:35.4pt'><span>y AS INTEGER</span></p>
+
+<p><span>END TYPE</span></p>
+
+<p><span>DIM SHARED a(0
+TO 21, 0 TO 21), Queue(1 TO 400) AS TPoint</<span>tyle='text-indent:18pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>DIM SHARED p, q                    'Указатели
+на начало и конец очереди</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span>'</span><span>Чтение</span><span> </span><span>входного</span><span> </span><span>файла</span>
+</p>
+
+<p><span>OPEN
+&quot;lab.dat&quot; FOR INPUT AS #1</span></p>
+
+<p><span>FOR i = 1 TO 20</span></p>
+
+<p style='text-indent:35.4pt'><span>FOR j = 1 TO 20</span></p>
+
+<p style='margin-left:35.4pt;text-indent:35.4pt'><span>INPUT
+#1, a(i, j)</span></p>
+
+<p style='text-indent:35.4pt'><span>NEXT j</span></p>
+
+<p><span>NEXT i</span></p>
+
+<p><span<span></span></p>
+
+<p><span>CLOSE #1</span></p>
+
+<p>&nbsp;</p><span>t-indent:18pt'><span>CALL</span> <span>P<span>
+        >(</span><span>k<<span>     >, </span><span>m</span><span>, 2)        'Присваиваем
+начальной клетке ранг 2 и начинаем п<span>n></p>
+
+        <p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+<p><span>WHILE p &lt;&gt;
+q</span></p>
+
+<p style='text-indent:1.<span> Pop(k, m,
+r)</span></p>
+
+<p styl<span>35.4pt'><span styl<span>.0pt;
+font-family:"","serif"'>IF k = 1 OR k = 20 OR m = 1 OR m = 20
+THEN    'Если дошли до граничной клетки,</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>FOR i = r - 1 TO
+1 STEP –1                                          'то печатаем результат с
+конца</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>PRINT</span><span> &quot;(&quot;; </span><span>k</sp<span>  >; &quot;,&quot;;
+</span><span>m</span><span
+      <span>uot;</span></p>
+
+<p style='margin-left:1.0cm;text-ind<span>n
+        >IF a(k, m - 1) =
+i THEN             ' Для этого совершаем обратный проход,</span></p>
+
+    <p style='margin-left:2.0cm;text-indent:1.0cm'><span
+        <span>                                 <span>соседние клетки</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>ELSEIF a(k, m +
+1) = i THEN   'с последовательно убывающими рангами</span></p>
+
+<p style='margin-left:2.0c<span>.0cm'><span>m = m
++ 1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>ELSEIF
+a(k - 1, m) = i THEN</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>k = k
+- 1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>ELSEIF
+a(k + 1, m) = i THEN</span></p>
+
+<p style='margin-left:2.0cm;text-indent:1.0cm'><span>k = k
++ 1</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>END
+IF</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>NEXT</span></p>
+
+<p style='margin-left:1.0cm;text-indent:1.0cm'><span>END                                                                   '</span><span>и</span><span> </spa
+    <span> >завершаем</span><spa<span>pan><span
+       <span>an></p>
+
+<p style='text-<span><span>END IF</spa<span>e='
+   text-indent:1.0cm'><span>IF</span> <span>a</span><span>(</span><span>k</span><span> + 1, <span>m</span>) = 0 </span><span
+            style='font-size:12.0pt;
+font-family:"","serif"'>THEN</span> <span>CALL</span><span>
+</span><span>Push</span><span>(</span><span>k</span><span> + 1, <span>m</span>, </span><span style='font-size:12.0pt;
+font-family:"","serif"'>r</span><span style='font-size:12.0pt;
+font-family:"","serif"'> + 1)   'Если соседние клетки свободны,</span></p>
+
+    <p style='text-indent:1.0cm'>
+        <span>IF a(k -  1, m) = 0 THEN CALL Push(k -  1, m, r + 1)   '</span>
+        <sp<span>n><span> </span><span
+<span>an><span> </span><span
+<span>n><span> </span><span>очередь</span></p>
+
+<p style='text-indent:1.0cm'><span>IF a(k, m + 1) =
+0 THEN CALL Push(k, m + 1, r + 1)   '</span><span style='font-size:12.0pt;
+font-family:"","serif"'>для</span><span style='font-size:12.0pt;
+font-family:"","serif"'> </span><span style='font-size:12.0pt;
+font-family:"","serif"'>дальнейшего</span><span> </span><span>просмотра</span></p>
+
+<p style='text-indent:1.0cm'><span>IF a(k, m -  1)
+= 0 THEN CALL Push(k, m -  1, r + 1)   '</span><span style='font-size:12.0pt;
+font-family:"","serif"'>с</span><span style='font-size:12.0pt;
+font-family:"","serif"'> </span><span sty<span>2.0pt;
+font-family:"","serif"'>рангом</span><span>, </span><span>увеличенным</span><span> </span><span>на</span><span> 1</span>
+</p>
+
+<p style='text-indent:18p<span>span></p>
+
+<p style=' text-indent:18pt'><span s<span>:12.0pt;
+font-family:"","serif"'>&nbsp;</span><<span>text-indent:18pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>'Если выход <span>ем
+соответствующий результат</span></p>
+
+        <p><span>PRINT</span><span> &quot;Выхода
+нет&quot;     </span></p>
+<span>-indent:18pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>&nbsp;</span></p>
+
+    <p><span>SUB</span>
+        <span>Pus<span>       > (</span><span>k</span><span>, </span><span>m</span><span>, </span><span>r</span><span>)</span>
+    </p>
+
+<p style='text-indent:35.4pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>a(k, m) = r                   'Присваиваем
+клетке ранг r, т.е. это означает,</span></p>
+
+<p style='text-indent:35.4pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>q = q + 1                                 'что
+до этой клетки можно добраться за r-1 ходов,</span></p>
+
+<p style='text-indent:35.4pt'><span style='font-size:12.0pt;
+font-family:"","serif"'>Queue(q).x = k                       'и
+помещаем ее координаты в очередь</span></p>
+
+<p style='text-indent:35.4pt'><span>Queue(q).y = m</span></p>
+
+<p><span>END SUB<span>>&nbsp;</p>
+
+<p s<span>nt:18pt'><span>SU<span>Pop</span><span><span>k</span><span
+   <span><span>m</span><span>, </span><span>r</span><span>)</span></p>
+
+       <p style='text-indent:35.4pt'><span>p</span><span> = </<span>pan><span> + 1        <span>инаты очередной<span>й клетки из очереди </span>
+       </p>
+
+<p style='text-indent:35.4pt'><span>k = Queue(p).x</span></p>
+
+<p style='text-indent:35.4pt'><span>m = Queue(p).<span>p style='text-indent:35.4pt'><s<span>-size:12.0pt;
+f<span>serif"'>r = a(k, m)                   'Вычисляем
+ее ранг</span></p>
+
+<p><span>END SUB</span></p>
+
+<p>&nbsp;</p>
+
+<p style='margin-left:17.0pt;text-indent:
+-17.0pt'><span>1)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp; </span></span><span>Данные по
+структуре лабиринта считываются из<span> и заносятся в дв<span></span><strong><i><span>/i></strong><span<span>ерности 20
+на 20,<span> клетки принимают<span>непроходимые – 1. Из файла
+также считываются координаты клетки, задающей начальное положение путника, - </span><span>k</span><span> и </span><span>m</span><span>.</span>
+</p>
+
+<p style='margin-left:17.0pt;text-indent:
+-17.0pt'><span>2)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp; </span></span><span<span> пути в
+лабиринте<span>сходной клетки с координатами [k, m] с помощью
+процедуры </span><strong><i><span style='font-size:12.0pt;font-family:
+"","serif"'>Push</span></i></strong><span style='font-size:12.0pt;
+font-family:"","serif"'> (поместить)<strong> </strong>с параметрами
+- координатами данной клетки и ее рангом – числом, обозначающим, за сколько
+шагов мож<span> этой клетки. </span></p>
+
+<span>n-left:17.0pt;tex<span>pt'><span>3)<span
+        style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp; </span></span><span>Процедура </span><strong><i><span>Push</span></i></strong><strong><i> </i></strong><span>в самом начале
+присваивает исходной клетке ее ранг <strong><i>a(k, m) = </i>2</strong>, увеличивает
+номер очереди на 1: <strong><i>q = q + </i>1</strong>, а затем помещает координаты
+текущей клет<span>массив </span><strong><i><span>Queue</span></i></strong><span> (очередь)
+размерности 400: <strong><i>Queue(q).x =
+            k </i></strong>и </span><strong><i><span>Queue</span></i></strong><strong><i><span
+        <span>n></i></strong><strong><i><span><span>trong><strong><i><span><span>strong><strong><i><span>y</span><span>trong><i><span> = </span></i></strong><strong><i><span>m</span></i></strong><span>.</span></p>
+
+        <p style='margin-left:17.0pt;text-indent:
+-17.0pt'><span>4)<span
+                style='font:7.0pt ""'>&nbsp;&nbsp;&nbsp; </span></span><span>В цикле, пока
+очередь не пуста, вызывается процедура </span><strong><i><span>Pop</span></i></strong><strong><i> </i></strong><span>(извлечь)<strong> </strong>с
+такими же параметрами, что и процедура </span><strong><i><span>Push</span></i></strong><span>, которая
+достает из очереди координаты очередной рассматриваемой клетки и определяет ее
+ранг (первый раз он равен 2):</span></p>
+
+<p><span style='font-size:12.0pt;
+font-family:"","serif"'> </sp<span>span>p = p + </span></i></strong<span>1</span></strong><span><br>
+<str<span>e(p).x<br>
+    m = Queue(p).y<br<span>m)</i></strong></span></p>
+
+            <p style='margin-left:17.0pt;text-inden<span>n
+        >5)<span
+        style=<span>>&nbsp;&nbsp; </span></span><span>Далее в этом же
+цикле проводится проверка, свободны ли соседние клетки, чтобы передать
+управление процедуре </span><strong><i><span style=' font-size:12.0pt;
+               font-family:"","serif"'>Push</span></i></strong><span> уже для этих
+соседних клеток, чтобы поместить туда ранг 3 и т.д.</span></p>
+
+        <p style='margin-left:17.0pt;text-indent:-17.0pt'><span>6)<span
+                style='font:7.0pt ""'>&nbsp;&nbsp; </span></span><span>Это выполняется
+до тех пор, пока не будет достигнута граничная клетка, то есть пока не найдется
+выход, после чего остается распечатать весь путь, начиная с конца, и завершить
+программу.</span></p>
+
+<p style='margin-left:17.0pt;text-indent:-17.0pt'>&nbsp;</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Поиск в ширину (волна на графе): кратчайший путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+# В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+from collections import deque
+
+DIRECTIONS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+MAZE = [
+    "####.####",
+    "#.......#",
+    "#.#####.#",
+    "#.#...#.#",
+    "#.#.#.#.#",
+    "#...#...#",
+    "#########",
+]
+
+
+def on_border(grid, row, col):
+    return row in (0, len(grid) - 1) or col in (0, len(grid[0]) - 1)
+
+
+def restore(parent, cell):
+    """Восстанавливает путь от старта до клетки cell по ссылкам на предыдущие клетки."""
+    path = []
+    while cell is not None:
+        path.append(cell)
+        cell = parent[cell]
+    return path[::-1]
+
+
+def shortest_exit(maze, start):
+    """Кратчайший путь от start до границы (список клеток) или None: клетки обходятся очередью."""
+    if maze[start[0]][start[1]] == 1:
+        return None
+    parent = {start: None}
+    queue = deque([start])
+    while queue:
+        row, col = queue.popleft()
+        if on_border(maze, row, col):
+            return restore(parent, (row, col))
+        for dr, dc in DIRECTIONS:
+            r, c = row + dr, col + dc
+            if maze[r][c] == 0 and (r, c) not in parent:
+                parent[(r, c)] = (row, col)
+                queue.append((r, c))
+    return None
+
+
+def main():
+    maze = [[int(ch == "#") for ch in line] for line in MAZE]
+    path = shortest_exit(maze, (5, 1))
+    if path is None:
+        print("Выхода нет")
+        return
+    print("Шагов:", len(path) - 1)
+    print(path)
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Поиск в ширину (волна на графе): кратчайший путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+// В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;queue&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Grid = std::vector&lt;std::vector&lt;int&gt;&gt;;
+using Cell = std::pair&lt;int, int&gt;;
+
+const int DR[4] = {0, 1, 0, -1};
+const int DC[4] = {1, 0, -1, 0};
+const char* const MAZE[] = {"####.####", "#.......#", "#.#####.#", "#.#...#.#",
+                            "#.#.#.#.#", "#...#...#", "#########"};
+
+bool on_border(const Grid&amp; grid, Cell cell) {
+    return cell.first == 0 || cell.first == static_cast&lt;int&gt;(grid.size()) - 1 || cell.second == 0 ||
+           cell.second == static_cast&lt;int&gt;(grid[0].size()) - 1;
+}
+
+// Кратчайший путь от start до границы (список клеток) или пустой список: клетки обходятся очередью
+std::vector&lt;Cell&gt; shortest_exit(const Grid&amp; maze, Cell start) {
+    if (maze[start.first][start.second] == 1) return {};
+    std::map&lt;Cell, Cell&gt; parent = {{start, start}};  // у старта предыдущая клетка - он сам
+    std::queue&lt;Cell&gt; queue;
+    queue.push(start);
+    while (!queue.empty()) {
+        Cell cell = queue.front();
+        queue.pop();
+        if (on_border(maze, cell)) {
+            std::vector&lt;Cell&gt; path = {cell};  // восстанавливаем путь от выхода к старту
+            for (Cell p = cell; parent[p] != p; p = parent[p]) path.push_back(parent[p]);
+            std::reverse(path.begin(), path.end());
+            return path;
+        }
+        for (int m = 0; m &lt; 4; ++m) {
+            Cell next = {cell.first + DR[m], cell.second + DC[m]};
+            if (maze[next.first][next.second] == 0 &amp;&amp; parent.count(next) == 0) {
+                parent[next] = cell;
+                queue.push(next);
+            }
+        }
+    }
+    return {};
+}
+
+int main() {
+    Grid maze;
+    for (const char* line : MAZE) {
+        maze.emplace_back();
+        for (const char* p = line; *p != '\0'; ++p) maze.back().push_back(*p == '#');
+    }
+    std::vector&lt;Cell&gt; path = shortest_exit(maze, {5, 1});
+    if (path.empty()) {
+        std::cout &lt;&lt; "Выхода нет\n";
+        return 0;
+    }
+    std::cout &lt;&lt; "Шагов: " &lt;&lt; path.size() - 1 &lt;&lt; "\n";
+    for (size_t i = 0; i &lt; path.size(); ++i) {
+        if (i &gt; 0) std::cout &lt;&lt; ' ';
+        std::cout &lt;&lt; '(' &lt;&lt; path[i].first &lt;&lt; ',' &lt;&lt; path[i].second &lt;&lt; ')';
+    }
+    std::cout &lt;&lt; "\n";
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Поиск в ширину (волна на графе): кратчайший путь от клетки (row, col) до границы лабиринта, O(N*M) времени
+// В лабиринте 0 - проходимая клетка, 1 - стена; выход - любая проходимая граничная клетка
+use std::collections::{HashMap, VecDeque};
+
+pub const DR: [i32; 4] = [0, 1, 0, -1];
+pub const DC: [i32; 4] = [1, 0, -1, 0];
+pub const MAZE: [&amp;str; 7] = [
+    "####.####", "#.......#", "#.#####.#", "#.#...#.#", "#.#.#.#.#", "#...#...#", "#########",
+];
+
+fn on_border(grid: &amp;[Vec&lt;u8&gt;], row: usize, col: usize) -&gt; bool {
+    row == 0 || row == grid.len() - 1 || col == 0 || col == grid[0].len() - 1
+}
+
+// Восстанавливает путь от старта до клетки cell по ссылкам на предыдущие клетки
+fn restore(parent: &amp;HashMap&lt;(usize, usize), (usize, usize)&gt;, start: (usize, usize), cell: (usize, usize)) -&gt; Vec&lt;(usize, usize)&gt; {
+    let mut path = vec![cell];
+    let mut current = cell;
+    while current != start {
+        current = parent[&amp;current];
+        path.push(current);
+    }
+    path.reverse();
+    path
+}
+
+// Кратчайший путь от start до границы (список клеток) или None: клетки обходятся очередью
+pub fn shortest_exit(maze: &amp;[Vec&lt;u8&gt;], start: (usize, usize)) -&gt; Option&lt;Vec&lt;(usize, usize)&gt;&gt; {
+    if maze[start.0][start.1] == 1 {
+        return None;
+    }
+    let mut parent = HashMap::from([(start, start)]);
+    let mut queue = VecDeque::from([start]);
+    while let Some((row, col)) = queue.pop_front() {
+        if on_border(maze, row, col) {
+            return Some(restore(&amp;parent, start, (row, col)));
+        }
+        for m in 0..4 {
+            let r = (row as i32 + DR[m]) as usize;
+            let c = (col as i32 + DC[m]) as usize;
+            if maze[r][c] == 0 &amp;&amp; !parent.contains_key(&amp;(r, c)) {
+                parent.insert((r, c), (row, col));
+                queue.push_back((r, c));
+            }
+        }
+    }
+    None
+}
+
+fn main() {
+    let maze: Vec&lt;Vec&lt;u8&gt;&gt; = MAZE
+        .iter()
+        .map(|line| line.bytes().map(|ch| u8::from(ch == b'#')).collect())
+        .collect();
+    match shortest_exit(&amp;maze, (5, 1)) {
+        None =&gt; println!("Выхода нет"),
+        Some(path) =&gt; {
+            println!("Шагов: {}", path.len() - 1);
+            let cells: Vec&lt;String&gt; = path.iter().map(|(r, c)| format!("({r},{c})")).collect();
+            println!("{}", cells.join(" "));
+        }
+    }
+}
+</code></pre>
+
+</div>
+
+</body>
+
+</html>

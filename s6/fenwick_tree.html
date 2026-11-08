@@ -1,0 +1,137 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Дерево Фенвика</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+
+<div id="content">
+    <h1 id="дерево-фенвика">Дерево Фенвика</h1>
+
+    <p>Дерево Фенвика (двоичное индексированное дерево, Fenwick tree, binary indexed tree, BIT) -
+        структура данных, позволяющая быстро изменять значения в массиве и находить некоторые функции от элементов
+        массива.
+        Впервые описано Питером Фенвиком в 1994 году.
+        Дерево Фенвика напоминает <i>дерево отрезков</i>, однако проще в реализации.</p>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Дерево Фенвика: прибавление к элементу и префиксная сумма за O(log n), память O(n).
+def fenwick_add(tree, index, delta):
+    # index от 1 до n: прибавляем delta к элементу a[index]
+    while index &lt; len(tree):
+        tree[index] += delta
+        index += index &amp; -index  # переход к следующему узлу, который покрывает index
+
+
+def prefix_sum(tree, index):
+    # Сумма a[1] + ... + a[index]
+    total = 0
+    while index &gt; 0:
+        total += tree[index]
+        index -= index &amp; -index  # убираем младший единичный бит
+    return total
+
+
+def main():
+    values = [3, 1, 4, 1, 5, 9]
+    tree = [0] * (len(values) + 1)
+    for index, value in enumerate(values, start=1):
+        fenwick_add(tree, index, value)
+    print(prefix_sum(tree, 3))  # 3 + 1 + 4 = 8
+    fenwick_add(tree, 2, 10)  # a[2] += 10
+    print(prefix_sum(tree, 6) - prefix_sum(tree, 2))  # 4 + 1 + 5 + 9 = 19
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Дерево Фенвика: прибавление к элементу и префиксная сумма за O(log n), память O(n).
+// Массив tree имеет длину n + 1, элементы нумеруются с 1.
+
+// Прибавляет delta к элементу a[index], index от 1 до n.
+pub fn fenwick_add(tree: &amp;mut [i64], mut index: usize, delta: i64) {
+    while index &lt; tree.len() {
+        tree[index] += delta;
+        index += index &amp; index.wrapping_neg(); // следующий узел, который покрывает index
+    }
+}
+
+// Сумма a[1] + ... + a[index].
+pub fn prefix_sum(tree: &amp;[i64], mut index: usize) -&gt; i64 {
+    let mut total = 0;
+    while index &gt; 0 {
+        total += tree[index];
+        index -= index &amp; index.wrapping_neg(); // убираем младший единичный бит
+    }
+    total
+}
+
+fn main() {
+    let values: [i64; 6] = [3, 1, 4, 1, 5, 9];
+    let mut tree: Vec&lt;i64&gt; = vec![0; values.len() + 1];
+    for (i, &amp;value) in values.iter().enumerate() {
+        fenwick_add(&amp;mut tree, i + 1, value);
+    }
+    println!("{}", prefix_sum(&amp;tree, 3)); // 3 + 1 + 4 = 8
+    fenwick_add(&amp;mut tree, 2, 10); // a[2] += 10
+    println!("{}", prefix_sum(&amp;tree, 6) - prefix_sum(&amp;tree, 2)); // 4 + 1 + 5 + 9 = 19
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Дерево Фенвика: прибавление к элементу и префиксная сумма за O(log n), память O(n).
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Прибавляет delta к элементу a[index], index от 1 до n (размер tree равен n + 1).
+void fenwick_add(std::vector&lt;long long&gt;&amp; tree, std::size_t index, long long delta) {
+    while (index &lt; tree.size()) {
+        tree[index] += delta;
+        index += index &amp; -index;  // следующий узел, который покрывает index
+    }
+}
+
+// Сумма a[1] + ... + a[index].
+long long prefix_sum(const std::vector&lt;long long&gt;&amp; tree, std::size_t index) {
+    long long total = 0;
+    while (index &gt; 0) {
+        total += tree[index];
+        index -= index &amp; -index;  // убираем младший единичный бит
+    }
+    return total;
+}
+
+int main() {
+    const std::vector&lt;long long&gt; values = {3, 1, 4, 1, 5, 9};
+    std::vector&lt;long long&gt; tree(values.size() + 1, 0);
+    for (std::size_t i = 0; i &lt; values.size(); ++i) {
+        fenwick_add(tree, i + 1, values[i]);
+    }
+    std::cout &lt;&lt; prefix_sum(tree, 3) &lt;&lt; '\n';  // 3 + 1 + 4 = 8
+    fenwick_add(tree, 2, 10);                  // a[2] += 10
+    std::cout &lt;&lt; prefix_sum(tree, 6) - prefix_sum(tree, 2) &lt;&lt; '\n';  // 4 + 1 + 5 + 9 = 19
+    return 0;
+}
+</pre>
+
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,199 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Матрицы: метод Гаусса</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Метод Гаусса</h1>
+
+    <ul class="tags">
+        <li><a href="#">Матрицы</a></li>
+        <li><a href="#">Системы линейных уравнений</a></li>
+    </ul>
+
+    <p>Метод Гаусса (метод последовательного исключения неизвестных) решает систему линейных уравнений с квадратной матрицей, вычисляет ранг матрицы и позволяет обнаружить, что система вырождена. Метод выполняет $O(n^3)$ арифметических операций. Его применяют как к точным вычислениям над рациональными числами, так и к вычислениям с числами с плавающей точкой, где нужно учитывать ошибки округления.</p>
+
+    <h2>Системы линейных уравнений</h2>
+
+    <p>Рассмотрим систему из $n$ линейных уравнений с $n$ неизвестными $x_1, \dots, x_n$:</p>
+    <p>$$\sum_{j=1}^{n} a_{ij} x_j = b_i, \qquad i = 1, \dots, n.$$</p>
+    <p>В матричном виде она записывается как $Ax = b$, где $A = (a_{ij})$ — матрица коэффициентов размера $n \times n$, $x = (x_1, \dots, x_n)$ — вектор неизвестных, $b = (b_1, \dots, b_n)$ — вектор правых частей. Матрица $[A \mid b]$, полученная приписыванием столбца $b$ справа к $A$, называется расширенной матрицей системы.</p>
+    <p>Метод Гаусса опирается на элементарные преобразования строк, которые не меняют множество решений системы: перестановку двух строк, умножение строки на ненулевое число и прибавление к одной строке другой строки, умноженной на число.</p>
+
+    <h2>Прямой и обратный ход</h2>
+
+    <p>Прямой ход приводит расширенную матрицу к ступенчатому виду, а в квадратной части — к верхнетреугольному. Для каждого столбца $k = 1, \dots, n$ выбирается ведущий элемент $a_{kk}$ (о выборе см. следующий раздел). Затем из каждой строки $i &gt; k$ вычитается строка $k$, умноженная на $a_{ik} / a_{kk}$. После этого под диагональю в столбце $k$ стоят нули.</p>
+    <p>Обратный ход выполняется после прямого, с преобразованными коэффициентами $a_{ij}$ и $b_i$, и находит неизвестные от последнего к первому. После прямого хода последнее уравнение содержит только $x_n$, поэтому $x_n = b_n / a_{nn}$. Далее для $i = n - 1, \dots, 1$:</p>
+    <p>$$x_i = \frac{1}{a_{ii}} \Bigl( b_i - \sum_{j=i+1}^{n} a_{ij} x_j \Bigr).$$</p>
+
+    <h2>Частичный выбор ведущего элемента</h2>
+
+    <p>Ведущий элемент должен быть ненулевым. Если на месте $a_{kk}$ стоит нуль, строку $k$ меняют местами с нижележащей строкой, в которой в этом столбце стоит ненулевой элемент. Если такой строки нет, в столбце нет ведущего элемента, и ранг матрицы не увеличивается.</p>
+    <p>Даже при ненулевом $a_{kk}$ выбор важен. Если $|a_{kk}|$ мал, множители $a_{ik} / a_{kk}$ становятся велики, и ошибки округления быстро растут. Частичный выбор (partial pivoting) ставит на место ведущего элемента строку, в которой элемент столбца $k$ имеет наибольший модуль среди $a_{kk}, a_{k+1,k}, \dots, a_{nk}$. Тогда все множители не превосходят $1$ по модулю. В программе на Python вычисления точные, ошибок округления нет, но выбор ведущего элемента сделан так же, как в программе на C++.</p>
+
+    <h2>Ранг матрицы</h2>
+
+    <p>Рангом матрицы $A$ называется наибольшее число линейно независимых строк (столбцов). Он равен числу ненулевых строк ступенчатого вида. В алгоритме ранг равен числу найденных ведущих элементов. Если в очередном столбце среди ещё не использованных строк нет ненулевого элемента, ведущего элемента в нём нет, и ранг не увеличивается.</p>
+    <p>Для квадратной матрицы $A$ размера $n \times n$ выполняется равенство $\operatorname{rank} A = n$ тогда и только тогда, когда $\det A \ne 0$. В этом случае система $Ax = b$ имеет единственное решение. Если ранг меньше $n$, система либо не имеет решений, либо имеет бесконечно много решений. В этом случае функция solve возвращает None (в Python) или std::nullopt (в C++); различать эти два случая программы не пытаются.</p>
+
+    <p>Пример: система $2x_1 + x_2 - x_3 = 8$, $-3x_1 - x_2 + 2x_3 = -11$, $-2x_1 + x_2 + 2x_3 = -3$ имеет решение $x = (2, 3, -1)$, ранг её матрицы равен $3$. Проверка подстановкой: $2 \cdot 2 + 3 - (-1) = 8$, $-3 \cdot 2 - 3 + 2 \cdot (-1) = -11$, $-2 \cdot 2 + 3 + 2 \cdot (-1) = -3$.</p>
+
+    <p>Ниже программа решает этот пример, вычисляет ранги и проверяет вырожденную систему $x_1 + 2x_2 = 1$, $2x_1 + 4x_2 = 2$. Функция <code>eliminate</code> выполняет прямой ход и возвращает ранг, функция <code>solve</code> решает систему, функция <code>rank</code> вычисляет ранг.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Метод Гаусса с частичным выбором ведущего элемента над рациональными числами (модуль fractions).
+# Сложность O(n^3) арифметических операций; вычисления точные, без ошибок округления.
+from fractions import Fraction
+
+
+def eliminate(m, n_cols):
+    """Прямой ход на месте: приводит строки m к ступенчатому виду по первым n_cols столбцам.
+
+    Возвращает ранг: число найденных ведущих элементов."""
+    rank = 0
+    for col in range(n_cols):
+        # частичный выбор: строка с наибольшим по модулю элементом в столбце col
+        pivot = max(range(rank, len(m)), key=lambda r: abs(m[r][col]), default=None)
+        if pivot is None or m[pivot][col] == 0:
+            continue
+        m[rank], m[pivot] = m[pivot], m[rank]
+        for r in range(rank + 1, len(m)):
+            factor = m[r][col] / m[rank][col]
+            m[r] = [x - factor * y for x, y in zip(m[r], m[rank])]
+        rank += 1
+    return rank
+
+
+def rank(a):
+    """Ранг матрицы a (список строк)."""
+    return eliminate([[Fraction(v) for v in row] for row in a], len(a[0]))
+
+
+def solve(a, b):
+    """Решает систему a x = b с квадратной матрицей a. Возвращает x или None, если a вырождена."""
+    n = len(a)
+    m = [[Fraction(v) for v in row] + [Fraction(value)] for row, value in zip(a, b)]  # расширенная матрица [A | b]
+    if eliminate(m, n) &lt; n:
+        return None
+    x = [Fraction(0)] * n
+    for i in reversed(range(n)):  # обратный ход
+        rest = sum(m[i][j] * x[j] for j in range(i + 1, n))
+        x[i] = (m[i][n] - rest) / m[i][i]
+    return x
+
+
+def main():
+    a = [[2, 1, -1], [-3, -1, 2], [-2, 1, 2]]
+    b = [8, -11, -3]
+    print(*solve(a, b))  # 2 3 -1
+    print(rank(a))  # 3
+    singular = [[1, 2], [2, 4]]
+    print(rank(singular))  # 1
+    print(solve(singular, [1, 2]))  # None
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Метод Гаусса с частичным выбором ведущего элемента над double: O(n^3) по времени, O(n^2) по памяти.
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Matrix = std::vector&lt;std::vector&lt;double&gt;&gt;;
+
+const double kEps = 1e-9;  // число, модуль которого меньше kEps, считается нулём
+
+// Прямой ход на месте: приводит строки m к ступенчатому виду по первым n_cols столбцам.
+// Возвращает ранг: число найденных ведущих элементов.
+int eliminate(Matrix&amp; m, int n_cols) {
+  int rows = m.size();
+  int rank = 0;
+  for (int col = 0; col &lt; n_cols &amp;&amp; rank &lt; rows; ++col) {
+    // частичный выбор: строка с наибольшим по модулю элементом в столбце col
+    int pivot = rank;
+    for (int r = rank + 1; r &lt; rows; ++r) {
+      if (std::fabs(m[r][col]) &gt; std::fabs(m[pivot][col])) pivot = r;
+    }
+    if (std::fabs(m[pivot][col]) &lt; kEps) continue;
+    std::swap(m[rank], m[pivot]);
+    for (int r = rank + 1; r &lt; rows; ++r) {
+      double factor = m[r][col] / m[rank][col];
+      for (int c = col; c &lt; static_cast&lt;int&gt;(m[r].size()); ++c) m[r][c] -= factor * m[rank][c];
+    }
+    ++rank;
+  }
+  return rank;
+}
+
+// Ранг матрицы a.
+int rank(const Matrix&amp; a) {
+  Matrix m = a;
+  return eliminate(m, static_cast&lt;int&gt;(a[0].size()));
+}
+
+// Решает систему A x = b с квадратной матрицей A.
+// Возвращает решение или std::nullopt, если A вырождена.
+std::optional&lt;std::vector&lt;double&gt;&gt; solve(const Matrix&amp; a, const std::vector&lt;double&gt;&amp; b) {
+  int n = a.size();
+  Matrix m(n, std::vector&lt;double&gt;(n + 1));  // расширенная матрица [A | b]
+  for (int i = 0; i &lt; n; ++i) {
+    for (int j = 0; j &lt; n; ++j) m[i][j] = a[i][j];
+    m[i][n] = b[i];
+  }
+  if (eliminate(m, n) &lt; n) return std::nullopt;
+  std::vector&lt;double&gt; x(n);
+  for (int i = n - 1; i &gt;= 0; --i) {  // обратный ход
+    double rest = 0;
+    for (int j = i + 1; j &lt; n; ++j) rest += m[i][j] * x[j];
+    x[i] = (m[i][n] - rest) / m[i][i];
+  }
+  return x;
+}
+
+int main() {
+  Matrix a = {{2, 1, -1}, {-3, -1, 2}, {-2, 1, 2}};
+  std::vector&lt;double&gt; b = {8, -11, -3};
+  std::cout &lt;&lt; "rank " &lt;&lt; rank(a) &lt;&lt; '\n';  // rank 3
+  if (auto x = solve(a, b)) {
+    for (double value : *x) std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(3) &lt;&lt; value &lt;&lt; ' ';  // 2 3 -1
+    std::cout &lt;&lt; '\n';
+  }
+  Matrix singular = {{1, 2}, {2, 4}};
+  std::cout &lt;&lt; "rank " &lt;&lt; rank(singular) &lt;&lt; '\n';  // rank 1
+  std::cout &lt;&lt; (solve(singular, {1, 2}) ? "solvable" : "singular") &lt;&lt; '\n';  // singular
+  return 0;
+}
+</pre>
+
+    <h2>Проверка и сложность</h2>
+
+    <p>Программы проверены на случайных системах с целыми коэффициентами. Для каждой системы выбиралось известное решение $x$, вычислялась правая часть $b = Ax$, и функция solve должна была вернуть именно $x$. Для вырожденных матриц функция должна сообщать об отсутствии единственного решения. Ранг сверялся с перебором миноров: ранг равен наибольшему $k$, при котором существует минор порядка $k$ (определитель квадратной подматрицы) с ненулевым значением.</p>
+    <p>При обработке столбца $k$ обновляются $n - k$ строк. В программе на C++ в каждой из них меняются $n - k + 2$ элемента (с учётом столбца $b$), так как столбцы левее $k$ под диагональю уже обнулены и не нужны. Прямой ход выполняет $\sum_{k=1}^{n} (n-k)(n-k+2) \approx \frac{n^3}{3}$ арифметических операций, обратный ход — $O(n^2)$. Программа на Python пересчитывает строку целиком, поэтому операций примерно в полтора раза больше, но порядок тот же. Итого время работы $O(n^3)$, память $O(n^2)$.</p>
+    <p>Оценка $O(n^3)$ считает арифметические операции. Над дробями каждая операция дороже операции над числами фиксированного размера, поэтому программа на Python с модулем fractions заметно медленнее программы на C++, хотя по числу арифметических операций оба варианта имеют порядок $O(n^3)$. Метод Гаусса также служит основой LU-разложения, с помощью которого вычисляют определитель и обратную матрицу.</p>
+</div>
+
+</body>
+
+</html>

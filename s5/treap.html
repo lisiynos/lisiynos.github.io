@@ -1,0 +1,1278 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Декартово дерево</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+<h1 id="двоичные-деревья-поиска-декартово-дерево">Двоичные деревья поиска. Декартово дерево</h1>
+
+<ul class="tags">
+    <li><a href="#">Декартово дерево</a></li>
+</ul>
+
+<p><strong>Декартово дерево</strong> — это двоичное дерево, в узлах которого хранятся: ссылки на правое и левое
+    поддерево, ссылка на родительский узел (необязательно), ключи <strong>x</strong> и <strong>y</strong>, которые
+    являются двоичным деревом поиска по ключу <strong>x</strong> и двоичной кучей по ключу <strong>y</strong>.
+    А именно, для любого узла дерева <strong>n</strong> ключи <strong>x</strong> узлов правого (левого) поддерева больше
+    (меньше либо равны) ключа <strong>x</strong> узла <strong>n</strong>, ключи y узлов правого и левого детей меньше либо равны ключу <strong>y</strong> узла <strong>n</strong>.</p>
+
+<p>Ссылка на родительский узел не обязательна, она желательна только для линейного алгоритма построения дерева. </p>
+
+<p><strong>Декартово дерево </strong>- это структура данных, объединяющая в себе бинарное дерево поиска и бинарную
+    кучу
+    (отсюда и второе её название: treap (tree+heap) и дерамида (дерево+пирамида).</p>
+
+<img loading="lazy" decoding="async" src="structures/treap.png" width="1470" height="608">
+
+<pre class="sh_pascal">
+type
+  Treap = ^TNode;
+  TNode = record
+    x,y : Integer; { x - ключ, y - приоритет (произвольные сравнимые типы данных) }
+    Left,Right : Treap; { Левое и правое поддерево }
+  end;</pre>
+
+<h3>Merge (склеивание)</h3>
+
+<p><img loading="lazy" decoding="async" src="structures/treap_merge.png"></p>
+
+<p><img loading="lazy" decoding="async" src="structures/treap_merge2.png"></p>
+
+<pre class="sh_pascal">
+{ Слияние декартовых деревьев }
+function Merge( L,R : Treap ):Treap;
+begin
+  if L = nil then { Левого поддерева нет }
+    Result := R     { => результат - правое поддерево }
+  else if R = nil then { Правого поддерева нет }
+    Result := L     { => результат - левое поддерево }
+  else if L.y > R.y then begin { У левого приоритет выше }
+    { => левое становится корнем }
+    { Левое поддерево у него сохраняется }
+    L.Right := Merge(L.Right,R);
+    Result := L;
+  end else begin { У правого приоритет выше или равен }
+    { Правое поддерево сохраняется }
+    { Левое поддерево = результат слияния левого с
+      левым сыном правого поддерева }
+    R.Left := Merge(L,R.Left);
+    Result := R;
+  end;
+end;
+</pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    # Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def keys_in_order(node, keys):
+    # Обход по возрастанию ключей
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    # Склеиваем одиночные вершины в порядке возрастания ключей
+    root = None
+    for key, prio in [(1, 30), (2, 50), (3, 10), (4, 40)]:
+        root = merge(root, Node(key, prio))
+    keys = []
+    keys_in_order(root, keys)
+    print(keys, root.key)  # [1, 2, 3, 4] 2
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+// Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом.
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Обход по возрастанию ключей.
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    // Склеиваем одиночные вершины в порядке возрастания ключей
+    let mut root: Tree = None;
+    for (key, prio) in [(1, 30), (2, 50), (3, 10), (4, 40)] {
+        root = merge(root, Some(Box::new(Node { key, prio, left: None, right: None })));
+    }
+    let mut keys = Vec::new();
+    keys_in_order(&amp;root, &amp;mut keys);
+    println!("{:?} {}", keys, root.as_ref().map_or(0, |n| n.key)); // [1, 2, 3, 4] 2
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Склеивание декартовых деревьев (merge): O(log n) в среднем, где n - число вершин.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+// Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом.
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Обход по возрастанию ключей.
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    // Склеиваем одиночные вершины в порядке возрастания ключей
+    Tree root;
+    for (auto [key, prio] : {std::pair{1, 30}, std::pair{2, 50}, std::pair{3, 10}, std::pair{4, 40}}) {
+        root = merge(std::move(root), std::make_unique&lt;Node&gt;(key, prio));
+    }
+    std::vector&lt;int&gt; keys;
+    keys_in_order(root.get(), keys);
+    for (int key : keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "корень " &lt;&lt; root-&gt;key &lt;&lt; '\n';  // 1 2 3 4 корень 2
+    return 0;
+}
+</pre>
+
+<h3>Split (разрезание)</h3>
+
+<p><img loading="lazy" decoding="async" src="structures/treap_split.png"></p>
+
+<p><img loading="lazy" decoding="async" src="structures/treap_split2.png"></p>
+
+<pre class="sh_pascal">
+{ Операция разрезания дерева T по ключу x на 2 поддерева L и R }
+procedure Split( T:Treap; x:Integer; var L,R:Treap);
+var Temp : Treap; { Временное дерево }
+begin
+  Temp := nil;
+  if T = nil then begin { Если дерево пустое }
+    L := nil; { то результат разрезания пустой }
+    R := nil;
+  end else
+  if T.x &lt;= x then begin
+    if T.Right = nil then
+      R := nil
+    else
+      Split(T.Right,x,Temp,R);
+    L := T;
+    L.Right := Temp;
+  end else begin
+    if T.Left = nil then
+      L := nil
+    else
+      Split(T.Left,x,L,Temp);
+    R := T;
+    R.Left := Temp;
+  end;
+end;
+</pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def split(node, split_key):
+    # Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные
+    if node is None:
+        return None, None
+    if node.key &lt;= split_key:
+        left, right = split(node.right, split_key)
+        node.right = left
+        return node, right
+    left, right = split(node.left, split_key)
+    node.left = right
+    return left, node
+
+
+def keys_in_order(node, keys):
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    root = None
+    for key, prio in [(1, 30), (2, 50), (3, 10), (4, 40), (5, 20)]:
+        root = merge(root, Node(key, prio))
+    left, right = split(root, 3)
+    left_keys, right_keys = [], []
+    keys_in_order(left, left_keys)
+    keys_in_order(right, right_keys)
+    print(left_keys, right_keys)  # [1, 2, 3] [4, 5]
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные.
+pub fn split(node: Tree, split_key: i32) -&gt; (Tree, Tree) {
+    let Some(mut current) = node else { return (None, None) };
+    if current.key &lt;= split_key {
+        let (left, right) = split(current.right.take(), split_key);
+        current.right = left;
+        (Some(current), right)
+    } else {
+        let (left, right) = split(current.left.take(), split_key);
+        current.left = right;
+        (left, Some(current))
+    }
+}
+
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    let mut root: Tree = None;
+    for (key, prio) in [(1, 30), (2, 50), (3, 10), (4, 40), (5, 20)] {
+        root = merge(root, Some(Box::new(Node { key, prio, left: None, right: None })));
+    }
+    let (left, right) = split(root, 3);
+    let mut left_keys = Vec::new();
+    keys_in_order(&amp;left, &amp;mut left_keys);
+    let mut right_keys = Vec::new();
+    keys_in_order(&amp;right, &amp;mut right_keys);
+    println!("{:?} {:?}", left_keys, right_keys); // [1, 2, 3] [4, 5]
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Разрезание декартова дерева по ключу (split): O(log n) в среднем, где n - число вершин.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Возвращает пару (left, right): в left ключи &lt;= split_key, в right - остальные.
+std::pair&lt;Tree, Tree&gt; split(Tree node, int split_key) {
+    if (!node) return {nullptr, nullptr};
+    if (node-&gt;key &lt;= split_key) {
+        auto [left, right] = split(std::move(node-&gt;right), split_key);
+        node-&gt;right = std::move(left);
+        return {std::move(node), std::move(right)};
+    }
+    auto [left, right] = split(std::move(node-&gt;left), split_key);
+    node-&gt;left = std::move(right);
+    return {std::move(left), std::move(node)};
+}
+
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    Tree root;
+    for (auto [key, prio] : {std::pair{1, 30}, std::pair{2, 50}, std::pair{3, 10}, std::pair{4, 40}, std::pair{5, 20}}) {
+        root = merge(std::move(root), std::make_unique&lt;Node&gt;(key, prio));
+    }
+    auto [left, right] = split(std::move(root), 3);
+    std::vector&lt;int&gt; left_keys, right_keys;
+    keys_in_order(left.get(), left_keys);
+    keys_in_order(right.get(), right_keys);
+    for (int key : left_keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "| ";
+    for (int key : right_keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';  // 1 2 3 | 4 5
+    return 0;
+}
+</pre>
+
+<h3>Добавление новой вершины</h3>
+
+<img loading="lazy" decoding="async" src="structures/treap_add.png">
+
+<pre class="sh_pascal">
+{ Добавление вершины с ключём x в дерево T }
+procedure Add( var T:Treap; x:integer );
+var NV,L,R : Treap;
+begin
+  new(NV); { Создаём новый узел }
+  NV.x := x; { У него ключ x }
+  NV.y := Random(High(Integer)); { И случайный приоритет }
+  NV.Left := nil; { Нет поддеревьев }
+  NV.Right := nil;
+  Split(T,x,L,R); { Разрезаем исходное дерево по ключу x }
+  { Склеиваем 3 получившихся дерева }
+  T := Merge(Merge(L,NV),R);
+end;
+</pre>
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+class Node:
+    def __init__(self, key, prio):
+        self.key = key
+        self.prio = prio  # приоритет: у родителя он не меньше, чем у детей (куча)
+        self.left = None
+        self.right = None
+
+
+def merge(left, right):
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def split(node, split_key):
+    # Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные
+    if node is None:
+        return None, None
+    if node.key &lt;= split_key:
+        left, right = split(node.right, split_key)
+        node.right = left
+        return node, right
+    left, right = split(node.left, split_key)
+    node.left = right
+    return left, node
+
+
+def insert(root, key, prio):
+    # Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть
+    left, right = split(root, key)
+    return merge(merge(left, Node(key, prio)), right)
+
+
+def keys_in_order(node, keys):
+    if node is None:
+        return
+    keys_in_order(node.left, keys)
+    keys.append(node.key)
+    keys_in_order(node.right, keys)
+
+
+def main():
+    root = None
+    for key, prio in [(5, 50), (3, 80), (8, 20), (1, 90), (4, 10)]:
+        root = insert(root, key, prio)
+    keys = []
+    keys_in_order(root, keys)
+    print(keys, root.key)  # [1, 3, 4, 5, 8] 1
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+pub struct Node {
+    pub key: i32,
+    pub prio: i32, // приоритет: у родителя он не меньше, чем у детей (куча)
+    pub left: Tree,
+    pub right: Tree,
+}
+
+pub type Tree = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub fn merge(left: Tree, right: Tree) -&gt; Tree {
+    match (left, right) {
+        (None, right) =&gt; right,
+        (left, None) =&gt; left,
+        (Some(mut l), Some(mut r)) =&gt; {
+            if l.prio &gt; r.prio {
+                l.right = merge(l.right.take(), Some(r));
+                Some(l)
+            } else {
+                r.left = merge(Some(l), r.left.take());
+                Some(r)
+            }
+        }
+    }
+}
+
+// Возвращает (left, right): в left ключи &lt;= split_key, в right - остальные.
+pub fn split(node: Tree, split_key: i32) -&gt; (Tree, Tree) {
+    let Some(mut current) = node else { return (None, None) };
+    if current.key &lt;= split_key {
+        let (left, right) = split(current.right.take(), split_key);
+        current.right = left;
+        (Some(current), right)
+    } else {
+        let (left, right) = split(current.left.take(), split_key);
+        current.left = right;
+        (left, Some(current))
+    }
+}
+
+// Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть.
+pub fn insert(root: Tree, key: i32, prio: i32) -&gt; Tree {
+    let (left, right) = split(root, key);
+    merge(merge(left, Some(Box::new(Node { key, prio, left: None, right: None }))), right)
+}
+
+pub fn keys_in_order(node: &amp;Tree, keys: &amp;mut Vec&lt;i32&gt;) {
+    if let Some(current) = node {
+        keys_in_order(&amp;current.left, keys);
+        keys.push(current.key);
+        keys_in_order(&amp;current.right, keys);
+    }
+}
+
+fn main() {
+    let mut root: Tree = None;
+    for (key, prio) in [(5, 50), (3, 80), (8, 20), (1, 90), (4, 10)] {
+        root = insert(root, key, prio);
+    }
+    let mut keys = Vec::new();
+    keys_in_order(&amp;root, &amp;mut keys);
+    println!("{:?} {}", keys, root.as_ref().map_or(0, |n| n.key)); // [1, 3, 4, 5, 8] 1
+}</code></pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Вставка в декартово дерево через разрезание и склеивание: O(log n) в среднем.
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+struct Node {
+    int key;
+    int prio;  // приоритет: у родителя он не меньше, чем у детей (куча)
+    std::unique_ptr&lt;Node&gt; left;
+    std::unique_ptr&lt;Node&gt; right;
+    Node(int k, int p) : key(k), prio(p) {}
+};
+
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+Tree merge(Tree left, Tree right) {
+    if (!left) return right;
+    if (!right) return left;
+    if (left-&gt;prio &gt; right-&gt;prio) {
+        left-&gt;right = merge(std::move(left-&gt;right), std::move(right));
+        return left;
+    }
+    right-&gt;left = merge(std::move(left), std::move(right-&gt;left));
+    return right;
+}
+
+// Возвращает пару (left, right): в left ключи &lt;= split_key, в right - остальные.
+std::pair&lt;Tree, Tree&gt; split(Tree node, int split_key) {
+    if (!node) return {nullptr, nullptr};
+    if (node-&gt;key &lt;= split_key) {
+        auto [left, right] = split(std::move(node-&gt;right), split_key);
+        node-&gt;right = std::move(left);
+        return {std::move(node), std::move(right)};
+    }
+    auto [left, right] = split(std::move(node-&gt;left), split_key);
+    node-&gt;left = std::move(right);
+    return {std::move(left), std::move(node)};
+}
+
+// Разрезаем дерево по ключу и склеиваем: левая часть, новая вершина, правая часть.
+Tree insert(Tree root, int key, int prio) {
+    auto [left, right] = split(std::move(root), key);
+    return merge(merge(std::move(left), std::make_unique&lt;Node&gt;(key, prio)), std::move(right));
+}
+
+void keys_in_order(const Node* node, std::vector&lt;int&gt;&amp; keys) {
+    if (!node) return;
+    keys_in_order(node-&gt;left.get(), keys);
+    keys.push_back(node-&gt;key);
+    keys_in_order(node-&gt;right.get(), keys);
+}
+
+int main() {
+    Tree root;
+    for (auto [key, prio] : {std::pair{5, 50}, std::pair{3, 80}, std::pair{8, 20}, std::pair{1, 90}, std::pair{4, 10}}) {
+        root = insert(std::move(root), key, prio);
+    }
+    std::vector&lt;int&gt; keys;
+    keys_in_order(root.get(), keys);
+    for (int key : keys) std::cout &lt;&lt; key &lt;&lt; ' ';
+    std::cout &lt;&lt; "корень " &lt;&lt; root-&gt;key &lt;&lt; '\n';  // 1 3 4 5 8 корень 1
+    return 0;
+}
+</pre>
+
+<h3>Удаление вершины с заданным ключом x</h3>
+
+<img loading="lazy" decoding="async" src="structures/treap_delete.png">
+
+<pre class="sh_pascal">
+{ Удаление вершины }
+procedure Delete( var T:Treap; x:integer );
+var L,R,M,Rs : Treap;
+begin
+  Split(T,x-1,L,R);
+  Split(R,x,M,Rs);
+  { Удаляем одну верхнюю вершину в M }
+  if M <> nil then begin
+    if M.Left = nil then
+      M := M.Right
+    else
+      M := M.Left;
+  end;
+  { Сливаем вместе оставшиеся куски }
+  T := Merge(L,Merge(M,Rs));
+end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Удаление ключа из декартова дерева (split + merge): O(log n) в среднем, где n - число вершин
+class Node:
+    def __init__(self, key, prio, left=None, right=None):
+        self.key = key
+        self.prio = prio  # у родителя приоритет не меньше, чем у детей (куча)
+        self.left = left
+        self.right = right
+
+
+def merge(left, right):
+    """Все ключи left не больше ключей right; корнем становится вершина с большим приоритетом."""
+    if left is None:
+        return right
+    if right is None:
+        return left
+    if left.prio &gt; right.prio:
+        left.right = merge(left.right, right)
+        return left
+    right.left = merge(left, right.left)
+    return right
+
+
+def split(node, key):
+    """Возвращает два дерева: с ключами &lt;= key и с ключами &gt; key."""
+    if node is None:
+        return None, None
+    if node.key &lt;= key:
+        left, right = split(node.right, key)
+        node.right = left
+        return node, right
+    left, right = split(node.left, key)
+    node.left = right
+    return left, node
+
+
+def erase(root, key):
+    """Удаляет одну вершину с ключом key: режем на части, у средней убираем корень, склеиваем."""
+    left, rest = split(root, key - 1)  # целые ключи
+    middle, right = split(rest, key)
+    if middle is not None:
+        middle = merge(middle.left, middle.right)
+    return merge(left, merge(middle, right))
+
+
+def keys(node):
+    """Ключи дерева в порядке возрастания."""
+    if node is None:
+        return []
+    return keys(node.left) + [node.key] + keys(node.right)
+
+
+if __name__ == "__main__":
+    root = None
+    for key, prio in [(1, 5), (2, 3), (3, 8), (4, 1), (5, 6)]:  # ключи по возрастанию
+        root = merge(root, Node(key, prio))
+    print("до:", keys(root))
+    print("после:", keys(erase(root, 3)))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Удаление ключа из декартова дерева (split + merge): O(log n) в среднем, где n - число вершин
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+pub struct Node { pub key: i64, pub prio: u64, pub left: Link, pub right: Link } // приоритет родителя не меньше детского
+
+// Все ключи a не больше ключей b; корнем становится вершина с большим приоритетом
+pub fn merge(a: Link, b: Link) -&gt; Link {
+    match (a, b) {
+        (None, b) =&gt; b,
+        (a, None) =&gt; a,
+        (Some(mut a), Some(b)) if a.prio &gt; b.prio =&gt; {
+            a.right = merge(a.right.take(), Some(b));
+            Some(a)
+        }
+        (Some(a), Some(mut b)) =&gt; {
+            b.left = merge(Some(a), b.left.take());
+            Some(b)
+        }
+    }
+}
+
+// Разрезание: в первом дереве ключи &lt;= key, во втором - больше key
+pub fn split(link: Link, key: i64) -&gt; (Link, Link) {
+    let Some(mut node) = link else { return (None, None) };
+    if node.key &lt;= key {
+        let (left, right) = split(node.right.take(), key);
+        node.right = left;
+        (Some(node), right)
+    } else {
+        let (left, right) = split(node.left.take(), key);
+        node.left = right;
+        (left, Some(node))
+    }
+}
+
+// Удаляем одну вершину с ключом key: режем на части, у средней убираем корень, склеиваем
+pub fn erase(root: Link, key: i64) -&gt; Link {
+    let (left, rest) = split(root, key - 1);
+    let (middle, right) = split(rest, key);
+    let middle = middle.and_then(|node| merge(node.left, node.right));
+    merge(left, merge(middle, right))
+}
+
+// Ключи дерева в порядке возрастания
+pub fn keys(link: &amp;Link) -&gt; Vec&lt;i64&gt; {
+    match link {
+        None =&gt; vec![],
+        Some(n) =&gt; [keys(&amp;n.left), vec![n.key], keys(&amp;n.right)].concat(),
+    }
+}
+
+fn main() {
+    // Ключи добавляем по возрастанию: (ключ, приоритет)
+    let mut root: Link = None;
+    for (key, prio) in [(1, 5), (2, 3), (3, 8), (4, 1), (5, 6)] {
+        root = merge(root, Some(Box::new(Node { key, prio, left: None, right: None })));
+    }
+    println!("до:    {:?}", keys(&amp;root));
+    root = erase(root, 3);
+    println!("после: {:?}", keys(&amp;root));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Удаление ключа из декартова дерева (split + merge): O(log n) в среднем, где n - число вершин
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+struct Node { int key, prio; std::unique_ptr&lt;Node&gt; left, right; };  // у родителя приоритет не меньше, чем у детей
+using Tree = std::unique_ptr&lt;Node&gt;;
+
+// Все ключи a не больше ключей b; корнем становится вершина с большим приоритетом
+Tree merge(Tree a, Tree b) {
+    if (!a) return b;
+    if (!b) return a;
+    if (a-&gt;prio &gt; b-&gt;prio) {
+        a-&gt;right = merge(std::move(a-&gt;right), std::move(b));
+        return a;
+    }
+    b-&gt;left = merge(std::move(a), std::move(b-&gt;left));
+    return b;
+}
+
+// Разрезание: в первом дереве ключи &lt;= key, во втором - больше key
+std::pair&lt;Tree, Tree&gt; split(Tree t, int key) {
+    if (!t) return {nullptr, nullptr};
+    if (t-&gt;key &lt;= key) {
+        auto [left, right] = split(std::move(t-&gt;right), key);
+        t-&gt;right = std::move(left);
+        return {std::move(t), std::move(right)};
+    }
+    auto [left, right] = split(std::move(t-&gt;left), key);
+    t-&gt;left = std::move(right);
+    return {std::move(left), std::move(t)};
+}
+
+// Удаляем одну вершину с ключом key: режем на части, у средней убираем корень, склеиваем
+Tree erase(Tree root, int key) {
+    auto [left, rest] = split(std::move(root), key - 1);
+    auto [middle, right] = split(std::move(rest), key);
+    if (middle) middle = merge(std::move(middle-&gt;left), std::move(middle-&gt;right));
+    return merge(std::move(left), merge(std::move(middle), std::move(right)));
+}
+
+void printKeys(const Node* t) {  // ключи в порядке возрастания
+    if (!t) return;
+    printKeys(t-&gt;left.get());
+    std::printf(" %d", t-&gt;key);
+    printKeys(t-&gt;right.get());
+}
+
+int main() {
+    // Ключи добавляем по возрастанию: (ключ, приоритет)
+    const std::pair&lt;int, int&gt; items[] = {{1, 5}, {2, 3}, {3, 8}, {4, 1}, {5, 6}};
+    Tree root;
+    for (const auto&amp; [key, prio] : items) {
+        root = merge(std::move(root), std::make_unique&lt;Node&gt;(Node{key, prio, nullptr, nullptr}));
+    }
+    root = erase(std::move(root), 3);
+    std::printf("после удаления 3:");
+    printKeys(root.get());
+    std::printf("\n");
+    return 0;
+}
+</pre>
+
+<h3>Поиск минимума и максимума</h3>
+
+<pre class="sh_pascal">
+{ Поиск минимума в дереве }
+function MinT( T:Treap ):integer;
+begin
+  if T = nil then { Если дерево пустое, то минимума нет }
+    MinT := High(integer)
+  else if T.Left = nil then { Левого поддерева нет => текущий элемент - минимум }
+    MinT := T.x
+  else
+    MinT := MinT(T.Left); { Минимум в левом поддереве }
+end;
+
+{ Поиск максимума в дереве - аналогично минимуму, только идём вправо }
+function MaxT( T:Treap ):integer;
+begin
+  if T = nil then
+    MaxT := Low(Integer)
+  else if T.Right = nil then
+    MaxT := T.x
+  else
+    MaxT := MaxT(T.Right);
+end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Минимум и максимум в декартовом дереве: O(h) по времени, где h - высота дерева
+class Node:
+    def __init__(self, key, left=None, right=None):
+        self.key = key
+        self.left = left
+        self.right = right
+
+
+def min_key(root):
+    """Минимум - самая левая вершина дерева; для пустого дерева возвращаем None."""
+    if root is None:
+        return None
+    while root.left is not None:
+        root = root.left
+    return root.key
+
+
+def max_key(root):
+    """Максимум - самая правая вершина дерева; для пустого дерева возвращаем None."""
+    if root is None:
+        return None
+    while root.right is not None:
+        root = root.right
+    return root.key
+
+
+if __name__ == "__main__":
+    # Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    root = Node(4, Node(2, Node(1), Node(3)), Node(6, None, Node(7)))
+    print("Минимум:", min_key(root), "Максимум:", max_key(root))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Минимум и максимум в декартовом дереве: O(h) по времени, где h - высота дерева
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub key: i64,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(key: i64, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { key, left, right }))
+}
+
+/// Минимум - самая левая вершина дерева; для пустого дерева возвращаем None.
+pub fn min_key(mut link: &amp;Link) -&gt; Option&lt;i64&gt; {
+    let mut best = None;
+    while let Some(n) = link {
+        best = Some(n.key);
+        link = &amp;n.left;
+    }
+    best
+}
+
+/// Максимум - самая правая вершина дерева; для пустого дерева возвращаем None.
+pub fn max_key(mut link: &amp;Link) -&gt; Option&lt;i64&gt; {
+    let mut best = None;
+    while let Some(n) = link {
+        best = Some(n.key);
+        link = &amp;n.right;
+    }
+    best
+}
+
+fn main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    let root = node(4, node(2, node(1, None, None), node(3, None, None)), node(6, None, node(7, None, None)));
+    println!("Минимум: {}, максимум: {}", min_key(&amp;root).unwrap(), max_key(&amp;root).unwrap());
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Минимум и максимум в декартовом дереве: O(h) по времени, где h - высота дерева
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    int key;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int key, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{key, std::move(left), std::move(right)});
+}
+
+// Минимум - самая левая вершина дерева; для пустого дерева результат пуст
+std::optional&lt;int&gt; minKey(const Node* node) {
+    std::optional&lt;int&gt; best;
+    for (; node != nullptr; node = node-&gt;left.get()) best = node-&gt;key;
+    return best;
+}
+
+// Максимум - самая правая вершина дерева; для пустого дерева результат пуст
+std::optional&lt;int&gt; maxKey(const Node* node) {
+    std::optional&lt;int&gt; best;
+    for (; node != nullptr; node = node-&gt;right.get()) best = node-&gt;key;
+    return best;
+}
+
+int main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    auto root = makeNode(4, makeNode(2, makeNode(1), makeNode(3)), makeNode(6, nullptr, makeNode(7)));
+    std::printf("Минимум: %d, максимум: %d\n", minKey(root.get()).value(), maxKey(root.get()).value());
+    return 0;
+}
+</pre>
+
+<h3>Поиск значения в дереве</h3>
+
+<pre class="sh_pascal">
+{ Поиск значения в дереве }
+function Find( T:Treap; x:integer ):boolean;
+begin
+  if T = nil then
+    Find := false { Не найдено }
+  else if T.x = x then begin
+    Find := true; { x найдено в текущей вершине }
+  end else if x < T.x then
+    Find := Find(T.Left,x) { Поищем слева }
+  else
+    Find := Find(T.Right,x); { Поищем справа }
+end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Поиск ключа в декартовом дереве (как в двоичном дереве поиска): O(h) по времени, где h - высота дерева
+class Node:
+    def __init__(self, key, left=None, right=None):
+        self.key = key
+        self.left = left
+        self.right = right
+
+
+def find_key(root, key) -&gt; bool:
+    """Сравниваем с ключом вершины: равен - нашли, меньше - идем влево, больше - вправо."""
+    node = root
+    while node is not None:
+        if node.key == key:
+            return True
+        node = node.left if key &lt; node.key else node.right
+    return False
+
+
+if __name__ == "__main__":
+    # Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    root = Node(4, Node(2, Node(1), Node(3)), Node(6, None, Node(7)))
+    print("Ключ 3:", find_key(root, 3), "Ключ 5:", find_key(root, 5))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Поиск ключа в декартовом дереве (как в двоичном дереве поиска): O(h) по времени, где h - высота дерева
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub key: i64,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(key: i64, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { key, left, right }))
+}
+
+/// Сравниваем с ключом вершины: равен - нашли, меньше - идем влево, больше - вправо.
+pub fn find_key(mut link: &amp;Link, key: i64) -&gt; bool {
+    while let Some(n) = link {
+        if n.key == key {
+            return true;
+        }
+        link = if key &lt; n.key { &amp;n.left } else { &amp;n.right };
+    }
+    false
+}
+
+fn main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    let root = node(4, node(2, node(1, None, None), node(3, None, None)), node(6, None, node(7, None, None)));
+    println!("Ключ 3: {}, ключ 5: {}", find_key(&amp;root, 3), find_key(&amp;root, 5));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Поиск ключа в декартовом дереве (как в двоичном дереве поиска): O(h) по времени, где h - высота дерева
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    int key;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int key, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{key, std::move(left), std::move(right)});
+}
+
+// Сравниваем с ключом вершины: равен - нашли, меньше - идем влево, больше - вправо
+bool findKey(const Node* node, int key) {
+    while (node != nullptr) {
+        if (node-&gt;key == key) return true;
+        node = key &lt; node-&gt;key ? node-&gt;left.get() : node-&gt;right.get();
+    }
+    return false;
+}
+
+int main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    auto root = makeNode(4, makeNode(2, makeNode(1), makeNode(3)), makeNode(6, nullptr, makeNode(7)));
+    std::printf("Ключ 3: %s, ключ 5: %s\n", findKey(root.get(), 3) ? "да" : "нет",
+                findKey(root.get(), 5) ? "да" : "нет");
+    return 0;
+}
+</pre>
+
+<h3>Вычисление высоты дерева</h3>
+
+<pre class="sh_pascal">
+{ Высота дерева }
+function Height( T:Treap ):integer;
+begin
+  if T = nil then
+    Result := 0
+  else
+    Result := max(Height(T.Left),Height(T.Right))+1;
+end;
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Высота декартова дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+class Node:
+    def __init__(self, key, left=None, right=None):
+        self.key = key
+        self.left = left
+        self.right = right
+
+
+def height(node) -&gt; int:
+    """Высота пустого дерева равна 0, иначе 1 + максимум из высот поддеревьев."""
+    if node is None:
+        return 0
+    return 1 + max(height(node.left), height(node.right))
+
+
+if __name__ == "__main__":
+    # Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    root = Node(4, Node(2, Node(1), Node(3)), Node(6, None, Node(7)))
+    print("Высота:", height(root))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Высота декартова дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+pub type Link = Option&lt;Box&lt;Node&gt;&gt;;
+
+pub struct Node {
+    pub key: i64,
+    pub left: Link,
+    pub right: Link,
+}
+
+pub fn node(key: i64, left: Link, right: Link) -&gt; Link {
+    Some(Box::new(Node { key, left, right }))
+}
+
+/// Высота пустого дерева равна 0, иначе 1 + максимум из высот поддеревьев.
+pub fn height(link: &amp;Link) -&gt; usize {
+    match link {
+        None =&gt; 0,
+        Some(n) =&gt; 1 + height(&amp;n.left).max(height(&amp;n.right)),
+    }
+}
+
+fn main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    let root = node(4, node(2, node(1, None, None), node(3, None, None)), node(6, None, node(7, None, None)));
+    println!("Корень {}, высота {}", root.as_ref().map_or(0, |n| n.key), height(&amp;root));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Высота декартова дерева (рекурсивно): O(n) по времени, O(h) по памяти стека рекурсии
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;memory&gt;
+#include &lt;utility&gt;
+
+struct Node {
+    int key;
+    std::unique_ptr&lt;Node&gt; left, right;
+};
+
+std::unique_ptr&lt;Node&gt; makeNode(int key, std::unique_ptr&lt;Node&gt; left = nullptr,
+                               std::unique_ptr&lt;Node&gt; right = nullptr) {
+    return std::make_unique&lt;Node&gt;(Node{key, std::move(left), std::move(right)});
+}
+
+// Высота пустого дерева равна 0, иначе 1 + максимум из высот поддеревьев
+int height(const Node* node) {
+    if (node == nullptr) return 0;
+    return 1 + std::max(height(node-&gt;left.get()), height(node-&gt;right.get()));
+}
+
+int main() {
+    // Дерево: корень 4, слева 2 (с сыновьями 1 и 3), справа 6 (с сыном 7)
+    auto root = makeNode(4, makeNode(2, makeNode(1), makeNode(3)), makeNode(6, nullptr, makeNode(7)));
+    std::printf("Высота: %d\n", height(root.get()));
+    return 0;
+}
+</pre>
+
+<h3>Тестирование всех операций</h3>
+
+<pre class="sh_pascal">
+var
+  T : Treap = nil;
+  i,j : Integer;
+begin
+  Randomize;
+  { Проверяем что сейчас ничего в дереве нет }
+  for i := -10 to 10 do
+    assert( not Find(T,i) );
+  { Добавляем вершины }
+  for i := 1 to 1000000 do begin
+    Add(T,i);
+    assert( not Find(T,-1) ); { Вершины -1 по-прежнему нет }
+    for j := 1 to min(10,i) do { Добавленные вершины есть }
+      assert( Find(T,j) );
+    assert( not Find(T,i+1) ); { Вершин с большим номером нет }
+  end;  
+  Writeln('Высота дерева (оценка: 4*log(N)): ',Height(T));
+  assert( Find(T,10) );
+  Delete(T,10);
+  assert( not Find(T,10) );
+end.
+</pre>
+
+<h3>Решение задачи поиска чисел в массиве</h3>
+
+<pre class="sh_pascal">
+var
+  T : Treap = nil;
+  N,M,x,i : Integer;
+begin
+  Reset(Input,'find.in');
+  Rewrite(Output,'find.out');
+
+  Randomize;
+  Read(N,M);
+  for i := 1 to N do begin
+    Read(x);
+    Add(T,x);
+  end;
+  for i := 1 to M do begin
+    Read(x);
+    if Find(T,x) then
+      Writeln('YES')
+    else
+      Writeln('NO');
+  end;
+end.
+</pre>
+
+<h3>Ссылки</h3>
+
+<ul>
+    <li><a href="http://ru.wikipedia.org/wiki/Декартово_дерево">Декартово дерево в Википедии</a></li>
+    <li><a href="http://habrahabr.ru/blogs/algorithm/101818/">Декартово дерево - статья на Хабрахабре</a></li>
+    <li><a href="http://e-maxx.ru/algo/treap">Реализация декартова дерева на C/C++</a></li>
+</ul>
+
+</div>
+
+</body>
+
+</html>

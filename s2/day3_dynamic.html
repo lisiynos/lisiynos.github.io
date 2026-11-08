@@ -1,0 +1,306 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Разбор задач: динамика</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_java.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_basic.js"></script>
+    <script type="text/javascript" src="../syntax/sh_alg.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+    <h1>Разбор задач, день 3</h1>
+ 
+    <h2>Кролик</h2>
+
+    <p>Зайчик прыгает по прямой просеке, для удобства разделённой на $n$ клеток.
+Клетки пронумерованы по порядку натуральными числами от $1$ до $n$.
+Некоторые клетки заболочены: если зайчик прыгнет на такую клетку, ему
+несдобровать. Некоторые другие клетки просеки поросли вкусной зелёной
+травой: прыгнув на такую клетку, зайчик сможет отдохнуть и подкрепиться.</p>
+
+<p>Зайчик начинает свой путь из клетки с номером $1$ и хочет попасть
+в клетку с номером $n$, по пути ни разу не провалившись в болото
+и скушав как можно больше вкусной зелёной травы. Конструктивные особенности
+зайчика таковы, что из клетки с номером $k$ он может прыгнуть лишь
+в клетки с номерами $k + 1$, $k + 3$ и $k + 5$.</p>
+
+<p>
+Выясните, какое максимальное количество клеток с травой сможет посетить
+зайчик на своём пути.</p>
+
+
+<pre class="sh_python">
+S = "....." + S
+F = [-1 for x in range(len(S))]
+F[5] = 0
+</pre>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python">
+# Кролик, динамика по клеткам (прыжки на +1, +3, +5): O(N) по времени и по памяти.
+# road[i]: '#' - болото, 'T' - трава, '.' - обычная клетка; старт - клетка 0, финиш - последняя.
+JUMPS = (1, 3, 5)
+UNREACHABLE = -1
+
+
+def max_grass(road: str) -&gt; int:
+    if not road:
+        return UNREACHABLE
+    # best[i] - максимум травы, которую съест кролик, прыгнув на клетку i, или UNREACHABLE.
+    best = [UNREACHABLE] * len(road)
+    best[0] = 0  # в стартовой клетке трава не считается
+    for i in range(1, len(road)):
+        if road[i] == "#":
+            continue
+        best_before = max(best[i - jump] for jump in JUMPS if i &gt;= jump)
+        if best_before != UNREACHABLE:
+            best[i] = best_before + (1 if road[i] == "T" else 0)
+    return best[-1]
+
+
+def main() -&gt; None:
+    road = "..T.#T.T..T.."
+    print(f"Максимум травы на пути: {max_grass(road)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Кролик, динамика по клеткам (прыжки на +1, +3, +5): O(N) по времени и по памяти.
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// Максимум клеток с травой, на которые прыгнет кролик на пути от первой клетки до последней, или -1.
+// road[i]: '#' - болото, 'T' - трава, '.' - обычная клетка.
+long long max_grass(const std::string&amp; road) {
+    constexpr long long kUnreachable = -1;
+    constexpr std::size_t kJumps[] = {1, 3, 5};
+    if (road.empty()) return kUnreachable;
+    // best[i] - максимум травы при прыжке на клетку i, kUnreachable - клетка недостижима.
+    std::vector&lt;long long&gt; best(road.size(), kUnreachable);
+    best[0] = 0;  // в стартовой клетке трава не считается
+    for (std::size_t i = 1; i &lt; road.size(); ++i) {
+        if (road[i] == '#') continue;
+        long long best_before = kUnreachable;
+        for (std::size_t jump : kJumps) {
+            if (i &gt;= jump) best_before = std::max(best_before, best[i - jump]);
+        }
+        if (best_before != kUnreachable) {
+            best[i] = best_before + (road[i] == 'T' ? 1 : 0);
+        }
+    }
+    return best.back();
+}
+
+int main() {
+    const std::string road = "..T.#T.T..T..";
+    std::printf("Максимум травы на пути: %lld\n", max_grass(road));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Кролик, динамика по клеткам (прыжки на +1, +3, +5): O(N) по времени и по памяти.
+
+/// Максимум клеток с травой, на которые прыгнет кролик на пути от первой клетки до последней, или None.
+/// road[i]: b'#' - болото, b'T' - трава, b'.' - обычная клетка.
+pub fn max_grass(road: &amp;[u8]) -&gt; Option&lt;u32&gt; {
+    if road.is_empty() {
+        return None;
+    }
+    // best[i] - максимум травы при прыжке на клетку i, None - клетка недостижима.
+    let mut best: Vec&lt;Option&lt;u32&gt;&gt; = vec![None; road.len()];
+    best[0] = Some(0); // в стартовой клетке трава не считается
+    for i in 1..road.len() {
+        if road[i] == b'#' {
+            continue;
+        }
+        let best_before = [1usize, 3, 5]
+            .iter()
+            .filter_map(|&amp;jump| i.checked_sub(jump))
+            .filter_map(|j| best[j])
+            .max();
+        if let Some(value) = best_before {
+            best[i] = Some(value + u32::from(road[i] == b'T'));
+        }
+    }
+    best[road.len() - 1]
+}
+
+fn main() {
+    let road = b"..T.#T.T..T..";
+    match max_grass(road) {
+        Some(grass) =&gt; println!("Максимум травы на пути: {}", grass),
+        None =&gt; println!("Пути нет"),
+    }
+}
+</code></pre>
+
+
+    <p> В некоторой стране $N$ городов и $M$ дорог. Каждая дорога представляет собой
+        отрезок прямой, соединяющий два различных города, причём известно, что ни
+        на одной дороге нет других городов, кроме тех, что задают её концы.
+        Расстоянием между двумя городами считается минимальная суммарная длина дорог,
+        по которым надо пройти, чтобы попасть из одного города в другой.
+        Требуется вычислить наибольшее из таких расстояний.</p>
+ 
+<pre class="sh_python">
+# Открываем входной и выходной файлы
+import sys
+sys.stdin = open("maxdist.in") 
+sys.stdout = open("maxdist.out", "w")
+
+N = int(input()) # Количество городов
+Inf = 1e20 # Обозначение для бесконечности
+A = [[Inf]*N for i in range(N)] # Создаём матрицу A размера NxN 
+for i in range(N): A[i][i] = 0  # Заполняем главную диагональ нулями 
+
+C = [map(int,raw_input().split()) for i in range(N)] # Считываем координаты городов
+
+# Вводим дороги и считаем их длины
+from math import sqrt 
+
+M = int(raw_input())
+for k in range(M):
+  i,j = map(int,raw_input().split())
+  i -= 1
+  j -= 1
+  A[i][j] = sqrt( (C[i][0]-C[j][0])**2 + (C[i][1]-C[j][1])**2 )
+  A[j][i] = A[i][j]
+
+# Алгоритм Флойда-Уоршалла
+for k in range(N):
+  for i in range(N):
+    for j in range(N):
+      t = A[i][k] + A[k][j]
+      if t &lt; A[i][j]:
+        A[i][j] = t
+
+# Выбираем максимальное из расстояний
+maxdist = max(map(max,A))
+
+# Выводим ответ
+print -1 if maxdist == Inf else maxdist
+</pre>
+
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">
+// Флойд-Уоршелл, кратчайшие пути между всеми парами вершин: O(N^3) по времени, O(N^2) по памяти.
+#include &lt;algorithm&gt;
+#include &lt;cstddef&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Нет дороги между городами: большое число, заведомо больше любой длины пути.
+constexpr long long kInf = 1000000000LL;
+
+using Matrix = std::vector&lt;std::vector&lt;long long&gt;&gt;;
+
+// Матрица кратчайших расстояний; входная матрица передаётся копией и не меняется.
+Matrix floyd_warshall(Matrix dist) {
+    const std::size_t n = dist.size();
+    // Для каждой вершины k пробуем путь i -&gt; k -&gt; j и сохраняем его, если он короче.
+    for (std::size_t k = 0; k &lt; n; ++k) {
+        for (std::size_t i = 0; i &lt; n; ++i) {
+            for (std::size_t j = 0; j &lt; n; ++j) {
+                dist[i][j] = std::min(dist[i][j], dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+    return dist;
+}
+
+// Наибольшее из кратчайших расстояний или -1, если какая-то пара городов не связана.
+long long longest_distance(const Matrix&amp; dist) {
+    long long longest = 0;
+    for (const auto&amp; row : dist) {
+        for (long long d : row) {
+            longest = std::max(longest, d);
+        }
+    }
+    return longest &gt;= kInf ? -1 : longest;
+}
+
+int main() {
+    // Четыре города; дороги: 1-2 (2), 2-3 (3), 3-4 (4), 1-4 (10). Остальных дорог нет.
+    const Matrix roads = {
+        {0, 2, kInf, 10},
+        {2, 0, 3, kInf},
+        {kInf, 3, 0, 4},
+        {10, kInf, 4, 0},
+    };
+    std::printf("Наибольшее кратчайшее расстояние: %lld\n", longest_distance(floyd_warshall(roads)));
+    return 0;
+}
+</pre>
+
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Флойд-Уоршелл, кратчайшие пути между всеми парами вершин: O(N^3) по времени, O(N^2) по памяти.
+
+/// Нет дороги между городами: большое число, заведомо больше любой длины пути.
+pub const INF: i64 = 1_000_000_000;
+
+/// Матрица кратчайших расстояний; входная матрица не меняется.
+pub fn floyd_warshall(weights: &amp;[Vec&lt;i64&gt;]) -&gt; Vec&lt;Vec&lt;i64&gt;&gt; {
+    let n = weights.len();
+    let mut dist = weights.to_vec();
+    // Для каждой вершины k пробуем путь i -&gt; k -&gt; j и сохраняем его, если он короче.
+    for k in 0..n {
+        for i in 0..n {
+            for j in 0..n {
+                dist[i][j] = dist[i][j].min(dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+    dist
+}
+
+/// Наибольшее из кратчайших расстояний или -1, если какая-то пара городов не связана.
+pub fn longest_distance(dist: &amp;[Vec&lt;i64&gt;]) -&gt; i64 {
+    let longest = dist.iter().flatten().copied().max().unwrap_or(0);
+    if longest &gt;= INF {
+        -1
+    } else {
+        longest
+    }
+}
+
+fn main() {
+    // Четыре города; дороги: 1-2 (2), 2-3 (3), 3-4 (4), 1-4 (10). Остальных дорог нет.
+    let roads: Vec&lt;Vec&lt;i64&gt;&gt; = vec![
+        vec![0, 2, INF, 10],
+        vec![2, 0, 3, INF],
+        vec![INF, 3, 0, 4],
+        vec![10, INF, 4, 0],
+    ];
+    let dist = floyd_warshall(&amp;roads);
+    println!("Наибольшее кратчайшее расстояние: {}", longest_distance(&amp;dist));
+}
+</code></pre>
+
+</div>
+</body>
+
+</html>

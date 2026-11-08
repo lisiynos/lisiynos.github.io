@@ -1,0 +1,645 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Алгебра и теория чисел</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>Алгебра и теория чисел: целочисленная арифметика, простые числа</h1>
+
+    <ul class="tags">
+        <li><a href="#">Теория чисел</a></li>
+    </ul>
+
+    <div class="description">
+        Описание для плана ;)
+    </div>
+
+
+    <pre>
+Простые числа.
+  Проверка простоты - за полином.
+  Факторизация - за экспоненту.
+  Упоминание RSA.
+Вычисления по модулю.
+  Лемма (a + b) mod c = (a mod c + b mod c) mod c.
+  Лемма (a * b) mod c = (a mod c * b mod c) mod c.
+Задача: a * b mod c, оставаясь в целом типе.
+  Десятичное умножение в столбик.
+  Двоичное умножение в столбик.
+  Идея со сложением нужных из a, 2 a, 4 a, 8 a, ... .
+  Медленное умножение.
+  Код на Си и на Паскале.
+Задача: a ^ b mod c, оставаясь в целом типе.
+  Сложение -> умножение - то же, что и умножение -> возведение в степень.
+  Идея с перемножением нужных из a, a^2, a^4, a^8, ... .
+  Быстрое возведение в степень.
+  Код на Си.
+Мотивационная задача: проверка числа на простоту.
+  Периоды a, a^2, a^3, a^4, a^5, ... mod p на примере p = 7.
+  Малая теорема Ферма.
+  Функция Эйлера.
+  Теорема Эйлера - обобщение теоремы Ферма.
+  Лемма: \phi (m) = m - 1 равносильно тому, что m простое.
+  Тест Ферма.
+  Числа Кармайкла (минимальное - 561).
+  Корни из единицы по модулю m.
+  Лемма: m простое => корни из единицы только +-1.
+  Тест Миллера-Рабина.
+Матрицы.
+  Числа Фибоначчи.
+  Получение вектора (F_{n}, F_{n - 1}) из вектора (F_{n - 1}, F_{n - 2}).
+  Матрицы и правила умножения матриц.
+  Умножение матрицы ((1, 1), (1, 0)) на себя несколько раз справа и слева.
+  Наблюдение за тем, как в матрице получаются числа Фибоначчи.
+  Одно умножение на матрицу - это переход (n - 1) -> n.
+  Получение числа Фибоначчи с большим номером по модулю.
+  Быстрое возведение матрицы в степень.
+  Последовательность G_{n} = G_{n - 1} + 2 G_{n - 3} и соответствующая матрица.
+  H_{n} = H_{n - 1} + 2 H_{n - 3}, добавляем + 1, добавляем + n.
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+def mul_mod(a, b, modulus):
+    """Возвращает a * b mod modulus для b &gt;= 0 и modulus &gt;= 1 через сложения и удвоения."""
+    result = 0
+    a %= modulus
+    while b &gt; 0:
+        # Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if b % 2 == 1:
+            result = (result + a) % modulus
+        # a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus
+        b //= 2
+    return result
+
+
+def main():
+    # 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    print(mul_mod(123456, 654321, 1000))
+    print(mul_mod(10**18, 10**18, 10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+// Модуль должен быть не больше 2^63, чтобы сумма двух остатков помещалась в u64
+
+pub fn mul_mod(mut a: u64, mut b: u64, modulus: u64) -&gt; u64 {
+    let mut result = 0;
+    a %= modulus;
+    while b &gt; 0 {
+        // Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if b % 2 == 1 {
+            result = (result + a) % modulus;
+        }
+        // a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus;
+        b /= 2;
+    }
+    result
+}
+
+fn main() {
+    // 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    println!("{}", mul_mod(123456, 654321, 1000));
+    println!("{}", mul_mod(1_000_000_000_000_000_000, 1_000_000_000_000_000_000, 1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Умножение a * b mod c двоичным методом: O(log b) удвоений и сложений по модулю
+// Модуль должен быть не больше 2^63, чтобы сумма двух остатков помещалась в 64 бита
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 mul_mod(u64 a, u64 b, u64 modulus) {
+    u64 result = 0;
+    a %= modulus;
+    while (b &gt; 0) {
+        // Если младший бит b равен 1, добавляем текущее a * 2^k к результату
+        if (b % 2 == 1) {
+            result = (result + a) % modulus;
+        }
+        // a переходит к 2a, 4a, 8a, ...
+        a = a * 2 % modulus;
+        b /= 2;
+    }
+    return result;
+}
+
+int main() {
+    // 123456 * 654321 mod 1000 и 10^18 * 10^18 mod (10^9 + 7)
+    std::cout &lt;&lt; mul_mod(123456, 654321, 1000) &lt;&lt; '\n';
+    std::cout &lt;&lt; mul_mod(1000000000000000000ULL, 1000000000000000000ULL, 1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Быстрое возведение в степень по модулю a^b mod m: O(log b) умножений
+def power_mod(base, exp, modulus):
+    """Возвращает base^exp mod modulus для exp &gt;= 0 и modulus &gt;= 1."""
+    result = 1 % modulus
+    base %= modulus
+    while exp &gt; 0:
+        # Если младший бит степени равен 1, добавляем текущую степень base в результат
+        if exp % 2 == 1:
+            result = result * base % modulus
+        # base переходит к a^2, a^4, a^8, ...
+        base = base * base % modulus
+        exp //= 2
+    return result
+
+
+def main():
+    # 3^200 mod 1000 и 2^100 mod (10^9 + 7)
+    print(power_mod(3, 200, 1000))
+    print(power_mod(2, 100, 10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Быстрое возведение в степень по модулю a^b mod m: O(log b) умножений
+// Модуль должен быть меньше 2^32, чтобы произведение двух остатков помещалось в u64
+
+pub fn power_mod(mut base: u64, mut exp: u64, modulus: u64) -&gt; u64 {
+    let mut result = 1 % modulus;
+    base %= modulus;
+    while exp &gt; 0 {
+        // Если младший бит степени равен 1, умножаем результат на текущую степень base
+        if exp % 2 == 1 {
+            result = result * base % modulus;
+        }
+        // base переходит к a^2, a^4, a^8, ...
+        base = base * base % modulus;
+        exp /= 2;
+    }
+    result
+}
+
+fn main() {
+    // 3^200 mod 1000 и 2^100 mod (10^9 + 7)
+    println!("{}", power_mod(3, 200, 1000));
+    println!("{}", power_mod(2, 100, 1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Быстрое возведение в степень по модулю a^b mod m: O(log b) умножений
+// Модуль должен быть меньше 2^32, чтобы произведение двух остатков помещалось в 64 бита
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 power_mod(u64 base, u64 exp, u64 modulus) {
+    u64 result = 1 % modulus;
+    base %= modulus;
+    while (exp &gt; 0) {
+        // Если младший бит степени равен 1, умножаем результат на текущую степень base
+        if (exp % 2 == 1) {
+            result = result * base % modulus;
+        }
+        // base переходит к a^2, a^4, a^8, ...
+        base = base * base % modulus;
+        exp /= 2;
+    }
+    return result;
+}
+
+int main() {
+    // 3^200 mod 1000 и 2^100 mod (10^9 + 7)
+    std::cout &lt;&lt; power_mod(3, 200, 1000) &lt;&lt; '\n';
+    std::cout &lt;&lt; power_mod(2, 100, 1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+def euler_phi(n):
+    """Возвращает количество чисел от 1 до n, взаимно простых с n (n &gt;= 1)."""
+    result = n
+    divisor = 2
+    while divisor * divisor &lt;= n:
+        if n % divisor == 0:
+            # Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result // divisor
+            while n % divisor == 0:
+                n //= divisor
+        divisor += 1
+    if n &gt; 1:
+        # Оставшийся простой множитель n тоже уменьшает phi
+        result -= result // n
+    return result
+
+
+def main():
+    # phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    print(euler_phi(36))
+    print(euler_phi(97))
+    print(euler_phi(10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет u64
+
+pub fn euler_phi(mut n: u64) -&gt; u64 {
+    let mut result = n;
+    let mut divisor = 2;
+    while divisor &lt;= n / divisor {
+        if n % divisor == 0 {
+            // Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result / divisor;
+            while n % divisor == 0 {
+                n /= divisor;
+            }
+        }
+        divisor += 1;
+    }
+    if n &gt; 1 {
+        // Оставшийся простой множитель n тоже уменьшает phi
+        result -= result / n;
+    }
+    result
+}
+
+fn main() {
+    // phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    println!("{}", euler_phi(36));
+    println!("{}", euler_phi(97));
+    println!("{}", euler_phi(1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Функция Эйлера phi(n) пробным делением по простым множителям n: O(sqrt(n)) операций
+// Условие divisor &lt;= n / divisor вместо divisor * divisor не переполняет 64 бита
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 euler_phi(u64 n) {
+    u64 result = n;
+    for (u64 divisor = 2; divisor &lt;= n / divisor; ++divisor) {
+        if (n % divisor == 0) {
+            // Простой делитель p уменьшает phi в p / (p - 1) раз: result - result / p
+            result -= result / divisor;
+            while (n % divisor == 0) {
+                n /= divisor;
+            }
+        }
+    }
+    if (n &gt; 1) {
+        // Оставшийся простой множитель n тоже уменьшает phi
+        result -= result / n;
+    }
+    return result;
+}
+
+int main() {
+    // phi(36) = 12, phi(97) = 96, phi(10^9 + 7) = 10^9 + 6
+    std::cout &lt;&lt; euler_phi(36) &lt;&lt; '\n';
+    std::cout &lt;&lt; euler_phi(97) &lt;&lt; '\n';
+    std::cout &lt;&lt; euler_phi(1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Тест Миллера-Рабина: O(k log n) умножений по модулю для k оснований (k = 3)
+SMALL_PRIMES = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61)
+# Основания 2, 7, 61 дают точный ответ для всех n &lt; 4 759 123 141, в том числе для n &lt; 2^32
+WITNESSES = (2, 7, 61)
+
+
+def power_mod(base, exp, modulus):
+    """Быстрое возведение в степень по модулю: O(log exp) умножений."""
+    result = 1 % modulus
+    base %= modulus
+    while exp &gt; 0:
+        if exp % 2 == 1:
+            result = result * base % modulus
+        base = base * base % modulus
+        exp //= 2
+    return result
+
+
+def passes_witness(n, witness):
+    """Один раунд теста Миллера-Рабина: представляем n - 1 = d * 2^s с нечётным d."""
+    d, s = n - 1, 0
+    while d % 2 == 0:
+        d //= 2
+        s += 1
+    x = power_mod(witness, d, n)
+    if x == 1 or x == n - 1:
+        return True
+    for _ in range(s - 1):
+        x = x * x % n
+        if x == n - 1:
+            return True
+    return False
+
+
+def is_prime(n):
+    """Возвращает True, если n простое (для n &lt; 2^32)."""
+    if n &lt; 2:
+        return False
+    # Малые делители проверяем делением: это же снимает случаи, когда основание делит n
+    for p in SMALL_PRIMES:
+        if n % p == 0:
+            return n == p
+    return all(passes_witness(n, witness) for witness in WITNESSES)
+
+
+def main():
+    for number in (1000000007, 4294967291, 561, 1):
+        print(number, "простое" if is_prime(number) else "составное")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Тест Миллера-Рабина: O(k log n) умножений по модулю, k = 3 основания
+// Для n &lt; 2^32 основания 2, 7, 61 дают точный ответ
+
+const SMALL_PRIMES: [u64; 18] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61];
+const WITNESSES: [u64; 3] = [2, 7, 61];
+
+pub fn power_mod(mut base: u64, mut exp: u64, modulus: u64) -&gt; u64 {
+    let mut result = 1 % modulus;
+    base %= modulus;
+    while exp &gt; 0 {
+        if exp % 2 == 1 {
+            result = result * base % modulus;
+        }
+        base = base * base % modulus;
+        exp /= 2;
+    }
+    result
+}
+
+// Один раунд теста Миллера-Рабина: представляем n - 1 = d * 2^s с нечётным d
+fn passes_witness(n: u64, witness: u64) -&gt; bool {
+    let mut d = n - 1;
+    let mut s = 0;
+    while d % 2 == 0 {
+        d /= 2;
+        s += 1;
+    }
+    let mut x = power_mod(witness, d, n);
+    if x == 1 || x == n - 1 {
+        return true;
+    }
+    for _ in 1..s {
+        x = x * x % n;
+        if x == n - 1 {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn is_prime(n: u64) -&gt; bool {
+    if n &lt; 2 {
+        return false;
+    }
+    // Малые делители проверяем делением: это же снимает случаи, когда основание делит n
+    for &amp;p in &amp;SMALL_PRIMES {
+        if n % p == 0 {
+            return n == p;
+        }
+    }
+    WITNESSES.iter().all(|&amp;witness| passes_witness(n, witness))
+}
+
+fn main() {
+    for number in [1_000_000_007u64, 4_294_967_291, 561, 1] {
+        let verdict = if is_prime(number) { "простое" } else { "составное" };
+        println!("{number} {verdict}");
+    }
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Тест Миллера-Рабина: O(k log n) умножений по модулю, k = 3 основания
+// Для n &lt; 2^32 основания 2, 7, 61 дают точный ответ
+#include &lt;cstdint&gt;
+#include &lt;initializer_list&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+
+u64 power_mod(u64 base, u64 exp, u64 modulus) {
+    u64 result = 1 % modulus;
+    base %= modulus;
+    while (exp &gt; 0) {
+        if (exp % 2 == 1) result = result * base % modulus;
+        base = base * base % modulus;
+        exp /= 2;
+    }
+    return result;
+}
+
+// Один раунд теста для основания witness: n - 1 = d * 2^s с нечётным d
+bool passes_witness(u64 n, u64 witness) {
+    u64 d = n - 1;
+    int s = 0;
+    while (d % 2 == 0) {
+        d /= 2;
+        ++s;
+    }
+    u64 x = power_mod(witness, d, n);
+    if (x == 1 || x == n - 1) return true;
+    for (int r = 1; r &lt; s; ++r) {
+        x = x * x % n;
+        if (x == n - 1) return true;
+    }
+    return false;
+}
+
+bool is_prime(u64 n) {
+    static const u64 small_primes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61};
+    if (n &lt; 2) return false;
+    // Малые делители проверяем делением: это же снимает случаи, когда основание делит n
+    for (u64 p : small_primes) {
+        if (n % p == 0) return n == p;
+    }
+    for (u64 witness : {2ULL, 7ULL, 61ULL}) {
+        if (!passes_witness(n, witness)) return false;
+    }
+    return true;
+}
+
+int main() {
+    for (u64 number : {1000000007ULL, 4294967291ULL, 561ULL, 1ULL}) {
+        std::cout &lt;&lt; number &lt;&lt; ' ' &lt;&lt; (is_prime(number) ? "простое" : "составное") &lt;&lt; '\n';
+    }
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Число Фибоначчи F(n) по модулю m матричным возведением в степень: O(log n) умножений матриц 2x2
+def mat_mul(a, b, modulus):
+    """Произведение двух матриц 2x2 по модулю."""
+    return [
+        [(a[i][0] * b[0][j] + a[i][1] * b[1][j]) % modulus for j in range(2)]
+        for i in range(2)
+    ]
+
+
+def fib_mod(n, modulus):
+    """Возвращает F(n) mod modulus, где F(0) = 0, F(1) = 1."""
+    result = [[1 % modulus, 0], [0, 1 % modulus]]  # единичная матрица
+    # Одно умножение на эту матрицу - переход от пары (F(k-1), F(k-2)) к паре (F(k), F(k-1))
+    base = [[1, 1], [1, 0]]
+    while n &gt; 0:
+        if n % 2 == 1:
+            result = mat_mul(result, base, modulus)
+        base = mat_mul(base, base, modulus)
+        n //= 2
+    return result[0][1]
+
+
+def main():
+    print(fib_mod(10, 1000))
+    print(fib_mod(10**18, 10**9 + 7))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Число Фибоначчи F(n) по модулю m матричным возведением в степень: O(log n) умножений матриц 2x2
+// Модуль должен быть меньше 2^32, чтобы суммы произведений помещались в u64
+
+type Matrix = [[u64; 2]; 2];
+
+pub fn mat_mul(a: &amp;Matrix, b: &amp;Matrix, modulus: u64) -&gt; Matrix {
+    let mut c = [[0; 2]; 2];
+    for i in 0..2 {
+        for j in 0..2 {
+            for k in 0..2 {
+                c[i][j] = (c[i][j] + a[i][k] * b[k][j]) % modulus;
+            }
+        }
+    }
+    c
+}
+
+pub fn fib_mod(mut n: u64, modulus: u64) -&gt; u64 {
+    let mut result: Matrix = [[1 % modulus, 0], [0, 1 % modulus]]; // единичная матрица
+    // Одно умножение на эту матрицу - переход от пары (F(k-1), F(k-2)) к паре (F(k), F(k-1))
+    let mut base: Matrix = [[1, 1], [1, 0]];
+    while n &gt; 0 {
+        if n % 2 == 1 {
+            result = mat_mul(&amp;result, &amp;base, modulus);
+        }
+        base = mat_mul(&amp;base, &amp;base, modulus);
+        n /= 2;
+    }
+    result[0][1]
+}
+
+fn main() {
+    println!("{}", fib_mod(10, 1000));
+    println!("{}", fib_mod(1_000_000_000_000_000_000, 1_000_000_007));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Число Фибоначчи F(n) по модулю m матричным возведением в степень: O(log n) умножений матриц 2x2
+// Модуль должен быть меньше 2^32, чтобы суммы произведений помещались в 64 бита
+#include &lt;array&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+using u64 = std::uint64_t;
+using Matrix = std::array&lt;std::array&lt;u64, 2&gt;, 2&gt;;
+
+Matrix mat_mul(const Matrix&amp; a, const Matrix&amp; b, u64 modulus) {
+    Matrix c{};
+    for (int i = 0; i &lt; 2; ++i) {
+        for (int j = 0; j &lt; 2; ++j) {
+            for (int k = 0; k &lt; 2; ++k) {
+                c[i][j] = (c[i][j] + a[i][k] * b[k][j]) % modulus;
+            }
+        }
+    }
+    return c;
+}
+
+u64 fib_mod(u64 n, u64 modulus) {
+    Matrix result = {{{1 % modulus, 0}, {0, 1 % modulus}}};  // единичная матрица
+    // Одно умножение на эту матрицу - переход от пары (F(k-1), F(k-2)) к паре (F(k), F(k-1))
+    Matrix base = {{{1, 1}, {1, 0}}};
+    while (n &gt; 0) {
+        if (n % 2 == 1) {
+            result = mat_mul(result, base, modulus);
+        }
+        base = mat_mul(base, base, modulus);
+        n /= 2;
+    }
+    return result[0][1];
+}
+
+int main() {
+    std::cout &lt;&lt; fib_mod(10, 1000) &lt;&lt; '\n';
+    std::cout &lt;&lt; fib_mod(1000000000000000000ULL, 1000000007ULL) &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+</div>
+
+</body>
+</html>

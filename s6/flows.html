@@ -1,0 +1,564 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Потоки в сетях: алгоритм Эдмондса–Карпа,
+        алгоритм Диница</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+<h1>Потоки в сетях: алгоритм Эдмондса–Карпа, алгоритм Диница</h1>
+<ul class="tags">
+    <li><a href="#">Графы</a></li>
+    <li><a href="#">Потоки</a></li>
+    <li><a href="#">Python</a></li>
+    <li><a href="#">C/C++</a></li>
+</ul>
+
+<h2 id="задача-о-максимальном-потоке">Задача о максимальном потоке</h2>
+<p>Сеть — это ориентированный граф $G=(V,E)$ с двумя выделенными вершинами: истоком $s$ и стоком $t$, $s\ne t$. Каждому ребру $(u,v)\in E$ сопоставлена пропускная способность $c(u,v)\ge 0$. Петель в сети нет. Через $n=|V|$ и $m=|E|$ обозначим число вершин и число рёбер.</p>
+<p>Поток в сети — функция $f\colon E\to\mathbb{R}$ с двумя свойствами. Первое свойство — ограничение пропускной способности: $0\le f(u,v)\le c(u,v)$ для всех $(u,v)\in E$. Второе — сохранение потока: для каждой вершины $v\in V\setminus\{s,t\}$ сумма потоков по входящим рёбрам равна сумме потоков по выходящим. Удобно ввести обозначения
+$$f^{\mathrm{in}}(v)=\sum_{(u,v)\in E}f(u,v),\qquad f^{\mathrm{out}}(v)=\sum_{(v,w)\in E}f(v,w),$$
+а для множеств вершин $A,B\subseteq V$ положить $f(A,B)=\sum_{u\in A,\;v\in B,\;(u,v)\in E}f(u,v)$. Тогда сохранение записывается так: $f^{\mathrm{in}}(v)=f^{\mathrm{out}}(v)$ при $v\ne s,t$.</p>
+<p>Величина потока $|f|=f^{\mathrm{out}}(s)-f^{\mathrm{in}}(s)$ — суммарный поток, выходящий из истока. Задача о максимальном потоке состоит в том, чтобы найти поток наибольшей величины. Если все пропускные способности целые, то алгоритмы ниже дают целочисленный максимальный поток: каждый сдвиг равен минимуму целых остаточных пропускных способностей, поэтому все величины остаются целыми.</p>
+<p>Поиск максимального паросочетания в двудольном графе сводится к задаче о максимальном потоке с единичными пропускными способностями; см. <a href="../s5/bipartite_matching.html">страницу о двудольных графах и паросочетаниях</a>.</p>
+
+<h2 id="остаточная-сеть-и-увеличивающий-путь">Остаточная сеть и увеличивающий путь</h2>
+<p>Пусть $f$ — поток. Остаточная сеть $G_f$ имеет те же вершины и для каждого ребра $(u,v)\in E$ две дуги: прямую дугу $u\to v$ с остаточной пропускной способностью $c(u,v)-f(u,v)$ и обратную дугу $v\to u$ с остаточной пропускной способностью $f(u,v)$. Дуги с нулевой остаточной пропускной способностью в $G_f$ не включаются. Прямая дуга показывает, сколько ещё можно передать по ребру, а обратная — на сколько можно уменьшить поток по ребру.</p>
+<p>Увеличивающий путь — это простой путь из $s$ в $t$ в $G_f$. Его остаточная пропускная способность $\delta$ — минимум остаточных пропускных способностей дуг пути. <em>Сдвиг потока на $\delta$</em> по пути означает: для прямой дуги, отвечающей ребру $(u,v)$, увеличить $f(u,v)$ на $\delta$; для обратной дуги, отвечающей ребру $(u,v)$ (то есть дуги $v\to u$), уменьшить $f(u,v)$ на $\delta$.</p>
+<p><strong>Лемма 1.</strong> Если $P$ — увеличивающий путь с остаточной пропускной способностью $\delta$, то сдвиг на $\delta$ по $P$ даёт поток $f'$ с $|f'|=|f|+\delta$.</p>
+<p><em>Доказательство.</em> Прямая дуга допускает увеличение на $\delta\le c(u,v)-f(u,v)$, поэтому $f'(u,v)\le c(u,v)$. Обратная дуга допускает уменьшение на $\delta\le f(u,v)$, поэтому $f'(u,v)\ge 0$. Каждая дуга пути переносит $\delta$ единиц потока от своего начала к концу. Путь простой, поэтому в каждую промежуточную вершину входит ровно одна дуга пути и выходит ровно одна, и баланс этой вершины не меняется. Из истока выходит на $\delta$ единиц больше, значит, $|f'|=|f|+\delta$.</p>
+<p><strong>Разрез.</strong> Разрез $(S,T)$ — это разбиение $V=S\sqcup T$ с $s\in S$ и $t\in T$. Его пропускная способность $c(S,T)=\sum_{u\in S,\,v\in T,\,(u,v)\in E}c(u,v)$ — сумма пропускных способностей рёбер, идущих из $S$ в $T$. Разрез называется <em>минимальным</em>, если его пропускная способность наименьшая среди всех разрезов.</p>
+<p><strong>Лемма 2</strong> (слабая двойственность). Для любого потока $f$ и любого разреза $(S,T)$ выполнено $|f|=f(S,T)-f(T,S)\le c(S,T)$.</p>
+<p><em>Доказательство.</em> Просуммируем разности $f^{\mathrm{out}}(v)-f^{\mathrm{in}}(v)$ по $v\in S$. Ребро, оба конца которого лежат в $S$, даёт в сумму слагаемые $+f(u,v)$ и $-f(u,v)$, которые сокращаются; поэтому сумма равна $f(S,T)-f(T,S)$. С другой стороны, для $v\in S\setminus\{s\}$ разность равна нулю по сохранению потока (вершина $t$ не лежит в $S$), так что сумма равна $|f|$. Наконец, $f(S,T)\le c(S,T)$ по ограничению пропускной способности и $f(T,S)\ge 0$.</p>
+<p><strong>Лемма 3.</strong> Если в $G_f$ нет пути из $s$ в $t$, то множество $S$ вершин, достижимых из $s$ в $G_f$, и $T=V\setminus S$ образуют разрез с $c(S,T)=|f|$.</p>
+<p><em>Доказательство.</em> Вершина $t$ недостижима, поэтому $t\in T$, и в $G_f$ нет дуг из $S$ в $T$. Для ребра $(u,v)\in E$ с $u\in S$ и $v\in T$ прямой дуги $u\to v$ нет, то есть $c(u,v)-f(u,v)=0$. Для ребра $(v,u)\in E$ с $v\in T$ и $u\in S$ обратной дуги $u\to v$ нет, то есть $f(v,u)=0$. Значит, $f(S,T)=c(S,T)$ и $f(T,S)=0$, и по лемме 2 $|f|=f(S,T)-f(T,S)=c(S,T)$.</p>
+<p><strong>Теорема 1</strong> (Форд, Фалкерсон). Поток $f$ максимален тогда и только тогда, когда в остаточной сети $G_f$ нет пути из $s$ в $t$.</p>
+<p><em>Доказательство.</em> Если путь $P$ из $s$ в $t$ в $G_f$ существует, то по лемме 1 сдвиг по нему даёт поток большей величины, и $f$ не максимален. Обратно, пусть пути нет. По лемме 3 существует разрез $(S,T)$ с $c(S,T)=|f|$. Для любого потока $f'$ по лемме 2 $|f'|\le c(S,T)=|f|$, поэтому $f$ максимален.</p>
+<p><strong>Теорема 2</strong> (о максимальном потоке и минимальном разрезе). Величина максимального потока равна минимальной пропускной способности разреза.</p>
+<p><em>Доказательство.</em> Максимальный поток существует: допустимые потоки образуют ограниченное замкнутое подмножество $\mathbb{R}^E$, а величина потока непрерывна на нём. Пусть $f$ — максимальный поток. По теореме 1 в $G_f$ нет пути из $s$ в $t$, и по лемме 3 найдётся разрез с $c(S,T)=|f|$. По лемме 2 пропускная способность любого разреза не меньше $|f|$. Значит, минимум пропускных способностей разрезов равен $|f|$.</p>
+
+<h2 id="алгоритм-эдмондса-карпа">Алгоритм Эдмондса–Карпа</h2>
+<p>Метод Форда–Фалкерсон состоит в том, чтобы пока в $G_f$ есть увеличивающий путь, сдвигать поток по нему. По лемме 1 величина потока при этом растёт, а по теореме 1 при остановке поток максимален. Метод не задаёт выбор пути, и при неудачном выборе число сдвигов может зависеть от величин пропускных способностей. Эдмондс и Карп (1972) предложили выбирать путь с наименьшим числом дуг. Такой путь находится поиском в ширину в $G_f$ за $O(n+m)$ операций.</p>
+<p>Пусть $d_f(v)$ — расстояние от $s$ до $v$ в $G_f$, то есть число дуг кратчайшего пути; $d_f(v)=\infty$, если пути нет. Ясно, что $d_f(s)=0$, и для любой дуги $x\to y$ графа $G_f$ выполнено $d_f(y)\le d_f(x)+1$.</p>
+<p><strong>Лемма 4.</strong> При сдвиге вдоль кратчайшего пути расстояния не уменьшаются: если $d'$ — расстояния в новой остаточной сети, то $d'(v)\ge d_f(v)$ для всех $v$.</p>
+<p><em>Доказательство.</em> Новые дуги — обратные к дугам кратчайшего пути $P$. Для дуги $u\to v$ пути $P$ выполнено $d_f(v)=d_f(u)+1$, поэтому обратная дуга $v\to u$ удовлетворяет $d_f(u)\le d_f(v)+1$. Значит, каждая дуга новой сети удовлетворяет неравенству $d_f(y)\le d_f(x)+1$. Если $v$ достижима из $s$ в новой сети, пусть $Q$ — кратчайший путь из $s$ в $v$ в ней; его длина равна $d'(v)$. Сложив неравенства $d_f(y)\le d_f(x)+1$ вдоль дуг $Q$, получим $d_f(v)-d_f(s)\le d'(v)$, а так как $d_f(s)=0$, то $d_f(v)\le d'(v)$. Если $v$ недостижима, то $d'(v)=\infty$, и неравенство очевидно.</p>
+<p>Дуга остаточной сети <em>критическая</em>, если после сдвига её остаточная пропускная способность стала нулевой. Для каждого ребра $(u,v)\in E$ есть две дуги, прямая и обратная, всего $2m$ дуг.</p>
+<p><strong>Лемма 5.</strong> Каждая из $2m$ дуг становится критической не более чем $n/2$ раз.</p>
+<p><em>Доказательство.</em> Пусть $d_i$ — расстояния от $s$ в остаточной сети перед шагом $i$, и пусть дуга $x\to y$ стала критической на шаге $i$. Она лежала на кратчайшем пути, поэтому $d_i(y)=d_i(x)+1$. Остаточная пропускная способность дуги растёт только при сдвиге по парной дуге $y\to x$. Значит, снова дуга $x\to y$ станет доступной только после сдвига по $y\to x$ на некотором шаге $j&gt;i$, и тогда $y\to x$ лежит на кратчайшем пути, так что $d_j(x)=d_j(y)+1$. По лемме 4 $d_j(y)\ge d_i(y)$, поэтому $d_j(x)\ge d_i(x)+2$. Таким образом, расстояние до начала дуги в последовательные критические моменты растёт не меньше чем на 2. В критический момент дуга лежит на пути из $s$ в $t$, поэтому $d(x)\le n-2$. Если дуга критична $k$ раз, то $0\le d_1&lt;\dots&lt;d_k\le n-2$ и $d_k\ge d_1+2(k-1)$, откуда $k\le n/2$.</p>
+<p><strong>Теорема 3</strong> (Эдмондс, Карп). Алгоритм Эдмондса–Карпа делает $O(nm)$ сдвигов и находит максимальный поток за $O(nm^2)$ операций.</p>
+<p><em>Доказательство.</em> Каждый сдвиг делает критической по крайней мере одну дугу — дугу с минимальной остаточной пропускной способностью. По лемме 5 всего таких событий не больше $2m\cdot\frac{n}{2}=nm$, значит, сдвигов не больше $nm$. Каждый шаг состоит из поиска в ширину за $O(n+m)$ и сдвига по пути длины не больше $n-1$. Вершины, кроме $s$ и $t$, не инцидентные ни одному ребру, не влияют на ответ и отбрасываются, поэтому $n\le 2m+2$. При $m\ge 1$ имеем $O(n+m)=O(m)$ (при $m=0$ поток равен нулю). Итого $O(nm)\cdot O(m)=O(nm^2)$.</p>
+
+<h2 id="алгоритм-диница">Алгоритм Диница</h2>
+<p>Алгоритм Диница (1970) сокращает число поисков в ширину: в одной фазе он сдвигает поток сразу по многим кратчайшим путям. Пусть $\ell(v)=d_f(v)$ — уровень вершины $v$ в $G_f$. <em>Слоистая сеть</em> $L_f$ состоит из дуг $x\to y$ графа $G_f$, для которых $\ell(y)=\ell(x)+1$. <em>Блокирующим потоком</em> в $L_f$ называется сдвиг по дугам $L_f$, после которого в $L_f$ не остаётся пути из $s$ в $t$, все дуги которого имеют положительную остаточную пропускную способность. Фаза состоит из поиска в ширину, который задаёт уровни, и нахождения блокирующего потока в $L_f$. Фазы повторяются, пока $t$ достижима из $s$ в $G_f$.</p>
+<p><strong>Лемма 6.</strong> После каждой фазы расстояние от $s$ до $t$ строго возрастает.</p>
+<p><em>Доказательство.</em> Пусть $G'$ — остаточная сеть после блокирующего потока. Как в лемме 4, каждая её дуга $x\to y$ удовлетворяет $\ell(y)\le\ell(x)+1$: для дуг старой сети это верно по определению уровней, а новые дуги — обратные к дугам $L_f$, которые ведут с уровня $k+1$ на уровень $k$. Поэтому расстояние от $s$ до $t$ в $G'$ не меньше $\ell(t)$. Если оно равно $\ell(t)$, то на каждой дуге пути уровень растёт ровно на 1, то есть путь состоит из дуг $L_f$ с положительной остаточной пропускной способностью. Такого пути после блокирующего потока нет, значит, расстояние больше $\ell(t)$.</p>
+<p><strong>Следствие.</strong> Фаз не больше $n-1$, так как $\ell(t)$ строго растёт и при достижимом $t$ не превосходит $n-1$.</p>
+<p><strong>Лемма 7.</strong> Блокирующий поток в $L_f$ находится за $O(nm)$ операций.</p>
+<p><em>Доказательство.</em> Для каждой вершины $u$ храним указатель на текущую дугу $L_f$, выходящую из $u$. Поиск пути из $s$ идёт по текущим дугам, пока не достигнет $t$ или тупика. Дугу, которая ведёт в тупик, в этой фазе больше не просматриваем: сдвиги в фазе только уменьшают остаточные пропускные способности дуг $L_f$, поэтому тупик остаётся тупиком. Каждый найденный путь длины не больше $n-1$ насыщает хотя бы одну дугу, и насыщенная дуга выпадает из $L_f$, поэтому путей в фазе не больше $2m$. Поиск путей стоит $O(n\cdot m)$, а просмотры указателей — $O(m)$. Итого $O(nm)$.</p>
+<p><strong>Теорема 4</strong> (Диниц). Алгоритм Диница находит максимальный поток за $O(n^2m)$ операций.</p>
+<p><em>Доказательство.</em> По следствию фаз не больше $n-1$. Каждая фаза состоит из поиска в ширину за $O(n+m)$ и блокирующего потока за $O(nm)$ по лемме 7. При $m\ge 1$ имеем $n+m\le 2nm$, поэтому фаза стоит $O(nm)$. Итого $O(n)\cdot O(nm)=O(n^2m)$. Когда $t$ становится недостижимой, поток максимален по теореме 1.</p>
+
+<h2 id="минимальный-разрез">Минимальный разрез</h2>
+<p><strong>Теорема 5.</strong> Пусть $f$ — максимальный поток, $S$ — множество вершин, достижимых из $s$ в $G_f$, и $T=V\setminus S$. Тогда $(S,T)$ — минимальный разрез и $c(S,T)=|f|$. Кроме того, $S\subseteq S'$ для любого минимального разреза $(S',T')$. В частности, $S$ не зависит от того, какой максимальный поток найден.</p>
+<p><em>Доказательство.</em> По теореме 1 в $G_f$ нет пути из $s$ в $t$, поэтому по лемме 3 имеем $c(S,T)=|f|$, а по теореме 2 величина $|f|$ равна минимальной пропускной способности разреза. Пусть $(S',T')$ — минимальный разрез, так что $c(S',T')=|f|$. В цепочке $|f|=f(S',T')-f(T',S')\le c(S',T')=|f|$ все неравенства обращаются в равенства. Значит, $f(u,v)=c(u,v)$ для всех рёбер из $S'$ в $T'$ и $f(v,u)=0$ для всех рёбер из $T'$ в $S'$. Тогда в $G_f$ нет дуг из $S'$ в $T'$: прямые дуги насыщены, а обратная дуга $x\to y$ с $x\in S'$, $y\in T'$ была бы только при $f(y,x)&gt;0$. Поэтому все вершины, достижимые из $s$, лежат в $S'$, то есть $S\subseteq S'$. Применив это к двум максимальным потокам, получим равенство их множеств $S$.</p>
+<p>Итак, минимальный разрез находится одним поиском в ширину по остаточной сети, построенной любым из двух алгоритмов.</p>
+
+<h2 id="программы">Программы</h2>
+<p>Ниже программы на Python, C++ и Rust. Каждая строит сеть из примера, запускает алгоритм Эдмондса–Карпа на одной копии сети и алгоритм Диница на другой, затем по остаточной сети первой копии выводит минимальный разрез. Сеть имеет исток $0$ и сток $5$. Рёбра (в скобках — пропускные способности): $0\to1$ (16), $0\to2$ (13), $1\to2$ (10), $2\to1$ (4), $1\to3$ (12), $3\to2$ (9), $2\to4$ (14), $4\to3$ (7), $3\to5$ (20), $4\to5$ (4). Её максимальный поток равен 23.</p>
+<p>Все три программы устроены одинаково. Дуги хранятся списками: <code>to[k]</code> — конец дуги $k$, <code>cap[k]</code> — её остаточная пропускная способность, <code>adj[u]</code> — номера дуг, выходящих из вершины $u$. Дуги $2i$ и $2i+1$ образуют пару: прямую и обратную дуги $i$-го добавленного ребра. Обратная дуга к дуге $k$ имеет номер $k\oplus 1$, поэтому сдвиг на $\delta$ по дуге $k$ записывается как <code>cap[k] -= δ</code> и <code>cap[k ^ 1] += δ</code>. Начало дуги $k$ равно <code>to[k ^ 1]</code>.</p>
+<p>Программы печатают одинаковые строки:</p>
+<pre>Эдмондс–Карп: величина потока 23
+Диниц: величина потока 23
+Минимальный разрез: S = [0, 1, 2, 4], T = [3, 5]</pre>
+<p>Оба алгоритма дают величину 23. Минимальный разрез — это $S=\{0,1,2,4\}$ и $T=\{3,5\}$: из $S$ в $T$ идут рёбра $1\to3$, $4\to3$ и $4\to5$ с суммой пропускных способностей $12+7+4=23$.</p>
+<p>Программы проверены на 2000 случайных сетях с числом вершин от 2 до 7 и пропускными способностями от 0 до 9 при фиксированном зерне генератора. Величина потока сравнивалась с минимумом пропускной способности по всем разрезам, который находился перебором подмножеств $S$, содержащих исток и не содержащих сток. Поток проверялся на ограничения и сохранение, а минимальные разрезы обоих алгоритмов — на совпадение.</p>
+
+<p><strong>Реализация на Python</strong></p>
+<pre class="sh_python"># Потоки в сетях: алгоритм Эдмондса–Карпа и алгоритм Диница, O(nm^2) и O(n^2 m)
+import math
+from collections import deque
+
+
+class Network:
+    """Сеть с остаточными пропускными способностями.
+
+    Ребро k идёт из to[k ^ 1] в to[k]. Рёбра 2i и 2i + 1 образуют пару: прямое и обратное
+    к i-му добавленному ребру; обратное ребро имеет нулевую пропускную способность.
+    """
+
+    def __init__(self, n):
+        self.n = n
+        self.to = []                                    # вершина, в которую ведёт ребро
+        self.cap = []                                   # остаточная пропускная способность
+        self.adj = [[] for _ in range(n)]               # номера рёбер, выходящих из вершины
+
+    def add_edge(self, u, v, capacity):
+        self.adj[u].append(len(self.to))
+        self.to.append(v)
+        self.cap.append(capacity)
+        self.adj[v].append(len(self.to))
+        self.to.append(u)
+        self.cap.append(0)
+
+
+def bfs(net, s):
+    """Обход в ширину по рёбрам с положительной остаточной пропускной способностью.
+
+    dist[v] — число рёбер кратчайшего пути из s в v (-1, если пути нет),
+    via[v] — номер ребра, по которому в v пришли.
+    """
+    dist = [-1] * net.n
+    via = [-1] * net.n
+    dist[s] = 0
+    queue = deque([s])
+    while queue:
+        u = queue.popleft()
+        for k in net.adj[u]:
+            v = net.to[k]
+            if net.cap[k] &gt; 0 and dist[v] &lt; 0:
+                dist[v] = dist[u] + 1
+                via[v] = k
+                queue.append(v)
+    return dist, via
+
+
+def augmenting_path(net, s, t):
+    """Увеличивающий путь из s в t с наименьшим числом рёбер: номера рёбер от t к s.
+
+    Пустой список означает, что пути нет.
+    """
+    dist, via = bfs(net, s)
+    path = []
+    if dist[t] &lt; 0:
+        return path
+    v = t
+    while v != s:
+        path.append(via[v])
+        v = net.to[via[v] ^ 1]
+    return path
+
+
+def edmonds_karp(net, s, t):
+    """Алгоритм Эдмондса–Карпа: пока есть увеличивающий путь, пускаем по нему поток.
+
+    Меняет net.cap так, что она описывает остаточную сеть максимального потока.
+    Возвращает величину потока.
+    """
+    value = 0
+    path = augmenting_path(net, s, t)
+    while path:
+        push = min(net.cap[k] for k in path)
+        for k in path:
+            net.cap[k] -= push
+            net.cap[k ^ 1] += push
+        value += push
+        path = augmenting_path(net, s, t)
+    return value
+
+
+def blocking_flow(net, level, s, t):
+    """Блокирующий поток в слоистой сети: рёбра ведут только на следующий уровень.
+
+    it[u] — номер текущего ребра вершины u в net.adj[u]. Ребро, которое не дало пути,
+    в этой фазе больше не просматривается: в слоистой сети рёбра только исчезают.
+    """
+    it = [0] * net.n
+
+    def push(u, limit):
+        """Пускает по одному пути из u в t поток не больше limit; возвращает величину (0, если пути нет)."""
+        if u == t:
+            return limit
+        while it[u] &lt; len(net.adj[u]):
+            k = net.adj[u][it[u]]
+            v = net.to[k]
+            if net.cap[k] &gt; 0 and level[v] == level[u] + 1:
+                sent = push(v, min(limit, net.cap[k]))
+                if sent &gt; 0:
+                    net.cap[k] -= sent
+                    net.cap[k ^ 1] += sent
+                    return sent
+            it[u] += 1
+        return 0
+
+    total = 0
+    sent = push(s, math.inf)
+    while sent &gt; 0:
+        total += sent
+        sent = push(s, math.inf)
+    return total
+
+
+def dinic(net, s, t):
+    """Алгоритм Диница: фазы; в каждой фазе — уровни вершин (BFS) и блокирующий поток."""
+    value = 0
+    dist, _ = bfs(net, s)
+    while dist[t] &gt;= 0:
+        value += blocking_flow(net, dist, s, t)
+        dist, _ = bfs(net, s)
+    return value
+
+
+def source_side(net, s):
+    """Вершины, достижимые из s в остаточной сети: исток минимального разреза."""
+    dist, _ = bfs(net, s)
+    return [v for v in range(net.n) if dist[v] &gt;= 0]
+
+
+def example_network():
+    """Пример из задачи: исток 0, сток 5."""
+    net = Network(6)
+    for u, v, capacity in [(0, 1, 16), (0, 2, 13), (1, 2, 10), (2, 1, 4), (1, 3, 12),
+                           (3, 2, 9), (2, 4, 14), (4, 3, 7), (3, 5, 20), (4, 5, 4)]:
+        net.add_edge(u, v, capacity)
+    return net
+
+
+if __name__ == "__main__":
+    s, t = 0, 5
+    first = example_network()
+    print(f"Эдмондс–Карп: величина потока {edmonds_karp(first, s, t)}")
+    second = example_network()
+    print(f"Диниц: величина потока {dinic(second, s, t)}")
+    side = source_side(first, s)
+    rest = [v for v in range(first.n) if v not in side]
+    print(f"Минимальный разрез: S = {side}, T = {rest}")
+</pre>
+<p><strong>Реализация на C++</strong></p>
+<pre class="sh_cpp">// Потоки в сетях: алгоритм Эдмондса–Карпа и алгоритм Диница, O(nm^2) и O(n^2 m)
+#include &lt;algorithm&gt;
+#include &lt;climits&gt;
+#include &lt;cstdio&gt;
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+
+// Сеть с остаточными пропускными способностями. Ребро k идёт из to[k ^ 1] в to[k].
+// Рёбра 2i и 2i + 1 образуют пару: прямое и обратное к i-му добавленному ребру.
+struct Network {
+    int n;
+    std::vector&lt;int&gt; to;                 // вершина, в которую ведёт ребро
+    std::vector&lt;long long&gt; cap;          // остаточная пропускная способность ребра
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj;   // номера рёбер, выходящих из вершины
+
+    explicit Network(int vertices) : n(vertices), adj(vertices) {}
+
+    void add_edge(int u, int v, long long capacity) {
+        adj[u].push_back(static_cast&lt;int&gt;(to.size()));
+        to.push_back(v);
+        cap.push_back(capacity);
+        adj[v].push_back(static_cast&lt;int&gt;(to.size()));
+        to.push_back(u);
+        cap.push_back(0);
+    }
+};
+
+// Обход в ширину по рёбрам с положительной остаточной пропускной способностью.
+// dist[v] — число рёбер кратчайшего пути из s в v (-1, если пути нет), via[v] — ребро, по которому пришли в v.
+void bfs(const Network&amp; net, int s, std::vector&lt;int&gt;&amp; dist, std::vector&lt;int&gt;&amp; via) {
+    dist.assign(net.n, -1);
+    via.assign(net.n, -1);
+    dist[s] = 0;
+    std::queue&lt;int&gt; queue;
+    queue.push(s);
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop();
+        for (int k : net.adj[u]) {
+            int v = net.to[k];
+            if (net.cap[k] &gt; 0 &amp;&amp; dist[v] &lt; 0) {
+                dist[v] = dist[u] + 1;
+                via[v] = k;
+                queue.push(v);
+            }
+        }
+    }
+}
+
+// Увеличивающий путь из s в t с наименьшим числом рёбер: номера рёбер от t к s; пустой, если пути нет
+std::vector&lt;int&gt; augmenting_path(const Network&amp; net, int s, int t) {
+    std::vector&lt;int&gt; dist, via;
+    bfs(net, s, dist, via);
+    std::vector&lt;int&gt; path;
+    if (dist[t] &lt; 0) return path;
+    for (int v = t; v != s; v = net.to[via[v] ^ 1]) {
+        path.push_back(via[v]);
+    }
+    return path;
+}
+
+// Алгоритм Эдмондса–Карпа: пока есть увеличивающий путь, пускаем по нему поток
+long long edmonds_karp(Network&amp; net, int s, int t) {
+    long long value = 0;
+    std::vector&lt;int&gt; path = augmenting_path(net, s, t);
+    while (!path.empty()) {
+        long long push = LLONG_MAX;
+        for (int k : path) push = std::min(push, net.cap[k]);
+        for (int k : path) {
+            net.cap[k] -= push;
+            net.cap[k ^ 1] += push;
+        }
+        value += push;
+        path = augmenting_path(net, s, t);
+    }
+    return value;
+}
+
+// Один путь блокирующего потока в слоистой сети: рёбра ведут только на следующий уровень.
+// it[u] — номер текущего ребра вершины u в net.adj[u]; ребро, которое не дало пути, больше не просматривается.
+long long push_path(Network&amp; net, const std::vector&lt;int&gt;&amp; level, std::vector&lt;size_t&gt;&amp; it,
+                    int u, int t, long long limit) {
+    if (u == t) return limit;
+    while (it[u] &lt; net.adj[u].size()) {
+        int k = net.adj[u][it[u]];
+        int v = net.to[k];
+        if (net.cap[k] &gt; 0 &amp;&amp; level[v] == level[u] + 1) {
+            long long sent = push_path(net, level, it, v, t, std::min(limit, net.cap[k]));
+            if (sent &gt; 0) {
+                net.cap[k] -= sent;
+                net.cap[k ^ 1] += sent;
+                return sent;
+            }
+        }
+        ++it[u];
+    }
+    return 0;
+}
+
+// Блокирующий поток: пускаем пути, пока они есть; возвращает величину пропущенного потока
+long long blocking_flow(Network&amp; net, const std::vector&lt;int&gt;&amp; level, int s, int t) {
+    std::vector&lt;size_t&gt; it(net.n, 0);
+    long long total = 0;
+    long long sent = push_path(net, level, it, s, t, LLONG_MAX);
+    while (sent &gt; 0) {
+        total += sent;
+        sent = push_path(net, level, it, s, t, LLONG_MAX);
+    }
+    return total;
+}
+
+// Алгоритм Диница: фазы; в каждой фазе — уровни вершин (BFS) и блокирующий поток
+long long dinic(Network&amp; net, int s, int t) {
+    long long value = 0;
+    std::vector&lt;int&gt; level, via;
+    bfs(net, s, level, via);
+    while (level[t] &gt;= 0) {
+        value += blocking_flow(net, level, s, t);
+        bfs(net, s, level, via);
+    }
+    return value;
+}
+
+// Вершины, достижимые из s в остаточной сети: исток минимального разреза
+std::vector&lt;int&gt; source_side(const Network&amp; net, int s) {
+    std::vector&lt;int&gt; dist, via;
+    bfs(net, s, dist, via);
+    std::vector&lt;int&gt; side;
+    for (int v = 0; v &lt; net.n; ++v) {
+        if (dist[v] &gt;= 0) side.push_back(v);
+    }
+    return side;
+}
+
+// Печать списка вершин в виде [a, b, c]
+void print_list(const std::vector&lt;int&gt;&amp; vertices) {
+    std::printf("[");
+    for (size_t i = 0; i &lt; vertices.size(); ++i) {
+        std::printf("%s%d", i == 0 ? "" : ", ", vertices[i]);
+    }
+    std::printf("]");
+}
+
+// Пример из задачи: исток 0, сток 5
+Network example_network() {
+    Network net(6);
+    const int edges[10][3] = {{0, 1, 16}, {0, 2, 13}, {1, 2, 10}, {2, 1, 4}, {1, 3, 12},
+                              {3, 2, 9}, {2, 4, 14}, {4, 3, 7}, {3, 5, 20}, {4, 5, 4}};
+    for (const auto&amp; e : edges) net.add_edge(e[0], e[1], e[2]);
+    return net;
+}
+
+int main() {
+    const int s = 0, t = 5;
+    Network first = example_network();
+    std::printf("Эдмондс–Карп: величина потока %lld\n", edmonds_karp(first, s, t));
+    Network second = example_network();
+    std::printf("Диниц: величина потока %lld\n", dinic(second, s, t));
+    std::vector&lt;int&gt; side = source_side(first, s);
+    std::vector&lt;int&gt; rest;
+    for (int v = 0; v &lt; first.n; ++v) {
+        if (std::find(side.begin(), side.end(), v) == side.end()) rest.push_back(v);
+    }
+    std::printf("Минимальный разрез: S = ");
+    print_list(side);
+    std::printf(", T = ");
+    print_list(rest);
+    std::printf("\n");
+    return 0;
+}
+</pre>
+<p><strong>Реализация на Rust</strong></p>
+<pre class="rust-code"><code class="language-rust">// Потоки в сетях: алгоритм Эдмондса–Карпа и алгоритм Диница, O(nm^2) и O(n^2 m)
+use std::collections::VecDeque;
+
+// Сеть с остаточными пропускными способностями. Ребро k идёт из to[k ^ 1] в to[k].
+// Рёбра 2i и 2i + 1 образуют пару: прямое и обратное к i-му добавленному ребру.
+pub struct Network {
+    pub n: usize,
+    pub to: Vec&lt;usize&gt;,        // вершина, в которую ведёт ребро
+    pub cap: Vec&lt;i64&gt;,         // остаточная пропускная способность ребра
+    pub adj: Vec&lt;Vec&lt;usize&gt;&gt;,  // номера рёбер, выходящих из вершины
+}
+
+impl Network {
+    pub fn new(n: usize) -&gt; Network {
+        Network { n, to: Vec::new(), cap: Vec::new(), adj: vec![Vec::new(); n] }
+    }
+
+    pub fn add_edge(&amp;mut self, u: usize, v: usize, capacity: i64) {
+        self.adj[u].push(self.to.len());
+        self.to.push(v);
+        self.cap.push(capacity);
+        self.adj[v].push(self.to.len());
+        self.to.push(u);
+        self.cap.push(0);
+    }
+}
+
+// Обход в ширину по рёбрам с положительной остаточной пропускной способностью.
+// dist[v] — число рёбер кратчайшего пути из s в v (-1, если пути нет), via[v] — ребро, по которому пришли в v.
+pub fn bfs(net: &amp;Network, s: usize) -&gt; (Vec&lt;i64&gt;, Vec&lt;usize&gt;) {
+    let mut dist = vec![-1; net.n];
+    let mut via = vec![0; net.n];
+    dist[s] = 0;
+    let mut queue = VecDeque::from([s]);
+    while let Some(u) = queue.pop_front() {
+        for &amp;k in &amp;net.adj[u] {
+            let v = net.to[k];
+            if net.cap[k] &gt; 0 &amp;&amp; dist[v] &lt; 0 {
+                dist[v] = dist[u] + 1;
+                via[v] = k;
+                queue.push_back(v);
+            }
+        }
+    }
+    (dist, via)
+}
+
+// Увеличивающий путь из s в t с наименьшим числом рёбер: номера рёбер от t к s; пустой, если пути нет
+fn augmenting_path(net: &amp;Network, s: usize, t: usize) -&gt; Vec&lt;usize&gt; {
+    let (dist, via) = bfs(net, s);
+    let mut path = Vec::new();
+    if dist[t] &lt; 0 {
+        return path;
+    }
+    let mut v = t;
+    while v != s {
+        path.push(via[v]);
+        v = net.to[via[v] ^ 1];
+    }
+    path
+}
+
+// Алгоритм Эдмондса–Карпа: пока есть увеличивающий путь, пускаем по нему поток
+pub fn edmonds_karp(net: &amp;mut Network, s: usize, t: usize) -&gt; i64 {
+    let mut value = 0;
+    let mut path = augmenting_path(net, s, t);
+    while !path.is_empty() {
+        let push = path.iter().map(|&amp;k| net.cap[k]).min().unwrap();
+        for &amp;k in &amp;path {
+            net.cap[k] -= push;
+            net.cap[k ^ 1] += push;
+        }
+        value += push;
+        path = augmenting_path(net, s, t);
+    }
+    value
+}
+
+// Один путь блокирующего потока в слоистой сети: рёбра ведут только на следующий уровень.
+// it[u] — номер текущего ребра вершины u в net.adj[u]; ребро, которое не дало пути, больше не просматривается.
+fn push_path(net: &amp;mut Network, level: &amp;[i64], it: &amp;mut [usize], u: usize, t: usize, limit: i64) -&gt; i64 {
+    if u == t {
+        return limit;
+    }
+    while it[u] &lt; net.adj[u].len() {
+        let k = net.adj[u][it[u]];
+        let v = net.to[k];
+        if net.cap[k] &gt; 0 &amp;&amp; level[v] == level[u] + 1 {
+            let sent = push_path(net, level, it, v, t, limit.min(net.cap[k]));
+            if sent &gt; 0 {
+                net.cap[k] -= sent;
+                net.cap[k ^ 1] += sent;
+                return sent;
+            }
+        }
+        it[u] += 1;
+    }
+    0
+}
+
+// Блокирующий поток: пускаем пути, пока они есть; возвращает величину пропущенного потока
+fn blocking_flow(net: &amp;mut Network, level: &amp;[i64], s: usize, t: usize) -&gt; i64 {
+    let mut it = vec![0; net.n];
+    let mut total = 0;
+    loop {
+        let sent = push_path(net, level, &amp;mut it, s, t, i64::MAX);
+        if sent == 0 {
+            return total;
+        }
+        total += sent;
+    }
+}
+
+// Алгоритм Диница: фазы; в каждой фазе — уровни вершин (BFS) и блокирующий поток
+pub fn dinic(net: &amp;mut Network, s: usize, t: usize) -&gt; i64 {
+    let mut value = 0;
+    let mut level = bfs(net, s).0;
+    while level[t] &gt;= 0 {
+        value += blocking_flow(net, &amp;level, s, t);
+        level = bfs(net, s).0;
+    }
+    value
+}
+
+// Вершины, достижимые из s в остаточной сети: исток минимального разреза
+pub fn source_side(net: &amp;Network, s: usize) -&gt; Vec&lt;usize&gt; {
+    let dist = bfs(net, s).0;
+    (0..net.n).filter(|&amp;v| dist[v] &gt;= 0).collect()
+}
+
+// Пример из задачи: исток 0, сток 5
+fn example_network() -&gt; Network {
+    let mut net = Network::new(6);
+    for (u, v, capacity) in [(0, 1, 16), (0, 2, 13), (1, 2, 10), (2, 1, 4), (1, 3, 12),
+                             (3, 2, 9), (2, 4, 14), (4, 3, 7), (3, 5, 20), (4, 5, 4)] {
+        net.add_edge(u, v, capacity);
+    }
+    net
+}
+
+fn main() {
+    let (s, t) = (0, 5);
+    let mut first = example_network();
+    println!("Эдмондс–Карп: величина потока {}", edmonds_karp(&amp;mut first, s, t));
+    let mut second = example_network();
+    println!("Диниц: величина потока {}", dinic(&amp;mut second, s, t));
+    let side = source_side(&amp;first, s);
+    let rest: Vec&lt;usize&gt; = (0..first.n).filter(|v| !side.contains(v)).collect();
+    println!("Минимальный разрез: S = {:?}, T = {:?}", side, rest);
+}
+</code></pre>
+</div></body></html>

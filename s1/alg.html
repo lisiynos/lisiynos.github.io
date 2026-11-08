@@ -1,0 +1,685 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Оценка сложности алгоритмов</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_pascal.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_java.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_basic.js"></script>
+    <script type="text/javascript" src="../syntax/sh_alg.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+
+    <ul class="tags">
+        <li><a href="#">Оценка сложности</a></li>
+    </ul>
+
+    <h1>Оценка сложности алгоритмов: линейная сложность, квадратичная, логарифмическая...</h1>
+
+    <p>Существует несколько способов измерения сложности алгоритма. Программисты обычно сосредотачивают внимание на
+        <strong>скорости</strong> алгоритма, но не менее важны и другие показатели – требования к <strong>объёму
+            памяти</strong>, например. Использование быстрого алгоритма не приведёт к ожидаемым результатам, если для
+        его работы понадобится больше памяти, чем есть у компьютера.</p>
+
+    <p>При сравнении различных алгоритмов важно знать, как их сложность зависит от объёма входных данных.</p>
+
+    <p>$T(n) \colon \mathbb{N} \to \mathbb{Q}^{+}$, причём $T(n) > 0$.</p>
+
+    <p>$T(n) = O(f(n))$ $\Leftrightarrow$ существуют $C, n_0 > 0$: $T(n) \le C \cdot f(n)$ для всех $n \ge n_0$.</p>
+
+    <p><strong>Лемма 1.</strong> Если многочлен имеет вид</p>
+    <p>$$T(n) = a_0 n^b + a_1 n^{b-1} + \dots + a_{b-1} n + a_b,$$</p>
+    <p>то $T(n) = O(n^b)$.</p>
+    <p>Доказательство. Возьмём $n_0 = 1$ и $c = |a_0| + |a_1| + \dots + |a_b|$. Для $n \ge 1$ каждая степень $n^j \le n^b$,
+        поэтому $T(n) \le c \cdot n^b$.</p>
+
+    <p><strong>Лемма 2.</strong> Для любого $k \ge 1$ верно $n^k \ne O(n^{k-1})$.</p>
+    <p>Доказательство от противного. Пусть $n^k = O(n^{k-1})$: существуют $C, n_0$, что $n^k \le C \cdot n^{k-1}$ при
+        $n \ge n_0$. Тогда $n \le C$ при всех $n \ge n_0$, а это неверно.</p>
+
+    <p><strong>Нижняя оценка и Θ.</strong></p>
+    <p>$T(n) = \Omega(f(n))$ $\Leftrightarrow$ существуют $c, n_0 > 0$: $T(n) \ge c \cdot f(n)$ для всех $n \ge n_0$.</p>
+    <p>$T(n) = \Theta(f(n))$ $\Leftrightarrow$ $T(n) = O(f(n))$ и $T(n) = \Omega(f(n))$, то есть существуют
+        $c_1, c_2, n_0 > 0$: $c_1 \cdot f(n) \le T(n) \le c_2 \cdot f(n)$ для всех $n > n_0$.</p>
+
+    <p>Маленькая $o$</p>
+    <p>$T(n) = o(f(n))$ $\Leftrightarrow$ для любого $c > 0$ существует $n_0$: $T(n) \le c \cdot f(n)$ для всех
+        $n \ge n_0$.</p>
+    <p>Пример: $\forall k \ge 1$: $n^{k-1} = o(n^k)$.</p>
+
+    <h3>Классы сложности на примерах</h3>
+    <p>Время работы алгоритма растёт с размером входа $n$ по-разному. Предел $n$ — наибольший размер входа, который
+        алгоритм успевает обработать за секунду, если компьютер делает около $10^8$ простых операций в секунду.
+        Полоска показывает предел в логарифмической шкале от $1$ до $10^{16}$: чем короче полоска, тем меньше $n$.
+        Названия ведут к разделам курса.</p>
+
+    <table class="complexity-table">
+        <thead>
+            <tr><th>Класс</th><th>Предел $n$</th><th>Пример алгоритма</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$O(1)$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>любое $n$</td><td><a href="data_structures.html#реализация-стека-и-очереди-на-базе-массива">Стек на массиве</a></td></tr>
+            <tr><td>$O(\log n)$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>любое $n$</td><td><a href="binsearch.html#двоичный-бинарный-поиск-binsearch-бинпоиск">Двоичный поиск</a></td></tr>
+            <tr><td>$O(\sqrt{n})$</td><td><meter aria-hidden="true" min="0" max="16" value="16"></meter>около $10^{16}$</td><td><a href="../s3/segments_tree.html#2-корневая-оптимизация">Корневая оптимизация</a></td></tr>
+            <tr><td>$O(n)$</td><td><meter aria-hidden="true" min="0" max="16" value="8"></meter>около $10^8$</td><td><a href="../s6/trees.html#обходы-бинарного-дерева">Обход бинарного дерева</a></td></tr>
+            <tr><td>$O(n\log n)$</td><td><meter aria-hidden="true" min="0" max="16" value="6.6"></meter>около $4\cdot10^6$</td><td><a href="sort.html#сортировка-слиянием-mergesort">Сортировка слиянием</a></td></tr>
+            <tr><td>$O(n^2)$</td><td><meter aria-hidden="true" min="0" max="16" value="4"></meter>около $10^4$</td><td><a href="sort.html#квадратичные-сортировки-сортировка-пузырьком">Сортировка пузырьком</a></td></tr>
+            <tr><td>$O(n^3)$</td><td><meter aria-hidden="true" min="0" max="16" value="2.7"></meter>около $500$</td><td><a href="graph_alg_py.html#алгоритм-флойда">Алгоритм Флойда</a></td></tr>
+            <tr><td>$O(2^n)$</td><td><meter aria-hidden="true" min="0" max="16" value="1.4"></meter>около $26$</td><td><a href="../s3/recursion.html#ханойские-башни-рекурсивное-перемещение">Ханойские башни</a></td></tr>
+            <tr><td>$O(n!)$</td><td><meter aria-hidden="true" min="0" max="16" value="1"></meter>около $11$</td><td><a href="../s2/backtracking.html#2-3-1-перебор-с-отсечениями">Перебор перестановок</a></td></tr>
+        </tbody>
+    </table>
+
+    <p>$O(1)$ - время выполнения алгоритма константа (не зависит от количества элементов во входном множестве).</p>
+
+    <p>$O(n)$ - линейная сложность.</p>
+
+    <p>Пример: поиск минимального элемента в массиве (цикл по всем элементам массива).</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Поиск минимума в списке: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+def find_min(items):
+    """Возвращает наименьший элемент списка или None, если список пуст."""
+    if not items:
+        return None
+    minimum = items[0]  # сначала считаем минимумом первый элемент
+    for item in items:
+        if item &lt; minimum:
+            minimum = item
+    return minimum
+
+
+def main():
+    print(find_min([5, 3, 8, 1, 9, 2, 7]))
+    print(find_min([]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">// Поиск минимума в срезе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+pub fn find_min(items: &amp;[i32]) -&gt; Option&lt;i32&gt; {
+    // Первый элемент - текущий минимум; у пустого среза минимума нет
+    let (&amp;first, rest) = items.split_first()?;
+    let mut minimum = first;
+    for &amp;item in rest {
+        if item &lt; minimum {
+            minimum = item;
+        }
+    }
+    Some(minimum)
+}
+
+fn main() {
+    println!("{:?}", find_min(&amp;[5, 3, 8, 1, 9, 2, 7]));
+    println!("{:?}", find_min(&amp;[]));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Поиск минимума в векторе: O(n) по времени, один проход по элементам, O(1) дополнительной памяти
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;vector&gt;
+
+// Возвращает наименьший элемент или пустой optional, если вектор пуст
+std::optional&lt;int&gt; find_min(const std::vector&lt;int&gt;&amp; items) {
+    if (items.empty()) {
+        return std::nullopt;
+    }
+    int minimum = items[0];  // сначала считаем минимумом первый элемент
+    for (int item : items) {
+        if (item &lt; minimum) {
+            minimum = item;
+        }
+    }
+    return minimum;
+}
+
+int main() {
+    const std::optional&lt;int&gt; minimum = find_min({5, 3, 8, 1, 9, 2, 7});
+    std::cout &lt;&lt; *minimum &lt;&lt; '\n';
+    std::cout &lt;&lt; (find_min({}) ? "есть" : "нет") &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>$O(n^2)$ - квадратичная сложность. Например, сортировки &quot;пузырьком&quot;, вставками и т.д.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+def bubble_sort(items):
+    """Сортирует список по возрастанию на месте и возвращает его."""
+    for last in range(len(items) - 1, 0, -1):
+        # Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0..last]
+        for i in range(last):
+            if items[i] &gt; items[i + 1]:
+                items[i], items[i + 1] = items[i + 1], items[i]
+    return items
+
+
+def main():
+    print(bubble_sort([5, 3, 8, 1, 9, 2, 7]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+pub fn bubble_sort(items: &amp;mut [i32]) {
+    for last in (1..items.len()).rev() {
+        // Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0..=last]
+        for i in 0..last {
+            if items[i] &gt; items[i + 1] {
+                items.swap(i, i + 1);
+            }
+        }
+    }
+}
+
+fn main() {
+    let mut items = vec![5, 3, 8, 1, 9, 2, 7];
+    bubble_sort(&amp;mut items);
+    println!("{:?}", items);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Сортировка пузырьком: O(n^2) сравнений в среднем и в худшем случае
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+void bubble_sort(std::vector&lt;int&gt;&amp; items) {
+    // Самый большой из непросмотренных элементов «всплывает» в конец отрезка [0, last)
+    for (std::size_t last = items.size(); last &gt; 1; --last) {
+        for (std::size_t i = 0; i + 1 &lt; last; ++i) {
+            if (items[i] &gt; items[i + 1]) {
+                std::swap(items[i], items[i + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; items = {5, 3, 8, 1, 9, 2, 7};
+    bubble_sort(items);
+    for (int item : items) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>Пример: поиск двух точек на плоскости с максимальным расстоянием между ними.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+def farthest_pair(points):
+    """Возвращает пару точек с наибольшим расстоянием или None, если точек меньше двух."""
+    best_pair = None
+    best_dist = -1  # квадрат расстояния: координаты целые, поэтому корень не нужен
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            (x1, y1), (x2, y2) = points[i], points[j]
+            dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
+            if dist &gt; best_dist:
+                best_dist = dist
+                best_pair = (points[i], points[j])
+    return best_pair
+
+
+def main():
+    points = [(0, 0), (3, 4), (-1, 2), (6, -2), (1, 1)]
+    print(farthest_pair(points))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+pub type Point = (i64, i64);
+
+pub fn farthest_pair(points: &amp;[Point]) -&gt; Option&lt;(Point, Point)&gt; {
+    let mut best_pair = None;
+    // Квадрат расстояния: координаты целые, поэтому корень не нужен
+    let mut best_dist = -1;
+    for (i, &amp;(x1, y1)) in points.iter().enumerate() {
+        for &amp;(x2, y2) in &amp;points[i + 1..] {
+            let dist = (x1 - x2).pow(2) + (y1 - y2).pow(2);
+            if dist &gt; best_dist {
+                best_dist = dist;
+                best_pair = Some(((x1, y1), (x2, y2)));
+            }
+        }
+    }
+    best_pair
+}
+
+fn main() {
+    let points: [Point; 5] = [(0, 0), (3, 4), (-1, 2), (6, -2), (1, 1)];
+    println!("{:?}", farthest_pair(&amp;points));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Пара точек с максимальным расстоянием: перебор всех пар, O(n^2) по времени, O(1) дополнительной памяти
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Point&amp; p) {
+    return out &lt;&lt; '(' &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; ')';
+}
+
+// Возвращает пару точек с наибольшим расстоянием или пустой optional, если точек меньше двух
+std::optional&lt;std::pair&lt;Point, Point&gt;&gt; farthest_pair(const std::vector&lt;Point&gt;&amp; points) {
+    std::optional&lt;std::pair&lt;Point, Point&gt;&gt; best;
+    long long best_dist = -1;  // квадрат расстояния: координаты целые, поэтому корень не нужен
+    for (std::size_t i = 0; i &lt; points.size(); ++i) {
+        for (std::size_t j = i + 1; j &lt; points.size(); ++j) {
+            long long dx = points[i].x - points[j].x;
+            long long dy = points[i].y - points[j].y;
+            long long dist = dx * dx + dy * dy;
+            if (dist &gt; best_dist) {
+                best_dist = dist;
+                best = std::make_pair(points[i], points[j]);
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {3, 4}, {-1, 2}, {6, -2}, {1, 1}};
+    const auto best = farthest_pair(points);
+    std::cout &lt;&lt; best-&gt;first &lt;&lt; ' ' &lt;&lt; best-&gt;second &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>$O(n^3)$ - кубическая сложность.</p>
+
+    <p>Пример: поиск треугольника максимальной площади с вершинами в точках на плоскости (перебор вершин тройным
+        циклом). </p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+def twice_area(triangle):
+    """Удвоенная площадь треугольника по векторному произведению (целое число, без дробей)."""
+    (x1, y1), (x2, y2), (x3, y3) = triangle
+    return abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1))
+
+
+def all_triangles(points):
+    """Перебирает все тройки точек с индексами i &lt; j &lt; k тройным циклом."""
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            for k in range(j + 1, len(points)):
+                yield points[i], points[j], points[k]
+
+
+def largest_triangle(points):
+    """Возвращает тройку вершин треугольника максимальной площади или None, если точек меньше трёх."""
+    return max(all_triangles(points), key=twice_area, default=None)
+
+
+def main():
+    points = [(0, 0), (4, 0), (0, 3), (2, 1), (1, 1)]
+    print(largest_triangle(points))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+pub type Point = (i64, i64);
+
+// Удвоенная площадь треугольника abc: целое число, поэтому без дробей
+pub fn twice_area(a: Point, b: Point, c: Point) -&gt; i64 {
+    ((b.0 - a.0) * (c.1 - a.1) - (c.0 - a.0) * (b.1 - a.1)).abs()
+}
+
+pub fn largest_triangle(points: &amp;[Point]) -&gt; Option&lt;(Point, Point, Point)&gt; {
+    let mut best = None;
+    let mut best_area = -1;
+    for i in 0..points.len() {
+        for j in i + 1..points.len() {
+            for k in j + 1..points.len() {
+                let area = twice_area(points[i], points[j], points[k]);
+                if area &gt; best_area {
+                    best_area = area;
+                    best = Some((points[i], points[j], points[k]));
+                }
+            }
+        }
+    }
+    best
+}
+
+fn main() {
+    let points: [Point; 5] = [(0, 0), (4, 0), (0, 3), (2, 1), (1, 1)];
+    println!("{:?}", largest_triangle(&amp;points));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Треугольник максимальной площади: перебор всех троек точек, O(n^3) по времени, O(1) дополнительной памяти
+#include &lt;cstddef&gt;
+#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;tuple&gt;
+#include &lt;vector&gt;
+
+struct Point {
+    long long x;
+    long long y;
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Point&amp; p) {
+    return out &lt;&lt; '(' &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; ')';
+}
+
+// Удвоенная площадь треугольника abc: целое число, поэтому без дробей
+long long twice_area(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return std::llabs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y));
+}
+
+// Возвращает тройку вершин треугольника максимальной площади или пустой optional, если точек меньше трёх
+std::optional&lt;std::tuple&lt;Point, Point, Point&gt;&gt; largest_triangle(const std::vector&lt;Point&gt;&amp; points) {
+    std::optional&lt;std::tuple&lt;Point, Point, Point&gt;&gt; best;
+    long long best_area = -1;
+    for (std::size_t i = 0; i &lt; points.size(); ++i) {
+        for (std::size_t j = i + 1; j &lt; points.size(); ++j) {
+            for (std::size_t k = j + 1; k &lt; points.size(); ++k) {
+                long long area = twice_area(points[i], points[j], points[k]);
+                if (area &gt; best_area) {
+                    best_area = area;
+                    best = std::make_tuple(points[i], points[j], points[k]);
+                }
+            }
+        }
+    }
+    return best;
+}
+
+int main() {
+    const std::vector&lt;Point&gt; points = {{0, 0}, {4, 0}, {0, 3}, {2, 1}, {1, 1}};
+    const auto [a, b, c] = *largest_triangle(points);
+    std::cout &lt;&lt; a &lt;&lt; ' ' &lt;&lt; b &lt;&lt; ' ' &lt;&lt; c &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>Оценка $O(n)$ ассимптотическая (при $n$ стремящемся к бесконечности).</p>
+
+    <p>$O(\ln{n})$ - <strong>Бинарный поиск</strong> - логарифмическая сложность.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Бинарный поиск в отсортированном списке: O(log n) сравнений
+def binary_search(items, target):
+    """Возвращает индекс target в отсортированном списке или None, если его там нет."""
+    low, high = 0, len(items)  # искомое ищем в полуинтервале [low, high)
+    while low &lt; high:
+        middle = (low + high) // 2
+        if items[middle] == target:
+            return middle
+        if items[middle] &lt; target:
+            low = middle + 1
+        else:
+            high = middle
+    return None
+
+
+def main():
+    values = [1, 3, 5, 7, 9, 11, 13]
+    print(binary_search(values, 7))
+    print(binary_search(values, 8))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Бинарный поиск в отсортированном срезе: O(log n) сравнений
+use std::cmp::Ordering;
+
+pub fn binary_search(items: &amp;[i32], target: i32) -&gt; Option&lt;usize&gt; {
+    // Искомое ищем в полуинтервале [low, high)
+    let (mut low, mut high) = (0, items.len());
+    while low &lt; high {
+        let middle = low + (high - low) / 2;
+        match items[middle].cmp(&amp;target) {
+            Ordering::Equal =&gt; return Some(middle),
+            Ordering::Less =&gt; low = middle + 1,
+            Ordering::Greater =&gt; high = middle,
+        }
+    }
+    None
+}
+
+fn main() {
+    let values = [1, 3, 5, 7, 9, 11, 13];
+    println!("{:?}", binary_search(&amp;values, 7));
+    println!("{:?}", binary_search(&amp;values, 8));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Бинарный поиск в отсортированном векторе: O(log n) сравнений
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;optional&gt;
+#include &lt;vector&gt;
+
+std::optional&lt;std::size_t&gt; binary_search(const std::vector&lt;int&gt;&amp; items, int target) {
+    // Искомое ищем в полуинтервале [low, high)
+    std::size_t low = 0;
+    std::size_t high = items.size();
+    while (low &lt; high) {
+        std::size_t middle = low + (high - low) / 2;
+        if (items[middle] == target) {
+            return middle;
+        }
+        if (items[middle] &lt; target) {
+            low = middle + 1;
+        } else {
+            high = middle;
+        }
+    }
+    return std::nullopt;
+}
+
+int main() {
+    const std::vector&lt;int&gt; values = {1, 3, 5, 7, 9, 11, 13};
+    for (int target : {7, 8}) {
+        auto index = binary_search(values, target);
+        if (index) {
+            std::cout &lt;&lt; "индекс " &lt;&lt; *index &lt;&lt; '\n';
+        } else {
+            std::cout &lt;&lt; "нет\n";
+        }
+    }
+    return 0;
+}
+</pre>
+
+    <p>$O(n\log{n})$ - быстрая сортировка Хоара (рус) - QuickSort, HeapSort, MergeSort.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+def quick_sort(items):
+    """Сортирует список по возрастанию на месте и возвращает его."""
+    sort_range(items, 0, len(items) - 1)
+    return items
+
+
+def sort_range(items, low, high):
+    """Сортирует отрезок items[low..high] (границы включены) разбиением Хоара."""
+    if low &gt;= high:
+        return
+    pivot = items[(low + high) // 2]
+    i, j = low, high
+    while i &lt;= j:
+        while items[i] &lt; pivot:
+            i += 1
+        while items[j] &gt; pivot:
+            j -= 1
+        if i &lt;= j:
+            items[i], items[j] = items[j], items[i]
+            i += 1
+            j -= 1
+    # После разбиения [low..j] не больше опорного, [i..high] не меньше опорного
+    sort_range(items, low, j)
+    sort_range(items, i, high)
+
+
+def main():
+    print(quick_sort([5, 3, 8, 1, 9, 2, 7, 3]))
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+pub fn quick_sort(items: &amp;mut [i32]) {
+    if items.len() &lt;= 1 {
+        return;
+    }
+    let pivot = items[items.len() / 2];
+    // Индексы со знаком: j может стать -1, и это не должно переполнять usize
+    let (mut i, mut j) = (0_isize, items.len() as isize - 1);
+    while i &lt;= j {
+        while items[i as usize] &lt; pivot {
+            i += 1;
+        }
+        while items[j as usize] &gt; pivot {
+            j -= 1;
+        }
+        if i &lt;= j {
+            items.swap(i as usize, j as usize);
+            i += 1;
+            j -= 1;
+        }
+    }
+    // После разбиения [0..=j] не больше опорного, [i..] не меньше опорного
+    if j &gt;= 0 {
+        quick_sort(&amp;mut items[..=j as usize]);
+    }
+    quick_sort(&amp;mut items[i as usize..]);
+}
+
+fn main() {
+    let mut items = [5, 3, 8, 1, 9, 2, 7, 3];
+    quick_sort(&amp;mut items);
+    println!("{:?}", items);
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Быстрая сортировка Хоара: O(n log n) в среднем, O(n^2) в худшем случае
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+// Сортирует отрезок items[low..high] (границы включены) разбиением Хоара
+void sort_range(std::vector&lt;int&gt;&amp; items, int low, int high) {
+    if (low &gt;= high) {
+        return;
+    }
+    int pivot = items[(low + high) / 2];
+    int i = low;
+    int j = high;
+    while (i &lt;= j) {
+        while (items[i] &lt; pivot) {
+            ++i;
+        }
+        while (items[j] &gt; pivot) {
+            --j;
+        }
+        if (i &lt;= j) {
+            std::swap(items[i], items[j]);
+            ++i;
+            --j;
+        }
+    }
+    // После разбиения [low..j] не больше опорного, [i..high] не меньше опорного
+    sort_range(items, low, j);
+    sort_range(items, i, high);
+}
+
+void quick_sort(std::vector&lt;int&gt;&amp; items) {
+    sort_range(items, 0, static_cast&lt;int&gt;(items.size()) - 1);
+}
+
+int main() {
+    std::vector&lt;int&gt; items = {5, 3, 8, 1, 9, 2, 7, 3};
+    quick_sort(items);
+    for (int item : items) {
+        std::cout &lt;&lt; item &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}
+</pre>
+
+    <p>При оценке сложности важна только самая старшая степень. Например:</p>
+
+    <p>$O(n^3+n^2+4n)=O(n^3)$</p>
+
+    <p>Константа так же отбрасывается, так как нам важно лишь во сколько раз возрастает время выполнения программы при
+        увеличении размера входных данных.</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,245 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>С/C++. Функции. Виды параметров. Передача массивов</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_c.min.js"></script>
+    <script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+</head>
+<body onLoad="sh_highlightDocument();">
+
+<div id="content">
+    <h1>C/C++. Функции. Виды параметров. Передача массивов</h1>
+
+    <ul class="tags">
+        <li><a href="#">Функции</a></li>
+        <li><a href="#">Рекурсия</a></li>
+    </ul>
+
+    <h2>Функции</h2>
+
+    <p>Функция — именованный фрагмент программы: она получает данные через параметры, выполняет вычисления и может вернуть результат. В C и C++ определение функции состоит из типа результата, имени, списка параметров в круглых скобках и тела в фигурных скобках. Функция <code>main</code> — точка входа программы.</p>
+
+    <h3>Параметры по значению и по ссылке</h3>
+
+    <p>Параметр, объявленный обычным образом, получает копию значения аргумента. Изменения этой копии внутри функции не видны в вызывающей части программы. Параметр-ссылка объявляется со знаком <code>&amp;</code>, например <code>int&amp; x</code>: это другое имя для переменной-аргумента, поэтому изменения внутри функции действуют на исходную переменную. В языке C ссылок нет, и тот же результат получают, передавая адрес переменной через указатель.</p>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Параметры по значению и по ссылке в C++
+#include &lt;cstdio&gt;
+
+// Параметр по значению: функция работает с копией аргумента
+void add_one_by_value(int x) {
+  ++x;
+}
+
+// Параметр по ссылке: функция меняет переменную, переданную в аргументе
+void add_one_by_reference(int&amp; x) {
+  ++x;
+}
+
+// Обмен значений двух переменных через ссылки
+void swap_by_reference(int&amp; a, int&amp; b) {
+  int t = a;
+  a = b;
+  b = t;
+}
+
+int main() {
+  int x = 10;
+  int y = 20;
+  add_one_by_value(x);
+  std::printf("после передачи по значению: x = %d\n", x);
+  add_one_by_reference(x);
+  std::printf("после передачи по ссылке: x = %d\n", x);
+  swap_by_reference(x, y);
+  std::printf("после обмена: x = %d, y = %d\n", x, y);
+  return 0;
+}
+</pre>
+    <p><strong>Реализация на C</strong></p>
+    <pre class="sh_c">
+/* В C ссылок нет: изменяемый параметр передаётся указателем */
+#include &lt;stdio.h&gt;
+
+void add_one_by_value(int x) {
+    x++;  /* меняется только локальная копия */
+}
+
+void add_one_by_pointer(int *x) {
+    (*x)++;  /* меняется переменная, на которую указывает x */
+}
+
+void swap_by_pointer(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+    add_one_by_value(x);
+    printf("после передачи по значению: x = %d\n", x);
+    add_one_by_pointer(&amp;x);
+    printf("после передачи указателя: x = %d\n", x);
+    swap_by_pointer(&amp;x, &amp;y);
+    printf("после обмена: x = %d, y = %d\n", x, y);
+    return 0;
+}
+</pre>
+
+    <h3>Передача массивов</h3>
+
+    <p>Массив нельзя передать по значению: при вызове имя массива превращается в указатель на его первый элемент. Параметры <code>int* a</code> и <code>int a[]</code> задают один и тот же указатель, поэтому функция не знает, сколько элементов в массиве, и размер передаётся отдельным параметром. Через указатель функция может менять элементы массива, и изменения видны вызывающей части программы. В C++ массив фиксированного размера можно передать по ссылке, записав тип параметра как <code>int (&amp;a)[5]</code>; тогда размер входит в тип. Вектор <code>std::vector</code> передают по ссылке: он хранит свой размер, и функция может добавлять в него элементы.</p>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Передача массивов в C++: указатель с размером, ссылка на массив фиксированного размера и вектор по ссылке
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+// Массив передаётся указателем; размер передаётся отдельным параметром
+long long sum_by_pointer(const int* a, int n) {
+  long long sum = 0;
+  for (int i = 0; i &lt; n; ++i) sum += a[i];
+  return sum;
+}
+
+// Массив из пяти элементов передаётся по ссылке: размер входит в тип параметра
+void fill_squares(int (&amp;a)[5]) {
+  for (int i = 0; i &lt; 5; ++i) a[i] = i * i;
+}
+
+// Вектор передаётся по ссылке: функция может добавить в него элемент
+void push_value(std::vector&lt;int&gt;&amp; v, int value) {
+  v.push_back(value);
+}
+
+int main() {
+  int squares[5];
+  fill_squares(squares);
+  std::printf("квадраты:");
+  for (int i = 0; i &lt; 5; ++i) std::printf(" %d", squares[i]);
+  std::printf("\n");
+  std::printf("сумма через указатель: %lld\n", sum_by_pointer(squares, 5));
+  std::vector&lt;int&gt; values;
+  push_value(values, 7);
+  push_value(values, 8);
+  std::printf("размер вектора: %zu, сумма: %lld\n", values.size(), sum_by_pointer(values.data(), static_cast&lt;int&gt;(values.size())));
+  return 0;
+}
+</pre>
+
+    <h2>Рекурсия</h2>
+
+    <p>Рекурсивная функция вызывает саму себя для других аргументов. У рекурсии есть базовый случай, при котором вызовы прекращаются, и шаг рекурсии, который сводит задачу к той же задаче для меньших аргументов. Если базового случая нет или шаг не приближает к нему, вызовы не заканчиваются и стек вызовов переполняется. Подробнее о стеке вызовов — в уроке <a href="recursion.html">о рекурсии</a>.</p>
+
+    <h3>Факториал</h3>
+
+    <p>Факториал целого $n \geq 0$ задаётся равенствами $0! = 1$ и $n! = n \cdot (n - 1)!$ при $n \geq 1$. Базовый случай — $0! = 1$, шаг уменьшает $n$ на единицу. Значение $20! = 2432902008176640000$ помещается в 64-битный беззнаковый тип, а $21!$ уже не помещается. Поэтому программа на C++ даёт верный результат только при $n \leq 20$; в Python целые числа произвольной длины, но глубина рекурсии там ограничена.</p>
+
+    <h3>Числа Фибоначчи</h3>
+
+    <p>Функция <code>fib</code> повторяет определение $F_n = F_{n-1} + F_{n-2}$ и потому многократно вычисляет одни и те же значения: число её вызовов быстро растёт. Подробный разбор чисел Фибоначчи, оценка числа вызовов и вариант с циклом — в разделе <a href="../s1/recurs.html">«Рекуррентные отношения»</a>.</p>
+
+    <h3>Наибольший общий делитель</h3>
+
+    <p>Алгоритм Евклида записывается рекурсивно: $\operatorname{gcd}(a, 0) = a$ и $\operatorname{gcd}(a, b) = \operatorname{gcd}(b, a \bmod b)$ при $b \neq 0$. Остаток $a \bmod b$ меньше $b$, поэтому второй аргумент строго убывает и вызовы заканчиваются. Подробный разбор алгоритма и оценка числа шагов — в уроке <a href="recursion.html">о рекурсии</a>.</p>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Рекурсивные функции: факториал, числа Фибоначчи и наибольший общий делитель
+def factorial(n):
+    """Возвращает n! для целого n &gt;= 0."""
+    # Базовый случай: 0! = 1
+    if n == 0:
+        return 1
+    # Шаг рекурсии: n! = n * (n - 1)!
+    return n * factorial(n - 1)
+
+
+def fib(n):
+    """Возвращает n-е число Фибоначчи: F(0) = 0, F(1) = 1, F(n) = F(n - 1) + F(n - 2)."""
+    # Базовые случаи: F(0) = 0 и F(1) = 1
+    if n &lt; 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+
+def gcd(a, b):
+    """Возвращает наибольший общий делитель неотрицательных целых a и b."""
+    # Базовый случай: остаток стал нулём, значит a — ответ
+    if b == 0:
+        return a
+    return gcd(b, a % b)
+
+
+def main():
+    print(f"0! = {factorial(0)}, 5! = {factorial(5)}, 20! = {factorial(20)}")
+    print("Числа Фибоначчи:", *(fib(n) for n in range(11)))
+    print(f"НОД(48, 18) = {gcd(48, 18)}")
+    print(f"НОД(17, 0) = {gcd(17, 0)}")
+    print(f"НОД(12, 35) = {gcd(12, 35)}")
+
+
+if __name__ == "__main__":
+    main()
+</pre>
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Рекурсивные функции: факториал, числа Фибоначчи и наибольший общий делитель
+#include &lt;cstdio&gt;
+
+// Возвращает n! для n &gt;= 0; верный результат получается только при n &lt;= 20 (21! не помещается в 64 бита)
+unsigned long long factorial(unsigned int n) {
+  // Базовый случай: 0! = 1
+  if (n == 0) return 1;
+  // Шаг рекурсии: n! = n * (n - 1)!
+  return n * factorial(n - 1);
+}
+
+// Возвращает n-е число Фибоначчи: F(0) = 0, F(1) = 1, F(n) = F(n - 1) + F(n - 2)
+unsigned long long fib(unsigned int n) {
+  // Базовые случаи: F(0) = 0 и F(1) = 1
+  if (n &lt; 2) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+// Возвращает наибольший общий делитель неотрицательных целых a и b
+unsigned long long gcd(unsigned long long a, unsigned long long b) {
+  // Базовый случай: остаток стал нулём, значит a — ответ
+  if (b == 0) return a;
+  return gcd(b, a % b);
+}
+
+int main() {
+  std::printf("0! = %llu, 5! = %llu, 20! = %llu\n", factorial(0), factorial(5), factorial(20));
+  std::printf("Числа Фибоначчи:");
+  for (unsigned int n = 0; n &lt;= 10; ++n) {
+    std::printf(" %llu", fib(n));
+  }
+  std::printf("\n");
+  std::printf("НОД(48, 18) = %llu\n", gcd(48, 18));
+  std::printf("НОД(17, 0) = %llu\n", gcd(17, 0));
+  std::printf("НОД(12, 35) = %llu\n", gcd(12, 35));
+  return 0;
+}
+</pre>
+
+</div>
+
+</body>
+
+</html>

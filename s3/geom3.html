@@ -1,0 +1,391 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>Построение выпуклой оболочки</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <script>
+window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}};
+</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js"></script>
+    <link rel="stylesheet" type="text/css" href="../style/site.css">
+<script src="../js/site.js" defer></script>
+<script type="text/javascript" src="../syntax/sh_main.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_cpp.min.js"></script>
+<script type="text/javascript" src="../syntax/sh_python.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../style/sh_nedit.css">
+</head>
+<body onLoad="sh_highlightDocument();">
+<div id="content">
+    <h1>Геометрия: построение выпуклой оболочки</h1>
+
+    <ul class="tags">
+        <li><a href="#">Геометрия</a></li>
+    </ul>
+
+    <p>Выпуклой
+        оболочкой множества точек на плоскости является выпуклый
+        многоугольник с
+        вершинами из точек заданного множества. Существует несколько
+        алгоритмов
+        построения выпуклой оболочки. Самыми простыми для реализации
+        являются алгоритмы
+        <strong>Джарвиса</strong> и <strong>Грэхема</strong>.</p>
+
+    <p>Идея алгоритма
+        <strong>Джарвиса</strong> построения выпуклой оболочки (его называют еще алгоритмом
+        «заворачивания подарка») заключается в следующем:</p>
+
+    <ol>
+        <li>Ищется точка с минимальной координатой по оси $OX$.
+            От нее задается первоначальное вертикальное направление.
+        </li>
+        <li>По очереди, перебирая все остальные точки, ищется такая, чтобы вектор с концом в этой точке, а  началом в
+            исходной образовал с первоначальным вектором минимальный угол. Найденная таким образом точка будет точкой из
+            выпуклой оболочки.
+        </li>
+        <li>Найденная точка принимается за исходную, новый построенный вектор задает исходное направление и из
+            оставшихся
+            $N-2$ точек ищется следующая точка.
+        </li>
+        <li>Процесс продолжается до первоначальной выбранной точки.</li>
+    </ol>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Алгоритм Джарвиса (заворачивание подарка): O(N*H), H - число вершин оболочки
+Point = tuple[int, int]
+
+
+def cross(origin: Point, a: Point, b: Point) -&gt; int:
+    """Векторное произведение (a - origin) x (b - origin): &gt; 0 - поворот влево."""
+    return (a[0] - origin[0]) * (b[1] - origin[1]) - (a[1] - origin[1]) * (b[0] - origin[0])
+
+
+def dist2(a: Point, b: Point) -&gt; int:
+    """Квадрат расстояния между точками."""
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def jarvis_hull(points: list[Point]) -&gt; list[Point]:
+    """Вершины выпуклой оболочки против часовой стрелки, начиная с самой левой точки."""
+    unique = sorted(set(points))
+    if len(unique) &lt; 3:
+        return unique
+    start = unique[0]  # самая левая (при равенстве - самая нижняя) точка
+    hull = []
+    current = start
+    while True:
+        hull.append(current)
+        # Ищем точку, относительно которой все остальные лежат слева от луча
+        candidate = unique[1] if current == start else start
+        for other in unique:
+            if other == current:
+                continue
+            turn = cross(current, candidate, other)
+            # Точка справа от луча (или на нем, но дальше) становится новым кандидатом
+            if turn &lt; 0 or (turn == 0 and dist2(current, other) &gt; dist2(current, candidate)):
+                candidate = other
+        current = candidate
+        if current == start:
+            return hull
+
+
+if __name__ == "__main__":
+    demo_points = [(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (1, 3), (2, 0), (0, 2)]
+    print("Оболочка:", jarvis_hull(demo_points))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Алгоритм Джарвиса (заворачивание подарка): O(N*H), H - число вершин оболочки
+type Point = (i64, i64);
+
+/// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+/// Квадрат расстояния между точками.
+fn dist2(a: Point, b: Point) -&gt; i64 {
+    (a.0 - b.0).pow(2) + (a.1 - b.1).pow(2)
+}
+
+/// Вершины выпуклой оболочки против часовой стрелки, начиная с самой левой точки.
+pub fn jarvis_hull(points: &amp;[Point]) -&gt; Vec&lt;Point&gt; {
+    let mut unique = points.to_vec();
+    unique.sort();
+    unique.dedup();
+    if unique.len() &lt; 3 {
+        return unique;
+    }
+    let start = unique[0]; // самая левая (при равенстве - самая нижняя) точка
+    let mut hull = Vec::new();
+    let mut current = start;
+    loop {
+        hull.push(current);
+        // Ищем точку, относительно которой все остальные лежат слева от луча
+        let mut candidate = if current == start { unique[1] } else { start };
+        for &amp;other in &amp;unique {
+            if other == current {
+                continue;
+            }
+            let turn = cross(current, candidate, other);
+            // Точка справа от луча (или на нем, но дальше) становится новым кандидатом
+            if turn &lt; 0 || (turn == 0 &amp;&amp; dist2(current, other) &gt; dist2(current, candidate)) {
+                candidate = other;
+            }
+        }
+        current = candidate;
+        if current == start {
+            return hull;
+        }
+    }
+}
+
+fn main() {
+    let demo = [(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (1, 3), (2, 0), (0, 2)];
+    println!("Оболочка: {:?}", jarvis_hull(&amp;demo));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Алгоритм Джарвиса (заворачивание подарка): O(N*H), H - число вершин оболочки
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Point = std::pair&lt;long long, long long&gt;;
+
+// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+long long cross(Point o, Point a, Point b) {
+    return (a.first - o.first) * (b.second - o.second) - (a.second - o.second) * (b.first - o.first);
+}
+
+// Квадрат расстояния между точками.
+long long dist2(Point a, Point b) {
+    return (a.first - b.first) * (a.first - b.first) + (a.second - b.second) * (a.second - b.second);
+}
+
+// Вершины выпуклой оболочки против часовой стрелки, начиная с самой левой точки.
+std::vector&lt;Point&gt; jarvisHull(std::vector&lt;Point&gt; points) {
+    std::sort(points.begin(), points.end());
+    points.erase(std::unique(points.begin(), points.end()), points.end());
+    if (points.size() &lt; 3) return points;
+    const Point start = points[0];  // самая левая (при равенстве - самая нижняя) точка
+    std::vector&lt;Point&gt; hull;
+    Point current = start;
+    while (true) {
+        hull.push_back(current);
+        // Ищем точку, относительно которой все остальные лежат слева от луча
+        Point candidate = (current == start) ? points[1] : start;
+        for (const Point&amp; other : points) {
+            if (other == current) continue;
+            long long turn = cross(current, candidate, other);
+            // Точка справа от луча (или на нем, но дальше) становится новым кандидатом
+            if (turn &lt; 0 || (turn == 0 &amp;&amp; dist2(current, other) &gt; dist2(current, candidate))) {
+                candidate = other;
+            }
+        }
+        current = candidate;
+        if (current == start) return hull;
+    }
+}
+
+int main() {
+    std::vector&lt;Point&gt; demo = {{0, 0}, {4, 0}, {4, 4}, {0, 4}, {2, 2}, {1, 3}, {2, 0}, {0, 2}};
+    std::printf("Оболочка:");
+    for (const Point&amp; p : jarvisHull(demo)) {
+        std::printf(" (%lld, %lld)", p.first, p.second);
+    }
+    std::printf("\n");
+    return 0;
+}
+</pre>
+
+    <p>Идея алгоритма
+        <strong>Грэхема</strong> построения выпуклой оболочки  заключается в следующем:</p>
+
+    <ol>
+        <li>Найти левую верхнюю точку. Запомнить ее.</li>
+        <li>Отсортировать все остальные точки по возрастанию угла в полярной системе координат с центром в запомненной
+            точке.
+        </li>
+        <li>По очереди перебирая все отсортированные точки, исключать те, которые будут содержаться внутри выпуклой
+            оболочки. Оставшиеся при таком отборе точки и  составят выпуклую оболочку.
+        </li>
+    </ol>
+
+    <p><strong>Реализация на Python</strong></p>
+    <pre class="sh_python">
+# Алгоритм Грэхема (сканирование по полярному углу): O(N*log N) на сортировку
+from functools import cmp_to_key
+
+Point = tuple[int, int]
+
+
+def cross(origin: Point, a: Point, b: Point) -&gt; int:
+    """Векторное произведение (a - origin) x (b - origin): &gt; 0 - поворот влево."""
+    return (a[0] - origin[0]) * (b[1] - origin[1]) - (a[1] - origin[1]) * (b[0] - origin[0])
+
+
+def dist2(a: Point, b: Point) -&gt; int:
+    """Квадрат расстояния между точками."""
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def graham_hull(points: list[Point]) -&gt; list[Point]:
+    """Вершины выпуклой оболочки против часовой стрелки, начиная с левой верхней точки."""
+    unique = sorted(set(points))
+    if len(unique) &lt; 3:
+        return unique
+    # Опорная точка: самая верхняя, а при равенстве - самая левая
+    pivot = max(unique, key=lambda p: (p[1], -p[0]))
+    others = [p for p in unique if p != pivot]
+
+    def by_polar_angle(a: Point, b: Point) -&gt; int:
+        turn = cross(pivot, a, b)
+        if turn != 0:
+            return -1 if turn &gt; 0 else 1  # меньший полярный угол идет раньше
+        return dist2(pivot, a) - dist2(pivot, b)  # на одном луче раньше ближняя точка
+
+    others.sort(key=cmp_to_key(by_polar_angle))
+    hull = [pivot]
+    for point in others:
+        # Если поворот не влево, предыдущая вершина лежит внутри оболочки - удаляем ее
+        while len(hull) &gt;= 2 and cross(hull[-2], hull[-1], point) &lt;= 0:
+            hull.pop()
+        hull.append(point)
+    return hull
+
+
+if __name__ == "__main__":
+    demo_points = [(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (1, 3), (2, 0), (0, 2)]
+    print("Оболочка:", graham_hull(demo_points))
+</pre>
+
+    <p><strong>Реализация на Rust</strong></p>
+    <pre class="rust-code"><code class="language-rust">
+// Алгоритм Грэхема (сканирование по полярному углу): O(N*log N) на сортировку
+use std::cmp::Ordering;
+
+type Point = (i64, i64);
+
+/// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+fn cross(o: Point, a: Point, b: Point) -&gt; i64 {
+    (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+/// Квадрат расстояния между точками.
+fn dist2(a: Point, b: Point) -&gt; i64 {
+    (a.0 - b.0).pow(2) + (a.1 - b.1).pow(2)
+}
+
+/// Вершины выпуклой оболочки против часовой стрелки, начиная с левой верхней точки.
+pub fn graham_hull(points: &amp;[Point]) -&gt; Vec&lt;Point&gt; {
+    let mut unique = points.to_vec();
+    unique.sort();
+    unique.dedup();
+    if unique.len() &lt; 3 {
+        return unique;
+    }
+    // Опорная точка: самая верхняя, а при равенстве - самая левая
+    let pivot = *unique.iter().max_by_key(|p| (p.1, -p.0)).unwrap();
+    let mut others: Vec&lt;Point&gt; = unique.iter().copied().filter(|&amp;p| p != pivot).collect();
+    // По возрастанию полярного угла; на одном луче раньше идет ближняя точка
+    others.sort_by(|&amp;a, &amp;b| {
+        let turn = cross(pivot, a, b);
+        if turn != 0 {
+            return if turn &gt; 0 { Ordering::Less } else { Ordering::Greater };
+        }
+        dist2(pivot, a).cmp(&amp;dist2(pivot, b))
+    });
+    let mut hull = vec![pivot];
+    for p in others {
+        // Если поворот не влево, предыдущая вершина лежит внутри оболочки - удаляем ее
+        while hull.len() &gt;= 2 &amp;&amp; cross(hull[hull.len() - 2], hull[hull.len() - 1], p) &lt;= 0 {
+            hull.pop();
+        }
+        hull.push(p);
+    }
+    hull
+}
+
+fn main() {
+    let demo = [(0, 0), (4, 0), (4, 4), (0, 4), (2, 2), (1, 3), (2, 0), (0, 2)];
+    println!("Оболочка: {:?}", graham_hull(&amp;demo));
+}
+</code></pre>
+
+    <p><strong>Реализация на C++</strong></p>
+    <pre class="sh_cpp">
+// Алгоритм Грэхема (сканирование по полярному углу): O(N*log N) на сортировку
+#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Point = std::pair&lt;long long, long long&gt;;
+
+// Векторное произведение (a - o) x (b - o): &gt; 0 - поворот влево.
+long long cross(Point o, Point a, Point b) {
+    return (a.first - o.first) * (b.second - o.second) - (a.second - o.second) * (b.first - o.first);
+}
+
+// Квадрат расстояния между точками.
+long long dist2(Point a, Point b) {
+    return (a.first - b.first) * (a.first - b.first) + (a.second - b.second) * (a.second - b.second);
+}
+
+// Вершины выпуклой оболочки против часовой стрелки, начиная с левой верхней точки.
+std::vector&lt;Point&gt; grahamHull(std::vector&lt;Point&gt; points) {
+    std::sort(points.begin(), points.end());
+    points.erase(std::unique(points.begin(), points.end()), points.end());
+    if (points.size() &lt; 3) return points;
+    // Опорная точка: самая верхняя, а при равенстве - самая левая
+    Point pivot = points[0];
+    for (const Point&amp; p : points) {
+        if (p.second &gt; pivot.second || (p.second == pivot.second &amp;&amp; p.first &lt; pivot.first)) pivot = p;
+    }
+    std::vector&lt;Point&gt; others;
+    for (const Point&amp; p : points) {
+        if (p != pivot) others.push_back(p);
+    }
+    // По возрастанию полярного угла; на одном луче раньше идет ближняя точка
+    std::sort(others.begin(), others.end(), [pivot](const Point&amp; a, const Point&amp; b) {
+        long long turn = cross(pivot, a, b);
+        if (turn != 0) return turn &gt; 0;
+        return dist2(pivot, a) &lt; dist2(pivot, b);
+    });
+    std::vector&lt;Point&gt; hull = {pivot};
+    for (const Point&amp; p : others) {
+        // Если поворот не влево, предыдущая вершина лежит внутри оболочки - удаляем ее
+        while (hull.size() &gt;= 2 &amp;&amp; cross(hull[hull.size() - 2], hull.back(), p) &lt;= 0) {
+            hull.pop_back();
+        }
+        hull.push_back(p);
+    }
+    return hull;
+}
+
+int main() {
+    std::vector&lt;Point&gt; demo = {{0, 0}, {4, 0}, {4, 4}, {0, 4}, {2, 2}, {1, 3}, {2, 0}, {0, 2}};
+    std::printf("Оболочка:");
+    for (const Point&amp; p : grahamHull(demo)) {
+        std::printf(" (%lld, %lld)", p.first, p.second);
+    }
+    std::printf("\n");
+    return 0;
+}
+</pre>
+
+    <p><strong>Реализация на языке программирования Pascal.</strong></p>
+
+    <p>&nbsp;</p>
+</div>
+
+</body>
+
+</html>

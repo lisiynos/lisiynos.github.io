@@ -1,0 +1,348 @@
+[
+  {
+    "label": "C#",
+    "aliases": [
+      "С#"
+    ]
+  },
+  {
+    "label": "C/C++",
+    "aliases": [
+      "C++",
+      "С/C++"
+    ]
+  },
+  {
+    "label": "Delphi",
+    "aliases": []
+  },
+  {
+    "label": "Haskell",
+    "aliases": []
+  },
+  {
+    "label": "Java",
+    "aliases": []
+  },
+  {
+    "label": "Lisp",
+    "aliases": []
+  },
+  {
+    "label": "Pascal",
+    "aliases": []
+  },
+  {
+    "label": "Python",
+    "aliases": [
+      "python"
+    ]
+  },
+  {
+    "label": "Rust",
+    "aliases": []
+  },
+  {
+    "label": "TestSys",
+    "aliases": []
+  },
+  {
+    "label": "Алгоритмы над целыми числами",
+    "aliases": []
+  },
+  {
+    "label": "Битовые операции",
+    "aliases": [
+      "bitset",
+      "masks"
+    ]
+  },
+  {
+    "label": "Геометрия",
+    "aliases": [
+      "Вычислительная геометрия",
+      "geometry"
+    ]
+  },
+  {
+    "label": "Графы",
+    "aliases": [
+      "Алгоритмы на графах",
+      "Теория графов",
+      "graphs",
+      "bfs"
+    ]
+  },
+  {
+    "label": "Двоичный поиск",
+    "aliases": [
+      "BinSearch",
+      "binary search",
+      "binsearch"
+    ]
+  },
+  {
+    "label": "Декартово дерево",
+    "aliases": []
+  },
+  {
+    "label": "Дерево отрезков",
+    "aliases": []
+  },
+  {
+    "label": "Динамика",
+    "aliases": [
+      "dp",
+      "dinamic programming"
+    ]
+  },
+  {
+    "label": "Длинная арифметика",
+    "aliases": []
+  },
+  {
+    "label": "Жадные алгоритмы",
+    "aliases": [
+      "greedy"
+    ]
+  },
+  {
+    "label": "История",
+    "aliases": []
+  },
+  {
+    "label": "Комбинаторика",
+    "aliases": [
+      "combinatorics"
+    ]
+  },
+  {
+    "label": "Конечные автоматы",
+    "aliases": []
+  },
+  {
+    "label": "Корневая декомпозиция",
+    "aliases": [
+      "sqrt"
+    ]
+  },
+  {
+    "label": "Корни уравнения",
+    "aliases": []
+  },
+  {
+    "label": "Криптография",
+    "aliases": []
+  },
+  {
+    "label": "Линейный поиск",
+    "aliases": [
+      "linear search"
+    ]
+  },
+  {
+    "label": "Логика",
+    "aliases": []
+  },
+  {
+    "label": "Максимальное паросочетание",
+    "aliases": []
+  },
+  {
+    "label": "Матрицы",
+    "aliases": []
+  },
+  {
+    "label": "Машина Тьюринга",
+    "aliases": []
+  },
+  {
+    "label": "Метод сканирующей прямой",
+    "aliases": [
+      "scan line"
+    ]
+  },
+  {
+    "label": "Минимальное остовное дерево",
+    "aliases": []
+  },
+  {
+    "label": "Множества и словари",
+    "aliases": [
+      "dictionaries and sets",
+      "set"
+    ]
+  },
+  {
+    "label": "Монте-Карло",
+    "aliases": []
+  },
+  {
+    "label": "Ним",
+    "aliases": []
+  },
+  {
+    "label": "Однородные координаты",
+    "aliases": []
+  },
+  {
+    "label": "Олимпиада",
+    "aliases": [
+      "olymp"
+    ]
+  },
+  {
+    "label": "Отладка",
+    "aliases": []
+  },
+  {
+    "label": "Оценка сложности",
+    "aliases": []
+  },
+  {
+    "label": "Очередь",
+    "aliases": [
+      "queue"
+    ]
+  },
+  {
+    "label": "Перебор",
+    "aliases": [
+      "brute force"
+    ]
+  },
+  {
+    "label": "Порядковые статистики",
+    "aliases": [
+      "kth order statistic"
+    ]
+  },
+  {
+    "label": "Потоки",
+    "aliases": []
+  },
+  {
+    "label": "Представление чисел",
+    "aliases": []
+  },
+  {
+    "label": "Преобразования",
+    "aliases": []
+  },
+  {
+    "label": "Разбор задач",
+    "aliases": []
+  },
+  {
+    "label": "Рекурсия",
+    "aliases": [
+      "recursion"
+    ]
+  },
+  {
+    "label": "Системы линейных уравнений",
+    "aliases": []
+  },
+  {
+    "label": "Системы счисления",
+    "aliases": []
+  },
+  {
+    "label": "Сортировка",
+    "aliases": [
+      "sorting",
+      "sort",
+      "sorts",
+      "merge sort",
+      "counting sort"
+    ]
+  },
+  {
+    "label": "Стек",
+    "aliases": [
+      "stacks"
+    ]
+  },
+  {
+    "label": "Строки",
+    "aliases": [
+      "Алгоритмы на строках",
+      "strings",
+      "prefix function",
+      "z function",
+      "palindrome"
+    ]
+  },
+  {
+    "label": "Структуры данных",
+    "aliases": [
+      "data structures"
+    ]
+  },
+  {
+    "label": "Суффиксный автомат",
+    "aliases": []
+  },
+  {
+    "label": "Суффиксный массив",
+    "aliases": [
+      "suffix array"
+    ]
+  },
+  {
+    "label": "Теория игр",
+    "aliases": []
+  },
+  {
+    "label": "Теория чисел",
+    "aliases": [
+      "Алгоритмы теории чисел",
+      "number theory",
+      "prime numbers",
+      "gcd",
+      "lcm"
+    ]
+  },
+  {
+    "label": "Терминология",
+    "aliases": []
+  },
+  {
+    "label": "Точность",
+    "aliases": []
+  },
+  {
+    "label": "Формулы",
+    "aliases": []
+  },
+  {
+    "label": "Функции",
+    "aliases": []
+  },
+  {
+    "label": "Функциональное программирование",
+    "aliases": []
+  },
+  {
+    "label": "Функция Гранди",
+    "aliases": []
+  },
+  {
+    "label": "Хеширование",
+    "aliases": [
+      "Хеши",
+      "hashing",
+      "hasing"
+    ]
+  },
+  {
+    "label": "Число различных подстрок",
+    "aliases": []
+  },
+  {
+    "label": "Языки программирования",
+    "aliases": [
+      "Концепции"
+    ]
+  }
+]
