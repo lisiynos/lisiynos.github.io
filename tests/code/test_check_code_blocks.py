@@ -4,6 +4,7 @@ Run with: python3 -m unittest discover -s tests/code -v
 A test of a compiled language is skipped when its compiler is not installed.
 """
 import pathlib
+import re
 import shutil
 import sys
 import tempfile
@@ -205,6 +206,13 @@ class RunCase(unittest.TestCase):
         outcome = check_code_blocks.run(["no-such-command-xyz"], tempfile.gettempdir())
         self.assertEqual(outcome.code, 127)
         self.assertIn("not found", outcome.stderr)
+
+
+class InputPatternCase(unittest.TestCase):
+    def test_a_testlib_checker_reads_the_files_of_its_command_line(self):
+        for language in ("cpp", "c"):
+            self.assertTrue(re.search(check_code_blocks.READS_INPUT[language], "registerTestlibCmd(argc, argv);"))
+            self.assertFalse(re.search(check_code_blocks.READS_INPUT[language], 'puts("Hello");'))
 
 
 if __name__ == "__main__":

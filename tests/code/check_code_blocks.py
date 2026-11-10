@@ -266,10 +266,11 @@ CHECKERS = {"python": lambda code, d, page: check_python(code, d),
             "java": lambda code, d, page: check_java(code, d)}
 
 # A program that reads standard input gets nothing from the checker, so its run-time failure or time limit is
-# INPUT, not RUN or TIMEOUT. Pascal is case-insensitive (Readln, ReadLn), the other languages are not.
+# INPUT, not RUN or TIMEOUT. Pascal is case-insensitive (Readln, ReadLn), the other languages are not. A testlib
+# checker (registerTestlibCmd) reads the files named on its command line, which the checker does not give either.
+C_READS_INPUT = r"\b(scanf|getline|getchar|gets|getc|fread|registerTestlibCmd)\s*\("
 READS_INPUT = {"python": r"\binput\s*\(|sys\.stdin", "rust": r"\bstdin\s*\(", "java": r"System\.in\b",
-               "pascal": r"(?i)\bread(ln)?\b", "cpp": r"\bcin\b|\b(scanf|getline|getchar|gets|getc|fread)\s*\(",
-               "c": r"\b(scanf|getline|getchar|gets|getc|fread)\s*\("}
+               "pascal": r"(?i)\bread(ln)?\b", "cpp": r"\bcin\b|" + C_READS_INPUT, "c": C_READS_INPUT}
 
 
 def check_block(job):
