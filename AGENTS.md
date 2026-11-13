@@ -4,7 +4,7 @@ Guide for AI coding agents working in this repository. Written for: AI agents ed
 
 ## What this is
 
-A static, Russian-language course site, "Математические основы программирования" (summer sessions, olympiad training, algorithms). It is served by GitHub Pages from the repository root at https://lisiynos.github.io/. The default branch is `master` (not `main`). Commit and push to `master`.
+A static, Russian-language course site, "Математические основы программирования" (summer sessions, olympiad training, algorithms). It is served by GitHub Pages from the repository root at https://lisiynos.github.io/. The default branch is `main`. Commit and push to `main`.
 
 There is no build step for the pages: they are hand-written HTML. Two exceptions: the session plan tables (`sN/index.html`) and `search-index.json` are generated (see below).
 
@@ -172,7 +172,7 @@ python3 tests/code/check_solutions.py                 # every task
 python3 tests/code/check_solutions.py aplusb_long     # the named tasks
 ```
 
-The GitHub Actions workflow `.github/workflows/solutions.yml` runs the same command on every push to `master`, on every pull request and by hand (`workflow_dispatch`), in the container `stden/compilers` (g++, Free Pascal, OpenJDK, Python). It writes a table of the verdicts to the job summary and puts an `::error` annotation on every failure: on the solution file that does not get its expected verdict, or on `task.json` of a broken task.
+The GitHub Actions workflow `.github/workflows/solutions.yml` runs the same command on every push to `main`, on every pull request and by hand (`workflow_dispatch`), in the container `stden/compilers` (g++, Free Pascal, OpenJDK, Python). It writes a table of the verdicts to the job summary and puts an `::error` annotation on every failure: on the solution file that does not get its expected verdict, or on `task.json` of a broken task.
 
 A page shows a solution with a block that loads the file at run time, so the lesson shows the very file the tests run, and one file can be shown on several pages:
 
@@ -206,6 +206,6 @@ To add an algorithm, add an entry to `ALGORITHMS` with the pages and a regular e
 
 ## Git
 
-- Work on `master`. Commit with a short imperative subject and a body that explains why.
+- Work on `main`. Commit with a short imperative subject and a body that explains why.
 - Stage only the files of the task. The repository is shared and may contain other people's unrelated changes.
 - Do not commit `node_modules/`, `test-results/` or `playwright-report/` (they are in `.gitignore`).
